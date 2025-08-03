@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Freshnest Feedback Form</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { useState } = React;
+  function FeedbackForm() {
+    const [testimonialInput, setTestimonialInput] = useState({ name: "", text: "" });
+    return (
+      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '8px' }}>
+        <textarea
+          placeholder="Your Feedback"
+          maxLength={500}
+          value={testimonialInput.text}
+          onChange={e => setTestimonialInput({ ...testimonialInput, text: e.target.value.slice(0, 500) })}
+          style={{ width: '100%', height: '150px' }}
+        />
+      </div>
+    );
+  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<FeedbackForm />);
+</script>
+</body>
+</html>

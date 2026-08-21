@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Work + Gym">
+  <meta name="description" content="Work, training, nutrition, and body-composition planner.">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">
+  <link rel="stylesheet" href="./base.css">
+  <link rel="stylesheet" href="./training.css">
+  <link rel="stylesheet" href="./responsive.css">
+  <title>Work + Gym Planner</title>
+</head>
+<body>
+<div id="updateToast" class="toast hidden" role="status"><span>New version ready.</span><button id="reloadApp">Update</button></div>
+<main class="app" id="appRoot">
+  <header class="topbar">
+    <div><h1>Work + Gym Planner</h1><p id="profileLine">Loading…</p></div>
+    <button id="todayQuick" class="iconBtn" aria-label="Go to today">Today</button>
+  </header>
+
+  <section id="page-calendar" class="page active" aria-labelledby="calendarHeading">
+    <div class="legend" aria-label="Calendar legend">
+      <span><i class="dot red"></i>Both jobs</span><span><i class="dot green"></i>Gym</span><span><i class="dot yellow"></i>Fixed-job off weekend</span><span><i class="dot gray"></i>Unknown</span>
+    </div>
+    <div class="monthbar">
+      <button id="calPrev" aria-label="Previous month">‹</button><h2 id="calendarHeading">Month</h2><button id="calNext" aria-label="Next month">›</button>
+    </div>
+    <div class="weekdays" aria-hidden="true"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+    <div id="calendarGrid" class="calendarGrid" role="grid"></div>
+    <article id="dayCard" class="card dayCard"></article>
+  </section>
+
+  <section id="page-diary" class="page" aria-labelledby="diaryHeading">
+    <div class="dateNav"><button id="diaryPrev" aria-label="Previous day">‹</button><input id="diaryDate" type="date" aria-label="Diary date"><button id="diaryNext" aria-label="Next day">›</button></div>
+    <h2 id="diaryHeading" class="srOnly">Food diary</h2>
+    <div class="energyCard">
+      <div class="energyHero"><strong id="calRemaining">0</strong><span>calories remaining</span></div>
+      <div class="energyEquation"><span><b id="calGoal">0</b><small>Goal</small></span><i>−</i><span><b id="calFood">0</b><small>Food</small></span><i>=</i><span><b id="calLeftSmall">0</b><small>Left</small></span></div>
+      <div class="macroGrid" id="macroGrid"></div>
+    </div>
+    <div id="proteinDistribution" class="miniCoach"></div>
+    <div id="mealList"></div>
+    <div class="card waterRow"><div><b>Water</b><small id="waterText">0 / 96 oz</small></div><div><button id="waterMinus">−8</button><button id="waterPlus" class="primary">+8 oz</button></div></div>
+  </section>
+
+  <section id="page-training" class="page" aria-labelledby="trainingHeading"><div id="trainingRoot"></div></section>
+
+  <section id="page-progress" class="page" aria-labelledby="progressHeading">
+    <h2 id="progressHeading">Progress</h2>
+    <div class="phaseCard"><div><span id="phaseWeek">Week —</span><small>12-week body-composition phase</small></div><div class="phaseTrack"><i id="phaseFill"></i></div></div>
+    <div class="card"><h3>Check-in</h3><div class="formGrid">
+      <label>Date<input id="checkDate" type="date"></label><label>Morning weight (lb)<input id="checkWeight" type="number" step="0.1" inputmode="decimal"></label>
+      <label>Waist (in)<input id="checkWaist" type="number" step="0.1" inputmode="decimal"></label><label>Body fat %<input id="checkBf" type="number" step="0.1" inputmode="decimal"></label>
+    </div><button id="saveCheckin" class="primary wideBtn">Save check-in</button></div>
+    <div class="stats4" id="bodyStats"></div>
+    <div class="card"><div class="cardHead"><h3>Weight trend</h3><select id="weightRange" aria-label="Weight chart range"><option value="28">4 weeks</option><option value="84">12 weeks</option></select></div><svg id="weightChart" class="chart" viewBox="0 0 640 220" role="img" aria-label="Weight trend chart"></svg></div>
+    <div id="bodyCoach" class="coachCard"></div>
+  </section>
+
+  <section id="page-more" class="page" aria-labelledby="moreHeading"><h2 id="moreHeading">More</h2><div class="menuCards">
+    <button data-open="profile"><span>👤</span><div><b>Profile & work schedule</b><small>Jobs, 14-day rotation, goals</small></div><i>›</i></button>
+    <button data-open="bellevue"><span>🗓️</span><div><b id="variableJobMenu">Variable schedule</b><small>Upload, scan, review, save months</small></div><i>›</i></button>
+    <button data-open="nutrition"><span>🥗</span><div><b>Nutrition goals</b><small>Calories, macros, body goals</small></div><i>›</i></button>
+    <button data-open="backup"><span>💾</span><div><b>Data & backup</b><small>Export, import, delete local data</small></div><i>›</i></button>
+    <button data-open="about"><span>ℹ️</span><div><b>About & privacy</b><small>Version, storage, scanner notes</small></div><i>›</i></button>
+  </div></section>
+</main>
+
+<nav class="bottomNav" aria-label="Main navigation">
+  <button data-page="calendar" class="active"><span>▦</span><small>Calendar</small></button><button data-page="diary"><span>◉</span><small>Diary</small></button><button data-page="training"><span>◆</span><small>Training</small></button><button data-page="progress"><span>◔</span><small>Progress</small></button><button data-page="more"><span>•••</span><small>More</small></button>
+</nav>
+
+<div id="foodDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="foodTitle"><div class="sheet">
+  <div class="sheetHandle"></div><div class="sheetHead"><h2 id="foodTitle">Add food</h2><button data-close="foodDialog">Done</button></div>
+  <div class="tabs" id="foodTabs"><button data-tab="search" class="active">Search</button><button data-tab="scan">Scan</button><button data-tab="saved">My Foods</button><button data-tab="recipe">Recipes</button><button data-tab="manual">Manual</button></div>
+  <div id="foodPane-search" class="tabPane active"><div class="searchRow"><input id="foodSearchInput" placeholder="Search food or brand" autocomplete="off"><button id="foodSearchBtn" class="primary">Search</button></div><div id="recentFoods" class="chips"></div><div id="foodSearchResults"></div></div>
+  <div id="foodPane-scan" class="tabPane"><div id="barcodeReader" class="barcodeReader"></div><div class="scanButtons"><button id="startBarcode" class="primary">Live scan</button><button id="stopBarcode">Stop</button></div><label class="captureBtn">📷 Scan barcode photo<input id="barcodePhoto" type="file" accept="image/*" capture="environment"></label><div class="searchRow"><input id="barcodeManual" inputmode="numeric" placeholder="Enter UPC / EAN"><button id="barcodeLookup" class="primary">Look up</button></div><p id="barcodeStatus" class="statusText">Live camera works in Safari/Home Screen. Photo scan works without live camera access.</p></div>
+  <div id="foodPane-saved" class="tabPane"><input id="savedFoodSearch" class="fullInput" placeholder="Search My Foods"><div id="savedFoodResults"></div></div><div id="foodPane-recipe" class="tabPane"><div id="recipeResults"></div><p class="muted">Save a meal as a recipe from the meal menu, then log it here in one tap.</p></div><div id="foodPane-manual" class="tabPane"><p class="muted">Enter the values from a nutrition label. Per-serving values are converted to a stable internal basis so editing servings later does not double-count.</p></div>
+  <div class="divider"></div><div id="foodSourceCard"></div><div class="formGrid">
+    <label class="span2">Food name<input id="foodName"></label><label>Meal<select id="foodMeal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></label><label>Serving grams<input id="foodGrams" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="e.g. 170"></label>
+    <label>Calories<input id="foodCal" type="number" min="0" step="0.1"></label><label>Protein (g)<input id="foodProtein" type="number" min="0" step="0.1"></label><label>Carbs (g)<input id="foodCarbs" type="number" min="0" step="0.1"></label><label>Fat (g)<input id="foodFat" type="number" min="0" step="0.1"></label><label>Fiber (g)<input id="foodFiber" type="number" min="0" step="0.1"></label><label>Saturated fat (g)<input id="foodSatFat" type="number" min="0" step="0.1"></label><label>Sodium (mg)<input id="foodSodium" type="number" min="0" step="1"></label>
+  </div><label class="check"><input id="saveToMyFoods" type="checkbox"> Save/update in My Foods</label><div class="sheetActions"><button id="deleteFoodEntry" class="danger hidden">Delete entry</button><button id="saveFoodEntry" class="primary">Add to diary</button></div>
+</div></div>
+
+<div id="profileDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle"><div class="sheet largeSheet">
+  <div class="sheetHandle"></div><div class="sheetHead"><h2 id="profileTitle">Profile & work schedule</h2><button data-close="profileDialog">Done</button></div>
+  <div id="onboardingIntro" class="introBox"><b>Set up this planner for the person using this device.</b><p>Schedules, workouts, food logs and measurements stay on this device unless exported.</p><div class="twoButtons"><button id="useFrancis" class="primary">Use Francis template</button><button id="useCustom">Create custom profile</button></div></div>
+  <div class="formGrid"><label class="span2">Name<input id="profileName"></label><label>Fixed job name<input id="fixedJobName" placeholder="e.g. NYU"></label><label>Variable job name<input id="variableJobName" placeholder="e.g. Bellevue"></label><label>Variable schedule enabled<select id="variableEnabled"><option value="yes">Yes</option><option value="no">No</option></select></label><label>14-day rotation anchor<input id="fixedAnchor" type="date"></label><label><span>Fixed schedule enabled</span><select id="fixedEnabled"><option value="yes">Yes</option><option value="no">No</option></select></label><label>Fixed shift start<input id="fixedStart" type="time"></label><label>Fixed shift end<input id="fixedEnd" type="time"></label><label>Variable shift start<input id="variableStart" type="time"></label><label>Variable shift end<input id="variableEnd" type="time"></label><label>Sleep target (hours)<input id="sleepTarget" type="number" min="5" max="12" step="0.5"></label><label>Fixed-job commute (min)<input id="fixedCommute" type="number" min="0" step="5"></label><label>Variable-job commute (min)<input id="variableCommute" type="number" min="0" step="5"></label></div>
+  <h3>14-day fixed-job rotation</h3><p class="muted">Tap a day to switch Work ↔ Off. Day 1 is the anchor date.</p><div id="rotationGrid" class="rotationGrid"></div><div class="sheetActions"><button id="resetFrancis" class="secondary">Load Francis template</button><button id="saveProfile" class="primary">Save profile</button></div>
+</div></div>
+
+<div id="bellevueDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="bellevueTitle"><div class="sheet largeSheet">
+  <div class="sheetHandle"></div><div class="sheetHead"><h2 id="bellevueTitle">Variable work schedule</h2><button id="cancelBellevue">Cancel</button></div><div class="formGrid"><label>Month<input id="bMonth" type="month"></label><label>Schedule photo<input id="bPhoto" type="file" accept="image/*"></label></div><img id="bPhotoPreview" class="photoPreview hidden" alt="Schedule photo preview"><div class="scanButtons"><button id="bScan" class="secondary">Scan photo (best effort)</button><button id="bRotate" class="secondary">Rotate photo</button></div><p id="bScanStatus" class="statusText">Missing days are UNKNOWN and are never treated as days off. Review every code before saving.</p><div class="scheduleTools"><button id="bCopyPrev">Copy previous month</button><button id="bResetUnknown">Set all UNKNOWN</button><button id="bDelete" class="danger">Delete month</button></div><div class="codeLegend"><span><b>X</b> Work</span><span><b>D</b> Off</span><span><b>H</b> Holiday/off</span><span><b>?</b> Unknown</span></div><div id="bReview" class="reviewGrid"></div><div class="sheetActions"><button id="bDiscard">Discard changes</button><button id="bSave" class="primary">Save reviewed month</button></div><div class="divider"></div><h3>Saved months</h3><div id="savedMonths" class="chips"></div>
+</div></div>
+
+<div id="nutritionDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="nutritionTitle"><div class="sheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="nutritionTitle">Nutrition goals</h2><button data-close="nutritionDialog">Done</button></div><div class="formGrid"><label>Gym-day calories<input id="setGymCal" type="number"></label><label>Recovery calories<input id="setRestCal" type="number"></label><label>Protein (g)<input id="setProtein" type="number"></label><label>Fat (g)<input id="setFat" type="number"></label><label>Fiber (g)<input id="setFiber" type="number"></label><label>Sodium max (mg)<input id="setSodium" type="number"></label><label>Sat fat max (g)<input id="setSatFat" type="number"></label><label>Water (oz)<input id="setWater" type="number"></label><label>Goal weight (lb)<input id="setGoalWeight" type="number" step="0.1"></label><label>Goal body fat %<input id="setGoalBf" type="number" step="0.1"></label><label class="span2">12-week phase start<input id="setPlanStart" type="date"></label></div><div id="nutritionApplyBox" class="introBox hidden"><p id="nutritionRecText"></p><button id="applyCalorieRec" class="primary">Apply recommendation</button></div><button id="saveNutrition" class="primary wideBtn">Save nutrition goals</button></div></div>
+
+<div id="backupDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="sheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="backupTitle">Data & backup</h2><button data-close="backupDialog">Done</button></div><div class="card noMargin"><h3>Backup this device</h3><p>Export your profile, schedules, food diary, body measurements, recipes and completed workouts to one JSON file.</p><button id="exportData" class="primary wideBtn">Export backup</button></div><div class="card"><h3>Restore / migrate</h3><p>Use this to move data from another browser or from the older Vercel version. Browsers do not allow automatic cross-domain localStorage transfer.</p><label class="captureBtn">Choose backup file<input id="importFile" type="file" accept="application/json,.json"></label><p id="importStatus" class="statusText"></p></div><div class="card dangerZone"><h3>Delete local data</h3><p>This permanently removes the planner data stored by this site on this device.</p><input id="deleteConfirm" class="fullInput" placeholder="Type DELETE"><button id="deleteAllData" class="danger wideBtn">Delete all planner data</button></div></div></div>
+
+<div id="aboutDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle"><div class="sheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="aboutTitle">About</h2><button data-close="aboutDialog">Done</button></div><div class="card noMargin"><p><b>Version:</b> 15.0.0</p><p>Core planner data is stored locally on this device. Food search/barcode product lookup uses Open Food Facts over the internet. The optional schedule OCR assistant loads Tesseract only when you request a scan.</p><p>Camera access may be unavailable inside in-app browsers. Open the planner in Safari or install it to the Home Screen for live barcode scanning.</p></div></div></div>
+
+<script defer src="./base.js"></script><script defer src="./work-model.js"></script><script defer src="./workout-plan.js"></script><script defer src="./nutrition-core.js"></script><script defer src="./calendar.js"></script><script defer src="./training.js"></script><script defer src="./diary.js"></script><script defer src="./progress.js"></script><script defer src="./profile.js"></script><script defer src="./schedule.js"></script><script defer src="./nutrition-ui.js"></script><script defer src="./data.js"></script><script defer src="./ui.js"></script><script defer src="./pwa.js"></script><script defer src="./init.js"></script>
+</body></html>

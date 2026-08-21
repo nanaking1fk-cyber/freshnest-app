@@ -1,0 +1,17 @@
+{
+  "name":"Work + Gym Planner",
+  "short_name":"Work + Gym",
+  "description":"Adaptive work, recovery, training, nutrition, Health import and body-composition coaching.",
+  "id":"./",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#0f172a",
+  "theme_color":"#0f172a",
+  "orientation":"portrait-primary",
+  "icons":[
+    {"src":"../work-gym-planner-v15/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"../work-gym-planner-v15/icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},
+    {"src":"../work-gym-planner-v15/icons/maskable.svg","sizes":"any","type":"image/svg+xml","purpose":"maskable"}
+  ]
+}

@@ -1,5 +1,5 @@
 const CACHE='wgp-v15.0.0';
-const SHELL=['./','./index.html','./base.css','./training.css','./responsive.css','./core.js','./training.js','./diary.js','./progress.js','./profile.js','./schedule.js','./nutrition-ui.js','./data.js','./ui.js','./pwa.js','./init.js','./manifest.webmanifest','./icons/icon-180.png','./icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png'];
+const SHELL=['./','./index.html','./base.css','./training.css','./responsive.css','./base.js','./work-model.js','./workout-plan.js','./nutrition-core.js','./calendar.js','./training.js','./diary.js','./progress.js','./profile.js','./schedule.js','./nutrition-ui.js','./data.js','./ui.js','./pwa.js','./init.js','./manifest.webmanifest','./icons/icon.svg','./icons/maskable.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL))));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('message',e=>{if(e.data?.type==='SKIP_WAITING')self.skipWaiting()});

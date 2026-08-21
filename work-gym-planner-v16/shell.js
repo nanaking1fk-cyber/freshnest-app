@@ -1,10 +1,35 @@
-// v16 DOM additions. Runs during document parsing before DOMContentLoaded.
+// v16.3 DOM / navigation additions. Runs during parsing before DOMContentLoaded.
 (function setupV16Shell(){
+ const app=document.getElementById('appRoot');
  const cal=document.getElementById('page-calendar');
- if(cal&&!document.getElementById('todayDashboard')){
-   const wrap=document.createElement('div');wrap.innerHTML='<div id="todayDashboard"></div><div id="healthSummary" class="healthSummary card"></div>';
-   cal.insertBefore(wrap.firstElementChild,cal.firstChild);cal.insertBefore(wrap.firstElementChild,cal.children[1]||null);
+ if(app&&cal&&!document.getElementById('page-home')){
+   const home=document.createElement('section');
+   home.id='page-home';home.className='page active';home.setAttribute('aria-label','Home dashboard');
+   home.innerHTML='<div id="todayDashboard"></div>';
+   cal.classList.remove('active');
+   app.insertBefore(home,cal);
  }
+ const top=document.querySelector('.topbar');if(top)top.classList.add('legacyTopbar');
+ const nav=document.querySelector('.bottomNav');
+ if(nav){nav.innerHTML=`
+   <button data-page="home" class="active" aria-label="Home"><span class="navSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.7 12 3l9 7.7v9.1a1.2 1.2 0 0 1-1.2 1.2h-5.2v-6.4H9.4V21H4.2A1.2 1.2 0 0 1 3 19.8z"/></svg></span><small>Home</small></button>
+   <button data-page="calendar" aria-label="Calendar"><span class="navSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Zm1-2v4m12-4v4M3 9h18M7 13h2m3 0h2m3 0h2M7 17h2m3 0h2"/></svg></span><small>Calendar</small></button>
+   <button data-page="training" aria-label="Training"><span class="navSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6m3-8v10m3-6h6m0-4v10m3-8v6m3-4v2M6 12h12"/></svg></span><small>Training</small></button>
+   <button data-page="diary" aria-label="Nutrition"><span class="navSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-4.5 0-8-3.8-8-8.4C4 8.9 6.6 6 10 6c.8 0 1.5.2 2 .5.5-.3 1.2-.5 2-.5 3.4 0 6 2.9 6 6.6C20 17.2 16.5 21 12 21Zm0-15c0-2.5 1.7-4.3 4.4-4.7C16.1 4.2 14.3 6 12 6Z"/></svg></span><small>Nutrition</small></button>
+   <button data-page="more" aria-label="More"><span class="navSvg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></span><small>More</small></button>`}
+ // Upgrade page navigation so Home always refreshes its live cards.
+ const oldPage=window.page;
+ window.page=function(id){
+   document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+id));
+   document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+   if(id==='home')window.renderTodayDashboard?.();
+   if(id==='calendar')window.renderCalendar?.();
+   if(id==='training')window.renderTraining?.();
+   if(id==='diary')window.renderDiary?.();
+   if(id==='progress')window.renderProgress?.();
+   if(id==='more')window.renderMore?.();
+   window.scrollTo({top:0,behavior:'smooth'});
+ };
  const cards=document.querySelector('#page-more .menuCards');
  if(cards&&!cards.querySelector('[data-open="health"]')){
    const backup=cards.querySelector('[data-open="backup"]');
@@ -20,5 +45,5 @@
  <div id="cloudDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="cloudTitle"><div class="sheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="cloudTitle">Private cloud sync</h2><button data-close="cloudDialog">Done</button></div><div class="introBox"><b>End-to-end encrypted sync for a WebDAV-compatible private cloud.</b><p>Works with services such as Nextcloud/ownCloud when the server allows browser CORS. The planner encrypts the backup before upload. This is optional.</p></div><div class="formGrid"><label class="span2">Full HTTPS WebDAV file URL<input id="cloudUrl" placeholder="https://cloud.example.com/remote.php/dav/files/user/work-gym.wgp.json"></label><label>Username<input id="cloudUser" autocomplete="username"></label><label>Password / app token<input id="cloudPassword" type="password" autocomplete="current-password"></label><label class="span2">Encryption passphrase<input id="cloudPassphrase" type="password" autocomplete="new-password" placeholder="Required on every device"></label></div><label class="check"><input id="cloudAuto" type="checkbox"> Auto-upload when this app goes into the background during the current session</label><div class="twoButtons"><button id="cloudPull">Pull from cloud</button><button id="cloudPush" class="primary">Push to cloud</button></div><p id="cloudStatus" class="statusText"></p></div></div>`;
  if(!document.getElementById('healthDialog'))document.body.insertAdjacentHTML('beforeend',modalHTML);
  const old=document.getElementById('backupDialog');if(old){old.outerHTML=`<div id="backupDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="backupTitle"><div class="sheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="backupTitle">Data & backup</h2><button data-close="backupDialog">Done</button></div><div class="card noMargin"><h3>Secure backup</h3><p>Create an AES-256 encrypted backup. On iPhone, Share can save it directly to iCloud Drive or another private Files location.</p><input id="backupPass" class="fullInput" type="password" placeholder="Backup passphrase (6+ characters)"><div class="twoButtons"><button id="exportEncrypted" class="primary">Encrypted download</button><button id="shareEncrypted">Share / save to Files</button></div><p id="backupStatus" class="statusText"></p></div><div class="card"><h3>Plain backup</h3><button id="exportData" class="wideBtn">Export plain JSON</button></div><div class="card"><h3>Restore / migrate</h3><label class="captureBtn">Choose backup file<input id="importFile" type="file" accept="application/json,.json"></label><p id="importStatus" class="statusText"></p><button id="restoreSnapshot" class="wideBtn">Restore last automatic local snapshot</button></div><div class="card"><h3>Diagnostics</h3><button id="exportDiagnostics" class="wideBtn">Export diagnostics</button></div><div class="card dangerZone"><h3>Delete local data</h3><input id="deleteConfirm" class="fullInput" placeholder="Type DELETE"><button id="deleteAllData" class="danger wideBtn">Delete all planner data</button></div></div></div>`}
- const about=document.querySelector('#aboutDialog .card');if(about)about.innerHTML='<p><b>Version:</b> 16.0.0</p><p>v16 combines work schedule, completed training, load/reps/RIR, nutrition adherence, weight trend and optional Health imports into adaptive coaching.</p><p>Apple Health files are parsed locally. Direct HealthKit access is not available to Safari/PWA apps. Background iPhone reminders require push infrastructure, so v16 also provides iOS Calendar export.</p>';
+ const about=document.querySelector('#aboutDialog .card');if(about)about.innerHTML='<p><b>Version:</b> 16.3.0</p><p>Interactive Home dashboard, adaptive work/recovery/training/nutrition coaching, encrypted backups and optional Health import.</p><p>Apple Health files are parsed locally. Direct HealthKit access is not available to Safari/PWA apps.</p>';
 })();

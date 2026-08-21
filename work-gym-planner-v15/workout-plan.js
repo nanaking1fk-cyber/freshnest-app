@@ -34,7 +34,9 @@ function suggestedTrainingDates(start,end){
  for(const [k,v] of Object.entries(o))if(v.action==='train'&&k>=start&&k<=end&&!selected.includes(k))selected.push(k);
  return [...new Set(selected)].sort();
 }
-function scheduleWindow(centerStart,centerEnd){let start=addDays(monOf(centerStart),-7),end=addDays(monOf(centerEnd),13);return suggestedTrainingDates(start,end)}
-function projectedWorkoutIndex(k){let comp=completedOn(k);if(comp)return comp.workoutIndex;let today=dkey(),base=k<today?addDays(k,-35):today,dates=suggestedTrainingDates(base,addDays(k,1)).filter(x=>x>=base&&x<=k),start=dueWorkoutIndex(base);let ix=dates.indexOf(k);return ix<0?dueWorkoutIndex(k):(start+ix)%4}
-function isScheduled(k){return suggestedTrainingDates(addDays(k,-8),addDays(k,8)).includes(k)}
-function freezePastSnapshots(){if(!profile())return;let s=snapshots(),today=dkey(),dates=suggestedTrainingDates(addDays(today,-35),today);for(const k of dates)if(k<=today&&!s[k])s[k]={planned:true,workoutIndex:completedOn(k)?.workoutIndex??projectedWorkoutIndex(k),frozenAt:new Date().toISOString()};for(const h of history())if(h.completed&&!s[h.date])s[h.date]={planned:true,workoutIndex:h.workoutIndex,frozenAt:h.completedAt};saveSnapshots(s)}
+function scheduleEpoch(forDate=dkey()){let p=profile(),anchor=p?.fixed?.anchor||nutrition()?.planStart||dkey(),e=addDays(monOf(anchor),-56);return forDate<e?addDays(monOf(forDate),-56):e}
+function canonicalScheduleThrough(end){return suggestedTrainingDates(scheduleEpoch(end),addDays(end,14))}
+function scheduleWindow(centerStart,centerEnd){return canonicalScheduleThrough(centerEnd).filter(k=>k>=centerStart&&k<=centerEnd)}
+function projectedWorkoutIndex(k){let comp=completedOn(k);if(comp)return comp.workoutIndex;let today=dkey(),base=k<today?k:today,dates=canonicalScheduleThrough(k).filter(x=>x>=base&&x<=k),start=dueWorkoutIndex(base);let ix=dates.indexOf(k);return ix<0?dueWorkoutIndex(k):(start+ix)%4}
+function isScheduled(k){return canonicalScheduleThrough(k).includes(k)}
+function freezePastSnapshots(){if(!profile())return;let s=snapshots(),today=dkey(),dates=canonicalScheduleThrough(today).filter(k=>k>=addDays(today,-35)&&k<=today);for(const k of dates)if(!s[k])s[k]={planned:true,workoutIndex:completedOn(k)?.workoutIndex??projectedWorkoutIndex(k),frozenAt:new Date().toISOString()};for(const h of history())if(h.completed&&!s[h.date])s[h.date]={planned:true,workoutIndex:h.workoutIndex,frozenAt:h.completedAt};saveSnapshots(s)}

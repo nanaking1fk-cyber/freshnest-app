@@ -1,15 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Work + Gym"><meta name="description" content="Adaptive work, recovery, training, nutrition and body-composition coaching."><link rel="manifest" href="./manifest.webmanifest?v=16.4"><link rel="icon" href="../work-gym-planner-v16/icons/icon.svg?v=16.4" type="image/svg+xml"><link rel="apple-touch-icon" sizes="180x180" href="../work-gym-planner-v16/icons/icon-180.png?v=16.4"><title>Work + Gym Planner</title></head><body><p style="font-family:-apple-system,sans-serif;padding:24px">Loading Work + Gym Planner v16.4…</p><script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Work + Gym"><meta name="description" content="Adaptive work, recovery, training, nutrition and body-composition coaching."><link rel="icon" href="../work-gym-planner-v16/icons/icon.svg?v=16.5" type="image/svg+xml"><link rel="apple-touch-icon" href="../work-gym-planner-v16/icons/icon-180.png?v=16.5"><title>Work + Gym Planner</title></head><body><p style="font-family:-apple-system,sans-serif;padding:24px">Loading Work + Gym Planner v16.5…</p><script>
 (async()=>{try{
- let h=await fetch('../work-gym-planner-v15/index.html?v=16.4',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('base');return r.text()});
+ let h=await fetch('../work-gym-planner-v15/index.html?v=16.5',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('base');return r.text()});
  const remove=['workout-plan.js','nutrition-core.js','calendar.js','training.js','diary.js','progress.js','schedule.js','data.js','init.js'];
  for(const f of remove)h=h.replace(new RegExp('<script\\s+defer\\s+src="\\./'+f.replace('.','\\.')+'"><\\/script>\\s*','g'),'');
  h=h.replace('<head>','<head><base href="../work-gym-planner-v15/">');
- h=h.replace('<link rel="manifest" href="./manifest.webmanifest">','<link rel="manifest" href="../work-gym-planner/manifest.webmanifest?v=16.4">');
- h=h.replace('<link rel="icon" href="./icons/icon-192.png" type="image/png">','<link rel="icon" href="../work-gym-planner-v16/icons/icon.svg?v=16.4" type="image/svg+xml">');
- h=h.replace('<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">','<link rel="apple-touch-icon" sizes="180x180" href="../work-gym-planner-v16/icons/icon-180.png?v=16.4">');
- h=h.replace('</head>','<link rel="stylesheet" href="../work-gym-planner-v16/v16.css?v=16.4"></head>');
+ h=h.replace('<link rel="manifest" href="./manifest.webmanifest">','');
+ h=h.replace('<link rel="icon" href="./icons/icon-192.png" type="image/png">','<link rel="icon" href="../work-gym-planner-v16/icons/icon.svg?v=16.5" type="image/svg+xml">');
+ h=h.replace('<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">','<link rel="apple-touch-icon" href="../work-gym-planner-v16/icons/icon-180.png?v=16.5">');
+ h=h.replace('</head>','<link rel="stylesheet" href="../work-gym-planner-v16/v16.css?v=16.5"></head>');
  const p='../work-gym-planner-v16/';
- const scripts=['base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','init.js'].map(x=>'<scr'+'ipt defer src="'+p+x+'?v=16.4"></scr'+'ipt>').join('');
+ const scripts=['base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','init.js'].map(x=>'<scr'+'ipt defer src="'+p+x+'?v=16.5"></scr'+'ipt>').join('');
  h=h.replace('</body>',scripts+'</body>');
  document.open();document.write(h);document.close();
 }catch(e){console.error(e);document.body.innerHTML='<p style="font-family:-apple-system,sans-serif;padding:24px">App failed to load. Refresh once while online.</p>'}})();

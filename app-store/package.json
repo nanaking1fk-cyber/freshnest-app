@@ -5,9 +5,10 @@
   "description": "Native iOS packaging project for Work + Gym Coach",
   "type": "module",
   "scripts": {
+    "icon": "bash scripts/make-icon.sh",
     "build:web": "node scripts/build-web.mjs",
-    "ios:add": "npm run build:web && npx cap add ios",
-    "ios:sync": "npm run build:web && npx cap sync ios",
+    "ios:add": "npm run icon && npm run build:web && npx cap add ios",
+    "ios:sync": "npm run icon && npm run build:web && npx cap sync ios",
     "ios:open": "npx cap open ios"
   },
   "dependencies": {

@@ -25,19 +25,21 @@ const appFiles=['base-patch.js','workout-plan.js','nutrition-core.js','health.js
 for(const f of appFiles){
   let txt=await fs.readFile(path.join(v16,f),'utf8');
   if(f==='diary-b.js')txt=txt.replace(/const SCANNER_URL='[^']+';/,"const SCANNER_URL='./vendor/html5-qrcode.min.js';");
+  if(f==='schedule.js')txt=txt.replace(/s\.src='https:\/\/cdn\.jsdelivr\.net\/npm\/tesseract\.js@[^']+';/,"s.src='./vendor/tesseract-disabled.js';");
   await fs.writeFile(path.join(out,'app',f),txt);
 }
 await copy(path.join(appstore,'native-bridge.js'),path.join(out,'app','native-bridge.js'));
 await copy(path.join(v16,'v16.css'),path.join(out,'app','app.css'));
 for(const f of ['privacy.html','terms.html','support.html'])await copy(path.join(stable,f),path.join(out,f));
 for(const f of ['home-180-v167.png','home-192-v167.png'])await copyIf(path.join(stable,'icons',f),path.join(out,'icons',f));
+await fs.writeFile(path.join(out,'vendor','tesseract-disabled.js'),'// Native build intentionally uses manual schedule review until Vision OCR is wired.\n');
 
 const scannerCandidates=[
  path.join(appstore,'node_modules','html5-qrcode','html5-qrcode.min.js'),
  path.join(appstore,'node_modules','html5-qrcode','minified','html5-qrcode.min.js')
 ];
-let scanner=scannerCandidates.find(async()=>false);
-for(const p of scannerCandidates)if(await exists(p)){scanner=p;break}
+let scanner=null;
+for(const p of scannerCandidates){if(await exists(p)){scanner=p;break}}
 if(!scanner)throw new Error('html5-qrcode.min.js not found. Run npm install in appstore/.');
 await copy(scanner,path.join(out,'vendor','html5-qrcode.min.js'));
 
@@ -60,5 +62,8 @@ html=html.replace('</body>',scripts+'\n</body>');
 await fs.writeFile(path.join(out,'index.html'),html);
 
 const allJs=[...(await fs.readdir(path.join(out,'app')))].filter(x=>x.endsWith('.js'));
-for(const f of allJs){let txt=await fs.readFile(path.join(out,'app',f),'utf8');if(/cdn\.jsdelivr\.net|unpkg\.com/.test(txt)&&f!=='schedule.js')throw new Error(`Runtime executable CDN reference remains in ${f}`)}
+for(const f of allJs){
+  const txt=await fs.readFile(path.join(out,'app',f),'utf8');
+  if(/cdn\.jsdelivr\.net|unpkg\.com/.test(txt))throw new Error(`Runtime executable CDN reference remains in ${f}`);
+}
 console.log(`Built self-contained native web bundle at ${out}`);

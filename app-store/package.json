@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "icon": "bash scripts/make-icon.sh",
-    "build:web": "node scripts/build-web.mjs",
+    "build:web": "node scripts/build-web.mjs && node scripts/audit-bundle.mjs",
+    "audit": "node scripts/audit-bundle.mjs",
     "ios:add": "npm run icon && npm run build:web && npx cap add ios",
     "ios:sync": "npm run icon && npm run build:web && npx cap sync ios",
     "ios:open": "npx cap open ios"

@@ -1,0 +1,11 @@
+{
+  "appId": "com.workgymcoach.app",
+  "appName": "Work + Gym Coach",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#07111f",
+    "preferredContentMode": "mobile"
+  }
+}

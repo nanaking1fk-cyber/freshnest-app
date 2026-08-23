@@ -1,0 +1,2 @@
+const {json,cors,envReady,SUPABASE_URL,ANON}=require('./_lib');
+module.exports=async(req,res)=>{if(cors(req,res))return;if(req.method!=='GET')return json(res,405,{ok:false,error:'Method not allowed'});json(res,200,{ok:true,cloudConfigured:envReady(),aiConfigured:!!process.env.OPENAI_API_KEY,supabaseUrl:envReady()?SUPABASE_URL():null,supabaseAnonKey:envReady()?ANON():null,apiVersion:18})};

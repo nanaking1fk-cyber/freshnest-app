@@ -1,2 +1,2 @@
-const {json,cors,verifyUser,SUPABASE_URL,SERVICE,errorResponse}=require('./_lib');
+const {json,cors,verifyUser,SUPABASE_URL,SERVICE,errorResponse}=require('../../server/v18-lib');
 module.exports=async(req,res)=>{if(cors(req,res))return;try{const user=await verifyUser(req);if(req.method!=='DELETE')return json(res,405,{ok:false,error:'Method not allowed'});const r=await fetch(`${SUPABASE_URL()}/auth/v1/admin/users/${encodeURIComponent(user.id)}`,{method:'DELETE',headers:{apikey:SERVICE(),Authorization:`Bearer ${SERVICE()}`}});if(!r.ok){let j={};try{j=await r.json()}catch{}throw Object.assign(new Error(j?.msg||j?.message||'Could not delete account.'),{status:500})}return json(res,200,{ok:true,deleted:true})}catch(e){errorResponse(res,e)}};

@@ -21,7 +21,7 @@ await fs.mkdir(path.join(out,'icons'),{recursive:true});
 await fs.mkdir(path.join(out,'vendor'),{recursive:true});
 
 for(const f of ['base.css','training.css','responsive.css','base.js','work-model.js','profile.js','nutrition-ui.js','ui.js'])await copy(path.join(v15,f),path.join(out,'legacy',f));
-const appFiles=['base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','alternatives.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','audit-v169.js','singlejob-ui-v169.js','body-bmr-v169.js','training-history-v1610.js','commercial-v17.js','init.js'];
+const appFiles=['base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','alternatives.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','audit-v169.js','singlejob-ui-v169.js','body-bmr-v169.js','training-history-v1610.js','commercial-v17.js','commercial-legal-v17.js','init.js'];
 for(const f of appFiles){
   let txt=await fs.readFile(path.join(v16,f),'utf8');
   if(f==='diary-b.js')txt=txt.replace(/const SCANNER_URL='[^']+';/,"const SCANNER_URL='./vendor/html5-qrcode.min.js';");

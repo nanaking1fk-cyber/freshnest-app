@@ -1,0 +1,4 @@
+// v18 connects training cards to the workout library / AI technique coach.
+window.WGC18=window.WGC18||{};
+(function(A){const old=window.renderTraining;if(typeof old!=='function'||old.__guides18)return;let wrapped=function(...args){let r=old.apply(this,args);setTimeout(()=>{$$('#trainingSwipe .exerciseCard').forEach((card,i)=>{let h=card.querySelector('.exerciseHead'),title=h?.querySelector('h3')?.textContent?.trim();if(!h||!title||h.querySelector('.guideBtn18'))return;let b=document.createElement('button');b.className='guideBtn18';b.textContent='Guide';b.onclick=()=>A.openExerciseLibrary?.(title);h.appendChild(b)})},0);return r};wrapped.__guides18=true;window.renderTraining=wrapped})(window.WGC18);
+(function(){let st=document.createElement('style');st.textContent=`.exerciseHead .guideBtn18{margin-left:auto;font-size:8px;padding:6px 8px;border-radius:8px;background:var(--chip);color:#60a5fa;border:1px solid var(--line)}`;document.head.appendChild(st)})();

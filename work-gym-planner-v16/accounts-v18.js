@@ -1,11 +1,11 @@
 // v18 accounts, cloud migration, restore and account lifecycle ----------------
-APP_VERSION='18.0.0';
+APP_VERSION='18.1.1';
 window.WGC18=window.WGC18||{};
 (function(A){
- const SESSION_KEY='wgc-v18-session',API_OVERRIDE_KEY='wgc-v18-api-base',LAST_SYNC_KEY='wgc-v18-last-sync';
+ const SESSION_KEY='wgc-v18-session',API_OVERRIDE_KEY='wgc-v18-api-base',LAST_SYNC_KEY='wgc-v18-last-sync',DEFAULT_API_BASE='https://work-gym-coach.vercel.app/api/v18';
  A.config={loaded:false,cloudConfigured:false,aiConfigured:false,supabaseUrl:null,supabaseAnonKey:null,apiVersion:18};
  A.session=null;A.apiBase='';A.syncTimer=null;A.authBusy=false;
- function absoluteApiBase(){let o=localStorage.getItem(API_OVERRIDE_KEY);if(o)return o.replace(/\/$/,'');if(location.hostname.includes('github.io'))return localStorage.getItem('wgc-v18-vercel-api')||'';return '/api/v18'}
+ function absoluteApiBase(){let o=localStorage.getItem(API_OVERRIDE_KEY);if(o)return o.replace(/\/$/,'');if(location.hostname.includes('github.io'))return localStorage.getItem('wgc-v18-vercel-api')||window.WGC_API_BASE||DEFAULT_API_BASE;return '/api/v18'}
  A.api=function(path=''){let b=A.apiBase||absoluteApiBase();return b?b+('/'+String(path).replace(/^\//,'')):''};
  function status(t,bad=false){let el=$('#accountStatus');if(el){el.textContent=t||'';el.classList.toggle('bad',!!bad)}}
  function saveSession(s){A.session=s||null;if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY);renderAccountUI()}

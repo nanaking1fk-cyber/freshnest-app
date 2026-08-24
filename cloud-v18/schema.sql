@@ -62,23 +62,47 @@ alter table public.user_plans enable row level security;
 alter table public.chat_messages enable row level security;
 alter table public.ai_usage_daily enable row level security;
 
--- User-owned tables.
-do $$ begin
-  create policy "profiles own row" on public.profiles for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-exception when duplicate_object then null; end $$;
-do $$ begin
-  create policy "state own row" on public.user_state for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-exception when duplicate_object then null; end $$;
-do $$ begin
-  create policy "onboarding own row" on public.onboarding_answers for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-exception when duplicate_object then null; end $$;
-do $$ begin
-  create policy "plans own rows" on public.user_plans for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-exception when duplicate_object then null; end $$;
-do $$ begin
-  create policy "chat own rows" on public.chat_messages for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-exception when duplicate_object then null; end $$;
+-- User-owned tables. Recreate policies so rerunning this schema also upgrades
+-- older policy definitions safely.
+drop policy if exists "profiles own row" on public.profiles;
+create policy "profiles own row" on public.profiles for all to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+drop policy if exists "state own row" on public.user_state;
+create policy "state own row" on public.user_state for all to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+drop policy if exists "onboarding own row" on public.onboarding_answers;
+create policy "onboarding own row" on public.onboarding_answers for all to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+drop policy if exists "plans own rows" on public.user_plans;
+create policy "plans own rows" on public.user_plans for all to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+drop policy if exists "chat own rows" on public.chat_messages;
+create policy "chat own rows" on public.chat_messages for all to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
 -- ai_usage_daily is intentionally service-role managed by the AI API.
+
+-- Atomically reserve one AI request. Only the service role can call this RPC,
+-- so browser clients cannot inspect or change another user's usage counter.
+create or replace function public.count_ai_request(target_user_id uuid, daily_limit integer default 40)
+returns integer
+language plpgsql
+security invoker
+set search_path=pg_catalog,public
+as $$
+declare next_count integer;
+begin
+  if target_user_id is null or daily_limit < 1 then
+    raise exception 'Invalid AI usage request';
+  end if;
+
+  insert into public.ai_usage_daily(user_id,day,requests,updated_at)
+  values(target_user_id,current_date,1,now())
+  on conflict(user_id,day) do update
+    set requests=public.ai_usage_daily.requests+1,
+        updated_at=now()
+    where public.ai_usage_daily.requests < daily_limit
+  returning requests into next_count;
+
+  return next_count;
+end $$;
+revoke all on function public.count_ai_request(uuid,integer) from public;
+revoke all on function public.count_ai_request(uuid,integer) from anon,authenticated;
+grant execute on function public.count_ai_request(uuid,integer) to service_role;
 
 create or replace function public.touch_updated_at() returns trigger language plpgsql as $$
 begin new.updated_at=now(); return new; end $$;

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "api/v18/*.js": { "maxDuration": 60 }
+  },
+  "headers": [
+    {
+      "source": "/api/v18/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    }
+  ]
+}

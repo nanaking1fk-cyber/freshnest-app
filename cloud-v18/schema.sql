@@ -78,7 +78,7 @@ exception when duplicate_object then null; end $$;
 do $$ begin
   create policy "chat own rows" on public.chat_messages for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 exception when duplicate_object then null; end $$;
--- ai_usage_daily is intentionally service-role managed by the API; authenticated users do not need direct access.
+-- ai_usage_daily is intentionally service-role managed by the AI API.
 
 create or replace function public.touch_updated_at() returns trigger language plpgsql as $$
 begin new.updated_at=now(); return new; end $$;
@@ -92,3 +92,14 @@ exception when duplicate_object then null; end $$;
 do $$ begin
   create trigger onboarding_touch before update on public.onboarding_answers for each row execute function public.touch_updated_at();
 exception when duplicate_object then null; end $$;
+
+-- App Store guideline-compatible self-service account deletion. The function is
+-- security-definer but can only delete auth.uid(), never an arbitrary user id.
+create or replace function public.delete_my_account() returns void
+language plpgsql security definer set search_path=public,auth as $$
+begin
+  if auth.uid() is null then raise exception 'Not authenticated'; end if;
+  delete from auth.users where id=auth.uid();
+end $$;
+revoke all on function public.delete_my_account() from public;
+grant execute on function public.delete_my_account() to authenticated;

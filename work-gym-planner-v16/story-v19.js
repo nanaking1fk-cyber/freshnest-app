@@ -1,10 +1,11 @@
-// Work + Workout 20.0 — worker-first story, real cinematic film and smart capture.
+// Work + Workout 21.0 — autoplay day-in-the-life product story and smart capture.
 (function workWorkoutStoryV19(){
   'use strict';
   var V=window.WGC19=window.WGC19||{};
   var ASSET='../work-gym-planner-v16/assets/';
-  var filmTimer=null;
-  var filmIndex=0;
+  var adTimer=null;
+  var adIndex=0;
+  var adObserver=null;
   var captureDraft=[];
   var weekdays={sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
   var dayPattern=/\b(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)\b/gi;
@@ -129,27 +130,37 @@
   }
   function landingDemoMarkup(){
     return '<section id="landingRawDemo" class="storyRawDemo">'+
-      '<div class="storyRawCopy"><p>GIVE US THE RAW VERSION</p><h2>Your life does not arrive in perfect calendar blocks.</h2><span>Paste shifts, appointments, errands and goals in your own words. Work + Workout turns the mess into a plan you can review.</span><button class="landingPrimary landingLarge" id="storyWatchFilm">Play the cinematic film <b>▶</b></button></div>'+
+      '<div class="storyRawCopy"><p>GIVE US THE RAW VERSION</p><h2>Your life does not arrive in perfect calendar blocks.</h2><span>Paste shifts, appointments, errands and goals in your own words. Work + Workout turns the mess into a plan you can review.</span></div>'+
       '<div class="storyRawStage">'+
         '<div class="storyRawInput"><label for="landingRawInput">Type or paste your week</label><textarea id="landingRawInput" rows="6">Work every Monday, Wednesday and Friday 7am-7pm\nDentist Tuesday at 10am\nPick up my daughter Tuesday at 4pm\nGroceries and meal prep Sunday at 3pm\nRemind me about my workout Thursday at 6pm</textarea><button class="landingPrimary" id="landingBuildPreview">Turn this into a plan <span>→</span></button></div>'+
         '<div id="landingRawResult" class="storyRawResult" aria-live="polite"><div class="storyRawEmpty"><i>✦</i><b>Your coordinated week will appear here.</b><small>Work, movement, meals and life—together.</small></div></div>'+
       '</div>'+
     '</section>';
   }
-  function filmMarkup(){
-    return '<div id="storyFilm" class="storyFilm" hidden role="dialog" aria-modal="true" aria-labelledby="storyFilmTitle">'+
-      '<div class="storyFilmShell">'+
-        '<audio id="storyFilmScore" preload="metadata" loop><source src="'+ASSET+'story-score-v20.m4a" type="audio/mp4"></audio>'+
-        '<button id="storyFilmClose" class="storyFilmClose" aria-label="Close cinematic film">×</button>'+
-        '<div class="storyFilmBrand"><span>W + W</span><p>A CINEMATIC PRODUCT FILM · 26 SEC</p></div>'+
-        '<div class="storyFilmScenes">'+
-          '<section class="filmScene filmFootageScene active" data-film-scene="0"><video class="filmFootage" data-film-video muted playsinline loop preload="metadata" poster="'+ASSET+'story-nurse-v19.jpg"><source src="'+ASSET+'story-nurse-v20.mp4" type="video/mp4"></video><div class="filmShade"></div><div class="filmKicker">REAL PEOPLE · REAL WORK</div><div class="filmCopy"><small>01 · REAL LIFE FIRST</small><h2 id="storyFilmTitle">The shift is fixed.<br>Your health plan should adapt.</h2><p>Work + Workout begins with the people who carry everyone else through the day.</p></div></section>'+
-          '<section class="filmScene filmFootageScene" data-film-scene="1"><video class="filmFootage" data-film-video muted playsinline loop preload="none" poster="'+ASSET+'story-road-worker-v19.jpg"><source data-src="'+ASSET+'story-road-v20.mp4" type="video/mp4"></video><div class="filmShade filmShadeStrong"></div><div class="filmCapture"><small>DROP IN THE UNPOLISHED WEEK</small><p>“Work Mon, Wed, Fri 7–7.<br>Dentist Tuesday. Groceries Sunday.<br>I still want three workouts.”</p><i><b></b></i><span>Reading work · appointments · priorities</span></div><div class="filmCopy filmCopyBottom"><small>02 · UNDERSTAND</small><h2>One input. Every responsibility recognized.</h2></div></section>'+
-          '<section class="filmScene filmFootageScene" data-film-scene="2"><video class="filmFootage" data-film-video muted playsinline loop preload="none" poster="'+ASSET+'story-transit-v19.jpg"><source data-src="'+ASSET+'story-warehouse-v20.mp4" type="video/mp4"></video><div class="filmShade filmShadeStrong"></div><div class="filmWeek"><span>MON <b class="blue">Work 7–7</b><b class="soft">Recovery</b></span><span>TUE <b class="gold">Dentist 10</b><b class="green">Strength 6</b></span><span>WED <b class="blue">Work 7–7</b><b class="soft">Pack lunch</b></span><span>THU <b class="green">Movement 6</b><b class="purple">Pickup 4</b></span><span>FRI <b class="blue">Work 7–7</b><b class="soft">Early sleep</b></span></div><div class="filmCopy filmCopyBottom"><small>03 · COORDINATE</small><h2>Your week assembles around what cannot move.</h2></div></section>'+
-          '<section class="filmScene filmFootageScene" data-film-scene="3"><video class="filmFootage" data-film-video muted playsinline loop preload="none" poster="'+ASSET+'story-chef-v19.jpg"><source data-src="'+ASSET+'story-chef-v20.mp4" type="video/mp4"></video><div class="filmShade filmShadeFinal"></div><div class="filmCopy filmCopyBottom"><small>04 · KEEP GOING</small><h2>Work hard. Live well.</h2><p>Meals, movement and recovery—planned around the work that matters.</p><button class="landingPrimary" id="storyFilmSignup">Build my week <span>→</span></button></div><p class="filmCredits">Real footage via Pexels · Featured people do not endorse this product.</p></section>'+
-        '</div>'+
-        '<div class="storyFilmControls"><button id="storyFilmToggle" aria-label="Pause cinematic film">Ⅱ</button><button id="storyFilmSound" aria-label="Turn film sound on">Sound off</button><div class="storyFilmProgress"><i class="active"></i><i></i><i></i><i></i></div><span id="storyFilmCount">01 / 04</span></div>'+
-      '</div>'+
+  function heroAdMarkup(){
+    return '<div id="landingDayAdV21" class="landingDayAdV21" aria-label="A day with Work and Workout">'+
+      '<section class="landingAdScene active" data-ad-scene="0" aria-hidden="false">'+
+        '<video data-ad-video muted playsinline loop preload="metadata" poster="'+ASSET+'story-nurse-v19.jpg"><source src="'+ASSET+'story-phone-work-v21.mp4" type="video/mp4"></video>'+
+        '<div class="adSceneLabel"><small>06:12 · BEFORE WORK</small><b>The plan is ready before the shift begins.</b></div>'+
+        '<div class="adProduct adPlanProduct"><header><i>W + W</i><span><b>Good morning, Maya</b><small>Tuesday · Your day is coordinated</small></span><em>84</em></header><div class="adDayStatus"><span>ON TRACK</span><b>Three priorities. Zero guesswork.</b></div><ol><li><time>7:00</time><span><b>Hospital shift</b><small>12 hours · lunch packed</small></span><i class="blue"></i></li><li><time>8:10</time><span><b>Evening Strength</b><small>38 min · after commute</small></span><i class="green"></i></li><li><time>9:05</time><span><b>Dinner + recovery</b><small>Protein target protected</small></span><i class="gold"></i></li></ol><p class="adAppConfirm"><i>✓</i> Plan built around your shift</p></div>'+
+      '</section>'+
+      '<section class="landingAdScene" data-ad-scene="1" aria-hidden="true">'+
+        '<video data-ad-video muted playsinline loop preload="none" poster="'+ASSET+'story-nurse-v19.jpg"><source data-src="'+ASSET+'story-nurse-v20.mp4" type="video/mp4"></video>'+
+        '<div class="adSceneLabel"><small>19:31 · SHIFT RAN LATE</small><b>The day changed. The plan changed with it.</b></div>'+
+        '<div class="adProduct adAdaptProduct"><header><i>✦</i><span><b>Schedule updated</b><small>Work + Workout adapted automatically</small></span></header><div class="adAdaptLine"><span><s>7:45 PM</s><b>8:10 PM</b></span><div><b>Evening Strength</b><small>Trimmed to 38 min · commute protected</small></div></div><div class="adReminder"><i></i><span><b>Meal reminder moved</b><small>Fuel at 7:40 PM · 30 min before training</small></span></div><p>No rebuilding. No missed day.</p></div>'+
+      '</section>'+
+      '<section class="landingAdScene" data-ad-scene="2" aria-hidden="true">'+
+        '<video data-ad-video muted playsinline loop preload="none"><source data-src="'+ASSET+'story-phone-gym-v21.mp4" type="video/mp4"></video>'+
+        '<div class="adSceneLabel"><small>20:14 · AT THE GYM</small><b>Open the workout. Log the work. Keep moving.</b></div>'+
+        '<div class="adProduct adWorkoutProduct"><header><i>W</i><span><b>Evening Strength</b><small>28 of 38 min · 3 exercises left</small></span><em>•••</em></header><div class="adExercise"><span>02</span><div><b>Chest-supported row</b><small>45 lb · target 8–10 reps</small></div></div><div class="adSetRow"><span><small>SET 1</small><b>10 reps</b></span><span><small>SET 2</small><b>9 reps</b></span><span class="logging"><small>SET 3</small><b>8 reps</b><i>✓ LOGGED</i></span></div><div class="adCoachCue"><i>✦</i><span><b>Progressive Coach</b><small>Great control. Keep 45 lb next session and aim for 9 reps.</small></span></div></div>'+
+      '</section>'+
+      '<section class="landingAdScene" data-ad-scene="3" aria-hidden="true">'+
+        '<video data-ad-video muted playsinline loop preload="none"><source data-src="'+ASSET+'story-phone-meal-v21.mp4" type="video/mp4"></video>'+
+        '<div class="adSceneLabel"><small>21:18 · DINNER + RECOVERY</small><b>The workout ends. The coaching does not.</b></div>'+
+        '<div class="adProduct adMealProduct"><header><i>N</i><span><b>Dinner logged</b><small>Chicken bowl · 540 calories</small></span><em>✓</em></header><div class="adMacro"><p><span>Protein</span><b>136 / 160g</b></p><i><b style="width:85%"></b></i><p><span>Energy</span><b>2,110 / 2,350</b></p><i><b style="width:90%"></b></i></div><div class="adCoachCue"><i>✦</i><span><b>Progressive Coach</b><small>You are 24g short on protein. Add Greek yogurt before bed; tomorrow stays unchanged.</small></span></div><p class="adTomorrow"><span>Tomorrow</span><b>Recovery walk · meal prep reminder · 7.5h sleep target</b></p></div>'+
+      '</section>'+
+      '<div class="landingAdProgress" aria-hidden="true"><i class="active"></i><i></i><i></i><i></i><span id="landingAdCount">01 / 04</span></div>'+
+      '<p class="landingAdCredit">Illustrative product story · licensed real-life footage</p>'+
     '</div>';
   }
 
@@ -171,70 +182,70 @@
     },850);
   }
 
-  function updateFilm(){
-    document.querySelectorAll('[data-film-scene]').forEach(function(scene){
-      var active=Number(scene.dataset.filmScene)===filmIndex,video=scene.querySelector('[data-film-video]');
+  function loadAdVideo(video){
+    if(!video)return;
+    var source=video.querySelector('source[data-src]');
+    if(source){source.src=source.dataset.src;source.removeAttribute('data-src');video.load()}
+  }
+  function updateAd(){
+    var root=document.getElementById('landingDayAdV21');
+    if(!root)return;
+    root.querySelectorAll('[data-ad-scene]').forEach(function(scene){
+      var active=Number(scene.dataset.adScene)===adIndex,video=scene.querySelector('[data-ad-video]');
       scene.classList.toggle('active',active);
-      if(video){if(active){video.play().catch(function(){})}else video.pause()}
+      scene.setAttribute('aria-hidden',String(!active));
+      if(video){
+        if(active){loadAdVideo(video);video.currentTime=0;video.play().catch(function(){})}
+        else video.pause();
+      }
     });
-    document.querySelectorAll('.storyFilmProgress i').forEach(function(bar,index){bar.classList.toggle('active',index===filmIndex)});
-    var count=document.getElementById('storyFilmCount');
-    if(count)count.textContent=pad(filmIndex+1)+' / 04';
+    root.querySelectorAll('.landingAdProgress i').forEach(function(bar,index){bar.classList.toggle('active',index===adIndex)});
+    var count=document.getElementById('landingAdCount');
+    if(count)count.textContent=pad(adIndex+1)+' / 04';
   }
-  function startFilm(){
-    clearInterval(filmTimer);
-    updateFilm();
-    var score=document.getElementById('storyFilmScore'),sound=document.getElementById('storyFilmSound');if(score&&sound&&sound.dataset.sound==='on')score.play().catch(function(){});
-    filmTimer=setInterval(function(){filmIndex=(filmIndex+1)%4;updateFilm()},6400);
-    var toggle=document.getElementById('storyFilmToggle');
-    if(toggle){toggle.textContent='Ⅱ';toggle.setAttribute('aria-label','Pause product story');toggle.dataset.playing='true'}
+  function stopAd(){
+    clearInterval(adTimer);adTimer=null;
+    document.querySelectorAll('[data-ad-video]').forEach(function(video){video.pause()});
   }
-  function openFilm(){
-    var film=document.getElementById('storyFilm');
-    if(!film)return;
-    film.querySelectorAll('source[data-src]').forEach(function(source){source.src=source.dataset.src;source.removeAttribute('data-src');source.parentElement.load()});
-    var score=document.getElementById('storyFilmScore'),sound=document.getElementById('storyFilmSound');if(score){score.pause();score.currentTime=0;score.volume=.58}if(sound){sound.dataset.sound='off';sound.textContent='Sound off';sound.setAttribute('aria-label','Turn film sound on')}
-    film.hidden=false;requestAnimationFrame(function(){film.classList.add('open')});
-    document.body.classList.add('storyFilmOpen');
-    filmIndex=0;updateFilm();startFilm();
+  function startAd(){
+    var root=document.getElementById('landingDayAdV21');
+    if(!root||document.hidden||window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    clearInterval(adTimer);updateAd();
+    adTimer=setInterval(function(){adIndex=(adIndex+1)%4;updateAd()},5600);
   }
-  function closeFilm(){
-    var film=document.getElementById('storyFilm');
-    if(!film)return;
-    clearInterval(filmTimer);film.querySelectorAll('[data-film-video]').forEach(function(video){video.pause()});var score=document.getElementById('storyFilmScore');if(score)score.pause();film.classList.remove('open');document.body.classList.remove('storyFilmOpen');
-    setTimeout(function(){film.hidden=true},220);
-  }
-  function bindFilm(){
-    var close=document.getElementById('storyFilmClose'),toggle=document.getElementById('storyFilmToggle'),sound=document.getElementById('storyFilmSound'),signup=document.getElementById('storyFilmSignup');
-    if(close)close.onclick=closeFilm;
-    if(toggle)toggle.onclick=function(){
-      if(toggle.dataset.playing==='true'){clearInterval(filmTimer);document.querySelectorAll('[data-film-video]').forEach(function(video){video.pause()});var score=document.getElementById('storyFilmScore');if(score)score.pause();toggle.dataset.playing='false';toggle.textContent='▶';toggle.setAttribute('aria-label','Play cinematic film')}
-      else startFilm();
-    };
-    if(sound)sound.onclick=function(){var turnOn=sound.dataset.sound!=='on',score=document.getElementById('storyFilmScore'),active=document.querySelector('.filmScene.active video');sound.dataset.sound=turnOn?'on':'off';sound.textContent=turnOn?'Sound on':'Sound off';sound.setAttribute('aria-label',turnOn?'Turn film sound off':'Turn film sound on');if(score){if(turnOn){score.currentTime=Math.min(25.5,filmIndex*6.4+(active&&active.currentTime||0));score.play().catch(function(){})}else score.pause()}};
-    if(signup)signup.onclick=function(){closeFilm();window.WGC18&&window.WGC18.openAccount&&window.WGC18.openAccount('signup')};
-    document.getElementById('storyFilm').addEventListener('click',function(event){if(event.target.id==='storyFilm')closeFilm()});
+  function bindAd(){
+    var root=document.getElementById('landingDayAdV21');
+    if(!root||root.dataset.bound)return;
+    root.dataset.bound='true';
+    setTimeout(function(){root.querySelectorAll('[data-ad-video]').forEach(loadAdVideo)},900);
+    if('IntersectionObserver'in window){
+      adObserver=new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){if(entry.isIntersecting&&entry.intersectionRatio>.18)startAd();else stopAd()});
+      },{threshold:[0,.18,.55]});
+      adObserver.observe(root);
+    }else startAd();
+    document.addEventListener('visibilitychange',function(){if(document.hidden)stopAd();else startAd()});
   }
   function enhanceLanding(){
     var landing=document.getElementById('premiumLanding');
     if(!landing||landing.dataset.storyV19)return false;
     landing.dataset.storyV19='true';
     var heroMedia=landing.querySelector('.landingHeroImage'),heroImage=heroMedia&&heroMedia.querySelector('img');
-    if(heroImage){heroImage.src=ASSET+'story-nurse-v19.jpg';heroImage.alt='A nurse in scrubs checking her plan after a hospital shift'}
-    if(heroMedia&&!heroMedia.querySelector('video')){
-      heroMedia.insertAdjacentHTML('beforeend','<video class="landingHeroFilmV20" muted autoplay loop playsinline preload="metadata" poster="'+ASSET+'story-nurse-v19.jpg" aria-label="A nurse helping a patient walk through a hospital corridor"><source src="'+ASSET+'story-nurse-v20.mp4" type="video/mp4"></video>');
-      if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)heroMedia.querySelector('video').pause();
-    }
+    if(heroImage){heroImage.src=ASSET+'story-nurse-v19.jpg';heroImage.alt='A healthcare worker using Work and Workout to coordinate a demanding day'}
+    if(heroMedia&&!document.getElementById('landingDayAdV21')){heroMedia.insertAdjacentHTML('beforeend',heroAdMarkup());bindAd()}
     var pill=landing.querySelector('.landingPill');
-    if(pill)pill.innerHTML='<i></i> Built for people with demanding schedules';
+    if(pill)pill.innerHTML='<i></i> A real workday · coordinated in real time';
     var heading=landing.querySelector('.landingHero h1');
-    if(heading)heading.innerHTML='Health that works<br><em>around your work.</em>';
+    if(heading)heading.innerHTML='Your day is demanding.<br><em>Your plan is already ready.</em>';
     var intro=landing.querySelector('.landingHeroCopy>p');
-    if(intro)intro.textContent='Drop in your shifts, appointments and responsibilities. Work + Workout coordinates your meals, movement, recovery and to-dos around the life you already have.';
+    if(intro)intro.textContent='From the first shift to the last meal, Work + Workout plans the day, adapts when work runs late, logs every set and keeps coaching after the gym.';
     var ghost=landing.querySelector('.landingHeroActions .landingGhost');
-    if(ghost){ghost.innerHTML='<i class="cinemaPlay">▶</i> Watch the cinematic film <small>26 sec</small>';ghost.removeAttribute('data-landing-scroll');ghost.onclick=openFilm}
+    if(ghost)ghost.remove();
+    landing.querySelectorAll('.landingFloatingCard').forEach(function(card){card.remove()});
+    var primary=landing.querySelector('.landingHeroActions [data-landing-auth="signup"]');
+    if(primary)primary.innerHTML='Coordinate my week <span>→</span>';
     var proof=landing.querySelector('.landingHeroProof');
-    if(proof)proof.innerHTML='<span><b>Work first</b><small>Shifts and commute become real boundaries</small></span><span><b>Whole-day health</b><small>Meals, movement and recovery connect</small></span><span><b>Life organized</b><small>To-dos and reminders live in one plan</small></span>';
+    if(proof)proof.innerHTML='<span><b>Plan ready</b><small>Work, training and meals coordinated</small></span><span><b>Adapts live</b><small>Late shifts reshape the plan</small></span><span><b>Coaches progress</b><small>Every log improves the next decision</small></span>';
     var signal=landing.querySelector('.landingSignal');
     if(signal){
       signal.querySelector('p').textContent='Made for real working lives';
@@ -250,15 +261,14 @@
         if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
       };
     });
-    var build=document.getElementById('landingBuildPreview'),watch=document.getElementById('storyWatchFilm');
+    var build=document.getElementById('landingBuildPreview');
     if(build)build.onclick=renderLandingPreview;
-    if(watch)watch.onclick=openFilm;
     return true;
   }
 
   function captureMarkup(){
     return '<section id="smartCaptureV19" class="smartCaptureV19">'+
-      '<div class="smartCaptureIntro"><span>✦</span><div><small>QUICK PLAN</small><h2>Give us the raw version.</h2><p>Paste shifts, appointments, meals and errands. Review what we found, then add everything at once.</p></div><button id="smartCaptureFilm">See how it works</button></div>'+
+      '<div class="smartCaptureIntro"><span>✦</span><div><small>QUICK PLAN</small><h2>Give us the raw version.</h2><p>Paste shifts, appointments, meals and errands. Review what we found, then add everything at once.</p></div><button id="smartCaptureFilm">Use an example</button></div>'+
       '<div class="smartCaptureComposer"><textarea id="smartCaptureInput" rows="4" placeholder="Example: Work every Mon, Wed and Fri 7am–7pm; dentist Tuesday at 10; meal prep Sunday; remind me to train Thursday at 6."></textarea><div><button id="smartCaptureVoice" aria-label="Speak your schedule">Voice</button><button class="primary" id="smartCaptureBuild">Build my plan <span>→</span></button></div></div>'+
       '<div class="smartCaptureExamples"><button data-capture-example="Work every Monday, Wednesday and Friday 7am-7pm">Add repeating shifts</button><button data-capture-example="Groceries and meal prep Sunday at 3pm">Plan meal prep</button><button data-capture-example="Dentist tomorrow at 10am; pick up medication at 12pm">Add appointments</button></div>'+
       '<div id="smartCapturePreview" class="smartCapturePreview" aria-live="polite"></div>'+
@@ -359,7 +369,7 @@
   }
   function bindCapture(){
     var build=document.getElementById('smartCaptureBuild'),voice=document.getElementById('smartCaptureVoice'),film=document.getElementById('smartCaptureFilm');
-    if(build)build.onclick=buildCapture;if(voice)voice.onclick=startVoiceCapture;if(film)film.onclick=openFilm;
+    if(build)build.onclick=buildCapture;if(voice)voice.onclick=startVoiceCapture;if(film)film.onclick=function(){var input=document.getElementById('smartCaptureInput');if(!input)return;input.value='Work Monday, Wednesday and Friday 7am-7pm\nGym Tuesday and Thursday at 6pm\nMeal prep Sunday at 3pm\nRemind me to pack lunch before every shift';input.focus()};
     document.querySelectorAll('[data-capture-example]').forEach(function(button){button.onclick=function(){var input=document.getElementById('smartCaptureInput');input.value+=(input.value?'\n':'')+button.dataset.captureExample;input.focus()}});
   }
   function mountInApp(){
@@ -392,9 +402,7 @@
     if(changed)jset(PREFIX+'smart-reminders-fired',fired);
   }
   function boot(){
-    if(!document.getElementById('storyFilm')){document.body.insertAdjacentHTML('beforeend',filmMarkup());bindFilm()}
     enhanceLanding();mountInApp();dueReminderCheck();
-    document.addEventListener('keydown',function(event){if(event.key==='Escape'&&document.getElementById('storyFilm')&&!document.getElementById('storyFilm').hidden)closeFilm()});
     var scheduled=false;
     new MutationObserver(function(){
       if(scheduled)return;scheduled=true;
@@ -402,7 +410,7 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }
   V.parseRawInput=parseRawInput;
-  V.openFilm=openFilm;
+  V.startAd=startAd;
   V.mountInApp=mountInApp;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })(window);

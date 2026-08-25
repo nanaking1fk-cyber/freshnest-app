@@ -2,10 +2,10 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## v20 Cinematic Worker Edition
+## v21 Product Story Edition
 
 - **Worker-first story:** a premium public landing page explains how the product fits healthcare, construction, logistics, hospitality and other demanding schedules.
-- **Real cinematic footage:** the landing hero and a 26-second captioned film use genuine moving footage of nurses, road crews, warehouse workers and chefs—not animated still images.
+- **Autoplay product demonstration:** the hero continuously follows a demanding day from pre-shift planning through a late-shift adjustment, gym logging, meal logging and Progressive Coach guidance. Real footage and the Work + Workout interface stay visible together; there is no separate film modal.
 - **Quick Plan:** users can type or dictate ordinary language such as “work Tuesday 7–7, meal prep Sunday at 4, dentist tomorrow at 3.” The app previews and adds shifts, workouts, meals, appointments and tasks in one pass.
 - **Adaptive calendar:** newly captured work shifts block unavailable time and immediately influence workout placement; personal calendar items remain in the agenda.
 - **Useful reminders:** each captured item can include an alert, with an `.ics` calendar export for device-level reminders.

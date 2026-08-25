@@ -1,4 +1,4 @@
-/* Work + Workout 20.0 — worker-first story, real cinematic footage and smart planning */
+/* Work + Workout 21.0 — autoplay product-story hero and smart planning */
 :root{
   --story-ink:#080b10;
   --story-panel:#10161d;
@@ -6,27 +6,44 @@
   --story-accent:#b8f34a;
   --story-muted:#909b96;
 }
-.premiumLanding[data-story-v19="true"] .landingHeroImage img{object-position:center center}
+.premiumLanding[data-story-v19="true"] .landingHeroImage>img{opacity:0;object-position:center center}
 .premiumLanding[data-story-v19="true"] .landingHeroImage{overflow:hidden;background:#080b10}
-.premiumLanding[data-story-v19="true"] .landingHeroFilmV20{
-  width:100%;
-  height:100%;
-  position:absolute;
-  z-index:1;
-  inset:0;
-  object-fit:cover;
-  object-position:center center;
-  filter:saturate(.78) contrast(1.08) brightness(.8);
-  transform:scale(1.018);
-}
+.landingDayAdV21,.landingAdScene{position:absolute;inset:0}
+.landingDayAdV21{overflow:hidden;background:#090d12}
+.landingAdScene{opacity:0;pointer-events:none;transition:opacity .8s ease}
+.landingAdScene.active{opacity:1;pointer-events:auto}
+.landingAdScene:not(.active) .adProduct,.landingAdScene:not(.active) .adSceneLabel{opacity:0;transition:opacity .14s ease}
+.landingAdScene.active .adProduct,.landingAdScene.active .adSceneLabel{opacity:1;transition:opacity .28s ease .24s}
+.landingAdScene video{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center;filter:saturate(.74) contrast(1.12) brightness(.68);transform:scale(1.045)}
+.landingAdScene.active video{animation:adCameraV21 5.6s ease-out both}
+@keyframes adCameraV21{from{transform:scale(1.075)}to{transform:scale(1.025)}}
+.landingAdScene::after{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(90deg,rgba(8,11,16,.96) 0%,rgba(8,11,16,.76) 40%,rgba(8,11,16,.12) 72%),linear-gradient(0deg,rgba(8,11,16,.84),transparent 46%)}
+.adSceneLabel{position:absolute;z-index:5;top:104px;right:clamp(24px,5vw,74px);width:370px;color:#fff;text-align:right;text-shadow:0 3px 22px rgba(0,0,0,.88)}
+.adSceneLabel small,.adSceneLabel b{display:block}.adSceneLabel small{color:var(--story-accent);font-size:8px;font-weight:950;letter-spacing:.14em}.adSceneLabel b{margin-top:8px;font-size:14px;line-height:1.3}
+.adProduct{position:absolute;z-index:6;top:51%;right:clamp(24px,5vw,74px);width:min(360px,34vw);transform:translateY(-42%);overflow:hidden;padding:16px;border:1px solid rgba(255,255,255,.22);border-radius:23px;color:#f4f7f3;background:rgba(11,16,22,.96);backdrop-filter:blur(22px);box-shadow:0 32px 90px rgba(0,0,0,.68)}
+.adProduct header{display:flex;align-items:center;gap:10px;padding-bottom:13px;border-bottom:1px solid rgba(255,255,255,.09)}
+.adProduct header>i{width:34px;height:34px;display:grid;place-items:center;flex:0 0 auto;border-radius:10px;color:#11160a;background:var(--story-accent);font-size:8px;font-style:normal;font-weight:950}
+.adProduct header>span{min-width:0;flex:1}.adProduct header b,.adProduct header small{display:block}.adProduct header b{font-size:11px}.adProduct header small{margin-top:3px;color:#84908a;font-size:7px}.adProduct header>em{color:var(--story-accent);font-size:12px;font-style:normal;font-weight:900}
+.adDayStatus{padding:14px 2px 8px}.adDayStatus span,.adDayStatus b{display:block}.adDayStatus span{color:var(--story-accent);font-size:6px;font-weight:950;letter-spacing:.14em}.adDayStatus b{margin-top:5px;font-size:13px}
+.adPlanProduct ol{margin:4px 0 0;padding:0;list-style:none}.adPlanProduct li{display:grid;grid-template-columns:34px 1fr 7px;align-items:center;gap:8px;padding:10px 2px;border-top:1px solid rgba(255,255,255,.07)}.adPlanProduct time{color:#a7b0ab;font-size:7px}.adPlanProduct li span b,.adPlanProduct li span small{display:block}.adPlanProduct li span b{font-size:9px}.adPlanProduct li span small{margin-top:3px;color:#77837d;font-size:7px}.adPlanProduct li>i{width:6px;height:30px;border-radius:99px}.adPlanProduct .blue{background:#4b9bd8}.adPlanProduct .green{background:var(--story-accent)}.adPlanProduct .gold{background:#eab75e}
+.adAppConfirm{display:flex;align-items:center;gap:7px;margin:9px 0 0;padding:9px 10px;border-radius:11px;color:#dfffa4;background:rgba(184,243,74,.1);font-size:7px;font-weight:800}.adAppConfirm i{width:18px;height:18px;display:grid;place-items:center;border-radius:50%;color:#11160a;background:var(--story-accent);font-style:normal}
+.adAdaptProduct>p{margin:11px 0 0;color:#dfffa4;font-size:8px;font-weight:800;text-align:center}.adAdaptLine{display:grid;grid-template-columns:75px 1fr;gap:12px;padding:17px 2px}.adAdaptLine>span s,.adAdaptLine>span b{display:block}.adAdaptLine>span s{color:#6d7973;font-size:8px}.adAdaptLine>span b{margin-top:5px;color:var(--story-accent);font-size:17px}.adAdaptLine>div b,.adAdaptLine>div small{display:block}.adAdaptLine>div b{font-size:10px}.adAdaptLine>div small{margin-top:5px;color:#7d8882;font-size:7px;line-height:1.4}.adReminder{display:flex;gap:10px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#121a21}.adReminder>i{width:7px;height:7px;margin-top:4px;border-radius:50%;background:#eab75e;box-shadow:0 0 12px rgba(234,183,94,.5)}.adReminder b,.adReminder small{display:block}.adReminder b{font-size:8px}.adReminder small{margin-top:4px;color:#77837d;font-size:7px}
+.adExercise{display:flex;align-items:center;gap:10px;padding:15px 2px}.adExercise>span{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;color:var(--story-accent);background:rgba(184,243,74,.1);font-size:8px;font-weight:900}.adExercise b,.adExercise small{display:block}.adExercise b{font-size:10px}.adExercise small{margin-top:4px;color:#7d8982;font-size:7px}.adSetRow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.adSetRow>span{min-height:57px;padding:9px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:#121920}.adSetRow small,.adSetRow b{display:block}.adSetRow small{color:#75817b;font-size:6px}.adSetRow b{margin-top:6px;font-size:8px}.adSetRow .logging{position:relative;border-color:rgba(184,243,74,.34)}.adSetRow .logging>i{position:absolute;right:4px;bottom:4px;left:4px;padding:4px;border-radius:6px;color:#11160a;background:var(--story-accent);font-size:5px;font-style:normal;font-weight:950;text-align:center;animation:adLogV21 5.6s ease both}@keyframes adLogV21{0%,20%{opacity:0;transform:translateY(5px)}35%,100%{opacity:1;transform:none}}
+.adCoachCue{display:flex;gap:9px;margin-top:10px;padding:11px;border:1px solid rgba(184,243,74,.15);border-radius:12px;background:rgba(184,243,74,.07)}.adCoachCue>i{width:25px;height:25px;display:grid;place-items:center;flex:0 0 auto;border-radius:8px;color:#11160a;background:var(--story-accent);font-style:normal}.adCoachCue b,.adCoachCue small{display:block}.adCoachCue b{font-size:8px}.adCoachCue small{margin-top:4px;color:#a6b0aa;font-size:7px;line-height:1.4}
+.adMacro{padding:14px 2px 4px}.adMacro p{display:flex;justify-content:space-between;margin:8px 0 5px;color:#8b9690;font-size:7px}.adMacro p b{color:#e9eee9}.adMacro>i{height:5px;display:block;overflow:hidden;border-radius:99px;background:#252e29}.adMacro>i b{height:100%;display:block;border-radius:99px;background:var(--story-accent)}.adTomorrow{margin:10px 0 0;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}.adTomorrow span,.adTomorrow b{display:block}.adTomorrow span{color:#748079;font-size:6px;text-transform:uppercase;letter-spacing:.12em}.adTomorrow b{margin-top:5px;font-size:7px;line-height:1.4}
+.landingAdProgress{position:absolute;z-index:7;right:clamp(24px,5vw,74px);bottom:25px;width:min(360px,34vw);display:grid;grid-template-columns:repeat(4,1fr) auto;align-items:center;gap:5px}.landingAdProgress i{height:3px;border-radius:99px;background:rgba(255,255,255,.22)}.landingAdProgress i.active{background:var(--story-accent);box-shadow:0 0 14px rgba(184,243,74,.45)}.landingAdProgress span{margin-left:7px;color:#abb4af;font-size:7px;font-weight:900;letter-spacing:.08em}.landingAdCredit{position:absolute;z-index:7;right:clamp(24px,5vw,74px);bottom:45px;margin:0;color:rgba(224,231,226,.47);font-size:6px}
 .premiumLanding[data-story-v19="true"] .landingHeroShade{
   z-index:1;
   background:
     linear-gradient(90deg,rgba(8,11,16,.99) 0%,rgba(8,11,16,.92) 34%,rgba(8,11,16,.32) 67%,rgba(8,11,16,.08) 100%),
     linear-gradient(0deg,#080b10 0%,transparent 27%,rgba(8,11,16,.12) 100%);
 }
-.premiumLanding[data-story-v19="true"] .landingHero h1{max-width:780px}
+.premiumLanding[data-story-v19="true"] .landingHeroCopy{width:min(680px,55%);padding:52px 0 60px}
+.premiumLanding[data-story-v19="true"] .landingHero h1{max-width:740px;font-size:clamp(50px,6.2vw,84px)}
 .premiumLanding[data-story-v19="true"] .landingHero h1 em{font-weight:510}
+.premiumLanding[data-story-v19="true"] .landingHeroCopy>p{margin-top:22px;font-size:clamp(15px,1.45vw,19px)}
+.premiumLanding[data-story-v19="true"] .landingHeroActions{margin-top:25px}
+.premiumLanding[data-story-v19="true"] .landingHeroProof{margin-top:28px;padding-top:19px}
 .premiumLanding[data-story-v19="true"] .landingFloatSchedule{
   bottom:72px;
   border-color:rgba(184,243,74,.22);
@@ -514,15 +531,20 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
   .storyRawDemo{grid-template-columns:1fr;gap:42px;margin-inline:18px}
 }
 @media(max-width:760px){
-  .premiumLanding[data-story-v19="true"] .landingHero{min-height:830px;align-items:flex-end}
+  .premiumLanding[data-story-v19="true"] .landingHero{min-height:1040px;align-items:flex-end}
   .premiumLanding[data-story-v19="true"] .landingHeroImage img{object-position:67% top}
-  .premiumLanding[data-story-v19="true"] .landingHeroFilmV20{object-position:58% center}
-  .premiumLanding[data-story-v19="true"] .landingHeroShade{background:linear-gradient(0deg,#080b10 2%,rgba(8,11,16,.92) 40%,rgba(8,11,16,.22) 76%,rgba(8,11,16,.08))}
-  .premiumLanding[data-story-v19="true"] .landingHeroCopy{width:auto;margin:0;padding:360px 21px 42px}
-  .premiumLanding[data-story-v19="true"] .landingHero h1{font-size:clamp(47px,14vw,67px)}
+  .premiumLanding[data-story-v19="true"] .landingHeroShade{background:linear-gradient(0deg,#080b10 2%,rgba(8,11,16,.96) 37%,rgba(8,11,16,.28) 72%,rgba(8,11,16,.14))}
+  .premiumLanding[data-story-v19="true"] .landingHeroCopy{width:auto;margin:0;padding:590px 21px 42px}
+  .premiumLanding[data-story-v19="true"] .landingHero h1{font-size:clamp(45px,13vw,58px)}
   .premiumLanding[data-story-v19="true"] .landingHeroCopy>p{font-size:15px}
   .premiumLanding[data-story-v19="true"] .landingFloatingCard{display:none}
   .premiumLanding[data-story-v19="true"] .landingHeroProof{gap:13px}.premiumLanding[data-story-v19="true"] .landingHeroProof small{font-size:8px;line-height:1.35}
+  .landingAdScene::after{background:linear-gradient(0deg,rgba(8,11,16,.9),rgba(8,11,16,.12) 70%),linear-gradient(90deg,rgba(8,11,16,.48),transparent)}
+  .landingAdScene video{object-position:center top}
+  .adSceneLabel{top:67px;right:16px;left:16px;width:auto;text-align:left}.adSceneLabel b{max-width:330px;font-size:12px}
+  .adProduct{top:128px;right:14px;width:calc(100% - 28px);max-width:380px;transform:none;padding:13px;border-radius:19px}
+  .adProduct header{padding-bottom:10px}.adPlanProduct li{padding:8px 2px}.adDayStatus{padding:10px 2px 6px}.adAdaptLine{padding:13px 2px}.adExercise{padding:12px 2px}
+  .landingAdProgress{top:548px;right:16px;bottom:auto;width:calc(100% - 32px)}.landingAdCredit{display:none}
   .storyWorkers{padding:88px 17px 72px!important}
   .storySectionHead{display:block}.storySectionHead h2{margin:15px 0 18px}.storySectionHead>span{display:block}
   .storyWorkerGrid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
@@ -557,8 +579,9 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
   body.premiumV18 .inAppWorkerImages{display:flex;overflow-x:auto}.inAppWorkerImages span{min-width:52%;height:165px}
 }
 @media(prefers-reduced-motion:reduce){
-  .storyWorker img,.filmScene,.storyFilm{transition:none!important}
+  .storyWorker img,.filmScene,.storyFilm,.landingAdScene{transition:none!important}
   .filmScene.active .filmFootage{animation:none!important}
   .filmCapture i b{animation:none!important;width:100%}
+  .landingAdScene.active video,.adSetRow .logging>i{animation:none!important}
   html{scroll-behavior:auto!important}
 }

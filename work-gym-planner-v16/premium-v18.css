@@ -1,0 +1,598 @@
+/* Work + Gym Coach 18.2 — premium product system */
+:root{
+  color-scheme:dark;
+  --bg:#080b10;
+  --card:#12171f;
+  --text:#f5f7f2;
+  --muted:#929b98;
+  --line:rgba(255,255,255,.095);
+  --blue:#b8f34a;
+  --green:#b8f34a;
+  --red:#ff707a;
+  --yellow:#f4c96b;
+  --gray:#7f8995;
+  --nav:rgba(12,16,22,.9);
+  --soft:#181f29;
+  --chip:#181f29;
+  --shadow:0 24px 70px rgba(0,0,0,.34);
+  --premium-accent:#b8f34a;
+  --premium-accent-soft:rgba(184,243,74,.1);
+  --premium-blue:#77b7ff;
+  --premium-surface:#12171f;
+  --premium-surface-raised:#171d26;
+  --premium-line:rgba(255,255,255,.095);
+}
+
+html{background:#080b10;scroll-behavior:smooth}
+body.premiumV18{
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 12% -10%,rgba(184,243,74,.075),transparent 31rem),
+    radial-gradient(circle at 92% 8%,rgba(79,130,255,.09),transparent 34rem),
+    linear-gradient(180deg,#090c12 0%,#080b10 58%,#090d13 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
+  font-feature-settings:"kern" 1,"tnum" 1;
+  letter-spacing:-.006em;
+}
+body.premiumV18::before{
+  content:"";
+  position:fixed;
+  z-index:-1;
+  inset:0;
+  pointer-events:none;
+  opacity:.2;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:linear-gradient(to bottom,black,transparent 72%);
+}
+
+body.premiumV18 button,
+body.premiumV18 input,
+body.premiumV18 select,
+body.premiumV18 textarea{font:inherit}
+body.premiumV18 button{transition:transform .18s ease,border-color .18s ease,background-color .18s ease,color .18s ease,box-shadow .18s ease}
+body.premiumV18 button:focus-visible,
+body.premiumV18 input:focus-visible,
+body.premiumV18 select:focus-visible,
+body.premiumV18 textarea:focus-visible{outline:2px solid var(--premium-accent);outline-offset:3px}
+body.premiumV18 input,
+body.premiumV18 select,
+body.premiumV18 textarea{
+  min-height:46px;
+  border:1px solid var(--premium-line);
+  border-radius:13px;
+  background:#0d1219;
+  color:var(--text);
+  padding:11px 13px;
+}
+body.premiumV18 textarea{line-height:1.5;resize:vertical}
+body.premiumV18 input::placeholder,
+body.premiumV18 textarea::placeholder{color:#66706f}
+body.premiumV18 label{letter-spacing:.015em}
+body.premiumV18 .app{max-width:1120px;padding:max(28px,calc(env(safe-area-inset-top) + 20px)) 20px max(132px,calc(env(safe-area-inset-bottom) + 118px))}
+body.premiumV18 .page.active{animation:premiumPageIn .32s cubic-bezier(.2,.75,.3,1)}
+body.premiumV18 .page>h2{font-size:30px;letter-spacing:-.045em;margin:6px 0 22px}
+body.premiumV18 .card,
+body.premiumV18 .meal,
+body.premiumV18 .exerciseCard,
+body.premiumV18 .trainingChartWrap,
+body.premiumV18 .trainNav{
+  border:1px solid var(--premium-line);
+  border-radius:20px;
+  background:linear-gradient(150deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  box-shadow:0 18px 50px rgba(0,0,0,.16);
+}
+body.premiumV18 .card{padding:18px;margin-top:14px}
+body.premiumV18 .card h2,
+body.premiumV18 .card h3{letter-spacing:-.025em}
+body.premiumV18 .card p{font-size:13px;line-height:1.6}
+body.premiumV18 .primary{background:var(--premium-accent)!important;border-color:var(--premium-accent)!important;color:#10140a!important;box-shadow:0 10px 24px rgba(184,243,74,.13)}
+body.premiumV18 .secondary{background:#1a212b!important;color:var(--text)!important}
+body.premiumV18 .wideBtn{min-height:48px;border-radius:13px;padding:12px 16px}
+body.premiumV18 .twoButtons button,
+body.premiumV18 .sheetActions button,
+body.premiumV18 .scanButtons button,
+body.premiumV18 .scheduleTools button{min-height:44px;border-radius:12px;padding:10px 13px}
+
+/* Premium home */
+body.premiumV18 #page-home{margin:0}
+body.premiumV18 .homeDash{
+  --hd-bg:#080b10;
+  --hd-card:#12171f;
+  --hd-card2:#171d26;
+  --hd-line:var(--premium-line);
+  --hd-text:#f6f8f4;
+  --hd-muted:#929b98;
+  --hd-green:var(--premium-accent);
+  --hd-blue:var(--premium-blue);
+  --hd-orange:#f4bd68;
+  --hd-purple:#b39aff;
+  --hd-red:#ff7d86;
+  min-height:calc(100dvh - 120px);
+  border-radius:0;
+  padding:0;
+  background:transparent;
+}
+body.premiumV18 .homeHeader{
+  grid-template-columns:minmax(150px,1fr) minmax(260px,1.4fr) minmax(150px,1fr);
+  gap:20px;
+  padding:8px 2px 28px;
+}
+body.premiumV18 .homeBrand{
+  display:flex;
+  align-items:center;
+  justify-self:start;
+  gap:11px;
+  min-width:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:var(--hd-text);
+  text-align:left;
+}
+body.premiumV18 .brandMark{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  flex:none;
+  border-radius:13px;
+  color:#11150a;
+  background:linear-gradient(145deg,#cdfb70,#9dde31);
+  box-shadow:0 12px 30px rgba(184,243,74,.15),inset 0 1px 0 rgba(255,255,255,.5);
+}
+body.premiumV18 .brandMark svg{width:25px;height:25px;stroke-width:2.15}
+body.premiumV18 .brandCopy{display:flex;flex-direction:column;min-width:0}
+body.premiumV18 .brandCopy b{font-size:13px;line-height:1;letter-spacing:.14em;white-space:nowrap}
+body.premiumV18 .brandCopy small{font-size:8px;color:var(--premium-accent);font-weight:850;letter-spacing:.28em;margin-top:6px}
+body.premiumV18 .homeHello h1{font-size:25px;letter-spacing:-.045em;font-weight:760}
+body.premiumV18 .homeHello p{font-size:11px;letter-spacing:.035em;color:#8e9896;margin-top:7px}
+body.premiumV18 .homeAvatar{
+  justify-self:end;
+  width:44px;
+  height:44px;
+  border:1px solid rgba(255,255,255,.15);
+  background:linear-gradient(145deg,#202834,#10151c);
+  box-shadow:0 12px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.08);
+  position:relative;
+}
+body.premiumV18 .homeAvatar::after{
+  content:"";
+  position:absolute;
+  right:1px;
+  bottom:1px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  border:2px solid #11161d;
+  background:var(--premium-accent);
+}
+body.premiumV18 .accountChip{display:none!important}
+
+body.premiumV18 .homeSummaryGrid{gap:13px;margin-bottom:15px}
+body.premiumV18 .homeSummary{
+  min-height:164px;
+  align-items:flex-start;
+  justify-content:flex-start;
+  text-align:left;
+  padding:18px;
+  border-radius:21px;
+  border:1px solid var(--premium-line);
+  background:linear-gradient(150deg,rgba(255,255,255,.052),rgba(255,255,255,.018));
+  box-shadow:0 18px 48px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);
+}
+body.premiumV18 .homeSummary .homeIcon{
+  width:39px;
+  height:39px;
+  margin:0 0 20px;
+  border-radius:12px;
+  border:1px solid currentColor;
+  background:rgba(255,255,255,.025);
+  box-shadow:none;
+}
+body.premiumV18 .homeSummary .homeIcon svg{width:20px;height:20px}
+body.premiumV18 .homeIcon.green{color:var(--premium-accent)}
+body.premiumV18 .homeIcon.blue{color:var(--premium-blue)}
+body.premiumV18 .homeIcon.orange{color:#f4bd68}
+body.premiumV18 .homeIcon.purple{color:#b39aff}
+body.premiumV18 .homeSummary small{
+  margin:0 0 7px;
+  color:#8e9896!important;
+  font-size:9px;
+  font-weight:800;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+body.premiumV18 .homeSummary b{font-size:18px;letter-spacing:-.025em}
+body.premiumV18 .homeSummary em{font-size:10px;color:#899391;margin-top:7px}
+
+body.premiumV18 .homePanel{
+  padding:22px;
+  margin-bottom:15px;
+  border-radius:23px;
+  border:1px solid var(--premium-line);
+  background:linear-gradient(150deg,rgba(255,255,255,.047),rgba(255,255,255,.016));
+  box-shadow:0 22px 60px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.02);
+}
+body.premiumV18 .readinessPanel{
+  grid-template-columns:154px 1fr;
+  gap:26px;
+  border-color:rgba(184,243,74,.22);
+  background:
+    radial-gradient(circle at 12% 50%,rgba(184,243,74,.115),transparent 30%),
+    linear-gradient(145deg,#111b17,#10171d 56%,#11161d);
+}
+body.premiumV18 .homeRing{width:126px;height:126px;background:conic-gradient(var(--readyColor) var(--ready),rgba(255,255,255,.07) 0);box-shadow:0 0 46px rgba(184,243,74,.07)}
+body.premiumV18 .homeRing::after{inset:9px;background:#10161b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+body.premiumV18 .homeRing b{font-size:29px;letter-spacing:-.04em}
+body.premiumV18 .homeRing small{font-size:9px;letter-spacing:.08em;text-transform:uppercase}
+body.premiumV18 .homePanelHead h2,
+body.premiumV18 .homePanel>h2{font-size:20px;letter-spacing:-.035em}
+body.premiumV18 .homePanelHead p{max-width:640px;font-size:11px;line-height:1.6;margin-top:6px}
+body.premiumV18 .homePanelHead>button{
+  min-height:36px;
+  border-color:rgba(184,243,74,.22);
+  background:var(--premium-accent-soft);
+  color:var(--premium-accent);
+  border-radius:999px;
+  padding:8px 12px;
+  letter-spacing:.03em;
+}
+body.premiumV18 .recoveryMetrics{gap:12px;margin-top:20px}
+body.premiumV18 .recoveryMetrics span{padding:10px 6px;border-left:1px solid rgba(255,255,255,.07)}
+body.premiumV18 .recoveryMetrics span:first-child{border-left:0}
+body.premiumV18 .metricIcon{width:22px;height:22px;margin-bottom:7px}
+body.premiumV18 .recoveryMetrics b{font-size:13px}
+body.premiumV18 .recoveryMetrics small{font-size:8px;letter-spacing:.08em;text-transform:uppercase}
+
+body.premiumV18 .homePlanGrid{gap:22px;margin-top:18px}
+body.premiumV18 .homePlanGrid>div{padding:4px 22px}
+body.premiumV18 .homePlanGrid>div:first-child{border-color:rgba(255,255,255,.075)}
+body.premiumV18 .homePlanGrid h3{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--premium-accent);margin-bottom:16px}
+body.premiumV18 .trainingPlan h3{color:var(--premium-blue)}
+body.premiumV18 .homePlanRow{font-size:12px;margin:11px 0}
+body.premiumV18 .homePlanRow b{font-size:9px;border-radius:999px;padding:7px 10px}
+body.premiumV18 .loadTag{padding:9px 11px;border-radius:10px;font-size:9px}
+body.premiumV18 .planWorkout{font-size:17px;letter-spacing:-.02em}
+body.premiumV18 .trainingPlan p{min-height:45px;font-size:11px;line-height:1.55}
+body.premiumV18 .trainingPlan button{min-height:38px;border-radius:999px;padding:8px 12px}
+
+body.premiumV18 .homeNutritionGrid{grid-template-columns:176px 1fr;gap:28px;margin-top:18px}
+body.premiumV18 .nutritionRing{width:142px;height:142px;background:conic-gradient(var(--premium-accent) var(--nutrition),rgba(255,255,255,.065) 0)}
+body.premiumV18 .nutritionRing::after{inset:10px;background:#11171e}
+body.premiumV18 .nutritionRing b{font-size:29px;letter-spacing:-.04em}
+body.premiumV18 .homeMacro{margin-bottom:12px}
+body.premiumV18 .homeMacro label,
+body.premiumV18 .homeMacro label b{font-size:10px}
+body.premiumV18 .homeMacro>div{height:5px;background:rgba(255,255,255,.07);margin-top:6px}
+body.premiumV18 .greenFill{background:var(--premium-accent)}
+body.premiumV18 .homeAddFood{min-height:43px;border-color:rgba(184,243,74,.25);background:var(--premium-accent-soft);border-radius:12px}
+
+body.premiumV18 .quickPanel{padding:20px}
+body.premiumV18 .quickGrid{gap:10px;margin-top:15px}
+body.premiumV18 .quickGrid button{
+  min-height:92px;
+  border-radius:16px;
+  border-color:rgba(255,255,255,.075);
+  background:rgba(255,255,255,.018);
+}
+body.premiumV18 .quickGrid i{width:34px;height:34px;padding:7px;border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.02)}
+body.premiumV18 .quickGrid span{font-size:9px;letter-spacing:.015em}
+
+/* Navigation */
+body.premiumV18 .bottomNav{
+  left:50%;
+  right:auto;
+  bottom:max(14px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  width:min(680px,calc(100% - 28px));
+  padding:8px;
+  border:1px solid rgba(255,255,255,.1)!important;
+  border-radius:22px;
+  background:rgba(13,17,23,.86)!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.035);
+  -webkit-backdrop-filter:blur(24px) saturate(140%);
+  backdrop-filter:blur(24px) saturate(140%);
+}
+body.premiumV18 .bottomNav button{min-height:55px;border-radius:15px;color:#76817f!important;gap:4px!important}
+body.premiumV18 .bottomNav button.active{color:var(--premium-accent)!important;background:rgba(184,243,74,.085)}
+body.premiumV18 .bottomNav .navSvg{width:21px;height:21px}
+body.premiumV18 .bottomNav small{font-size:9px!important;letter-spacing:.02em}
+body.premiumV18 .aiCoachFab{
+  right:max(18px,calc((100vw - 1120px)/2 + 20px));
+  bottom:26px;
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:18px;
+  background:linear-gradient(145deg,#d0ff78,#9cda30);
+  color:#0d1207;
+  box-shadow:0 18px 44px rgba(184,243,74,.21),inset 0 1px 0 rgba(255,255,255,.5);
+}
+body.premiumV18 .aiCoachFab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Calendar, nutrition, training and progress */
+body.premiumV18 .legend{gap:8px;padding:0 0 15px;font-size:10px}
+body.premiumV18 .legend span{padding:7px 10px;border:1px solid var(--premium-line);border-radius:999px;background:rgba(255,255,255,.025)}
+body.premiumV18 .monthbar,
+body.premiumV18 .dateNav{margin:0 0 14px}
+body.premiumV18 .monthbar h2{font-size:23px;letter-spacing:-.035em}
+body.premiumV18 .monthbar button,
+body.premiumV18 .dateNav button{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  justify-self:center;
+  border:1px solid var(--premium-line);
+  border-radius:13px;
+  background:rgba(255,255,255,.025);
+  color:var(--text);
+  font-size:25px;
+}
+body.premiumV18 .dateNav input{background:transparent;border:0;font-size:18px}
+body.premiumV18 .weekdays,
+body.premiumV18 .calendarGrid{gap:5px}
+body.premiumV18 .weekdays span{padding:7px 0;font-size:9px;letter-spacing:.1em}
+body.premiumV18 .calDay{height:82px;border:1px solid transparent;border-radius:14px;background:rgba(255,255,255,.018)}
+body.premiumV18 .calDay.selected{border-color:var(--premium-accent);box-shadow:0 0 0 1px var(--premium-accent)}
+body.premiumV18 .calDay.today .dayNum{background:var(--premium-accent);color:#10140a;box-shadow:0 8px 20px rgba(184,243,74,.2)}
+body.premiumV18 .dayNum{font-size:13px}
+body.premiumV18 .energyCard{
+  padding:24px;
+  border:1px solid rgba(184,243,74,.18);
+  border-radius:24px;
+  background:radial-gradient(circle at 10% 15%,rgba(184,243,74,.12),transparent 32%),linear-gradient(145deg,#121a17,#11161d 60%);
+  box-shadow:var(--shadow);
+}
+body.premiumV18 .energyHero strong{font-size:52px;letter-spacing:-.055em}
+body.premiumV18 .energyHero span{font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+body.premiumV18 .energyEquation{margin:18px 0}
+body.premiumV18 .energyEquation b{font-size:20px}
+body.premiumV18 .energyEquation small{font-size:9px;letter-spacing:.07em;text-transform:uppercase}
+body.premiumV18 .track{height:7px;background:rgba(255,255,255,.085)}
+body.premiumV18 .track i{background:var(--premium-accent)}
+body.premiumV18 .meal{margin-top:12px;overflow:hidden}
+body.premiumV18 .mealHead{padding:15px 16px;border-color:var(--premium-line)}
+body.premiumV18 .mealActions button{min-height:34px;padding:7px 10px;background:var(--premium-accent-soft);color:var(--premium-accent)}
+body.premiumV18 .foodRow{padding:12px 16px;border-color:var(--premium-line)}
+body.premiumV18 .trainNav{padding:12px}
+body.premiumV18 .trainNav>button{min-width:44px;min-height:44px;color:var(--premium-accent)}
+body.premiumV18 .trainTools button{min-height:36px;padding:7px 11px;background:var(--premium-surface);border-color:var(--premium-line)}
+body.premiumV18 .exerciseCard{padding:17px;margin-top:11px}
+body.premiumV18 .setRow input{min-height:42px;background:#0d1219}
+body.premiumV18 .phaseCard,
+body.premiumV18 .coachCard{padding:20px;border:1px solid rgba(184,243,74,.15);border-radius:22px;background:linear-gradient(145deg,#131b18,#12171f)}
+body.premiumV18 .phaseTrack i{background:var(--premium-accent)}
+
+/* More, icons and content menus */
+body.premiumV18 .premiumPageIntro{
+  margin:-14px 0 22px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+body.premiumV18 .menuCards{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+body.premiumV18 .menuCards>button{
+  grid-template-columns:48px 1fr 20px;
+  gap:13px;
+  min-height:86px;
+  padding:15px;
+  border:1px solid var(--premium-line);
+  border-radius:18px;
+  background:linear-gradient(150deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
+  color:var(--text);
+  box-shadow:0 16px 42px rgba(0,0,0,.12);
+}
+body.premiumV18 .premiumMenuIcon{
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(184,243,74,.16);
+  border-radius:14px;
+  background:rgba(184,243,74,.065);
+  color:var(--premium-accent);
+}
+body.premiumV18 .premiumMenuIcon svg,
+body.premiumV18 .premiumChevron svg,
+body.premiumV18 .premiumHeroIcon svg,
+body.premiumV18 .premiumInlineIcon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV18 button>.premiumInlineIcon{width:18px;height:18px;display:inline-grid;margin-right:6px;vertical-align:-4px}
+body.premiumV18 .menuCards b{font-size:13px;letter-spacing:-.01em}
+body.premiumV18 .menuCards small{font-size:9px;line-height:1.45;margin-top:4px}
+body.premiumV18 .premiumChevron{width:18px;height:18px;display:grid;color:#65706f!important}
+body.premiumV18 .premiumChevron svg{width:16px;height:16px}
+
+/* Sheets and forms */
+body.premiumV18 .modal{
+  padding:18px;
+  background:rgba(2,4,8,.72);
+  -webkit-backdrop-filter:blur(18px);
+  backdrop-filter:blur(18px);
+}
+body.premiumV18 .sheet{
+  width:min(100%,720px);
+  max-height:min(92dvh,900px);
+  padding:11px 22px max(24px,env(safe-area-inset-bottom));
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:28px;
+  background:linear-gradient(160deg,#171d26,#10151c 58%);
+  box-shadow:0 40px 100px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.045);
+}
+body.premiumV18 .largeSheet{width:min(100%,820px)}
+body.premiumV18 .sheetHandle{width:38px;height:4px;background:#49525e;margin:2px auto 8px}
+body.premiumV18 .sheetHead{min-height:56px;border-bottom:1px solid var(--premium-line);margin-bottom:16px}
+body.premiumV18 .sheetHead h2{font-size:21px;letter-spacing:-.035em}
+body.premiumV18 .sheetHead>div>small{color:var(--premium-accent);font-size:8px;letter-spacing:.1em;text-transform:uppercase}
+body.premiumV18 .sheetHead button{min-height:40px;color:var(--premium-accent)}
+body.premiumV18 .tabs{gap:7px;margin:10px 0 16px;overflow-x:auto;display:flex;scrollbar-width:none}
+body.premiumV18 .tabs button{flex:1;min-width:74px;min-height:40px;border-radius:12px;background:#10151c;font-size:9px}
+body.premiumV18 .tabs button.active{background:var(--premium-accent);border-color:var(--premium-accent);color:#10140a}
+body.premiumV18 .formGrid{gap:12px}
+body.premiumV18 .formGrid label,
+body.premiumV18 .authPane label{font-size:9px;color:#9aa3a1;font-weight:700}
+body.premiumV18 .formGrid input,
+body.premiumV18 .formGrid select{margin-top:6px}
+body.premiumV18 .introBox{
+  padding:15px;
+  border:1px solid rgba(184,243,74,.12);
+  border-radius:16px;
+  background:rgba(184,243,74,.045);
+}
+body.premiumV18 .introBox b{font-size:12px}
+body.premiumV18 .introBox p{font-size:10px;line-height:1.55}
+body.premiumV18 .captureBtn{min-height:46px;border-color:rgba(184,243,74,.2);border-radius:13px;background:var(--premium-accent-soft);color:var(--premium-accent)}
+body.premiumV18 .chips button{min-height:36px;border-radius:999px;background:#171e27}
+
+/* Onboarding */
+body.premiumV18 .onboardingSheet{width:min(100%,760px)}
+body.premiumV18 .obProgress{height:4px;margin:0 0 23px;background:rgba(255,255,255,.075)}
+body.premiumV18 .obProgress i{background:linear-gradient(90deg,#98d62c,#d4ff83);box-shadow:0 0 18px rgba(184,243,74,.25)}
+body.premiumV18 .obIntro{margin:5px auto 24px;max-width:560px}
+body.premiumV18 .premiumHeroIcon{
+  width:58px;
+  height:58px;
+  display:grid;
+  place-items:center;
+  margin:0 auto 13px;
+  border:1px solid rgba(184,243,74,.2);
+  border-radius:18px;
+  background:var(--premium-accent-soft);
+  color:var(--premium-accent);
+}
+body.premiumV18 .premiumHeroIcon svg{width:27px;height:27px}
+body.premiumV18 .obIntro h3{font-size:23px;letter-spacing:-.04em;margin:0 0 7px}
+body.premiumV18 .obIntro p{font-size:11px;line-height:1.6}
+body.premiumV18 .obDays{gap:7px;margin:9px 0 16px}
+body.premiumV18 .obDays span{min-height:42px;border-radius:12px;background:#10151c}
+body.premiumV18 .obDays input:checked+span{background:var(--premium-accent);border-color:var(--premium-accent);color:#10140a}
+body.premiumV18 .obPlanCard{padding:16px;border-radius:17px;background:rgba(255,255,255,.025)}
+body.premiumV18 .obPlanRow{padding:12px 0;border-color:var(--premium-line)}
+body.premiumV18 .obPlanRow strong{color:var(--premium-accent)}
+body.premiumV18 .obTargetGrid{gap:9px}
+body.premiumV18 .obTargetGrid span{padding:12px;border-radius:13px;background:#181f29}
+
+/* Account, library and AI Coach */
+body.premiumV18 .authTabs{gap:8px}
+body.premiumV18 .authTabs button{min-height:43px;border:1px solid var(--premium-line);background:#10151c;color:var(--muted)}
+body.premiumV18 .authTabs button.active{background:var(--premium-accent);color:#10140a}
+body.premiumV18 .accountIdentity{padding:15px;border-radius:16px}
+body.premiumV18 .accountIdentity>span{width:48px;height:48px;background:var(--premium-accent-soft);color:var(--premium-accent)}
+body.premiumV18 .accountActions button{min-height:58px;border-radius:14px;background:#151b24;color:var(--text);border:1px solid var(--premium-line)}
+body.premiumV18 .libraryCard{min-height:66px;padding:12px;border-radius:15px;background:rgba(255,255,255,.025)}
+body.premiumV18 .libraryIcon{width:40px;height:40px;border-radius:13px;background:var(--premium-accent-soft);color:var(--premium-accent)}
+body.premiumV18 .libraryIcon svg,
+body.premiumV18 .libraryHero>span svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV18 .libraryHero>span{background:var(--premium-accent-soft);color:var(--premium-accent)}
+body.premiumV18 .libraryGuide section{padding:15px;border-radius:14px;background:#171e27}
+body.premiumV18 .aiSheet{height:min(88dvh,820px)}
+body.premiumV18 .aiMessages{padding:4px 2px 18px}
+body.premiumV18 .aiMsg{max-width:min(86%,620px);margin:13px 0}
+body.premiumV18 .aiMsg>span{font-size:8px;letter-spacing:.12em}
+body.premiumV18 .aiMsg p{padding:12px 14px;border-radius:17px 17px 17px 5px;background:#19212b;font-size:11px;line-height:1.65}
+body.premiumV18 .aiMsg.user p{border-radius:17px 17px 5px 17px;background:var(--premium-accent);color:#10140a}
+body.premiumV18 .aiWelcome{padding:48px 16px}
+body.premiumV18 .aiWelcome .premiumHeroIcon{margin-bottom:17px}
+body.premiumV18 .aiWelcome h3{font-size:22px;letter-spacing:-.035em}
+body.premiumV18 .aiWelcome p{font-size:11px;line-height:1.65}
+body.premiumV18 .aiQuick button{min-height:39px;padding:8px 12px;border:1px solid var(--premium-line);border-radius:999px;background:#171e27;color:var(--text)}
+body.premiumV18 .aiComposer{grid-template-columns:46px 1fr auto;gap:8px;padding:13px 0 0;border-color:var(--premium-line)}
+body.premiumV18 .aiCamera{height:46px;border-radius:14px;background:#171e27;color:var(--premium-accent)}
+body.premiumV18 .aiCamera svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV18 .aiComposer textarea{min-height:46px}
+body.premiumV18 .aiComposer #aiSend{height:46px;min-width:74px;border-radius:13px}
+
+@media(hover:hover){
+  body.premiumV18 .homeSummary:hover,
+  body.premiumV18 .homePanel:hover,
+  body.premiumV18 .menuCards>button:hover,
+  body.premiumV18 .quickGrid button:hover,
+  body.premiumV18 .libraryCard:hover{transform:translateY(-2px);border-color:rgba(184,243,74,.24);box-shadow:0 22px 58px rgba(0,0,0,.25)}
+  body.premiumV18 .bottomNav button:hover{color:#c8d0cc!important;background:rgba(255,255,255,.035)}
+  body.premiumV18 .primary:hover{background:#c7fb64!important;box-shadow:0 12px 28px rgba(184,243,74,.2)}
+}
+
+@media(max-width:760px){
+  body.premiumV18 .app{padding-left:14px;padding-right:14px}
+  body.premiumV18 .homeHeader{grid-template-columns:48px 1fr 48px;gap:10px;padding-bottom:22px}
+  body.premiumV18 .brandCopy{display:none}
+  body.premiumV18 .homeHello h1{font-size:21px}
+  body.premiumV18 .homeSummaryGrid{grid-template-columns:1fr 1fr}
+  body.premiumV18 .homeSummary{min-height:150px}
+  body.premiumV18 .readinessPanel{grid-template-columns:130px 1fr;gap:16px}
+  body.premiumV18 .homeRing{width:112px;height:112px}
+  body.premiumV18 .homeNutritionGrid{grid-template-columns:145px 1fr;gap:16px}
+  body.premiumV18 .nutritionRing{width:124px;height:124px}
+  body.premiumV18 .menuCards{grid-template-columns:1fr}
+  body.premiumV18 .aiCoachFab{right:16px;bottom:92px}
+}
+
+@media(max-width:560px){
+  body.premiumV18{background:linear-gradient(180deg,#090d12,#080b10)}
+  body.premiumV18::before{display:none}
+  body.premiumV18 .app{padding-top:max(18px,calc(env(safe-area-inset-top) + 12px));padding-left:11px;padding-right:11px}
+  body.premiumV18 .page>h2{font-size:26px;margin-bottom:20px}
+  body.premiumV18 .homeHeader{padding:3px 2px 19px}
+  body.premiumV18 .brandMark{width:39px;height:39px;border-radius:12px}
+  body.premiumV18 .homeAvatar{width:39px;height:39px}
+  body.premiumV18 .homeHello h1{font-size:18px}
+  body.premiumV18 .homeHello p{font-size:9px;margin-top:5px}
+  body.premiumV18 .homeSummaryGrid{gap:8px;margin-bottom:10px}
+  body.premiumV18 .homeSummary{min-height:142px;padding:14px;border-radius:18px}
+  body.premiumV18 .homeSummary .homeIcon{width:36px;height:36px;margin-bottom:15px}
+  body.premiumV18 .homeSummary b{font-size:15px}
+  body.premiumV18 .homePanel{padding:16px;border-radius:19px;margin-bottom:10px}
+  body.premiumV18 .readinessPanel{grid-template-columns:102px 1fr;gap:11px}
+  body.premiumV18 .homeRing{width:92px;height:92px}
+  body.premiumV18 .homeRing b{font-size:23px}
+  body.premiumV18 .homePanelHead h2,
+  body.premiumV18 .homePanel>h2{font-size:17px}
+  body.premiumV18 .homePanelHead p{font-size:9px}
+  body.premiumV18 .recoveryMetrics{gap:2px;margin-top:13px}
+  body.premiumV18 .recoveryMetrics span{padding:7px 2px}
+  body.premiumV18 .metricIcon{width:19px;height:19px}
+  body.premiumV18 .recoveryMetrics b{font-size:10px}
+  body.premiumV18 .recoveryMetrics small{font-size:7px}
+  body.premiumV18 .homePlanGrid{grid-template-columns:1fr;gap:0}
+  body.premiumV18 .homePlanGrid>div{padding:4px 0}
+  body.premiumV18 .homePlanGrid>div:first-child{padding-bottom:16px;border-right:0;border-bottom:1px solid rgba(255,255,255,.075)}
+  body.premiumV18 .homePlanGrid>div:last-child{padding-top:16px}
+  body.premiumV18 .homeNutritionGrid{grid-template-columns:1fr;gap:18px}
+  body.premiumV18 .nutritionRing{width:116px;height:116px}
+  body.premiumV18 .quickGrid{grid-template-columns:repeat(3,1fr);gap:7px}
+  body.premiumV18 .quickGrid button{min-height:82px}
+  body.premiumV18 .bottomNav{bottom:max(8px,env(safe-area-inset-bottom));width:calc(100% - 18px);padding:6px;border-radius:19px}
+  body.premiumV18 .bottomNav button{min-height:51px;border-radius:13px}
+  body.premiumV18 .bottomNav small{font-size:8px!important}
+  body.premiumV18 .aiCoachFab{right:13px;bottom:82px;width:52px;height:52px;border-radius:16px}
+  body.premiumV18 .modal{padding:0;align-items:flex-end}
+  body.premiumV18 .sheet{width:100%;max-height:94dvh;border-radius:25px 25px 0 0;padding:9px 15px max(22px,env(safe-area-inset-bottom));border-left:0;border-right:0;border-bottom:0}
+  body.premiumV18 .formGrid{grid-template-columns:1fr}
+  body.premiumV18 .formGrid .span2{grid-column:auto}
+  body.premiumV18 .obDays{grid-template-columns:repeat(4,1fr)}
+  body.premiumV18 .obTargetGrid{grid-template-columns:1fr 1fr}
+  body.premiumV18 .calendarGrid{gap:2px}
+  body.premiumV18 .calDay{height:65px;border-radius:10px}
+  body.premiumV18 .menuCards>button{min-height:78px}
+  body.premiumV18 .aiComposer{grid-template-columns:44px 1fr 62px}
+}
+
+@media(max-width:370px){
+  body.premiumV18 .homeHello h1{font-size:16px}
+  body.premiumV18 .homeSummary{min-height:134px;padding:12px}
+  body.premiumV18 .readinessPanel{grid-template-columns:1fr;text-align:center}
+  body.premiumV18 .homePanelHead{align-items:center}
+  body.premiumV18 .recoveryMetrics{margin-top:14px}
+  body.premiumV18 .quickGrid{grid-template-columns:1fr 1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  body.premiumV18 *,body.premiumV18 *::before,body.premiumV18 *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+@keyframes premiumPageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}

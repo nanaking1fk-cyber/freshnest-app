@@ -1,8 +1,8 @@
-# Work + Workout v21 takeover
+# Work + Workout v22 takeover
 
 ## Current release
 
-Version 21.0 is the Product Story Edition. Its autoplay hero demonstrates the app throughout a worker's day: the plan is ready before work, adapts when a shift runs late, records the gym session and meal, and provides Progressive Coach guidance. It preserves the worker-first story, natural-language Quick Plan, adaptive scheduling, reminders, Supabase accounts and AI architecture.
+Version 22.0 is the Working Lives Edition. Its autoplay hero demonstrates the app throughout a worker's day, while an accessible six-profession carousel shows how the plan adapts for healthcare, construction, transit, hospitality, education and logistics. It preserves the natural-language Quick Plan, adaptive scheduling, reminders, Supabase accounts and AI architecture.
 
 ## Current architecture
 

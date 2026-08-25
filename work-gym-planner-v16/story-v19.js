@@ -1,4 +1,4 @@
-// Work + Workout 21.0 — autoplay day-in-the-life product story and smart capture.
+// Work + Workout 22.0 — day-in-the-life product story, worker carousel and smart capture.
 (function workWorkoutStoryV19(){
   'use strict';
   var V=window.WGC19=window.WGC19||{};
@@ -6,6 +6,9 @@
   var adTimer=null;
   var adIndex=0;
   var adObserver=null;
+  var workerTimer=null;
+  var workerIndex=0;
+  var workerObserver=null;
   var captureDraft=[];
   var weekdays={sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
   var dayPattern=/\b(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)\b/gi;
@@ -119,14 +122,76 @@
 
   function workerStoryMarkup(){
     return '<section id="landingWorkers" class="landingSection storyWorkers">'+
-      '<div class="storySectionHead"><p>BUILT FOR WORKING PEOPLE</p><h2>The people who keep life moving deserve a plan that moves with them.</h2><span>Healthcare. Roads. Transit. Hospitality. Every demanding day.</span></div>'+
-      '<div class="storyWorkerGrid">'+
-        '<article class="storyWorker storyWorkerNurse"><img src="'+ASSET+'story-nurse-v19.jpg" alt="A nurse in navy scrubs checking her plan after a hospital shift"><div><small>HEALTHCARE</small><h3>Twelve-hour shift. One plan that protects the person in the scrubs.</h3><p>Meals, training and recovery fit around the work—not the other way around.</p></div></article>'+
-        '<article class="storyWorker"><img src="'+ASSET+'story-road-worker-v19.jpg" alt="A road construction worker in safety gear checking his schedule"><div><small>CONSTRUCTION</small><h3>Physical work changes the workout.</h3><p>Heavy days call for smarter training and better recovery.</p></div></article>'+
-        '<article class="storyWorker"><img src="'+ASSET+'story-transit-v19.jpg" alt="A transit driver in uniform with a prepared meal"><div><small>TRANSIT</small><h3>Meals and movement between routes.</h3><p>Small windows become useful, realistic actions.</p></div></article>'+
-        '<article class="storyWorker"><img src="'+ASSET+'story-chef-v19.jpg" alt="A chef in uniform planning around a busy service"><div><small>HOSPITALITY</small><h3>Care for yourself after serving everyone else.</h3><p>The plan resets when the shift runs long.</p></div></article>'+
+      '<div class="storySectionHead"><p>BUILT FOR WORKING PEOPLE</p><h2>The people who keep life moving deserve a plan that moves with them.</h2><span>Healthcare. Roads. Transit. Hospitality. Education. Logistics. One adaptive plan for every demanding day.</span></div>'+
+      '<div id="landingWorkerCarousel" class="storyWorkerCarousel" role="region" aria-roledescription="carousel" aria-label="How Work and Workout supports different working lives">'+
+        '<div class="storyWorkerViewport" aria-live="off">'+
+          '<article class="storyWorkerSlide storyWorkerNurse active" data-worker-slide="0" aria-hidden="false"><img src="'+ASSET+'story-nurse-v19.jpg" alt="A nurse in navy scrubs checking her plan after a hospital shift"><div class="storyWorkerBody"><small>HEALTHCARE · SHIFT PLAN</small><h3>Twelve-hour shift. One plan that protects the person in the scrubs.</h3><p>Meals, training and recovery fit around the work—not the other way around.</p><span>SHIFT · MEALS · RECOVERY</span></div></article>'+
+          '<article class="storyWorkerSlide storyWorkerRoad" data-worker-slide="1" aria-hidden="true"><img src="'+ASSET+'story-road-worker-v19.jpg" alt="A road construction worker in safety gear checking his Work and Workout schedule"><div class="storyWorkerBody"><small>CONSTRUCTION · WORKLOAD AWARE</small><h3>Physical work changes what a smart workout looks like.</h3><p>Heavy workdays lower the training load and protect mobility, fuel and recovery.</p><span>WORKLOAD · MOBILITY · RECOVERY</span></div></article>'+
+          '<article class="storyWorkerSlide storyWorkerTransit" data-worker-slide="2" aria-hidden="true"><img src="'+ASSET+'story-transit-v19.jpg" alt="A transit driver in uniform using a prepared meal and daily plan"><div class="storyWorkerBody"><small>TRANSIT · ROUTE READY</small><h3>Meals and movement, coordinated between routes.</h3><p>Early starts and small breaks become realistic windows for food, movement and life.</p><span>ROUTES · MEALS · MOVEMENT</span></div></article>'+
+          '<article class="storyWorkerSlide storyWorkerChef" data-worker-slide="3" aria-hidden="true"><img src="'+ASSET+'story-chef-v19.jpg" alt="A chef using Work and Workout after a busy service"><div class="storyWorkerBody"><small>HOSPITALITY · LATE SHIFT</small><h3>Care for yourself after serving everyone else.</h3><p>When service runs long, the plan resets dinner, recovery and tomorrow automatically.</p><span>SERVICE · RECOVERY · TOMORROW</span></div></article>'+
+          '<article class="storyWorkerSlide storyWorkerTeacher" data-worker-slide="4" aria-hidden="true"><img src="'+ASSET+'story-teacher-v22.jpg" alt="A teacher checking his Work and Workout plan after class with a prepared meal"><div class="storyWorkerBody"><small>EDUCATION · SCHOOL DAY</small><h3>The final bell should not end your energy for the day.</h3><p>Classes, meal prep and training stay coordinated—even when the school day follows you home.</p><span>CLASSES · MEAL PREP · TRAINING</span></div></article>'+
+          '<article class="storyWorkerSlide storyWorkerLogistics" data-worker-slide="5" aria-hidden="true"><img src="'+ASSET+'story-logistics-v22.jpg" alt="A logistics worker checking her Work and Workout plan during a shift break"><div class="storyWorkerBody"><small>LOGISTICS · SHIFT CHANGE</small><h3>A demanding shift is already part of the training equation.</h3><p>Workload, hydration, meals and the gym are balanced as one connected day.</p><span>SHIFT LOAD · HYDRATION · GYM</span></div></article>'+
+        '</div>'+
+        '<div class="storyWorkerNav" role="tablist" aria-label="Choose a worker story">'+
+          '<button class="active" type="button" role="tab" aria-selected="true" data-worker-go="0"><b>01</b><span>Healthcare</span></button>'+
+          '<button type="button" role="tab" aria-selected="false" data-worker-go="1"><b>02</b><span>Construction</span></button>'+
+          '<button type="button" role="tab" aria-selected="false" data-worker-go="2"><b>03</b><span>Transit</span></button>'+
+          '<button type="button" role="tab" aria-selected="false" data-worker-go="3"><b>04</b><span>Hospitality</span></button>'+
+          '<button type="button" role="tab" aria-selected="false" data-worker-go="4"><b>05</b><span>Education</span></button>'+
+          '<button type="button" role="tab" aria-selected="false" data-worker-go="5"><b>06</b><span>Logistics</span></button>'+
+        '</div>'+
+        '<div class="storyWorkerControls"><button type="button" data-worker-prev aria-label="Previous worker story">&#8592;</button><span id="storyWorkerCount">01 / 06</span><button type="button" data-worker-next aria-label="Next worker story">&#8594;</button></div>'+
       '</div>'+
     '</section>';
+  }
+
+  function updateWorkerCarousel(nextIndex){
+    var root=document.getElementById('landingWorkerCarousel');
+    if(!root)return;
+    var slides=root.querySelectorAll('[data-worker-slide]'),tabs=root.querySelectorAll('[data-worker-go]');
+    if(!slides.length)return;
+    workerIndex=(nextIndex+slides.length)%slides.length;
+    slides.forEach(function(slide,index){
+      var active=index===workerIndex;
+      slide.classList.toggle('active',active);
+      slide.setAttribute('aria-hidden',String(!active));
+    });
+    tabs.forEach(function(tab,index){
+      var active=index===workerIndex;
+      tab.classList.toggle('active',active);
+      tab.setAttribute('aria-selected',String(active));
+    });
+    var count=document.getElementById('storyWorkerCount');
+    if(count)count.textContent=pad(workerIndex+1)+' / '+pad(slides.length);
+  }
+  function stopWorkerCarousel(){clearInterval(workerTimer);workerTimer=null}
+  function startWorkerCarousel(){
+    var root=document.getElementById('landingWorkerCarousel');
+    if(!root||document.hidden||window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    stopWorkerCarousel();
+    workerTimer=setInterval(function(){updateWorkerCarousel(workerIndex+1)},6400);
+  }
+  function bindWorkerCarousel(){
+    var root=document.getElementById('landingWorkerCarousel');
+    if(!root||root.dataset.bound)return;
+    root.dataset.bound='true';
+    var previous=root.querySelector('[data-worker-prev]'),next=root.querySelector('[data-worker-next]');
+    function choose(index){updateWorkerCarousel(index);startWorkerCarousel()}
+    if(previous)previous.onclick=function(){choose(workerIndex-1)};
+    if(next)next.onclick=function(){choose(workerIndex+1)};
+    root.querySelectorAll('[data-worker-go]').forEach(function(button){button.onclick=function(){choose(Number(button.dataset.workerGo))}});
+    root.addEventListener('mouseenter',stopWorkerCarousel);
+    root.addEventListener('mouseleave',startWorkerCarousel);
+    root.addEventListener('focusin',stopWorkerCarousel);
+    root.addEventListener('focusout',function(event){if(!root.contains(event.relatedTarget))startWorkerCarousel()});
+    var touchStart=0;
+    root.addEventListener('touchstart',function(event){touchStart=event.changedTouches[0].clientX},{passive:true});
+    root.addEventListener('touchend',function(event){var distance=event.changedTouches[0].clientX-touchStart;if(Math.abs(distance)>46)choose(workerIndex+(distance<0?1:-1))},{passive:true});
+    if('IntersectionObserver'in window){
+      workerObserver=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting&&entry.intersectionRatio>.22)startWorkerCarousel();else stopWorkerCarousel()})},{threshold:[0,.22,.6]});
+      workerObserver.observe(root);
+    }else startWorkerCarousel();
+    document.addEventListener('visibilitychange',function(){if(document.hidden)stopWorkerCarousel();else startWorkerCarousel()});
   }
   function landingDemoMarkup(){
     return '<section id="landingRawDemo" class="storyRawDemo">'+
@@ -251,6 +316,7 @@
       signal.querySelector('p').textContent='Made for real working lives';
       signal.querySelector('div').innerHTML='<span>NURSES</span><i></i><span>BUILDERS</span><i></i><span>DRIVERS</span><i></i><span>TEACHERS</span><i></i><span>HOSPITALITY</span>';
       signal.insertAdjacentHTML('afterend',workerStoryMarkup()+landingDemoMarkup());
+      bindWorkerCarousel();
     }
     var nav=landing.querySelector('.landingNav nav');
     if(nav&&!nav.querySelector('[href="#landingWorkers"]'))nav.insertAdjacentHTML('afterbegin','<a href="#landingWorkers">For workers</a>');

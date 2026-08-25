@@ -1,4 +1,4 @@
-/* Work + Workout 21.0 — autoplay product-story hero and smart planning */
+/* Work + Workout 22.0 — product-story hero, worker carousel and smart planning */
 :root{
   --story-ink:#080b10;
   --story-panel:#10161d;
@@ -54,7 +54,7 @@
 .premiumLanding[data-story-v19="true"] .landingGhost small{color:#89938e;font-size:8px;font-weight:800}
 
 /* Worker story */
-.storyWorkers{max-width:1380px!important;padding-top:132px!important;padding-bottom:110px!important}
+.storyWorkers{max-width:1380px!important;padding-top:132px!important;padding-bottom:110px!important;scroll-margin-top:76px}
 .storySectionHead{
   display:grid;
   grid-template-columns:.72fr 2.1fr .9fr;
@@ -84,51 +84,102 @@
   font-size:12px;
   line-height:1.65;
 }
-.storyWorkerGrid{
-  display:grid;
-  grid-template-columns:1.35fr repeat(3,.78fr);
-  gap:12px;
-}
-.storyWorker{
-  min-height:590px;
+.storyWorkerCarousel{
+  height:clamp(620px,62vw,780px);
   position:relative;
   overflow:hidden;
-  border:1px solid rgba(255,255,255,.11);
-  border-radius:26px;
-  background:#11161c;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:32px;
+  background:#0b1016;
   isolation:isolate;
+  box-shadow:0 48px 120px rgba(0,0,0,.3);
 }
-.storyWorker::after{
+.storyWorkerViewport,.storyWorkerSlide{position:absolute;inset:0}
+.storyWorkerSlide{
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .75s ease,visibility .75s;
+}
+.storyWorkerSlide.active{opacity:1;visibility:visible;z-index:1}
+.storyWorkerSlide::after{
   content:"";
   position:absolute;
   z-index:1;
   inset:0;
-  background:linear-gradient(0deg,rgba(5,8,11,.98) 0%,rgba(5,8,11,.58) 29%,transparent 64%);
+  background:
+    linear-gradient(90deg,rgba(5,8,11,.96) 0%,rgba(5,8,11,.72) 39%,rgba(5,8,11,.08) 72%),
+    linear-gradient(0deg,rgba(5,8,11,.92) 0%,rgba(5,8,11,.16) 48%,rgba(5,8,11,.08) 100%);
 }
-.storyWorker img{
+.storyWorkerSlide img{
   width:100%;
   height:100%;
   position:absolute;
   inset:0;
   object-fit:cover;
-  filter:saturate(.88) contrast(1.02);
-  transition:transform .7s cubic-bezier(.2,.8,.2,1),filter .7s;
+  object-position:center;
+  filter:saturate(.86) contrast(1.05) brightness(.84);
+  transform:scale(1.035);
+  transition:transform 6.8s cubic-bezier(.2,.7,.2,1),filter .7s;
 }
-.storyWorker:hover img{transform:scale(1.035);filter:saturate(1) contrast(1.03)}
+.storyWorkerSlide.active img{transform:scale(1);filter:saturate(.98) contrast(1.04) brightness(.9)}
 .storyWorkerNurse img{object-position:68% center}
-.storyWorker>div{
+.storyWorkerRoad img{object-position:60% 17%}
+.storyWorkerTransit img{object-position:60% 17%}
+.storyWorkerChef img{object-position:58% 17%}
+.storyWorkerTeacher img{object-position:66% 12%}
+.storyWorkerLogistics img{object-position:68% 12%}
+.storyWorkerBody{
   position:absolute;
   z-index:2;
-  right:0;
-  bottom:0;
-  left:0;
-  padding:28px 25px;
+  left:clamp(28px,5vw,74px);
+  bottom:clamp(80px,10vw,132px);
+  width:min(610px,53%);
 }
-.storyWorker small{color:var(--story-accent);font-size:8px;font-weight:950;letter-spacing:.16em}
-.storyWorker h3{margin:10px 0 9px;font-size:20px;line-height:1.12;letter-spacing:-.035em}
-.storyWorker p{margin:0;color:#98a19d;font-size:10px;line-height:1.6}
-.storyWorkerNurse h3{max-width:460px;font-size:28px}
-.storyWorkerNurse p{max-width:440px;font-size:11px}
+.storyWorkerBody small{color:var(--story-accent);font-size:9px;font-weight:950;letter-spacing:.17em}
+.storyWorkerBody h3{max-width:590px;margin:16px 0 15px;color:#f7f9f5;font-size:clamp(35px,4.6vw,63px);font-weight:620;line-height:.98;letter-spacing:-.052em}
+.storyWorkerBody p{max-width:500px;margin:0;color:#adb6b1;font-size:14px;line-height:1.65}
+.storyWorkerBody>span{display:inline-flex;margin-top:23px;padding:9px 12px;border:1px solid rgba(184,243,74,.22);border-radius:99px;color:#dfffa3;background:rgba(184,243,74,.08);font-size:7px;font-weight:900;letter-spacing:.13em}
+.storyWorkerNav{
+  position:absolute;
+  z-index:4;
+  top:27px;
+  right:27px;
+  left:27px;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:7px;
+}
+.storyWorkerNav button{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:11px;
+  color:#a2aca6;
+  background:rgba(9,13,18,.62);
+  backdrop-filter:blur(13px);
+  cursor:pointer;
+  transition:border-color .25s,color .25s,background .25s;
+}
+.storyWorkerNav button b{color:#69736e;font-size:7px}.storyWorkerNav button span{overflow:hidden;font-size:8px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
+.storyWorkerNav button:hover,.storyWorkerNav button:focus-visible{border-color:rgba(184,243,74,.4);color:#f3f6f2;outline:none}
+.storyWorkerNav button.active{border-color:rgba(184,243,74,.44);color:#f5f8f3;background:rgba(20,29,21,.78);box-shadow:inset 0 -2px 0 var(--story-accent)}
+.storyWorkerNav button.active b{color:var(--story-accent)}
+.storyWorkerControls{
+  position:absolute;
+  z-index:4;
+  right:28px;
+  bottom:27px;
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+.storyWorkerControls button{width:42px;height:42px;border:1px solid rgba(255,255,255,.15);border-radius:50%;color:#f4f7f3;background:rgba(9,13,18,.78);font-size:16px;cursor:pointer;backdrop-filter:blur(12px)}
+.storyWorkerControls button:hover,.storyWorkerControls button:focus-visible{border-color:var(--story-accent);color:#10150a;background:var(--story-accent);outline:none}
+.storyWorkerControls span{min-width:46px;color:#b3bcb7;font-size:8px;font-weight:900;letter-spacing:.1em;text-align:center}
 
 /* Live landing demonstration */
 .storyRawDemo{
@@ -527,7 +578,8 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 
 @media(max-width:980px){
   .storySectionHead{grid-template-columns:1fr 2fr}.storySectionHead>span{grid-column:2}
-  .storyWorkerGrid{grid-template-columns:1.2fr 1fr 1fr}.storyWorkerNurse{grid-column:1/-1;min-height:520px}.storyWorker{min-height:480px}
+  .storyWorkerCarousel{height:660px}.storyWorkerBody{width:65%}
+  .storyWorkerNav{overflow-x:auto;grid-template-columns:repeat(6,minmax(122px,1fr));scrollbar-width:none}.storyWorkerNav::-webkit-scrollbar{display:none}
   .storyRawDemo{grid-template-columns:1fr;gap:42px;margin-inline:18px}
 }
 @media(max-width:760px){
@@ -547,8 +599,12 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
   .landingAdProgress{top:548px;right:16px;bottom:auto;width:calc(100% - 32px)}.landingAdCredit{display:none}
   .storyWorkers{padding:88px 17px 72px!important}
   .storySectionHead{display:block}.storySectionHead h2{margin:15px 0 18px}.storySectionHead>span{display:block}
-  .storyWorkerGrid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
-  .storyWorker{min-width:80vw;min-height:500px;scroll-snap-align:center}.storyWorkerNurse{min-width:88vw}
+  .storyWorkerCarousel{height:690px;border-radius:25px}
+  .storyWorkerSlide::after{background:linear-gradient(0deg,rgba(5,8,11,.98) 0%,rgba(5,8,11,.82) 38%,rgba(5,8,11,.04) 74%)}
+  .storyWorkerSlide img{object-position:center 28%}.storyWorkerNurse img{object-position:67% top}.storyWorkerTeacher img,.storyWorkerLogistics img{object-position:center 20%}
+  .storyWorkerNav{top:15px;right:15px;left:15px;grid-template-columns:repeat(6,minmax(108px,1fr));gap:5px}.storyWorkerNav button{padding:9px 10px}
+  .storyWorkerBody{right:21px;bottom:78px;left:21px;width:auto}.storyWorkerBody h3{font-size:clamp(36px,10.8vw,51px)}.storyWorkerBody p{font-size:12px}.storyWorkerBody>span{margin-top:17px}
+  .storyWorkerControls{right:18px;bottom:18px}.storyWorkerControls button{width:39px;height:39px}
   .storyRawDemo{min-height:auto;margin:0 12px 72px;padding:37px 16px;border-radius:24px}.storyRawCopy h2{font-size:43px}.storyRawCopy>span{font-size:13px}
   .storyRawStage{min-height:auto}.storyRawInput{padding:16px}.storyRawInput textarea{font-size:11px}
   .storyFilm{padding:0}.storyFilmShell{width:100vw;height:100dvh;border:0;border-radius:0}
@@ -572,14 +628,14 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 @media(max-width:520px){
   .premiumLanding[data-story-v19="true"] .landingHeroActions{display:grid}
   .premiumLanding[data-story-v19="true"] .landingHeroProof{display:grid;grid-template-columns:1fr 1fr}.premiumLanding[data-story-v19="true"] .landingHeroProof span:last-child{display:none}
-  .storyWorker{min-width:86vw}.storyWorkerNurse{min-width:90vw}
+  .storyWorkerCarousel{height:650px}.storyWorkerBody h3{font-size:39px}.storyWorkerBody p{font-size:11px}.storyWorkerNav button{min-width:102px}
   .storyRawCopy>button{width:100%}
   body.premiumV18 .smartCaptureV19{padding:16px;border-radius:18px}
   body.premiumV18 .smartCaptureIntro h2{font-size:19px}
   body.premiumV18 .inAppWorkerImages{display:flex;overflow-x:auto}.inAppWorkerImages span{min-width:52%;height:165px}
 }
 @media(prefers-reduced-motion:reduce){
-  .storyWorker img,.filmScene,.storyFilm,.landingAdScene{transition:none!important}
+  .storyWorkerSlide,.storyWorkerSlide img,.filmScene,.storyFilm,.landingAdScene{transition:none!important}
   .filmScene.active .filmFootage{animation:none!important}
   .filmCapture i b{animation:none!important;width:100%}
   .landingAdScene.active video,.adSetRow .logging>i{animation:none!important}

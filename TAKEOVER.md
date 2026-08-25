@@ -1,4 +1,8 @@
-# Work + Gym Coach v18 takeover
+# Work + Workout v19 takeover
+
+## Current release
+
+Version 19.0 is the Worker Edition. It adds a premium first-visit landing page, a captioned interactive product film, occupational photography, natural-language Quick Plan, adaptive shift-to-workout scheduling and calendar reminder export while preserving the v18 account, Supabase and AI architecture.
 
 ## Current architecture
 

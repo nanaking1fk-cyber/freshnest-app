@@ -13,12 +13,13 @@ window.WGC18=window.WGC18||{};
  }
  A.captureLocalState=secureCapture;
  // Override the account module's generic exporter so every migration path uses
- // the same privacy filter, including direct Supabase RLS sync.
+ // the same privacy filter before sending state through the authenticated API.
  window.exportState18=secureCapture;
  A.pushState=async function({quiet=false}={}){
    if(!A.session)return false;
-   await window.pushAccount18();
    let state=secureCapture();
+   let result=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state})});
+   localStorage.setItem('wgc-v18-last-sync',result.updatedAt||new Date().toISOString());
    if(!quiet)toast(`Synced ${Object.keys(state.storage).length} planner records. Private cloud credentials stayed on this device.`);
    return true;
  };

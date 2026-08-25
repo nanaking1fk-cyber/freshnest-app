@@ -133,12 +133,12 @@
           '<article class="storyWorkerSlide storyWorkerLogistics" data-worker-slide="5" aria-hidden="true"><img src="'+ASSET+'story-logistics-v22.jpg" alt="A logistics worker checking her Work and Workout plan during a shift break"><div class="storyWorkerBody"><small>LOGISTICS · SHIFT CHANGE</small><h3>A demanding shift is already part of the training equation.</h3><p>Workload, hydration, meals and the gym are balanced as one connected day.</p><span>SHIFT LOAD · HYDRATION · GYM</span></div></article>'+
         '</div>'+
         '<div class="storyWorkerNav" role="tablist" aria-label="Choose a worker story">'+
-          '<button class="active" type="button" role="tab" aria-selected="true" data-worker-go="0"><b>01</b><span>Healthcare</span></button>'+
-          '<button type="button" role="tab" aria-selected="false" data-worker-go="1"><b>02</b><span>Construction</span></button>'+
-          '<button type="button" role="tab" aria-selected="false" data-worker-go="2"><b>03</b><span>Transit</span></button>'+
-          '<button type="button" role="tab" aria-selected="false" data-worker-go="3"><b>04</b><span>Hospitality</span></button>'+
-          '<button type="button" role="tab" aria-selected="false" data-worker-go="4"><b>05</b><span>Education</span></button>'+
-          '<button type="button" role="tab" aria-selected="false" data-worker-go="5"><b>06</b><span>Logistics</span></button>'+
+          '<button class="active" type="button" role="tab" aria-label="Healthcare story" aria-selected="true" data-worker-go="0"></button>'+
+          '<button type="button" role="tab" aria-label="Construction story" aria-selected="false" data-worker-go="1"></button>'+
+          '<button type="button" role="tab" aria-label="Transit story" aria-selected="false" data-worker-go="2"></button>'+
+          '<button type="button" role="tab" aria-label="Hospitality story" aria-selected="false" data-worker-go="3"></button>'+
+          '<button type="button" role="tab" aria-label="Education story" aria-selected="false" data-worker-go="4"></button>'+
+          '<button type="button" role="tab" aria-label="Logistics story" aria-selected="false" data-worker-go="5"></button>'+
         '</div>'+
         '<div class="storyWorkerControls"><button type="button" data-worker-prev aria-label="Previous worker story">&#8592;</button><span id="storyWorkerCount">01 / 06</span><button type="button" data-worker-next aria-label="Next worker story">&#8594;</button></div>'+
       '</div>'+

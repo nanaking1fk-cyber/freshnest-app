@@ -1,5 +1,5 @@
 // v18 product integration: accounts, AI, library and personalized onboarding
-APP_VERSION='22.0.0';
+APP_VERSION='22.0.1';
 (function(){
  function upgrade(){
   document.title='Work + Workout';

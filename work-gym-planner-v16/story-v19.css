@@ -142,32 +142,25 @@
 .storyWorkerNav{
   position:absolute;
   z-index:4;
-  top:27px;
-  right:27px;
-  left:27px;
+  top:30px;
+  left:clamp(28px,5vw,74px);
+  width:min(430px,40vw);
   display:grid;
   grid-template-columns:repeat(6,1fr);
-  gap:7px;
+  gap:6px;
 }
 .storyWorkerNav button{
-  min-width:0;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:10px 12px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.11);
-  border-radius:11px;
-  color:#a2aca6;
-  background:rgba(9,13,18,.62);
-  backdrop-filter:blur(13px);
+  height:4px;
+  padding:0;
+  border:0;
+  border-radius:99px;
+  background:rgba(255,255,255,.26);
   cursor:pointer;
-  transition:border-color .25s,color .25s,background .25s;
+  box-shadow:0 0 0 7px transparent;
+  transition:background .25s,transform .25s;
 }
-.storyWorkerNav button b{color:#69736e;font-size:7px}.storyWorkerNav button span{overflow:hidden;font-size:8px;font-weight:800;text-overflow:ellipsis;white-space:nowrap}
-.storyWorkerNav button:hover,.storyWorkerNav button:focus-visible{border-color:rgba(184,243,74,.4);color:#f3f6f2;outline:none}
-.storyWorkerNav button.active{border-color:rgba(184,243,74,.44);color:#f5f8f3;background:rgba(20,29,21,.78);box-shadow:inset 0 -2px 0 var(--story-accent)}
-.storyWorkerNav button.active b{color:var(--story-accent)}
+.storyWorkerNav button:hover,.storyWorkerNav button:focus-visible{background:rgba(255,255,255,.62);outline:none;transform:scaleY(1.45)}
+.storyWorkerNav button.active{background:var(--story-accent);box-shadow:0 0 15px rgba(184,243,74,.42)}
 .storyWorkerControls{
   position:absolute;
   z-index:4;
@@ -579,7 +572,7 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 @media(max-width:980px){
   .storySectionHead{grid-template-columns:1fr 2fr}.storySectionHead>span{grid-column:2}
   .storyWorkerCarousel{height:660px}.storyWorkerBody{width:65%}
-  .storyWorkerNav{overflow-x:auto;grid-template-columns:repeat(6,minmax(122px,1fr));scrollbar-width:none}.storyWorkerNav::-webkit-scrollbar{display:none}
+  .storyWorkerNav{width:min(390px,48vw)}
   .storyRawDemo{grid-template-columns:1fr;gap:42px;margin-inline:18px}
 }
 @media(max-width:760px){
@@ -602,7 +595,7 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
   .storyWorkerCarousel{height:690px;border-radius:25px}
   .storyWorkerSlide::after{background:linear-gradient(0deg,rgba(5,8,11,.98) 0%,rgba(5,8,11,.82) 38%,rgba(5,8,11,.04) 74%)}
   .storyWorkerSlide img{object-position:center 28%}.storyWorkerNurse img{object-position:67% top}.storyWorkerTeacher img,.storyWorkerLogistics img{object-position:center 20%}
-  .storyWorkerNav{top:15px;right:15px;left:15px;grid-template-columns:repeat(6,minmax(108px,1fr));gap:5px}.storyWorkerNav button{padding:9px 10px}
+  .storyWorkerNav{top:24px;right:22px;left:22px;width:auto;gap:6px}.storyWorkerNav button{height:3px}
   .storyWorkerBody{right:21px;bottom:78px;left:21px;width:auto}.storyWorkerBody h3{font-size:clamp(36px,10.8vw,51px)}.storyWorkerBody p{font-size:12px}.storyWorkerBody>span{margin-top:17px}
   .storyWorkerControls{right:18px;bottom:18px}.storyWorkerControls button{width:39px;height:39px}
   .storyRawDemo{min-height:auto;margin:0 12px 72px;padding:37px 16px;border-radius:24px}.storyRawCopy h2{font-size:43px}.storyRawCopy>span{font-size:13px}
@@ -628,7 +621,7 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 @media(max-width:520px){
   .premiumLanding[data-story-v19="true"] .landingHeroActions{display:grid}
   .premiumLanding[data-story-v19="true"] .landingHeroProof{display:grid;grid-template-columns:1fr 1fr}.premiumLanding[data-story-v19="true"] .landingHeroProof span:last-child{display:none}
-  .storyWorkerCarousel{height:650px}.storyWorkerBody h3{font-size:39px}.storyWorkerBody p{font-size:11px}.storyWorkerNav button{min-width:102px}
+  .storyWorkerCarousel{height:650px}.storyWorkerBody h3{font-size:39px}.storyWorkerBody p{font-size:11px}
   .storyRawCopy>button{width:100%}
   body.premiumV18 .smartCaptureV19{padding:16px;border-radius:18px}
   body.premiumV18 .smartCaptureIntro h2{font-size:19px}

@@ -1,4 +1,4 @@
-// Work + Gym Coach 18.3 premium visual polish and icon system.
+// Work + Workout 18.4 premium visual polish and icon system.
 (function premiumUI(){
  const svg=(paths,viewBox='0 0 24 24')=>`<svg viewBox="${viewBox}" aria-hidden="true">${paths}</svg>`;
  const ICONS={

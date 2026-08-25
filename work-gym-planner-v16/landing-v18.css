@@ -1,4 +1,4 @@
-/* Work + Workout 18.3 — premium acquisition, onboarding and editorial visuals */
+/* Work + Workout 18.4 — premium acquisition, onboarding and editorial visuals */
 body.premiumV18.landingActive{overflow:hidden}
 .premiumLanding[hidden]{display:none!important}
 .premiumLanding{
@@ -285,6 +285,7 @@ body.premiumV18.landingActive>.modal.open{z-index:1200}
 
 /* Guided one-question-at-a-time onboarding */
 body.premiumV18 .guidedOnboarding{z-index:1300;align-items:center;padding:24px}
+body.premiumV18 .guidedOnboarding *,body.premiumV18 .guidedProfileSummary *{box-sizing:border-box;min-width:0;max-width:100%}
 body.premiumV18 .guidedOnboardingSheet{
   width:min(100%,1040px);
   height:min(760px,calc(100dvh - 48px));
@@ -301,7 +302,7 @@ body.premiumV18 .guidedOnboardingSheet{
 .guidedVisualRail img{width:100%;height:100%;object-fit:cover}
 .guidedVisualRail>div{position:absolute;z-index:1;left:28px;right:28px;bottom:30px}.guidedVisualRail span,.guidedVisualRail b,.guidedVisualRail small{display:block}
 .guidedVisualRail span{color:#b8f34a;font-size:8px;font-weight:900;letter-spacing:.15em}.guidedVisualRail b{margin-top:12px;font-size:25px;line-height:1.08;letter-spacing:-.045em}.guidedVisualRail small{margin-top:12px;color:#a4ada8;font-size:9px;line-height:1.5}
-.guidedJourney{min-height:0;overflow:auto;padding:19px 30px 26px}
+.guidedJourney{min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;padding:19px 30px 26px}
 .guidedJourney .sheetHandle{display:none}
 .guidedHead{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08)}
 .guidedHead small{display:block;color:#b8f34a;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
@@ -348,6 +349,15 @@ body.premiumV18 .guidedField input,body.premiumV18 .guidedField select,body.prem
 .guidedPlanRow{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid rgba(255,255,255,.07)}.guidedPlanRow b,.guidedPlanRow small{display:block}.guidedPlanRow b{font-size:8px}.guidedPlanRow small{margin-top:3px;color:#74807a;font-size:7px}.guidedPlanRow strong{color:#b8f34a;font-size:8px;white-space:nowrap}
 .guidedTargets{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.guidedTargets>div{padding:9px 4px;border-radius:8px;background:#171e26;text-align:center}.guidedTargets b,.guidedTargets small{display:block}.guidedTargets b{font-size:11px}.guidedTargets small{margin-top:3px;color:#75807b;font-size:6px}
 
+/* Compact profile summary: the avatar should never restart onboarding. */
+body.premiumV18 .guidedProfileSummary{z-index:1290}
+body.premiumV18 .guidedProfileSheet{width:min(100%,520px);padding:25px;border-radius:25px;background:#0d1218}
+.guidedProfileHero{display:flex;align-items:center;gap:14px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.guidedProfileInitial{width:55px;height:55px;display:grid;place-items:center;flex:0 0 auto;border-radius:17px;color:#11150a;background:#b8f34a;font-size:20px;font-weight:950}
+.guidedProfileHero h2{margin:5px 0 3px;font-size:24px}.guidedProfileHero>div>p:last-child{margin:0;color:#7f8a84;font-size:9px}
+.guidedProfileFacts{display:grid;gap:8px;padding:18px 0}.guidedProfileFacts section{display:grid;grid-template-columns:38px 1fr;align-items:center;gap:11px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:#11171e}.guidedProfileFacts section>span{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;color:#b8f34a;background:rgba(184,243,74,.08)}.guidedProfileFacts svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8}.guidedProfileFacts small,.guidedProfileFacts b{display:block}.guidedProfileFacts small{color:#77827c;font-size:7px;font-weight:900;letter-spacing:.12em}.guidedProfileFacts b{margin-top:4px;font-size:10px}
+.guidedProfileActions{display:grid;grid-template-columns:auto 1fr 1.3fr;gap:8px}.guidedProfileActions button{min-height:44px;padding:0 10px;border:1px solid rgba(255,255,255,.11);border-radius:11px;color:#e9ede8;background:#141b23;font-size:9px;font-weight:850}
+
 /* Visual storytelling inside the signed-in app */
 .premiumDayVisual{height:260px;position:relative;overflow:hidden;margin:0 0 15px;border:1px solid rgba(255,255,255,.1);border-radius:22px;box-shadow:0 22px 60px rgba(0,0,0,.2)}
 .premiumDayVisual>img{width:100%;height:100%;object-fit:cover}
@@ -386,12 +396,16 @@ body.premiumV18 .premiumAccountSheet .authTabs{padding:5px;border-radius:14px;ba
   .landingTrust{margin:20px 12px 0;padding:62px 20px;border-radius:22px}.landingTrust h2{font-size:36px}.landingTrustGrid{grid-template-columns:1fr}
   .landingFaqGrid{grid-template-columns:1fr}.landingFinalCta{margin:0 12px 60px;padding:40px 22px;display:block}.landingFinalCta h2{font-size:38px}.landingFinalCta button{width:100%;margin-top:28px}
   .landingFooter{padding:32px 18px}
-  body.premiumV18 .guidedOnboarding{padding:0;align-items:flex-end}
-  body.premiumV18 .guidedOnboardingSheet{width:100%;height:96dvh;grid-template-columns:1fr;grid-template-rows:130px 1fr;border-radius:25px 25px 0 0}
-  .guidedVisualRail>div{left:18px;right:18px;bottom:16px}.guidedVisualRail b{font-size:19px}.guidedVisualRail small{display:none}.guidedJourney{padding:15px 16px 22px}.guidedProgress{margin:0 -16px}
-  #guidedOnboardingBody{min-height:430px}.guidedQuestion{padding:24px 0 16px}.guidedQuestion h3{font-size:31px}.guidedChoices{grid-template-columns:1fr}.guidedChoice{min-height:70px}
-  .guidedFieldGrid{grid-template-columns:1fr 1fr}.guidedDays{gap:3px}.guidedDays span{min-height:43px;font-size:8px}
+  body.premiumV18 .guidedOnboarding{padding:0;align-items:stretch;overflow:hidden}
+  body.premiumV18 .guidedOnboardingSheet{width:100%;height:100dvh;max-height:100dvh;grid-template-columns:1fr;grid-template-rows:96px minmax(0,1fr);border-radius:0}
+  .guidedVisualRail>div{left:18px;right:18px;bottom:12px}.guidedVisualRail b{font-size:17px}.guidedVisualRail small{display:none}.guidedJourney{height:100%;padding:12px 16px max(10px,env(safe-area-inset-bottom))}.guidedProgress{margin:0 -16px}
+  .guidedHead{min-height:56px;padding-bottom:10px}.guidedHead h2{font-size:17px}.guidedHead>button{min-height:36px}
+  #guidedOnboardingBody{min-height:0;display:block}.guidedQuestion{width:100%;padding:20px 0 14px}.guidedQuestion h3{font-size:30px}.guidedChoices{grid-template-columns:1fr}.guidedChoice{min-height:68px}
+  body.premiumV18 .guidedField input,body.premiumV18 .guidedField select,body.premiumV18 .guidedField textarea{font-size:16px!important}
+  .guidedFieldGrid{grid-template-columns:1fr}.guidedDays{gap:3px}.guidedDays span{min-height:43px;font-size:8px}
+  .guidedActions{position:sticky;z-index:2;bottom:0;margin:0 -16px;padding:12px 16px max(6px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(12,17,23,.82),#0c1117 24%)}
   .guidedPreviewGrid{grid-template-columns:1fr}.guidedPlanPhoto{height:110px}
+  body.premiumV18 .guidedProfileSheet{border-radius:25px 25px 0 0}.guidedProfileActions{grid-template-columns:1fr 1fr}.guidedProfileActions button:last-child{grid-column:1/-1}.guidedProfileFacts{max-width:none}
   .premiumDayVisual{height:300px}.premiumDayVisual>img{object-position:67% center}.premiumDayVisualShade{background:linear-gradient(0deg,rgba(8,11,16,.95),rgba(8,11,16,.3))}.premiumDayVisualCopy{width:100%;justify-content:flex-end;padding:22px}.premiumDayVisualCopy h2{font-size:24px}
 }
 @media(prefers-reduced-motion:reduce){

@@ -1,4 +1,4 @@
-/* Work + Gym Coach 18.3 — premium product system */
+/* Work + Workout 18.4 — premium product system */
 :root{
   color-scheme:dark;
   --bg:#080b10;
@@ -337,10 +337,24 @@ body.premiumV18 .dateNav input{background:transparent;border:0;font-size:18px}
 body.premiumV18 .weekdays,
 body.premiumV18 .calendarGrid{gap:5px}
 body.premiumV18 .weekdays span{padding:7px 0;font-size:9px;letter-spacing:.1em}
-body.premiumV18 .calDay{height:82px;border:1px solid transparent;border-radius:14px;background:rgba(255,255,255,.018)}
+body.premiumV18 .calDay{position:relative;height:82px;border:1px solid transparent;border-radius:14px;background:rgba(255,255,255,.018)}
 body.premiumV18 .calDay.selected{border-color:var(--premium-accent);box-shadow:0 0 0 1px var(--premium-accent)}
 body.premiumV18 .calDay.today .dayNum{background:var(--premium-accent);color:#10140a;box-shadow:0 8px 20px rgba(184,243,74,.2)}
 body.premiumV18 .dayNum{font-size:13px}
+body.premiumV18 .dot.blue{background:#58a6ff}
+body.premiumV18 .dot.purple{background:#a78bfa}
+body.premiumV18 .agendaCount{position:absolute;right:6px;bottom:5px;min-width:15px;height:15px;display:grid;place-items:center;border-radius:99px;color:#d9ccff;background:rgba(167,139,250,.14);font-size:7px;font-weight:900}
+body.premiumV18 .daySchedule,body.premiumV18 .dayAgenda{margin-top:14px;padding:15px;border:1px solid var(--premium-line);border-radius:18px;background:rgba(255,255,255,.018)}
+body.premiumV18 .daySectionHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.daySectionHead small{display:block;color:var(--premium-accent);font-size:7px;font-weight:900;letter-spacing:.13em}.daySectionHead h3{margin:4px 0 0!important;font-size:14px}.daySectionHead>span{min-width:24px;height:24px;display:grid;place-items:center;border-radius:99px;color:#b9d8ff;background:rgba(88,166,255,.12);font-size:8px;font-weight:900}
+body.premiumV18 .dayScheduleRow,body.premiumV18 .dayAgendaRow{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;padding:10px 0;border-top:1px solid rgba(255,255,255,.07)}
+body.premiumV18 .dayScheduleRow>span,body.premiumV18 .agendaEvent,body.premiumV18 .agendaCheck{width:34px;height:34px;display:grid;place-items:center;border:0;border-radius:10px;color:#ccd3ce;background:#171e26;font-size:9px;font-weight:900}
+body.premiumV18 .dayScheduleRow.workout>span{color:#11150a;background:var(--premium-accent)}body.premiumV18 .dayScheduleRow.recovery>span{color:#a0aaa4;background:#171e26}body.premiumV18 .dayScheduleRow.unknown>span{color:#f4c96b;background:rgba(244,201,107,.12)}
+body.premiumV18 .dayScheduleRow b,body.premiumV18 .dayScheduleRow small,body.premiumV18 .dayAgendaRow b,body.premiumV18 .dayAgendaRow small{display:block}.dayScheduleRow b,.dayAgendaRow b{font-size:10px}.dayScheduleRow small,.dayAgendaRow small{margin-top:4px;color:#77827c;font-size:8px}.dayAgendaRow.done b{text-decoration:line-through;color:#77827c}.dayAgendaRow.recurring .agendaEvent{color:#b9d8ff;background:rgba(88,166,255,.1)}
+body.premiumV18 .agendaCheck{border:1px solid rgba(184,243,74,.3);color:#11150a;background:transparent}.dayAgendaRow.done .agendaCheck{background:var(--premium-accent)}
+body.premiumV18 .agendaDelete{width:31px;height:31px;border:0;border-radius:9px;color:#7f8a84;background:transparent;font-size:18px}.agendaDelete:hover{color:#ff8d8d;background:rgba(255,93,93,.08)}
+body.premiumV18 .dayScheduleEmpty{margin:0!important;padding:9px 0!important;color:#77827c!important;font-size:9px!important}
+body.premiumV18 .dayAgendaForm{display:grid;grid-template-columns:90px minmax(120px,1fr) 100px 58px;gap:7px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+body.premiumV18 .dayAgendaForm input,body.premiumV18 .dayAgendaForm select,body.premiumV18 .dayAgendaForm button{width:100%;min-height:40px;padding:0 9px;border:1px solid var(--premium-line);border-radius:10px;color:#eef2ee;background:#0d1218;font-size:10px}.dayAgendaForm button{font-weight:900}
 body.premiumV18 .energyCard{
   padding:24px;
   border:1px solid rgba(184,243,74,.18);
@@ -577,6 +591,9 @@ body.premiumV18 .aiComposer #aiSend{height:46px;min-width:74px;border-radius:13p
   body.premiumV18 .obTargetGrid{grid-template-columns:1fr 1fr}
   body.premiumV18 .calendarGrid{gap:2px}
   body.premiumV18 .calDay{height:65px;border-radius:10px}
+  body.premiumV18 .agendaCount{right:2px;bottom:2px}
+  body.premiumV18 .daySchedule,body.premiumV18 .dayAgenda{padding:12px;border-radius:15px}
+  body.premiumV18 .dayAgendaForm{grid-template-columns:88px 1fr}.dayAgendaForm input[name="title"]{grid-column:1/-1;grid-row:1}.dayAgendaForm input,.dayAgendaForm select,.dayAgendaForm button{font-size:16px!important}
   body.premiumV18 .menuCards>button{min-height:78px}
   body.premiumV18 .aiComposer{grid-template-columns:44px 1fr 62px}
 }

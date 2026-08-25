@@ -1,4 +1,4 @@
-// Work + Workout 18.3 premium landing experience and editorial app visuals.
+// Work + Workout 18.4 premium landing experience and editorial app visuals.
 (function premiumLanding(){
   const A=window.WGC18=window.WGC18||{};
   const safe=window.esc||function(value){return String(value??'').replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})};

@@ -1,4 +1,4 @@
-// Work + Gym Coach 18.3 guided, adaptive onboarding.
+// Work + Workout 18.4 guided, adaptive onboarding.
 (function guidedOnboarding(){
   const A=window.WGC18=window.WGC18||{};
   const DRAFT_KEY='wgc-guided-onboarding-v18';
@@ -6,6 +6,7 @@
   const safe=window.esc||function(value){return String(value??'').replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})};
   let step=0;
   let busy=false;
+  let previewReady=false;
   let draft=loadDraft();
 
   function loadDraft(){
@@ -14,31 +15,45 @@
       if(saved&&saved.version===2&&saved.values)return saved;
     }catch{}
     const p=typeof profile==='function'?profile():null;
+    const previous=typeof jget==='function'?jget(PREFIX+'onboarding-v18',{})?.answers:null;
+    const basics=previous?.basics||{},work=previous?.work||{},training=previous?.training||{},nutrition=previous?.nutrition||{};
+    const commitments=(work.commitments||[]).map(function(item){return DAYS[item.day]+' '+item.start+'-'+item.end+' '+(item.label||'Commitment')}).join('\n');
     return{version:2,values:{
-      name:p?.name||'',
-      goal:'recomp',
-      activity:'moderate',
-      workMode:p?.fixed?.enabled?'standard':'standard',
-      jobName:p?.fixed?.name||'Work',
-      jobStart:p?.fixed?.start||'09:00',
-      jobEnd:p?.fixed?.end||'17:00',
-      commute:String(p?.fixed?.commuteMin??30),
-      secondJob:p?.variable?.enabled?'yes':'no',
-      secondName:p?.variable?.name||'Second job',
-      secondStart:p?.variable?.start||'',
-      secondEnd:p?.variable?.end||'',
-      secondCommute:String(p?.variable?.commuteMin??30),
-      sleepHours:String(p?.sleepTarget||7.5),
-      bedtime:'23:00',
-      trainingDays:String(p?.trainingDaysPerWeek||3),
-      duration:'60',
-      experience:'intermediate',
-      equipment:p?.equipmentMode||'full',
-      preferred:'flexible',
-      meals:'3',
-      budget:'moderate',
-      cook:'moderate'
-    },days:{job:[1,2,3,4,5],second:[]}};
+      name:basics.name||p?.name||'',
+      goal:basics.goal||'recomp',
+      age:basics.age||'',
+      sex:basics.sex||'neutral',
+      heightFt:basics.heightFt||'',
+      heightIn:basics.heightIn||'',
+      weight:basics.weight||'',
+      bodyFat:basics.bodyFat||'',
+      activity:basics.activity||'moderate',
+      workMode:(work.primaryDays||[]).length||p?.fixed?.enabled?'standard':'none',
+      jobName:work.primaryName||p?.fixed?.name||'Work',
+      jobStart:work.primaryStart||p?.fixed?.start||'09:00',
+      jobEnd:work.primaryEnd||p?.fixed?.end||'17:00',
+      commute:String(work.primaryCommute??p?.fixed?.commuteMin??30),
+      secondJob:work.secondaryEnabled||p?.variable?.enabled?'yes':'no',
+      secondName:work.secondaryName||p?.variable?.name||'Second job',
+      secondStart:work.secondaryStart||p?.variable?.start||'',
+      secondEnd:work.secondaryEnd||p?.variable?.end||'',
+      secondCommute:String(work.secondaryCommute??p?.variable?.commuteMin??30),
+      sleepHours:String(basics.sleepHours||p?.sleepTarget||7.5),
+      bedtime:basics.bedtime||'23:00',
+      commitments:commitments,
+      trainingDays:String(training.days||p?.trainingDaysPerWeek||3),
+      duration:String(training.duration||60),
+      experience:training.experience||'intermediate',
+      equipment:training.equipment||p?.equipmentMode||'full',
+      preferred:training.preferred||'flexible',
+      limitations:training.limitations||'',
+      foods:(nutrition.foods||[]).join(', '),
+      cuisines:(nutrition.cuisines||[]).join(', '),
+      restrictions:nutrition.restrictions||'',
+      meals:String(nutrition.meals||3),
+      budget:nutrition.budget||'moderate',
+      cook:nutrition.cook||'moderate'
+    },days:{job:(work.primaryDays||[1,2,3,4,5]).slice(),second:(work.secondaryDays||[]).slice()}};
   }
   function saveDraft(){try{sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch{}}
   function clearDraft(){try{sessionStorage.removeItem(DRAFT_KEY)}catch{};draft=loadDraft()}
@@ -87,25 +102,24 @@
   }
   function personName(){return get('name').trim()||'there'}
 
+  // Six to nine adaptive steps replace the former 19-question flow. Related
+  // details stay together so setup feels like a conversation, not a survey.
   const screens=[
     {
-      id:'name',
-      render:function(){return question('user','Let’s make it yours','What should we call you?','Your plan and coaching prompts will use this name.',textInput('name','First name','Your name','text','autocomplete="name" autofocus'))},
-      validate:function(){return get('name').trim()?'':'Add your name to continue.'}
-    },
-    {
-      id:'goal',
-      auto:true,
-      render:function(){return question('sparkle','Your north star','What are we working toward, '+personName()+'?','Choose the outcome that matters most right now.',choices('goal',[
+      id:'identity',
+      render:function(){return question('sparkle','Let’s make it yours','What are we building together?','Add your name and choose the outcome that matters most right now.',
+        textInput('name','First name','Your name','text','autocomplete="name"')+
+        '<div class="guidedFieldTop">'+choices('goal',[
         {value:'recomp',label:'Body recomposition',copy:'Build strength while gradually leaning out',icon:'↗'},
         {value:'fat_loss',label:'Lose body fat',copy:'A steady deficit built around your real week',icon:'↓'},
         {value:'muscle_gain',label:'Build muscle',copy:'Progressive training with enough fuel to recover',icon:'＋'},
         {value:'maintain',label:'Maintain & perform',copy:'Keep your weight steady and feel capable',icon:'='}
-      ],'recomp'))}
+        ],'recomp')+'</div>')},
+      validate:function(){return get('name').trim()?'':'Add your name to continue.'}
     },
     {
       id:'baseline',
-      render:function(){return question('chart','Starting point','What should the plan know about your body?','These details create a starting estimate. Body-fat percentage is optional.',
+      render:function(){return question('chart','Starting point','What should the plan know about '+personName()+'?','These details create a starting estimate. Body-fat percentage is optional.',
         '<div class="guidedFieldGrid">'+
           textInput('age','Age','','number','min="16" max="100" inputmode="numeric"')+
           selectInput('sex','Calorie estimate',[
@@ -117,17 +131,12 @@
           textInput('heightIn','Height (in)','','number','min="0" max="11.9" step="0.1" inputmode="decimal"')+
           textInput('weight','Current weight (lb)','','number','min="70" max="600" step="0.1" inputmode="decimal"')+
           textInput('bodyFat','Body fat % · optional','','number','min="3" max="60" step="0.1" inputmode="decimal"')+
-        '</div>')},
+        '</div><div class="guidedFieldTop">'+choices('activity',[
+          {value:'low',label:'Mostly seated',copy:'Desk-based day with light walking',icon:'○'},
+          {value:'moderate',label:'Somewhat active',copy:'Regular walking or time on your feet',icon:'◐'},
+          {value:'high',label:'Very active',copy:'Physical work or a consistently high step count',icon:'●'}
+        ],'moderate')+'</div>')},
       validate:function(){return(+get('age')>=16&&+get('heightFt')>=3&&+get('weight')>=70)?'':'Add your age, height and current weight to continue.'}
-    },
-    {
-      id:'activity',
-      auto:true,
-      render:function(){return question('heart','Daily movement','Outside training, how active is a typical day?','This adjusts your starting energy target for '+goalName()+'.',choices('activity',[
-        {value:'low',label:'Mostly seated',copy:'Desk-based day with light walking',icon:'○'},
-        {value:'moderate',label:'Somewhat active',copy:'Regular walking or time on your feet',icon:'◐'},
-        {value:'high',label:'Very active',copy:'Physical work or a consistently high step count',icon:'●'}
-      ],'moderate'))}
     },
     {
       id:'workMode',
@@ -139,22 +148,16 @@
       ],'standard'))}
     },
     {
-      id:'workDays',
+      id:'workDetails',
       when:function(){return get('workMode')!=='none'},
-      render:function(){return question('calendar','Primary schedule','Which days do you usually work?','Tap every usual work day. You can adjust individual dates later.',
-        textInput('jobName','Job or schedule name','Work')+dayPicker('job'))},
-      validate:function(){return(draft.days.job||[]).length?'':'Choose at least one work day.'}
-    },
-    {
-      id:'workHours',
-      when:function(){return get('workMode')!=='none'},
-      render:function(){return question('clock','Time boundaries','What does a normal work day look like?','Commute time is protected so workouts do not overlap your real travel.',
+      render:function(){return question('calendar','Primary schedule','When does work need protected time?','Choose the usual days and hours. Commute time is protected automatically.',
+        textInput('jobName','Job or schedule name','Work')+dayPicker('job')+
         '<div class="guidedFieldGrid">'+
           textInput('jobStart','Shift starts','','time')+
           textInput('jobEnd','Shift ends','','time')+
           textInput('commute','Commute each way (min)','','number','min="0" max="240" step="5" inputmode="numeric"')+
         '</div>')},
-      validate:function(){return get('jobStart')&&get('jobEnd')?'':'Add your usual shift start and end time.'}
+      validate:function(){return(draft.days.job||[]).length&&get('jobStart')&&get('jobEnd')?'':'Choose your usual work days and hours.'}
     },
     {
       id:'secondJob',
@@ -179,83 +182,36 @@
       validate:function(){return(draft.days.second||[]).length&&get('secondStart')&&get('secondEnd')?'':'Choose the usual days and hours for your second job.'}
     },
     {
-      id:'sleep',
-      render:function(){return question('heart','Recovery first','How much sleep do you want to protect?','Work + Workout treats sleep as a fixed commitment, not leftover time.',
+      id:'recovery',
+      render:function(){return question('heart','Recovery and real life','What else needs protected time?','Sleep is a fixed commitment. Recurring blocks are optional and appear automatically in your calendar.',
         '<div class="guidedFieldGrid">'+
           textInput('sleepHours','Sleep target (hours)','','number','min="5" max="12" step="0.5" inputmode="decimal"')+
           textInput('bedtime','Typical bedtime','','time')+
-        '</div>')},
+        '</div><label class="guidedField guidedFieldTop"><span>Recurring commitments · optional</span><textarea data-answer="commitments" rows="3" placeholder="Tue 18:00-20:00 class&#10;Sun 09:00-12:00 family">'+safe(get('commitments'))+'</textarea></label>')},
       validate:function(){return +get('sleepHours')>=5&&get('bedtime')?'':'Add a sleep target and typical bedtime.'}
     },
     {
-      id:'commitments',
-      render:function(){return question('clock','Life outside the plan','What else regularly needs protected time?','Optional. Add one recurring block per line, such as “Tue 18:00-20:00 class”.',
-        '<label class="guidedField"><span>Recurring commitments · optional</span><textarea data-answer="commitments" rows="5" placeholder="Tue 18:00-20:00 class&#10;Sun 09:00-12:00 family">'+safe(get('commitments'))+'</textarea></label>')}
-    },
-    {
-      id:'trainingDays',
-      auto:true,
-      render:function(){return question('dumbbell','Training rhythm','How many strength sessions feel realistic each week?','Consistency wins. The planner will choose the strongest available windows.',choices('trainingDays',[
+      id:'training',
+      render:function(){return question('dumbbell','Training that fits','What can you realistically sustain?','Choose a weekly rhythm, session length, experience level, equipment and preferred time.',
+        choices('trainingDays',[
         {value:'2',label:'2 sessions',copy:'A focused minimum-effective plan',icon:'2'},
         {value:'3',label:'3 sessions',copy:'Balanced progress and recovery',icon:'3'},
         {value:'4',label:'4 sessions',copy:'More volume when your week supports it',icon:'4'}
-      ],'3'))}
-    },
-    {
-      id:'duration',
-      auto:true,
-      render:function(){return question('clock','Session size','How much time can you usually give a workout?','Warm-up and transitions are considered when the plan finds a window.',choices('duration',[
-        {value:'30',label:'30 minutes',copy:'Fast, focused sessions',icon:'30'},
-        {value:'45',label:'45 minutes',copy:'Efficient full training',icon:'45'},
-        {value:'60',label:'60 minutes',copy:'Complete sessions with breathing room',icon:'60'},
-        {value:'75',label:'75 minutes',copy:'Longer training with more accessories',icon:'75'}
-      ],'60'))}
-    },
-    {
-      id:'experience',
-      auto:true,
-      render:function(){return question('chart','Training level','How experienced are you with strength training?','This shapes exercise complexity and progression—not your potential.',choices('experience',[
-        {value:'beginner',label:'Getting started',copy:'New or returning after a long break',icon:'01'},
-        {value:'intermediate',label:'Consistent lifter',copy:'Comfortable with the main movement patterns',icon:'02'},
-        {value:'advanced',label:'Highly experienced',copy:'Years of consistent, structured training',icon:'03'}
-      ],'intermediate'))}
-    },
-    {
-      id:'equipment',
-      auto:true,
-      render:function(){return question('dumbbell','Your training space','What equipment can you rely on?','Every session will use movements you can actually perform.',choices('equipment',[
-        {value:'full',label:'Full commercial gym',copy:'Racks, machines, cables and free weights',icon:'▦'},
-        {value:'basic',label:'Basic gym',copy:'Core machines and a practical free-weight setup',icon:'◇'},
-        {value:'home',label:'Home or minimal',copy:'Bodyweight, bands or a few dumbbells',icon:'⌂'}
-      ],'full'))}
-    },
-    {
-      id:'preferred',
-      auto:true,
-      render:function(){return question('clock','Best energy window','When do workouts usually feel best?','We will prefer this time without forcing it onto overloaded days.',choices('preferred',[
-        {value:'morning',label:'Morning',copy:'Start the day with training',icon:'☼'},
-        {value:'afternoon',label:'Afternoon',copy:'Train between daytime commitments',icon:'◒'},
-        {value:'evening',label:'Evening',copy:'Lift after the main work day',icon:'☾'},
-        {value:'flexible',label:'Flexible',copy:'Choose the best opening each day',icon:'↔'}
-      ],'flexible'))}
-    },
-    {
-      id:'limitations',
-      render:function(){return question('shield','Train around your body','Anything the plan should avoid or adapt?','Optional. Mention injuries, painful movements, accessibility needs, or exercises you dislike.',
-        '<label class="guidedField"><span>Limitations or movements to avoid · optional</span><textarea data-answer="limitations" rows="5" placeholder="Example: avoid deep knee flexion; prefer machines for pressing">'+safe(get('limitations'))+'</textarea></label>')}
-    },
-    {
-      id:'foods',
-      render:function(){return question('apple','Food that feels familiar','What foods and cuisines do you genuinely enjoy?','Your nutrition suggestions should resemble your life—not a generic meal-prep template.',
-        '<div class="guidedStack">'+
-          textInput('foods','Favorite everyday foods','eggs, oats, jollof rice, chicken, salmon, plantain')+
-          textInput('cuisines','Cuisines you enjoy','Ghanaian, West African, Caribbean, Mediterranean')+
-        '</div>')}
+        ],'3')+
+        '<div class="guidedFieldGrid guidedFieldTop">'+
+          selectInput('duration','Session length',[{value:'30',label:'30 minutes'},{value:'45',label:'45 minutes'},{value:'60',label:'60 minutes'},{value:'75',label:'75 minutes'}])+
+          selectInput('experience','Experience',[{value:'beginner',label:'Getting started'},{value:'intermediate',label:'Consistent lifter'},{value:'advanced',label:'Highly experienced'}])+
+          selectInput('equipment','Equipment',[{value:'full',label:'Full commercial gym'},{value:'basic',label:'Basic gym'},{value:'home',label:'Home or minimal'}])+
+          selectInput('preferred','Best energy window',[{value:'morning',label:'Morning'},{value:'afternoon',label:'Afternoon'},{value:'evening',label:'Evening'},{value:'flexible',label:'Flexible'}])+
+        '</div><label class="guidedField guidedFieldTop"><span>Limitations or movements to avoid · optional</span><textarea data-answer="limitations" rows="3" placeholder="Example: avoid deep knee flexion; prefer machines for pressing">'+safe(get('limitations'))+'</textarea></label>')}
     },
     {
       id:'nutrition',
-      render:function(){return question('bowl','Make nutrition practical','What will make eating well sustainable?','These preferences shape meal ideas, portions, and prep expectations.',
-        '<div class="guidedFieldGrid">'+
+      render:function(){return question('apple','Nutrition that feels familiar','What will make eating well sustainable?','Favorite foods, practical portions and realistic prep shape the plan.',
+        '<div class="guidedStack">'+
+          textInput('foods','Favorite everyday foods','eggs, oats, jollof rice, chicken, salmon, plantain')+
+          textInput('cuisines','Cuisines you enjoy','Ghanaian, West African, Caribbean, Mediterranean')+
+        '</div><div class="guidedFieldGrid guidedFieldTop">'+
           selectInput('meals','Meals per day',[
             {value:'2',label:'2 meals'},{value:'3',label:'3 meals'},{value:'4',label:'4 meals'},{value:'5',label:'5 meals'}
           ])+
@@ -265,8 +221,7 @@
           selectInput('cook','Cooking time',[
             {value:'low',label:'Very little'},{value:'moderate',label:'Some cooking'},{value:'high',label:'I enjoy cooking'}
           ])+
-        '</div>'+
-        '<label class="guidedField guidedFieldTop"><span>Restrictions, allergies, or foods to avoid · optional</span><textarea data-answer="restrictions" rows="3">'+safe(get('restrictions'))+'</textarea></label>')}
+        '</div><label class="guidedField guidedFieldTop"><span>Restrictions, allergies, or foods to avoid · optional</span><textarea data-answer="restrictions" rows="3">'+safe(get('restrictions'))+'</textarea></label>')}
     }
   ];
 
@@ -334,7 +289,9 @@
     next.textContent=step===state.list.length-1?'Build my plan':'Continue';
     next.onclick=goNext;
     bindAnswers(state.screen);
-    requestAnimationFrame(function(){document.querySelector('#guidedOnboardingBody input:not([type="hidden"]),#guidedOnboardingBody select,#guidedOnboardingBody textarea')?.focus({preventScroll:true})});
+    if(window.matchMedia('(min-width: 641px)').matches){
+      requestAnimationFrame(function(){document.querySelector('#guidedOnboardingBody input:not([type="hidden"]),#guidedOnboardingBody select,#guidedOnboardingBody textarea')?.focus({preventScroll:true})});
+    }
   }
   async function goNext(){
     if(busy)return;
@@ -412,16 +369,26 @@
     const next=document.getElementById('guidedNext');
     busy=true;
     next.disabled=true;
-    document.getElementById('guidedStatus').textContent='Finding realistic workout windows and building your plan…';
+    document.getElementById('guidedStatus').textContent='Building your calendar…';
     try{
-      let plan=A.buildDeterministicPlan(answers);
+      const plan=A.buildDeterministicPlan(answers);
+      // The local planner is instant and reliable. Save it before any network
+      // request so a slow AI refinement can never strand the setup screen.
+      A.applyPersonalizedPlan(answers,plan);
+      clearDraft();
+      window.dispatchEvent(new CustomEvent('wgc:profile-ready'));
+      showPreview(answers,plan,true);
+      A.pushState?.({quiet:true}).catch(function(){});
       if(A.session&&A.config?.aiConfigured){
-        try{
-          const result=await A.authedFetch('onboarding',{method:'POST',body:JSON.stringify({answers:answers,deterministicPlan:plan})});
-          if(result.plan)plan=result.plan;
-        }catch(error){window.recordDiagnostic?.('guided-ai-onboarding',error)}
+        A.authedFetch('onboarding',{method:'POST',body:JSON.stringify({answers:answers,deterministicPlan:plan})})
+          .then(function(result){
+            if(!result.plan)return;
+            A.applyPersonalizedPlan(answers,result.plan);
+            if(document.getElementById('guidedOnboarding')?.classList.contains('open'))showPreview(answers,result.plan,false);
+            A.pushState?.({quiet:true}).catch(function(){});
+          })
+          .catch(function(error){window.recordDiagnostic?.('guided-ai-onboarding',error)});
       }
-      showPreview(answers,plan);
     }catch(error){
       document.getElementById('guidedStatus').textContent=error.message||'We could not build the plan yet.';
     }finally{
@@ -429,7 +396,8 @@
       next.disabled=false;
     }
   }
-  function showPreview(answers,plan){
+  function showPreview(answers,plan,refining){
+    previewReady=true;
     const training=plan.training||{};
     const nutrition=plan.nutrition||{};
     const ai=plan.ai||{};
@@ -453,27 +421,56 @@
       '</div>';
     document.getElementById('guidedBack').classList.add('hidden');
     const next=document.getElementById('guidedNext');
-    next.textContent='Use this plan';
+    next.textContent='See my calendar';
     next.onclick=function(){
-      A.applyPersonalizedPlan(answers,plan);
-      clearDraft();
       closeGuided();
-      window.dispatchEvent(new CustomEvent('wgc:profile-ready'));
-      window.toast?.('Your personalized plan is ready');
-      A.pushState?.({quiet:true}).catch(function(){});
+      if(window.openCalendarDate)window.openCalendarDate();else window.page?.('calendar');
+      window.toast?.('Your work, workouts and commitments are on the calendar');
     };
-    document.getElementById('guidedStatus').textContent='You can edit every choice later.';
+    document.getElementById('guidedStatus').textContent=refining&&A.session&&A.config?.aiConfigured?'Your plan is ready. Coaching details are refining quietly in the background.':'Your plan is saved. You can edit every choice later.';
   }
   function closeGuided(){
-    syncVisible();
+    if(previewReady){try{sessionStorage.removeItem(DRAFT_KEY)}catch{};previewReady=false}
+    else syncVisible();
     window.closeModal?.('guidedOnboarding');
   }
   function openGuided(){
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}
     document.querySelectorAll('.modal.open').forEach(function(open){window.closeModal?.(open.id)});
+    previewReady=false;
+    draft=loadDraft();
     step=0;
     render();
     window.openModal?.('guidedOnboarding');
+  }
+  function profileSummaryModal(){
+    if(document.getElementById('guidedProfileSummary'))return;
+    document.body.insertAdjacentHTML('beforeend',
+      '<div id="guidedProfileSummary" class="modal guidedProfileSummary" role="dialog" aria-modal="true" aria-labelledby="guidedProfileTitle">'+
+        '<div class="sheet guidedProfileSheet"><div class="sheetHandle"></div>'+
+          '<div class="guidedProfileHero"><div id="guidedProfileInitial" class="guidedProfileInitial">W</div><div><p class="guidedEyebrow">YOUR PLAN</p><h2 id="guidedProfileTitle">Profile</h2><p id="guidedProfileEmail"></p></div></div>'+
+          '<div id="guidedProfileFacts" class="guidedProfileFacts"></div>'+
+          '<div class="guidedProfileActions"><button id="guidedProfileClose">Close</button><button id="guidedProfileAccount">Account & sync</button><button id="guidedProfileEdit" class="primary">Edit adaptive plan</button></div>'+
+        '</div></div>');
+    document.getElementById('guidedProfileClose').onclick=function(){window.closeModal?.('guidedProfileSummary')};
+    document.getElementById('guidedProfileAccount').onclick=function(){window.closeModal?.('guidedProfileSummary');A.openAccount?.('account')};
+    document.getElementById('guidedProfileEdit').onclick=function(){window.closeModal?.('guidedProfileSummary');openGuided()};
+  }
+  function openProfileSummary(){
+    const p=typeof profile==='function'?profile():null;
+    if(!p){openGuided();return}
+    profileSummaryModal();
+    const name=p.name||'Your profile';
+    const work=p.fixed?.enabled?(p.fixed.name||'Work')+' · '+(p.fixed.start||'09:00')+'–'+(p.fixed.end||'17:00'):'No repeating work schedule';
+    const training=(p.trainingDaysPerWeek||3)+' days/week · '+(get('duration','60')||60)+' min';
+    document.getElementById('guidedProfileInitial').textContent=name.trim().charAt(0).toUpperCase()||'W';
+    document.getElementById('guidedProfileTitle').textContent=name;
+    document.getElementById('guidedProfileEmail').textContent=A.session?.user?.email||'Saved on this device';
+    document.getElementById('guidedProfileFacts').innerHTML=
+      '<section><span>'+icon('calendar')+'</span><div><small>WORK RHYTHM</small><b>'+safe(work)+'</b></div></section>'+
+      '<section><span>'+icon('dumbbell')+'</span><div><small>TRAINING</small><b>'+safe(training)+'</b></div></section>'+
+      '<section><span>'+icon('heart')+'</span><div><small>RECOVERY</small><b>'+safe(p.sleepTarget||7.5)+' hours of sleep</b></div></section>';
+    window.openModal?.('guidedProfileSummary');
   }
   function rerouteProfileEditors(){
     const profileButton=document.querySelector('[data-open="profile"]');
@@ -487,7 +484,7 @@
     const homeProfile=document.getElementById('homeProfileBtn');
     if(homeProfile&&!homeProfile.dataset.guidedProfile){
       homeProfile.dataset.guidedProfile='true';
-      homeProfile.onclick=openGuided;
+      homeProfile.onclick=openProfileSummary;
     }
     const onboardingButton=document.getElementById('openOnboardingV18');
     if(onboardingButton&&!onboardingButton.dataset.guidedProfile){

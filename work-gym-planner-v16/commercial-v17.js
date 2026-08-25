@@ -11,6 +11,8 @@ function genericProfileTemplate(){return{
 blankProfile=genericProfileTemplate;
 
 fixedWork=function(k){let p=profile();if(!p?.fixed?.enabled)return false;let pat=Array.isArray(p.fixed.pattern)&&p.fixed.pattern.length?p.fixed.pattern:[0],n=diffDays(k,p.fixed.anchor),i=((n%pat.length)+pat.length)%pat.length;return !!pat[i]};
+const _variableCodeV184=variableCode;
+variableCode=function(k){let code=_variableCodeV184(k);if(code!=='?')return code;let setup=jget(PREFIX+'onboarding-v18',{})?.answers?.work;if(setup?.secondaryEnabled&&Array.isArray(setup.secondaryDays))return setup.secondaryDays.includes(date(k).getDay())?'X':'D';return code};
 
 suggestedTrainingDates=function(start,end){
  if(!profile())return[];let p=profile(),target=clamp(+p.trainingDaysPerWeek||3,2,4),o=overrides(),selected=[],firstMon=monOf(start),last=end;

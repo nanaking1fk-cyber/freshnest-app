@@ -1,8 +1,8 @@
 // v18 accounts, cloud migration, restore and account lifecycle ----------------
-APP_VERSION='18.3.0';
+APP_VERSION='18.4.0';
 window.WGC18=window.WGC18||{};
 (function(A){
- const SESSION_KEY='wgc-v18-session',API_OVERRIDE_KEY='wgc-v18-api-base',LAST_SYNC_KEY='wgc-v18-last-sync',DEFAULT_API_BASE='https://work-gym-coach.vercel.app/api/v18';
+ const SESSION_KEY='wgc-v18-session',API_OVERRIDE_KEY='wgc-v18-api-base',LAST_SYNC_KEY='wgc-v18-last-sync',OWNER_KEY='wgc-v18-local-owner',UNCLAIMED_KEY='wgc-v18-unclaimed-device-state',USER_CACHE_PREFIX='wgc-v18-user-cache:',DEFAULT_API_BASE='https://work-gym-coach.vercel.app/api/v18';
  A.config={loaded:false,cloudConfigured:false,aiConfigured:false,supabaseUrl:null,supabaseAnonKey:null,apiVersion:18};
  A.session=null;A.apiBase='';A.syncTimer=null;A.authBusy=false;
  function absoluteApiBase(){let o=localStorage.getItem(API_OVERRIDE_KEY);if(o)return o.replace(/\/$/,'');if(location.hostname.includes('github.io'))return localStorage.getItem('wgc-v18-vercel-api')||window.WGC_API_BASE||DEFAULT_API_BASE;return '/api/v18'}
@@ -19,18 +19,79 @@ window.WGC18=window.WGC18||{};
  async function signIn(email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});saveSession(j);await afterAuth();return j}
  async function signUp(name,email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/signup`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,data:{display_name:name||''}})});if(j.access_token){saveSession(j);await afterAuth()}return j}
  async function recover(email){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');await raw(`${A.config.supabaseUrl}/auth/v1/recover`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email})})}
- async function signOut(){try{let t=await A.accessToken();if(t&&A.config.supabaseUrl)await fetch(`${A.config.supabaseUrl}/auth/v1/logout`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${t}`}})}catch{}saveSession(null);status('Signed out. Your local data remains on this device.')}
- function captureLocalState(){let storage={};for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(!k)continue;if(k.startsWith(PREFIX)||LEGACY_EXPORT_KEYS?.includes?.(k)||LEGACY_EXPORT_PREFIXES?.some?.(p=>k.startsWith(p)))storage[k]=localStorage.getItem(k)}return{schemaVersion:18,appVersion:APP_VERSION,capturedAt:new Date().toISOString(),storage}}
+ function isPlannerKey(k){return !!k&&(k.startsWith(PREFIX)||LEGACY_EXPORT_KEYS?.includes?.(k)||LEGACY_EXPORT_PREFIXES?.some?.(p=>k.startsWith(p)))}
+ function clearLocalPlanner(){let keys=[];for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(isPlannerKey(k))keys.push(k)}keys.forEach(k=>localStorage.removeItem(k));return keys.length}
+ function cacheKey(uid){return USER_CACHE_PREFIX+uid}
+ function stashForUser(uid){if(!uid||!localDataCount())return;try{localStorage.setItem(cacheKey(uid),JSON.stringify(captureLocalState()))}catch{}}
+ function cachedForUser(uid){try{return JSON.parse(localStorage.getItem(cacheKey(uid))||'null')}catch{return null}}
+ async function signOut(){
+  let uid=A.session?.user?.id;
+  try{if(A.session)await A.pushState({quiet:true})}catch(e){recordDiagnostic?.('signout-sync',e)}
+  stashForUser(uid);
+  clearLocalPlanner();
+  localStorage.removeItem(OWNER_KEY);
+  try{let t=await A.accessToken();if(t&&A.config.supabaseUrl)await fetch(`${A.config.supabaseUrl}/auth/v1/logout`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${t}`}})}catch{}
+  saveSession(null);
+  status('Signed out. Planner data for this account is no longer visible on this device.');
+  setTimeout(()=>location.reload(),250)
+ }
+ function captureLocalState(){let storage={};for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(isPlannerKey(k))storage[k]=localStorage.getItem(k)}return{schemaVersion:18,appVersion:APP_VERSION,capturedAt:new Date().toISOString(),storage}}
  function localDataCount(){return Object.keys(captureLocalState().storage).length}
- function restoreCloudState(state){if(!state?.storage||typeof state.storage!=='object')throw Error('No compatible cloud data found.');createRecoverySnapshot?.('before-cloud-restore');let count=0;for(const [k,v] of Object.entries(state.storage)){if(k.startsWith(PREFIX)||LEGACY_EXPORT_KEYS?.includes?.(k)||LEGACY_EXPORT_PREFIXES?.some?.(p=>k.startsWith(p))){localStorage.setItem(k,String(v));count++}}localStorage.removeItem(K.migrated);return count}
+ function restoreCloudState(state,{snapshot=true}={}){if(!state?.storage||typeof state.storage!=='object')throw Error('No compatible cloud data found.');let recovery=null;if(snapshot){createRecoverySnapshot?.('before-cloud-restore');recovery=localStorage.getItem(K.recovery)}clearLocalPlanner();let count=0;for(const [k,v] of Object.entries(state.storage)){if(isPlannerKey(k)){localStorage.setItem(k,String(v));count++}}if(recovery)localStorage.setItem(K.recovery,recovery);localStorage.removeItem(K.migrated);return count}
  A.pushState=async function({quiet=false}={}){if(!A.session)return false;let state=captureLocalState(),j=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state})});localStorage.setItem(LAST_SYNC_KEY,j.updatedAt||new Date().toISOString());if(!quiet){status(`Synced ${Object.keys(state.storage).length} local records to your account.`);toast('Account sync complete')}renderAccountUI();return true};
  A.pullState=async function({reload=true}={}){let j=await A.authedFetch('state');if(!j.state)throw Error('This account does not have saved app data yet.');let count=restoreCloudState(j.state);localStorage.setItem(LAST_SYNC_KEY,j.updatedAt||new Date().toISOString());status(`Restored ${count} records from your account.`);if(reload)setTimeout(()=>location.reload(),500);else renderAll?.();return count};
  A.queueSync=function(){if(!A.session)return;clearTimeout(A.syncTimer);A.syncTimer=setTimeout(()=>A.pushState({quiet:true}).catch(e=>recordDiagnostic?.('account-sync',e)),1500)};
- async function afterAuth(){renderAccountUI();let remote=null;try{remote=await A.authedFetch('state')}catch{}if(!profile()&&remote?.state){restoreCloudState(remote.state);location.reload();return}if(!profile()&&!remote?.state){setTimeout(()=>window.WGC18?.openOnboarding?.(),150)}else if(profile()&&!remote?.state){status(`Signed in. ${localDataCount()} local records are ready to migrate to this account.`)}else status('Signed in. Choose which copy to keep if this is a new device.')}
+ async function afterAuth(){
+  renderAccountUI();
+  const uid=A.session?.user?.id;
+  if(!uid)throw Error('The account session is missing a user id.');
+  let remote=null;try{remote=await A.authedFetch('state')}catch{}
+  const owner=localStorage.getItem(OWNER_KEY),hasVisibleData=localDataCount()>0;
+  if(owner&&owner!==uid){stashForUser(owner);clearLocalPlanner()}
+  else if(!owner&&hasVisibleData){
+   try{localStorage.setItem(UNCLAIMED_KEY,JSON.stringify(captureLocalState()))}catch{}
+   clearLocalPlanner()
+  }
+  localStorage.setItem(OWNER_KEY,uid);
+  if(remote?.state){
+   restoreCloudState(remote.state,{snapshot:false});
+   localStorage.setItem(LAST_SYNC_KEY,remote.updatedAt||new Date().toISOString());
+   location.reload();return
+  }
+  const cached=cachedForUser(uid);
+  if(cached?.storage){restoreCloudState(cached,{snapshot:false});location.reload();return}
+  if(!profile()){
+   status('Signed in. Build a private plan for this account.');
+   setTimeout(()=>window.WGC18?.openOnboarding?.(),150)
+  }else status(`Signed in. ${localDataCount()} records belong to this account.`)
+ }
  A.signIn=signIn;A.signUp=signUp;A.signOut=signOut;A.recover=recover;A.captureLocalState=captureLocalState;A.restoreCloudState=restoreCloudState;
  function accountEmail(){return A.session?.user?.email||A.session?.user?.user_metadata?.email||''}
  function renderAccountUI(){let signed=!!A.session?.access_token,body=$('#accountBody'),chip=$('#accountChip');if(chip){chip.textContent=signed?(accountEmail()||'Account'):'Sign in';chip.classList.toggle('signed',signed)}if(!body)return;if(!A.config.loaded){body.innerHTML='<p class="muted">Checking account service…</p>';return}if(!A.config.cloudConfigured){body.innerHTML=`<div class="accountUnavailable"><b>Cloud accounts are built but not connected yet.</b><p>The app needs its Supabase project credentials on the server before sign-in can go live. Your existing local planner continues to work.</p></div><label>Advanced API base<input id="accountApiOverride" value="${esc(localStorage.getItem(API_OVERRIDE_KEY)||'')}" placeholder="https://your-app.vercel.app/api/v18"></label><button id="saveApiOverride">Save API server</button>`;$('#saveApiOverride').onclick=()=>{let v=$('#accountApiOverride').value.trim();if(v)localStorage.setItem(API_OVERRIDE_KEY,v);else localStorage.removeItem(API_OVERRIDE_KEY);location.reload()};return}if(!signed){body.innerHTML=`<div class="authTabs"><button data-auth-tab="signin" class="active">Sign in</button><button data-auth-tab="signup">Create account</button></div><div id="signinPane" class="authPane"><label>Email<input id="loginEmail" type="email" autocomplete="email"></label><label>Password<input id="loginPassword" type="password" autocomplete="current-password"></label><button id="loginBtn" class="primary wideBtn">Sign in</button><button id="recoverBtn" class="linkBtn">Forgot password?</button></div><div id="signupPane" class="authPane hidden"><label>Name<input id="signupName" autocomplete="name"></label><label>Email<input id="signupEmail" type="email" autocomplete="email"></label><label>Password<input id="signupPassword" type="password" minlength="8" autocomplete="new-password"></label><button id="signupBtn" class="primary wideBtn">Create account</button><p class="muted">After creating an account, this device can be migrated into it or a new personalized plan can be created.</p></div>`;$$('[data-auth-tab]').forEach(b=>b.onclick=()=>{$$('[data-auth-tab]').forEach(x=>x.classList.toggle('active',x===b));$('#signinPane').classList.toggle('hidden',b.dataset.authTab!=='signin');$('#signupPane').classList.toggle('hidden',b.dataset.authTab!=='signup')});$('#loginBtn').onclick=async()=>{if(A.authBusy)return;A.authBusy=true;status('Signing in…');try{await signIn($('#loginEmail').value.trim(),$('#loginPassword').value);closeModal('accountDialog');toast('Signed in')}catch(e){status(e.message,true)}finally{A.authBusy=false}};$('#signupBtn').onclick=async()=>{if(A.authBusy)return;A.authBusy=true;status('Creating account…');try{let j=await signUp($('#signupName').value.trim(),$('#signupEmail').value.trim(),$('#signupPassword').value);if(!j.access_token)status('Account created. Check your email to confirm, then sign in.');else{closeModal('accountDialog');toast('Account created')}}catch(e){status(e.message,true)}finally{A.authBusy=false}};$('#recoverBtn').onclick=async()=>{let email=$('#loginEmail').value.trim();if(!email)return status('Enter your email first.',true);try{await recover(email);status('Password reset email sent.')}catch(e){status(e.message,true)}};return}
- let last=localStorage.getItem(LAST_SYNC_KEY),when=last?new Date(last).toLocaleString():'Never';body.innerHTML=`<div class="signedAccount"><div class="accountIdentity"><span>${esc((accountEmail()||'?')[0].toUpperCase())}</span><div><b>${esc(accountEmail()||'Signed in')}</b><small>Last sync: ${esc(when)}</small></div></div><div class="accountActions"><button id="migrateDevice" class="primary"><b>Migrate this device</b><small>Upload your current schedules, workouts, nutrition and body data</small></button><button id="restoreAccount"><b>Restore from account</b><small>Replace this device with the cloud copy</small></button><button id="syncAccount"><b>Sync now</b><small>Update your account with this device</small></button><button id="startOnboardingAccount"><b>Build a new personalized plan</b><small>Run onboarding again without deleting history</small></button></div><div class="dangerZone"><button id="signOutAccount">Sign out</button><button id="deleteCloudAccount" class="danger">Delete account permanently</button></div></div>`;$('#migrateDevice').onclick=async()=>{if(!confirm(`Upload this device's ${localDataCount()} planner records to your signed-in account?`))return;status('Migrating this device…');try{await A.pushState()}catch(e){status(e.message,true)}};$('#restoreAccount').onclick=async()=>{if(!confirm('Replace this device planner data with the cloud copy? A recovery snapshot will be made first.'))return;status('Restoring…');try{await A.pullState()}catch(e){status(e.message,true)}};$('#syncAccount').onclick=async()=>{status('Syncing…');try{await A.pushState()}catch(e){status(e.message,true)}};$('#startOnboardingAccount').onclick=()=>{closeModal('accountDialog');window.WGC18?.openOnboarding?.()};$('#signOutAccount').onclick=signOut;$('#deleteCloudAccount').onclick=async()=>{if(prompt('Type DELETE ACCOUNT to permanently delete your cloud account:')!=='DELETE ACCOUNT')return;try{await A.authedFetch('account',{method:'DELETE'});saveSession(null);status('Account deleted. Local data remains on this device.');toast('Account deleted')}catch(e){status(e.message,true)}}}
+ let last=localStorage.getItem(LAST_SYNC_KEY),when=last?new Date(last).toLocaleString():'Never',unclaimed=!!localStorage.getItem(UNCLAIMED_KEY);
+ body.innerHTML=`<div class="signedAccount"><div class="accountIdentity"><span>${esc((accountEmail()||'?')[0].toUpperCase())}</span><div><b>${esc(accountEmail()||'Signed in')}</b><small>Last sync: ${esc(when)}</small></div></div><div class="accountActions">${unclaimed?'<button id="importPreviousDevice"><b>Import previous device data</b><small>A planner from before account separation is safely hidden. Import it only if it is yours.</small></button>':''}<button id="migrateDevice" class="primary"><b>Migrate this device</b><small>Upload your current schedules, workouts, nutrition and body data</small></button><button id="restoreAccount"><b>Restore from account</b><small>Replace this device with the cloud copy</small></button><button id="syncAccount"><b>Sync now</b><small>Update your account with this device</small></button><button id="startOnboardingAccount"><b>Edit adaptive plan</b><small>Update your work, workouts, recovery and nutrition preferences</small></button></div><div class="dangerZone"><button id="signOutAccount">Sign out</button><button id="deleteCloudAccount" class="danger">Delete account permanently</button></div></div>`;
+ let importPrevious=$('#importPreviousDevice');if(importPrevious)importPrevious.onclick=async()=>{
+  if(!confirm('Import the hidden planner into this signed-in account? Only continue if the schedules and history are yours.'))return;
+  try{
+   const held=JSON.parse(localStorage.getItem(UNCLAIMED_KEY)||'null');
+   restoreCloudState(held,{snapshot:false});
+   localStorage.setItem(OWNER_KEY,A.session.user.id);
+   localStorage.removeItem(UNCLAIMED_KEY);
+   await A.pushState({quiet:true});
+   location.reload()
+  }catch(e){status(e.message,true)}
+ };
+ $('#migrateDevice').onclick=async()=>{if(!confirm(`Upload this device's ${localDataCount()} planner records to your signed-in account?`))return;status('Migrating this device…');try{await A.pushState()}catch(e){status(e.message,true)}};
+ $('#restoreAccount').onclick=async()=>{if(!confirm('Replace this device planner data with the cloud copy? A recovery snapshot will be made first.'))return;status('Restoring…');try{await A.pullState()}catch(e){status(e.message,true)}};
+ $('#syncAccount').onclick=async()=>{status('Syncing…');try{await A.pushState()}catch(e){status(e.message,true)}};
+ $('#startOnboardingAccount').onclick=()=>{closeModal('accountDialog');window.WGC18?.openOnboarding?.()};
+ $('#signOutAccount').onclick=signOut;
+ $('#deleteCloudAccount').onclick=async()=>{
+  if(prompt('Type DELETE ACCOUNT to permanently delete your cloud account:')!=='DELETE ACCOUNT')return;
+  const uid=A.session?.user?.id;
+  try{await A.authedFetch('account',{method:'DELETE'});clearLocalPlanner();localStorage.removeItem(OWNER_KEY);if(uid)localStorage.removeItem(cacheKey(uid));saveSession(null);status('Account and its local planner copy were deleted.');toast('Account deleted');setTimeout(()=>location.reload(),250)}catch(e){status(e.message,true)}
+ }
+ }
  function openAccount(mode='signin'){renderAccountUI();openModal('accountDialog');let tries=0,timer=setInterval(()=>{let tab=$(`[data-auth-tab="${mode}"]`);if(tab){tab.click();clearInterval(timer)}else if(++tries>8)clearInterval(timer)},100)}
  A.openAccount=openAccount;
  function injectUI(){let cards=$('#page-more .menuCards');if(cards&&!$('#openAccountV18')){let b=document.createElement('button');b.id='openAccountV18';b.innerHTML='<span>👤</span><div><b>Account & sync</b><small id="accountMenuText">Sign in, migrate this device, sync across devices</small></div><i>›</i>';cards.insertBefore(b,cards.firstChild);b.onclick=()=>openAccount('signin')}let home=$('#todayDashboard');if(home&&!$('#accountChip')){let chip=document.createElement('button');chip.id='accountChip';chip.className='accountChip';chip.onclick=()=>openAccount('signin');home.parentElement?.insertBefore(chip,home)}if(!$('#accountDialog'))document.body.insertAdjacentHTML('beforeend',`<div id="accountDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountTitle"><div class="sheet largeSheet premiumAccountSheet"><div class="sheetHandle"></div><div class="sheetHead"><h2 id="accountTitle">Your Work + Workout account</h2><button data-close="accountDialog">Done</button></div><div id="accountBody"></div><p id="accountStatus" class="statusText"></p></div></div>`);let close=$('#accountDialog [data-close]');if(close)close.onclick=()=>closeModal('accountDialog');$('#accountDialog')?.addEventListener('click',e=>{if(e.target.id==='accountDialog')closeModal('accountDialog')});renderAccountUI()}

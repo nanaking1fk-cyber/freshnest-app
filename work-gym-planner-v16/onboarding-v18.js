@@ -1,5 +1,5 @@
 // v18 personalized onboarding and deterministic schedule-aware plan builder -----
-APP_VERSION='18.1.2';
+APP_VERSION='18.1.3';
 window.WGC18=window.WGC18||{};
 (function(A){
  const ONBOARD_KEY=PREFIX+'onboarding-v18';

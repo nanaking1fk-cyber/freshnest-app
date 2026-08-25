@@ -1,4 +1,4 @@
-/* Work + Workout 19.0 — worker-first story and smart planning */
+/* Work + Workout 20.0 — worker-first story, real cinematic footage and smart planning */
 :root{
   --story-ink:#080b10;
   --story-panel:#10161d;
@@ -7,7 +7,20 @@
   --story-muted:#909b96;
 }
 .premiumLanding[data-story-v19="true"] .landingHeroImage img{object-position:center center}
+.premiumLanding[data-story-v19="true"] .landingHeroImage{overflow:hidden;background:#080b10}
+.premiumLanding[data-story-v19="true"] .landingHeroFilmV20{
+  width:100%;
+  height:100%;
+  position:absolute;
+  z-index:1;
+  inset:0;
+  object-fit:cover;
+  object-position:center center;
+  filter:saturate(.78) contrast(1.08) brightness(.8);
+  transform:scale(1.018);
+}
 .premiumLanding[data-story-v19="true"] .landingHeroShade{
+  z-index:1;
   background:
     linear-gradient(90deg,rgba(8,11,16,.99) 0%,rgba(8,11,16,.92) 34%,rgba(8,11,16,.32) 67%,rgba(8,11,16,.08) 100%),
     linear-gradient(0deg,#080b10 0%,transparent 27%,rgba(8,11,16,.12) 100%);
@@ -19,6 +32,9 @@
   border-color:rgba(184,243,74,.22);
 }
 .premiumLanding[data-story-v19="true"] .landingSignal{background:#0b0f14}
+.premiumLanding[data-story-v19="true"] .landingGhost{display:inline-flex;align-items:center;gap:9px;padding-inline:16px}
+.premiumLanding[data-story-v19="true"] .landingGhost .cinemaPlay{width:25px;height:25px;display:grid;place-items:center;border-radius:50%;color:#10140a;background:var(--story-accent);font-size:8px;font-style:normal}
+.premiumLanding[data-story-v19="true"] .landingGhost small{color:#89938e;font-size:8px;font-weight:800}
 
 /* Worker story */
 .storyWorkers{max-width:1380px!important;padding-top:132px!important;padding-bottom:110px!important}
@@ -280,7 +296,22 @@ body.storyFilmOpen{overflow:hidden}
 }
 .filmScene.active{opacity:1;pointer-events:auto;transform:scale(1)}
 .filmScene>img{width:100%;height:100%;object-fit:cover;object-position:65% center}
+.filmFootage{
+  width:100%;
+  height:100%;
+  position:absolute;
+  inset:0;
+  object-fit:cover;
+  object-position:center;
+  filter:saturate(.75) contrast(1.12) brightness(.72);
+  transform:scale(1.035);
+}
+.filmScene.active .filmFootage{animation:filmCamera 6.4s ease-out both}
+@keyframes filmCamera{from{transform:scale(1.075)}to{transform:scale(1.025)}}
 .filmShade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,10,14,.98),rgba(7,10,14,.72) 45%,rgba(7,10,14,.08)),linear-gradient(0deg,rgba(7,10,14,.65),transparent 46%)}
+.filmShadeStrong{background:linear-gradient(0deg,rgba(7,10,14,.96),rgba(7,10,14,.48) 58%,rgba(7,10,14,.18)),linear-gradient(90deg,rgba(7,10,14,.68),transparent 65%)}
+.filmShadeFinal{background:linear-gradient(0deg,rgba(7,10,14,.98),rgba(7,10,14,.22) 70%),linear-gradient(90deg,rgba(7,10,14,.72),transparent 68%)}
+.filmKicker{position:absolute;z-index:4;right:26px;top:78px;padding:8px 11px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#e6ebe7;background:rgba(7,10,14,.52);backdrop-filter:blur(12px);font-size:7px;font-weight:900;letter-spacing:.15em}
 .filmCopy{position:absolute;z-index:3;left:clamp(28px,7vw,90px);top:50%;width:min(650px,62%);transform:translateY(-50%)}
 .filmCopy small{color:var(--story-accent);font-size:9px;font-weight:950;letter-spacing:.16em}
 .filmCopy h2{margin:15px 0 17px;color:#f5f8f4;font-size:clamp(42px,6vw,78px);font-weight:610;line-height:.96;letter-spacing:-.065em}
@@ -296,7 +327,8 @@ body.storyFilmOpen{overflow:hidden}
   padding:34px;
   border:1px solid rgba(184,243,74,.24);
   border-radius:24px;
-  background:#11171e;
+  background:rgba(12,17,23,.83);
+  backdrop-filter:blur(20px);
   box-shadow:0 35px 100px rgba(0,0,0,.5);
 }
 .filmCapture small{color:var(--story-accent);font-size:8px;font-weight:900;letter-spacing:.14em}
@@ -321,7 +353,8 @@ body.storyFilmOpen{overflow:hidden}
   border:1px solid rgba(255,255,255,.09);
   border-radius:17px;
   color:#77817d;
-  background:#11171e;
+  background:rgba(12,17,23,.85);
+  backdrop-filter:blur(15px);
   font-size:8px;
   font-weight:900;
   letter-spacing:.12em;
@@ -332,6 +365,7 @@ body.storyFilmOpen{overflow:hidden}
 .filmPeople::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,9,13,.98),rgba(6,9,13,.12) 72%)}
 .filmPeople img{width:100%;height:100%;object-fit:cover;filter:saturate(.82)}
 .filmCopyBottom button{min-height:48px;margin-top:23px;padding:0 20px;border-radius:13px}
+.filmCredits{position:absolute;z-index:4;right:24px;bottom:68px;margin:0;color:rgba(225,231,227,.58);font-size:7px;letter-spacing:.02em}
 .storyFilmControls{
   position:absolute;
   z-index:21;
@@ -339,11 +373,12 @@ body.storyFilmOpen{overflow:hidden}
   bottom:20px;
   left:23px;
   display:grid;
-  grid-template-columns:38px 1fr auto;
+  grid-template-columns:38px auto 1fr auto;
   align-items:center;
   gap:15px;
 }
 .storyFilmControls>button{width:38px;height:38px;border:1px solid rgba(255,255,255,.14);border-radius:50%;color:#fff;background:rgba(7,10,14,.56);font-size:10px}
+.storyFilmControls>#storyFilmSound{width:auto;padding:0 12px;border-radius:999px;color:#dce3de;font-size:7px;font-weight:850;letter-spacing:.04em}
 .storyFilmProgress{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
 .storyFilmProgress i{height:3px;border-radius:99px;background:rgba(255,255,255,.18)}
 .storyFilmProgress i.active{background:var(--story-accent);box-shadow:0 0 15px rgba(184,243,74,.38)}
@@ -481,6 +516,7 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 @media(max-width:760px){
   .premiumLanding[data-story-v19="true"] .landingHero{min-height:830px;align-items:flex-end}
   .premiumLanding[data-story-v19="true"] .landingHeroImage img{object-position:67% top}
+  .premiumLanding[data-story-v19="true"] .landingHeroFilmV20{object-position:58% center}
   .premiumLanding[data-story-v19="true"] .landingHeroShade{background:linear-gradient(0deg,#080b10 2%,rgba(8,11,16,.92) 40%,rgba(8,11,16,.22) 76%,rgba(8,11,16,.08))}
   .premiumLanding[data-story-v19="true"] .landingHeroCopy{width:auto;margin:0;padding:360px 21px 42px}
   .premiumLanding[data-story-v19="true"] .landingHero h1{font-size:clamp(47px,14vw,67px)}
@@ -495,11 +531,14 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
   .storyRawStage{min-height:auto}.storyRawInput{padding:16px}.storyRawInput textarea{font-size:11px}
   .storyFilm{padding:0}.storyFilmShell{width:100vw;height:100dvh;border:0;border-radius:0}
   .filmScene>img{object-position:67% center}.filmShade{background:linear-gradient(0deg,rgba(7,10,14,.98),rgba(7,10,14,.72) 48%,rgba(7,10,14,.04))}
+  .filmFootage{object-position:center}.filmKicker{top:78px;right:18px}
   .filmCopy{top:auto;right:22px;bottom:95px;left:22px;width:auto;transform:none}.filmCopy h2{font-size:43px}.filmCopy p{font-size:13px}
   .filmCapture{width:calc(100% - 32px);padding:23px}.filmCapture p{font-size:22px}
   .filmCopyBottom{bottom:86px}.filmCopyBottom h2{font-size:37px}
   .filmWeek{top:42%;width:calc(100% - 28px);grid-template-columns:repeat(5,150px);overflow-x:auto;transform:translate(-50%,-50%);padding-bottom:8px}.filmWeek>span{min-height:235px}
   .filmPeople{grid-template-columns:repeat(3,70%);overflow-x:hidden}.filmPeople img{min-width:100%}
+  .filmCredits{right:18px;bottom:65px;left:18px;text-align:right}
+  .storyFilmControls{right:15px;bottom:13px;left:15px;grid-template-columns:36px auto 1fr auto;gap:8px}.storyFilmControls>button{width:36px;height:36px}.storyFilmControls>#storyFilmSound{padding:0 9px}
   body.premiumV18 .smartCaptureIntro{grid-template-columns:39px 1fr}.smartCaptureIntro>button{grid-column:2;width:max-content}
   body.premiumV18 .smartCaptureIntro>span{width:39px;height:39px}
   body.premiumV18 .smartCaptureComposer>div{display:grid;grid-template-columns:auto 1fr}
@@ -519,6 +558,7 @@ body.premiumV18 .inAppWorkerImages b{position:absolute;z-index:2;left:10px;botto
 }
 @media(prefers-reduced-motion:reduce){
   .storyWorker img,.filmScene,.storyFilm{transition:none!important}
+  .filmScene.active .filmFootage{animation:none!important}
   .filmCapture i b{animation:none!important;width:100%}
   html{scroll-behavior:auto!important}
 }

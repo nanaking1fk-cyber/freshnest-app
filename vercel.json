@@ -3,6 +3,12 @@
   "functions": {
     "api/v18/*.js": { "maxDuration": 60 }
   },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/work-gym-planner/"
+    }
+  ],
   "headers": [
     {
       "source": "/api/v18/(.*)",

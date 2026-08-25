@@ -2,14 +2,16 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## v19 Worker Edition
+## v20 Cinematic Worker Edition
 
-- **Worker-first story:** a premium public landing page explains how the product fits healthcare, construction, transit, hospitality and other demanding schedules.
-- **Interactive product film:** a short captioned walkthrough demonstrates how raw schedule input becomes a coordinated health plan.
+- **Worker-first story:** a premium public landing page explains how the product fits healthcare, construction, logistics, hospitality and other demanding schedules.
+- **Real cinematic footage:** the landing hero and a 26-second captioned film use genuine moving footage of nurses, road crews, warehouse workers and chefs—not animated still images.
 - **Quick Plan:** users can type or dictate ordinary language such as “work Tuesday 7–7, meal prep Sunday at 4, dentist tomorrow at 3.” The app previews and adds shifts, workouts, meals, appointments and tasks in one pass.
 - **Adaptive calendar:** newly captured work shifts block unavailable time and immediately influence workout placement; personal calendar items remain in the agenda.
 - **Useful reminders:** each captured item can include an alert, with an `.ics` calendar export for device-level reminders.
 - **Occupational visuals:** the landing page and app feature people in scrubs, road-safety gear, transit uniform and chef whites so the experience visibly reflects working people.
+
+Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 
 ## Product architecture
 

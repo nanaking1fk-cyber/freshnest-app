@@ -1,8 +1,17 @@
-# Work + Gym Coach
+# Work + Workout
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## v18 product architecture
+## v19 Worker Edition
+
+- **Worker-first story:** a premium public landing page explains how the product fits healthcare, construction, transit, hospitality and other demanding schedules.
+- **Interactive product film:** a short captioned walkthrough demonstrates how raw schedule input becomes a coordinated health plan.
+- **Quick Plan:** users can type or dictate ordinary language such as “work Tuesday 7–7, meal prep Sunday at 4, dentist tomorrow at 3.” The app previews and adds shifts, workouts, meals, appointments and tasks in one pass.
+- **Adaptive calendar:** newly captured work shifts block unavailable time and immediately influence workout placement; personal calendar items remain in the agenda.
+- **Useful reminders:** each captured item can include an alert, with an `.ics` calendar export for device-level reminders.
+- **Occupational visuals:** the landing page and app feature people in scrubs, road-safety gear, transit uniform and chef whites so the experience visibly reflects working people.
+
+## Product architecture
 
 - **Local-first planner:** existing v15-v17 planner data continues to work on-device.
 - **Accounts & migration:** Supabase Auth + Postgres. A signed-in user can migrate all current planner records to their account and restore them on another device. Private legacy WebDAV credentials are excluded.

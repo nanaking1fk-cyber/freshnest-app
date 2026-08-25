@@ -18,9 +18,10 @@ function addDayItem(k,item){let all=dayItems();all[k]=[...(all[k]||[]),{id:uid('
 function patchDayItem(k,id,patch){let all=dayItems();all[k]=(all[k]||[]).map(item=>item.id===id?{...item,...patch}:item);saveDayItems(all)}
 function deleteDayItem(k,id){let all=dayItems();all[k]=(all[k]||[]).filter(item=>item.id!==id);if(!all[k].length)delete all[k];saveDayItems(all)}
 function workScheduleRows(k){
- let p=profile(),s=workState(k),rows=[];
+ let p=profile(),s=workState(k),smart=typeof smartWork==='function'?smartWork(k):null,rows=[];
  if(s.fixed&&p?.fixed)rows.push({name:p.fixed.name||'Primary job',time:p.fixed.start&&p.fixed.end?`${p.fixed.start}–${p.fixed.end}`:'Scheduled work'});
- if(s.variable===true&&p?.variable)rows.push({name:p.variable.name||'Secondary job',time:p.variable.start&&p.variable.end?`${p.variable.start}–${p.variable.end}`:'Scheduled work'});
+ if(smart&&s.variable===true)rows.push({name:smart.label||p?.variable?.name||'Work shift',time:smart.start&&smart.end?`${smart.start}–${smart.end}`:(smart.start||'Scheduled work')});
+ else if(s.variable===true&&p?.variable)rows.push({name:p.variable.name||'Secondary job',time:p.variable.start&&p.variable.end?`${p.variable.start}–${p.variable.end}`:'Scheduled work'});
  if(s.kind==='unknown'&&p?.variable?.enabled)rows.push({name:p.variable.name||'Secondary job',time:'Schedule not reviewed',unknown:true});
  return rows
 }

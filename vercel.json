@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/work-gym-planner/"
+      "destination": "/work-gym-planner/index.html"
     }
   ],
   "headers": [

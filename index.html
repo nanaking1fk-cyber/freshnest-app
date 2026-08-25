@@ -1,1 +1,34 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0; url=./work-gym-planner/"><title>Work + Gym Planner</title><script>location.replace('./work-gym-planner/')</script></head><body><p>Opening Work + Gym Planner…</p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Work + Gym Coach</title>
+</head>
+<body>
+  <p>Opening Work + Gym Coach…</p>
+  <script>
+    (async () => {
+      const customHosts = new Set(['workandworkout.com', 'www.workandworkout.com']);
+
+      if (!customHosts.has(window.location.hostname)) {
+        window.location.replace('./work-gym-planner/');
+        return;
+      }
+
+      try {
+        const response = await fetch('/work-gym-planner/index.html', { cache: 'no-store' });
+        if (!response.ok) throw new Error('App entrypoint unavailable');
+
+        const appDocument = await response.text();
+        document.open();
+        document.write(appDocument);
+        document.close();
+      } catch (error) {
+        console.error(error);
+        document.body.innerHTML = '<p style="font-family:-apple-system,sans-serif;padding:24px">App failed to load. Refresh once while online.</p>';
+      }
+    })();
+  </script>
+</body>
+</html>

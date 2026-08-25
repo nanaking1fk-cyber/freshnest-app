@@ -1,12 +1,12 @@
 // Workouts ------------------------------------------------------------------
 const WORKOUTS=[
- {name:'Lower A',focus:'Quads + posterior chain',stress:'lower',ex:[
+ {name:'Leg Strength',focus:'Quads + posterior chain',stress:'lower',ex:[
   {name:'Hack Squat',sets:4,lo:6,hi:8,inc:10},{name:'Romanian Deadlift',sets:3,lo:6,hi:8,inc:10},{name:'Leg Press',sets:3,lo:10,hi:12,inc:10},{name:'Seated Leg Curl',sets:3,lo:10,hi:12,inc:5},{name:'Leg Extension',sets:2,lo:12,hi:15,inc:5},{name:'Standing Calf Raise',sets:3,lo:10,hi:15,inc:5},{name:'Cable Crunch',sets:3,lo:12,hi:15,inc:5}]},
- {name:'Upper A',focus:'Chest + back',stress:'upper',ex:[
+ {name:'Chest & Back',focus:'Chest + back',stress:'upper',ex:[
   {name:'Incline Dumbbell Press',sets:4,lo:6,hi:8,inc:5},{name:'Chest-Supported Row',sets:4,lo:6,hi:8,inc:5},{name:'Lat Pulldown',sets:3,lo:8,hi:10,inc:5},{name:'Machine Chest Press',sets:3,lo:8,hi:10,inc:5},{name:'Cable Lateral Raise',sets:3,lo:12,hi:20,inc:2.5},{name:'Rope Triceps Pressdown',sets:3,lo:10,hi:15,inc:5},{name:'Preacher Curl',sets:3,lo:10,hi:15,inc:2.5}]},
- {name:'Lower B',focus:'Glutes + hamstrings',stress:'lower',ex:[
+ {name:'Glutes & Hamstrings',focus:'Glutes + hamstrings',stress:'lower',ex:[
   {name:'Smith Machine Squat',sets:3,lo:8,hi:10,inc:10},{name:'Hip Thrust',sets:3,lo:8,hi:10,inc:10},{name:'Bulgarian Split Squat',sets:3,lo:8,hi:10,inc:5},{name:'Lying Leg Curl',sets:3,lo:10,hi:12,inc:5},{name:'Leg Extension',sets:2,lo:12,hi:15,inc:5},{name:'Seated Calf Raise',sets:3,lo:12,hi:15,inc:5},{name:'Hanging Knee Raise',sets:3,lo:10,hi:15,inc:0}]},
- {name:'Upper B',focus:'Shoulders + back + arms',stress:'upper',ex:[
+ {name:'Shoulders, Back & Arms',focus:'Shoulders + back + arms',stress:'upper',ex:[
   {name:'Flat Bench / Machine Press',sets:3,lo:6,hi:8,inc:5},{name:'Neutral-Grip Lat Pulldown',sets:3,lo:8,hi:10,inc:5},{name:'Seated DB Shoulder Press',sets:3,lo:8,hi:10,inc:5},{name:'Seated Cable Row',sets:3,lo:8,hi:12,inc:5},{name:'Incline Cable Fly',sets:2,lo:12,hi:15,inc:2.5},{name:'Lateral Raise',sets:4,lo:12,hi:20,inc:2.5},{name:'Incline DB Curl',sets:3,lo:10,hi:12,inc:2.5},{name:'Overhead Cable Triceps Extension',sets:3,lo:10,hi:12,inc:2.5}]}
 ];
 function history(){return jget(K.history,[]).sort((a,b)=>a.date.localeCompare(b.date))}

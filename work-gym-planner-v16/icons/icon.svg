@@ -1,1 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024"><defs><radialGradient id="g" cx="52%" cy="46%" r="72%"><stop offset="0" stop-color="#173968"/><stop offset="1" stop-color="#07111f"/></radialGradient></defs><rect width="1024" height="1024" rx="220" fill="url(#g)"/><rect x="80" y="80" width="864" height="864" rx="210" fill="none" stroke="#233a50" stroke-width="8"/><g><rect x="310" y="446" width="404" height="68" rx="34" fill="#f8fafc"/><rect x="265" y="408" width="65" height="144" rx="30" fill="#3b82f6"/><rect x="694" y="408" width="65" height="144" rx="30" fill="#3b82f6"/><rect x="188" y="352" width="88" height="256" rx="42" fill="#f8fafc"/><rect x="748" y="352" width="88" height="256" rx="42" fill="#f8fafc"/><rect x="135" y="393" width="70" height="174" rx="34" fill="#3b82f6"/><rect x="819" y="393" width="70" height="174" rx="34" fill="#3b82f6"/></g><path d="M335 690h105l60-65 70 130 122-140" fill="none" stroke="#22c55e" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/><circle cx="750" cy="265" r="15" fill="#22c55e"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="900" y2="940" gradientUnits="userSpaceOnUse"><stop stop-color="#171e27"/><stop offset="1" stop-color="#080b10"/></linearGradient>
+    <linearGradient id="lime" x1="245" y1="245" x2="790" y2="800" gradientUnits="userSpaceOnUse"><stop stop-color="#d9ff91"/><stop offset="1" stop-color="#9cda30"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+  </defs>
+  <rect width="1024" height="1024" rx="248" fill="url(#bg)"/>
+  <circle cx="512" cy="500" r="330" fill="#b8f34a" opacity=".08" filter="url(#glow)"/>
+  <rect x="62" y="62" width="900" height="900" rx="218" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="6"/>
+  <g fill="none" stroke="url(#lime)" stroke-linecap="round" stroke-linejoin="round" stroke-width="58">
+    <path d="M215 376v272M302 320v384M388 512h248M636 320v384M722 376v272M809 454v116"/>
+    <path d="m310 720 104-100 76 72 165-198" stroke-width="42"/>
+  </g>
+  <circle cx="655" cy="494" r="22" fill="#b8f34a"/>
+</svg>

@@ -1,6 +1,7 @@
 // v16.3 Interactive Home dashboard ------------------------------------------
 const HOME_ICONS={
  menu:'<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+ brand:'<svg viewBox="0 0 24 24"><path d="M4 7v10m3-12v14m3-7h4m0-7v14m3-12v10m3-7v4M7 12h10"/><path d="m8 18 3-3 2 2 4-5"/></svg>',
  work:'<svg viewBox="0 0 24 24"><path d="M9 6V4.8A1.8 1.8 0 0 1 10.8 3h2.4A1.8 1.8 0 0 1 15 4.8V6M4 7h16v12H4zM4 11h16M10 11v2h4v-2"/></svg>',
  training:'<svg viewBox="0 0 24 24"><path d="M3 9v6m3-8v10m3-5h6m0-5v10m3-8v6m3-4v2M6 12h12"/></svg>',
  fire:'<svg viewBox="0 0 24 24"><path d="M13.5 3.5c.6 3-2.4 4.2-1.2 7.1.7 1.6 2.6 1.9 3.2.2.4-1.2-.1-2.4-.6-3.2 3.5 2 5 5.1 4 8.4-1 3.5-4.1 5.5-7.2 5.5-4.5 0-7.3-2.9-6.7-6.8.5-3.4 3.2-5 5.4-7.6.8-.9 1.7-2.1 1.7-3.6.7.4 1 .7 1.4 1Z"/></svg>',
@@ -27,7 +28,7 @@ function renderTodayDashboard(){
  let root=$('#todayDashboard');if(!root||!profile())return;let k=dkey(),p=profile(),s=workState(k),r=recoveryReadiness(k),n=target(k),t=totals(k),training=todayTrainingInfo(k),calPct=clamp(Math.round(t.cal/Math.max(1,n.cal)*100),0,100),proteinPct=clamp(Math.round(t.p/Math.max(1,n.p)*100),0,100),carbPct=clamp(Math.round(t.c/Math.max(1,n.c)*100),0,100),fatPct=clamp(Math.round(t.f/Math.max(1,n.f)*100),0,100),left=Math.max(0,Math.round(n.cal-t.cal)),pLeft=Math.max(0,Math.round(n.p-t.p)),color=readinessColor(r.score),rows=dashboardWorkRows(k,s),initial=(p.name||'U').trim().charAt(0).toUpperCase();
  let recoveryMsg=r.score>=80?'Recovery looks strong. You can follow the planned training prescription.':r.score>=65?'Recovery is good. Train as planned and respect the prescribed RIR.':r.score>=50?'Recovery is moderate. Keep the session controlled and avoid unnecessary failure work.':'Recovery is low. Consider moving heavy training or using the fatigue-adjusted prescription.';
  root.innerHTML=`<div class="homeDash">
-  <header class="homeHeader"><button class="homeMenuBtn" id="homeMenuBtn" aria-label="Open menu">${HOME_ICONS.menu}</button><div class="homeHello"><h1>${esc(homeGreeting())}, ${esc(p.name||'there')} <span>👋</span></h1><p>${fmt(k,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p></div><button class="homeAvatar" id="homeProfileBtn" aria-label="Open profile">${esc(initial)}</button></header>
+  <header class="homeHeader"><button class="homeBrand" id="homeMenuBtn" aria-label="Open menu"><span class="brandMark">${HOME_ICONS.brand}</span><span class="brandCopy"><b>WORK / GYM</b><small>COACH</small></span></button><div class="homeHello"><h1>${esc(homeGreeting())}, ${esc(p.name||'there')}</h1><p>${fmt(k,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p></div><button class="homeAvatar" id="homeProfileBtn" aria-label="Open profile">${esc(initial)}</button></header>
   <div class="homeSummaryGrid">
    <button class="homeSummary workCard" id="homeWorkCard"><span class="homeIcon green">${HOME_ICONS.work}</span><small>Work Today</small><b>${esc(s.kind==='both'?'Both Jobs':s.kind==='one'?workText(k):s.kind==='unknown'?'Review Schedule':'Off Both')}</b><em>${esc(workLoadLabel(s))}</em></button>
    <button class="homeSummary trainingCard" id="homeTrainingCard"><span class="homeIcon blue">${HOME_ICONS.training}</span><small>Training</small><b>${esc(training.title)}</b><em>${esc(training.sub)}</em></button>

@@ -6,12 +6,13 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 
-test('account flow has redirect handling, bounded auth retry and visible sign out',()=>{
+test('account flow has redirect handling, bounded auth retry and account-menu sign out',()=>{
   const source=read('work-gym-planner-v16/accounts-v18.js');
   assert.match(source,/redirect_to=/);
   assert.match(source,/A\.authedFetch=async function\(path,opt=\{\},retry=true\)/);
   assert.match(source,/A\.authedFetch\(path,opt,false\)/);
-  assert.match(source,/out\.id='signOutQuick'/);
+  assert.match(source,/id="signOutAccount"/);
+  assert.doesNotMatch(source,/out\.id='signOutQuick'/);
   assert.match(source,/logout\?scope=global/);
 });
 

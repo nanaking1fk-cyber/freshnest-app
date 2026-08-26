@@ -12,6 +12,7 @@
   var captureDraft=[];
   var weekdays={sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
   var dayPattern=/\b(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)\b/gi;
+  var dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
   function safe(value){
     return String(value==null?'':value).replace(/[&<>"']/g,function(char){
@@ -67,6 +68,17 @@
     if(named)return keyFromDate(new Date(Number(named[3]||new Date().getFullYear()),months[named[1].toLowerCase()],Number(named[2])));
     return'';
   }
+  function expandDayLanguage(text){
+    var value=String(text||'')
+      .replace(/\bweekdays?\b/gi,'Monday Tuesday Wednesday Thursday Friday')
+      .replace(/\bweekends?\b/gi,'Saturday Sunday');
+    var token='(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
+    return value.replace(new RegExp('\\b'+token+'\\s*(?:-|–|—|through|thru)\\s*'+token+'\\b','gi'),function(match,start,end){
+      var first=weekdays[start.toLowerCase()],last=weekdays[end.toLowerCase()],names=[dayNames[first]],cursor=first;
+      while(cursor!==last&&names.length<7){cursor=(cursor+1)%7;names.push(dayNames[cursor])}
+      return names.join(' ');
+    });
+  }
   function inferredDates(text,kind){
     var exact=explicitDate(text);
     if(exact)return[exact];
@@ -107,7 +119,7 @@
     var segments=String(raw||'').split(/\n+|;\s*/).map(function(value){return value.trim()}).filter(Boolean);
     var entries=[];
     segments.forEach(function(segment){
-      var kind=classify(segment),times=parseTimes(segment),hasDate=!!explicitDate(segment)||dayPattern.test(segment),dates=inferredDates(segment,kind),title=titleFor(segment,kind);dayPattern.lastIndex=0;
+      var normalized=expandDayLanguage(segment),kind=classify(normalized),times=parseTimes(normalized),hasDate=!!explicitDate(normalized)||dayPattern.test(normalized),dates=inferredDates(normalized,kind),title=titleFor(normalized,kind);dayPattern.lastIndex=0;
       dates.forEach(function(day,index){
         entries.push({
           id:'smart-'+Date.now()+'-'+entries.length,
@@ -425,7 +437,7 @@
       renderCapturePreview(parseRawInput(input.value));
       if(button){button.disabled=false;button.innerHTML='Build my plan <span>→</span>'}
       document.getElementById('smartCapturePreview').scrollIntoView({behavior:'smooth',block:'nearest'});
-    },520);
+    },120);
   }
   function reviewRawText(text){var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.scrollIntoView({behavior:'smooth',block:'center'});buildCapture();return true}
   function startVoiceCapture(){

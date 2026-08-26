@@ -34,7 +34,7 @@
       jobEnd:work.primaryEnd||p?.fixed?.end||'17:00',
       commute:String(work.primaryCommute??p?.fixed?.commuteMin??30),
       secondJob:work.secondaryEnabled||p?.variable?.enabled?'yes':'no',
-      secondName:work.secondaryName||p?.variable?.name||'Second job',
+      secondName:work.secondaryName||p?.variable?.name||'Additional schedule',
       secondStart:work.secondaryStart||p?.variable?.start||'',
       secondEnd:work.secondaryEnd||p?.variable?.end||'',
       secondCommute:String(work.secondaryCommute??p?.variable?.commuteMin??30),
@@ -163,23 +163,23 @@
       id:'secondJob',
       auto:true,
       when:function(){return get('workMode')!=='none'},
-      render:function(){return question('calendar','One more schedule check','Do you regularly balance a second job?','We only ask for the second schedule when it applies.',choices('secondJob',[
-        {value:'no',label:'No, one schedule',copy:'Keep planning focused on my primary work week',icon:'1'},
-        {value:'yes',label:'Yes, a second job',copy:'Protect both schedules before placing workouts',icon:'2'}
+      render:function(){return question('calendar','One more schedule check','Do you need to protect another recurring schedule?','Add it only when it is part of your real week.',choices('secondJob',[
+        {value:'no',label:'No, one work rhythm',copy:'Keep planning focused on the schedule I already added',icon:'1'},
+        {value:'yes',label:'Yes, add another',copy:'Protect another job, class or recurring responsibility',icon:'2'}
       ],'no'))}
     },
     {
       id:'secondDetails',
       when:function(){return get('secondJob')==='yes'},
-      render:function(){return question('calendar','Second schedule','When does the second job usually happen?','Add the repeating days now; variable dates can still be reviewed in the calendar.',
-        textInput('secondName','Second job name','Second job')+
+      render:function(){return question('calendar','Additional schedule','When does this other commitment usually happen?','Add the repeating days now; changing dates can still be imported or reviewed in the calendar.',
+        textInput('secondName','Schedule name','Additional schedule')+
         dayPicker('second')+
         '<div class="guidedFieldGrid">'+
           textInput('secondStart','Shift starts','','time')+
           textInput('secondEnd','Shift ends','','time')+
           textInput('secondCommute','Commute each way (min)','','number','min="0" max="240" step="5" inputmode="numeric"')+
         '</div>')},
-      validate:function(){return(draft.days.second||[]).length&&get('secondStart')&&get('secondEnd')?'':'Choose the usual days and hours for your second job.'}
+      validate:function(){return(draft.days.second||[]).length&&get('secondStart')&&get('secondEnd')?'':'Choose the usual days and hours for this schedule.'}
     },
     {
       id:'recovery',
@@ -339,7 +339,7 @@
         primaryEnd:workMode==='none'?'':get('jobEnd','17:00'),
         primaryCommute:workMode==='none'?0:(+get('commute')||0),
         secondaryEnabled:second,
-        secondaryName:get('secondName','Second job').trim()||'Second job',
+        secondaryName:get('secondName','Additional schedule').trim()||'Additional schedule',
         secondaryDays:second?(draft.days.second||[]):[],
         secondaryStart:second?get('secondStart'):'',
         secondaryEnd:second?get('secondEnd'):'',

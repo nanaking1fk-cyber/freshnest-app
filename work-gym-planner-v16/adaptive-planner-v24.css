@@ -1,0 +1,74 @@
+/* Work + Workout 24.0 — adaptive calendar utility */
+body.premiumV18.adaptivePlannerV24 #page-calendar{--planner-blue:#58a6ff;--planner-purple:#a78bfa}
+body.premiumV18 .calendarUtilityV24{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(245px,.65fr);
+  gap:28px;
+  align-items:end;
+  margin-bottom:14px;
+  padding:clamp(24px,4vw,42px);
+  overflow:hidden;
+  position:relative;
+  border:1px solid rgba(184,243,74,.16);
+  border-radius:28px;
+  background:radial-gradient(circle at 92% 4%,rgba(88,166,255,.16),transparent 35%),radial-gradient(circle at 0 100%,rgba(184,243,74,.12),transparent 36%),linear-gradient(145deg,#10171e,#090e13);
+  box-shadow:0 30px 80px rgba(0,0,0,.24)
+}
+body.premiumV18 .calendarUtilityV24::after{content:"";width:240px;height:240px;position:absolute;right:-110px;bottom:-145px;border:1px solid rgba(184,243,74,.18);border-radius:50%;box-shadow:0 0 0 30px rgba(184,243,74,.025),0 0 0 60px rgba(184,243,74,.02)}
+body.premiumV18 .calendarUtilityCopy{position:relative;z-index:1}
+body.premiumV18 .calendarUtilityCopy>small{color:var(--premium-accent);font-size:8px;font-weight:950;letter-spacing:.17em}
+body.premiumV18 .calendarUtilityCopy h1{max-width:650px;margin:10px 0 13px;font-size:clamp(32px,5.6vw,56px);font-weight:650;line-height:.96;letter-spacing:-.055em}
+body.premiumV18 .calendarUtilityCopy h1 em{color:#9fa9a3;font-style:normal;font-weight:520}
+body.premiumV18 .calendarUtilityCopy>p{max-width:590px;margin:0;color:#949e98;font-size:12px;line-height:1.65}
+body.premiumV18 .calendarUtilityProof{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+body.premiumV18 .calendarUtilityProof span{padding:6px 9px;border:1px solid rgba(255,255,255,.09);border-radius:99px;color:#b4bcb7;background:rgba(255,255,255,.025);font-size:7px;font-weight:820}
+body.premiumV18 .calendarUtilityFlow{position:relative;z-index:1;display:grid;gap:6px}
+body.premiumV18 .calendarUtilityFlow>span{display:grid;grid-template-columns:31px 1fr;gap:1px 9px;padding:11px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(5,9,13,.46)}
+body.premiumV18 .calendarUtilityFlow b{grid-row:1/3;width:31px;height:31px;display:grid;place-items:center;border-radius:9px;color:#11150a;background:var(--premium-accent);font-size:8px}
+body.premiumV18 .calendarUtilityFlow i{align-self:end;color:#e9ede9;font-size:7px;font-style:normal;font-weight:950;letter-spacing:.08em}
+body.premiumV18 .calendarUtilityFlow small{color:#76817b;font-size:7px}
+body.premiumV18 #page-calendar>.smartCaptureV19{margin:0 0 14px;scroll-margin-top:18px}
+body.premiumV18 .scheduleImportV24{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:10px 18px;align-items:center;margin-top:16px;padding:13px;border:1px solid rgba(88,166,255,.16);border-radius:15px;background:rgba(88,166,255,.045)}
+body.premiumV18 .scheduleImportV24>div:first-child b,body.premiumV18 .scheduleImportV24>div:first-child small{display:block}
+body.premiumV18 .scheduleImportV24>div:first-child b{font-size:10px}
+body.premiumV18 .scheduleImportV24>div:first-child small{max-width:520px;margin-top:4px;color:#7f8b84;font-size:8px;line-height:1.5}
+body.premiumV18 .scheduleImportButtons{display:flex;gap:7px}
+body.premiumV18 .scheduleImportButtons label{min-height:39px;display:flex;align-items:center;gap:6px;padding:0 11px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#e7ece8;background:#141b22;font-size:8px;font-weight:900;cursor:pointer;white-space:nowrap}
+body.premiumV18 .scheduleImportButtons label:last-child{border-color:rgba(184,243,74,.22);color:#dfffa4;background:rgba(184,243,74,.07)}
+body.premiumV18 .scheduleImportButtons input{position:absolute;width:1px;height:1px;opacity:0}
+body.premiumV18 #scheduleImportStatusV24{grid-column:1/-1;margin:0;color:#7b8780;font-size:7px;line-height:1.5}
+body.premiumV18 #scheduleImportStatusV24.bad{color:#ff9b91}
+body.premiumV18 .calendarActionBarV24{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:-5px 0 14px}
+body.premiumV18 .calendarActionBarV24 button{min-height:53px;padding:9px 12px;text-align:left;border:1px solid rgba(255,255,255,.085);border-radius:13px;color:#e9ede9;background:rgba(255,255,255,.022)}
+body.premiumV18 .calendarActionBarV24 button:hover,body.premiumV18 .calendarActionBarV24 button:focus-visible{border-color:rgba(184,243,74,.32);background:rgba(184,243,74,.055)}
+body.premiumV18 .calendarActionBarV24 span,body.premiumV18 .calendarActionBarV24 small{display:block}
+body.premiumV18 .calendarActionBarV24 span{font-size:9px;font-weight:900}
+body.premiumV18 .calendarActionBarV24 small{margin-top:3px;color:#758079;font-size:7px}
+body.premiumV18 .dayKcal{display:none}
+body.premiumV18 .dayDots:empty{display:none}
+body.premiumV18 .calDay{justify-content:flex-start}
+body.premiumV18 .calDay .unknownMark{position:absolute;left:7px;bottom:5px}
+
+@media(max-width:760px){
+  body.premiumV18 .calendarUtilityV24{grid-template-columns:1fr;gap:22px;padding:25px 19px;border-radius:22px}
+  body.premiumV18 .calendarUtilityCopy h1{font-size:39px}
+  body.premiumV18 .calendarUtilityCopy>p{font-size:11px}
+  body.premiumV18 .calendarUtilityFlow{grid-template-columns:repeat(3,1fr);gap:5px}
+  body.premiumV18 .calendarUtilityFlow>span{display:flex;min-width:0;flex-direction:column;padding:9px}
+  body.premiumV18 .calendarUtilityFlow b{width:27px;height:27px;margin-bottom:8px}
+  body.premiumV18 .calendarUtilityFlow i{font-size:6px}
+  body.premiumV18 .calendarUtilityFlow small{margin-top:3px;font-size:6px;line-height:1.35}
+  body.premiumV18 .scheduleImportV24{grid-template-columns:1fr}
+  body.premiumV18 .scheduleImportButtons{display:grid;grid-template-columns:1fr 1fr}
+  body.premiumV18 .scheduleImportButtons label{justify-content:center;white-space:normal;text-align:center}
+  body.premiumV18 #scheduleImportStatusV24{grid-column:auto}
+  body.premiumV18 .calendarActionBarV24{gap:5px}
+  body.premiumV18 .calendarActionBarV24 button{min-height:50px;padding:8px}
+}
+@media(max-width:430px){
+  body.premiumV18 .calendarUtilityCopy h1{font-size:35px}
+  body.premiumV18 .calendarUtilityProof span:last-child{display:none}
+  body.premiumV18 .scheduleImportButtons{grid-template-columns:1fr}
+  body.premiumV18 .calendarActionBarV24 small{display:none}
+  body.premiumV18 .calendarActionBarV24 button{text-align:center}
+}

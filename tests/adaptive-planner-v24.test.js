@@ -1,0 +1,34 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+
+const root=path.resolve(__dirname,'..');
+const read=file=>fs.readFileSync(path.join(root,file),'utf8');
+
+test('calendar uses adaptive user-neutral labels',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  assert.match(calendar,/Plans &amp; to-do/);
+  assert.match(calendar,/Import a schedule/);
+  assert.doesNotMatch(calendar,/Fixed-job off weekend/);
+  assert.doesNotMatch(calendar,/Both jobs/);
+});
+
+test('adaptive planner accepts text, voice, image and PDF with review before save',()=>{
+  const planner=read('work-gym-planner-v16/adaptive-planner-v24.js');
+  assert.match(planner,/accept="image\/\*,application\/pdf,\.pdf"/);
+  assert.match(planner,/loadTesseract/);
+  assert.match(planner,/pdfjs-dist/);
+  assert.match(planner,/reviewRawText/);
+  assert.match(planner,/Nothing is added until you review and approve it/);
+});
+
+test('v24 assets are loaded and cached by the production wrapper',()=>{
+  const index=read('work-gym-planner/index.html');
+  const worker=read('work-gym-planner/sw.js');
+  assert.match(index,/adaptive-planner-v24\.css/);
+  assert.match(index,/adaptive-planner-v24\.js/);
+  assert.match(index,/Loading Work \+ Workout 24\.0\.0/);
+  assert.match(worker,/wgp-stable-v24\.0\.0/);
+  assert.match(worker,/adaptive-planner-v24\.js/);
+});

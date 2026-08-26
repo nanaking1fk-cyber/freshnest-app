@@ -8,10 +8,12 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 
 test('calendar uses adaptive user-neutral labels',()=>{
   const calendar=read('work-gym-planner-v16/calendar.js');
+  const today=read('work-gym-planner-v16/today.js');
   assert.match(calendar,/Plans &amp; to-do/);
   assert.match(calendar,/Import a schedule/);
   assert.doesNotMatch(calendar,/Fixed-job off weekend/);
   assert.doesNotMatch(calendar,/Both jobs/);
+  assert.doesNotMatch(today,/Off Both|Both Jobs|Single-Job Day/);
 });
 
 test('adaptive planner accepts text, voice, image and PDF with review before save',()=>{
@@ -28,7 +30,7 @@ test('v24 assets are loaded and cached by the production wrapper',()=>{
   const worker=read('work-gym-planner/sw.js');
   assert.match(index,/adaptive-planner-v24\.css/);
   assert.match(index,/adaptive-planner-v24\.js/);
-  assert.match(index,/Loading Work \+ Workout 24\.0\.0/);
-  assert.match(worker,/wgp-stable-v24\.0\.0/);
+  assert.match(index,/Loading Work \+ Workout 24\.0\.1/);
+  assert.match(worker,/wgp-stable-v24\.0\.1/);
   assert.match(worker,/adaptive-planner-v24\.js/);
 });

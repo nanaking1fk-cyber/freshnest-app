@@ -1,5 +1,5 @@
 // v18 accounts, cloud migration, restore and account lifecycle ----------------
-APP_VERSION='24.0.0';
+APP_VERSION='24.0.1';
 window.WGC18=window.WGC18||{};
 (function(A){
  const SESSION_KEY='wgc-v18-session',API_OVERRIDE_KEY='wgc-v18-api-base',LAST_SYNC_KEY='wgc-v18-last-sync',OWNER_KEY='wgc-v18-local-owner',UNCLAIMED_KEY='wgc-v18-unclaimed-device-state',USER_CACHE_PREFIX='wgc-v18-user-cache:',DEFAULT_API_BASE='https://work-gym-coach.vercel.app/api/v18';

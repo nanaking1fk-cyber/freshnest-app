@@ -23,7 +23,7 @@ suggestedTrainingDates=function(start,end){
    if(picked.length<target){for(const c of candidates){if(picked.length>=target)break;if(picked.includes(c.k))continue;let all=[...selected,...picked],adjacent=all.filter(x=>Math.abs(diffDays(c.k,x))===1);if(adjacent.length<=1)picked.push(c.k)}}
    selected.push(...picked);selected.sort();
  }
- for(const [k,v] of Object.entries(o))if(v.action==='train'&&k>=start&&k<=end&&!selected.includes(k))selected.push(k);
+ for(const [k,v] of Object.entries(o))if(v.action==='train'&&k>=start&&k<=end&&Number.isFinite(recoveryScore(k))&&!selected.includes(k))selected.push(k);
  return [...new Set(selected)].sort();
 };
 
@@ -54,7 +54,8 @@ saveProfileForm=function(){let days=+$('#trainingDaysPerWeek')?.value||3,single=
 
 const _exerciseOptionsCommercial=exerciseOptions;
 function commercialEquipmentAllowed(name,mode){if(mode==='full')return true;let e=String(equipmentFor(name)||'').toLowerCase();if(mode==='basic')return !/(hack|belt-squat|pec-deck|high-row|leg-extension|leg-curl|calf machine|chest-press machine|shoulder-press machine|lateral-raise machine|curl machine|ab machine)/.test(e);if(mode==='home')return /(dumbbell|bodyweight|band|weight plate|stability ball|pull-up bar)/.test(e);return true}
-exerciseOptions=function(base){let all=_exerciseOptionsCommercial(base),mode=profile()?.equipmentMode||'full',filtered=all.filter((n,i)=>i===0||commercialEquipmentAllowed(n,mode));return filtered.length>=2?filtered:all};
+function commercialLimitationAllowed(name,limitations){let text=String(limitations||'').toLowerCase(),movement=String(name||'').toLowerCase();if(!text.trim())return true;if(/(shoulder|rotator|overhead)/.test(text)&&/(shoulder press|overhead|incline.*press|dip)/.test(movement))return false;if(/(knee|patella|acl|meniscus)/.test(text)&&/(squat|lunge|leg extension|step-up|leg press)/.test(movement))return false;if(/(back|spine|disc|sciatica)/.test(text)&&/(deadlift|barbell row|back squat|good morning)/.test(movement))return false;if(/(wrist|elbow)/.test(text)&&/(barbell bench|skull crusher|straight-bar|preacher)/.test(movement))return false;return true}
+exerciseOptions=function(base){let all=_exerciseOptionsCommercial(base),p=profile()||{},mode=p.equipmentMode||'full',filtered=all.filter(n=>commercialEquipmentAllowed(n,mode)&&commercialLimitationAllowed(n,p.trainingLimitations));return filtered.length?filtered:all.filter(n=>commercialEquipmentAllowed(n,mode)).slice(0,1).concat(all.filter(n=>commercialEquipmentAllowed(n,mode)).slice(1))};
 
 function addCommercialProductUI(){
  let more=$('#page-more .menuCards');if(more&&!$('#commercialPrivacy')){let p=document.createElement('button');p.id='commercialPrivacy';p.innerHTML='<span>🔒</span><div><b>Privacy & terms</b><small>How your schedule, health and training data are handled</small></div><i>›</i>';p.onclick=()=>location.href='/freshnest-app/work-gym-planner/privacy.html';more.appendChild(p)}

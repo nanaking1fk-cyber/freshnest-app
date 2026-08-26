@@ -62,6 +62,9 @@
     if(iso)return keyFromDate(new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3])));
     var slash=text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}))?\b/);
     if(slash)return keyFromDate(new Date(Number(slash[3]||new Date().getFullYear()),Number(slash[1])-1,Number(slash[2])));
+    var months={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
+    var named=text.match(/\b(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+(\d{1,2})(?:,?\s+(20\d{2}))?\b/i);
+    if(named)return keyFromDate(new Date(Number(named[3]||new Date().getFullYear()),months[named[1].toLowerCase()],Number(named[2])));
     return'';
   }
   function inferredDates(text,kind){
@@ -78,7 +81,7 @@
     var dates=[];
     found.forEach(function(index){
       var weeks=recurring?6:1;
-      for(var week=0;week<weeks;week++)dates.push(keyFromDate(nextWeekday(index,week)));
+      for(var week=0;week<weeks;week++)dates.push(keyFromDate(nextWeekday(index,week+(/\bnext\b/i.test(text)?1:0))));
     });
     return dates.sort();
   }
@@ -104,13 +107,13 @@
     var segments=String(raw||'').split(/\n+|;\s*/).map(function(value){return value.trim()}).filter(Boolean);
     var entries=[];
     segments.forEach(function(segment){
-      var kind=classify(segment),times=parseTimes(segment),dates=inferredDates(segment,kind),title=titleFor(segment,kind);
+      var kind=classify(segment),times=parseTimes(segment),hasDate=!!explicitDate(segment)||dayPattern.test(segment),dates=inferredDates(segment,kind),title=titleFor(segment,kind);dayPattern.lastIndex=0;
       dates.forEach(function(day,index){
         entries.push({
           id:'smart-'+Date.now()+'-'+entries.length,
           kind:kind,date:day,title:title,start:times.start,end:times.end,
           reminder:kind==='work'?60:(kind==='event'||kind==='workout'?30:0),
-          source:segment,series:dates.length>1,index:index
+          source:segment,series:dates.length>1,index:index,needsReview:!hasDate
         });
       });
     });
@@ -351,7 +354,7 @@
     var visible=entries.slice(0,10);
     root.innerHTML='<div class="smartPreviewHead"><span><b>'+entries.length+'</b> items found</span><small>Review before anything is saved</small></div>'+
       '<div class="smartPreviewList">'+visible.map(function(item,index){
-        return'<label><input type="checkbox" checked data-capture-item="'+index+'"><i class="'+item.kind+'">'+kindLabel(item.kind).charAt(0)+'</i><span><b>'+safe(item.title)+'</b><small>'+friendlyDate(item.date)+(item.start?' · '+time12(item.start):'')+(item.end?'–'+time12(item.end):'')+(item.series?' · repeats':'')+'</small></span><select data-capture-reminder="'+index+'" aria-label="Reminder for '+safe(item.title)+'"><option value="0" '+(!item.reminder?'selected':'')+'>No reminder</option><option value="15" '+(item.reminder===15?'selected':'')+'>15 min before</option><option value="30" '+(item.reminder===30?'selected':'')+'>30 min before</option><option value="60" '+(item.reminder===60?'selected':'')+'>1 hour before</option><option value="720">12 hours before</option></select></label>';
+        return'<label><input type="checkbox" '+(item.needsReview?'':'checked')+' data-capture-item="'+index+'"><i class="'+item.kind+'">'+kindLabel(item.kind).charAt(0)+'</i><span><b>'+safe(item.title)+'</b><small>'+(item.needsReview?'Date needs review (not selected)':' '+friendlyDate(item.date))+(item.start?' · '+time12(item.start):'')+(item.end?'–'+time12(item.end):'')+(item.series?' · repeats':'')+'</small></span><select data-capture-reminder="'+index+'" aria-label="Reminder for '+safe(item.title)+'"><option value="0" '+(!item.reminder?'selected':'')+'>No reminder</option><option value="15" '+(item.reminder===15?'selected':'')+'>15 min before</option><option value="30" '+(item.reminder===30?'selected':'')+'>30 min before</option><option value="60" '+(item.reminder===60?'selected':'')+'>1 hour before</option><option value="720">12 hours before</option></select></label>';
       }).join('')+(entries.length>visible.length?'<p>+ '+(entries.length-visible.length)+' additional repeating shifts will be saved</p>':'')+'</div>'+
       '<div class="smartPreviewActions"><button id="smartPreviewClear">Clear</button><button id="smartPreviewCalendar">Add reminders to device calendar</button><button class="primary" id="smartPreviewSave">Add everything</button></div>';
     document.getElementById('smartPreviewClear').onclick=function(){captureDraft=[];root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
@@ -402,10 +405,11 @@
   }
   function exportCaptureCalendar(entries){
     if(!entries.length){if(typeof toast==='function')toast('Select at least one item');return}
-    var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Work and Workout//Smart Plan 19//EN','CALSCALE:GREGORIAN'];
+    var timezone=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC',stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+    var lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Work and Workout//Smart Plan 23//EN','CALSCALE:GREGORIAN','X-WR-TIMEZONE:'+timezone];
     entries.forEach(function(item,index){
       var eventStart=item.start||'09:00',eventEnd=item.end||timePlus(eventStart,60),start=compactDate(item.date,eventStart),end=compactDate(item.date,eventEnd);
-      lines.push('BEGIN:VEVENT','UID:ww-smart-'+Date.now()+'-'+index+'@workandworkout.com','DTSTART:'+start,'DTEND:'+end,'SUMMARY:'+icsText(item.title),'DESCRIPTION:'+icsText('Added by Work + Workout Quick Plan'));
+      lines.push('BEGIN:VEVENT','UID:ww-smart-'+Date.now()+'-'+index+'@workandworkout.com','DTSTAMP:'+stamp,'DTSTART;TZID='+timezone+':'+start,'DTEND;TZID='+timezone+':'+end,'SUMMARY:'+icsText(item.title),'DESCRIPTION:'+icsText('Added by Work + Workout Quick Plan'));
       if(item.reminder)lines.push('BEGIN:VALARM','TRIGGER:-PT'+item.reminder+'M','ACTION:DISPLAY','DESCRIPTION:'+icsText(item.title),'END:VALARM');
       lines.push('END:VEVENT');
     });
@@ -423,6 +427,7 @@
       document.getElementById('smartCapturePreview').scrollIntoView({behavior:'smooth',block:'nearest'});
     },520);
   }
+  function reviewRawText(text){var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.scrollIntoView({behavior:'smooth',block:'center'});buildCapture();return true}
   function startVoiceCapture(){
     var Recognition=window.SpeechRecognition||window.webkitSpeechRecognition,input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureVoice');
     if(!Recognition){if(typeof toast==='function')toast('Voice capture is not supported in this browser');return}
@@ -469,6 +474,9 @@
   }
   function boot(){
     enhanceLanding();mountInApp();dueReminderCheck();
+    window.setInterval(dueReminderCheck,60000);
+    document.addEventListener('visibilitychange',function(){if(!document.hidden)dueReminderCheck()});
+    window.addEventListener('online',dueReminderCheck);
     var scheduled=false;
     new MutationObserver(function(){
       if(scheduled)return;scheduled=true;
@@ -476,6 +484,7 @@
     }).observe(document.documentElement,{childList:true,subtree:true});
   }
   V.parseRawInput=parseRawInput;
+  V.reviewRawText=reviewRawText;
   V.startAd=startAd;
   V.mountInApp=mountInApp;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

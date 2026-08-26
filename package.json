@@ -1,0 +1,10 @@
+{
+  "name": "work-and-workout",
+  "private": true,
+  "version": "23.0.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check server/v18-lib.js && node --check api/v18/*.js && node --test tests/*.test.js"
+  }
+}

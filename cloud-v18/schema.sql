@@ -35,6 +35,7 @@ create table if not exists public.user_plans (
   created_at timestamptz not null default now()
 );
 create index if not exists user_plans_user_created_idx on public.user_plans(user_id,created_at desc);
+create unique index if not exists user_plans_one_active_kind_idx on public.user_plans(user_id,kind) where active;
 
 create table if not exists public.chat_messages (
   id uuid primary key default gen_random_uuid(),
@@ -46,6 +47,7 @@ create table if not exists public.chat_messages (
   created_at timestamptz not null default now()
 );
 create index if not exists chat_messages_user_created_idx on public.chat_messages(user_id,created_at desc);
+create index if not exists chat_messages_user_thread_created_idx on public.chat_messages(user_id,thread_id,created_at desc);
 
 create table if not exists public.ai_usage_daily (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -103,6 +105,21 @@ end $$;
 revoke all on function public.count_ai_request(uuid,integer) from public;
 revoke all on function public.count_ai_request(uuid,integer) from anon,authenticated;
 grant execute on function public.count_ai_request(uuid,integer) to service_role;
+
+-- Replace one active plan in a single transaction. The server service role is
+-- the only caller, so a failed request cannot leave duplicate active plans.
+create or replace function public.replace_active_user_plan(target_user_id uuid,target_kind text,target_plan jsonb,target_source text default 'deterministic+ai')
+returns uuid language plpgsql security invoker set search_path=pg_catalog,public as $$
+declare new_id uuid;
+begin
+  if target_user_id is null or target_plan is null or target_kind not in ('combined','training','nutrition','schedule') then raise exception 'Invalid plan replacement request'; end if;
+  update public.user_plans set active=false where user_id=target_user_id and kind=target_kind and active;
+  insert into public.user_plans(user_id,kind,plan,source,active) values(target_user_id,target_kind,target_plan,coalesce(nullif(target_source,''),'deterministic+ai'),true) returning id into new_id;
+  return new_id;
+end $$;
+revoke all on function public.replace_active_user_plan(uuid,text,jsonb,text) from public;
+revoke all on function public.replace_active_user_plan(uuid,text,jsonb,text) from anon,authenticated;
+grant execute on function public.replace_active_user_plan(uuid,text,jsonb,text) to service_role;
 
 create or replace function public.touch_updated_at() returns trigger language plpgsql as $$
 begin new.updated_at=now(); return new; end $$;

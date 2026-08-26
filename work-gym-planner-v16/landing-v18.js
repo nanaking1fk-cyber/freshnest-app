@@ -132,7 +132,7 @@
       '<footer class="landingFooter"><div class="landingBrand">'+brandMark()+'<span><b>WORK + WORKOUT</b><small>ADAPTIVE COACH</small></span></div><p>Schedule-aware training, nutrition and recovery for real life.</p><div><button data-landing-auth="signin">Sign in</button><span>© '+new Date().getFullYear()+' Work + Workout</span></div></footer>'+
     '</div>';
   }
-  function shouldShow(){return!(typeof profile==='function'&&profile())&&!A.session}
+  function shouldShow(){return!A.session}
   function closeBackgroundModals(){document.querySelectorAll('.modal.open').forEach(function(modal){window.closeModal?.(modal.id)})}
   function showLanding(){
     const landing=document.getElementById('premiumLanding');

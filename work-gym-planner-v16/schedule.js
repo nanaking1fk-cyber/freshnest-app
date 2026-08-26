@@ -15,4 +15,25 @@ function mapSymbolsToDays(words,nameHit,days){let nc=wordCenter(nameHit),rowY=nc
  if(headers.length>=Math.min(15,Math.floor(days*.55))){for(const s of symbols){let nearest=headers.reduce((best,h)=>!best||Math.abs(h.x-s.x)<Math.abs(best.x-s.x)?h:best,null);if(!nearest)continue;let spacings=headers.slice(1).map((h,i)=>h.x-headers[i].x).filter(x=>x>2),median=spacings.sort((a,b)=>a-b)[Math.floor(spacings.length/2)]||40,dist=Math.abs(nearest.x-s.x),geo=clamp(100-dist/Math.max(8,median)*60,20,100),conf=clamp((+s.w.confidence||50)*.65+geo*.35,0,100);if(!out[nearest.n]||conf>out[nearest.n].confidence)out[nearest.n]={code:s.t,confidence:conf}}return{out,mode:'date-mapped',headers:headers.length,symbols:symbols.length}}
  return{out:{},mode:'review-only',headers:headers.length,symbols:symbols.length,sequence:symbols.map(s=>({code:s.t,confidence:+s.w.confidence||50}))}
 }
-async function scanSchedulePhoto(){if(!bPhotoFile)return $('#bScanStatus').textContent='Choose a schedule photo first.';if(!(await loadTesseract()))return $('#bScanStatus').textContent='OCR assistant could not load. Use the manual review grid.';$('#bScan').disabled=true;$('#bScanStatus').textContent='Scanning photo locally in this browser. The photo is not saved…';try{let blob=await rotatedPhotoBlob(),res=await Tesseract.recognize(blob,'eng',{logger:m=>{if(m.status==='recognizing text')$('#bScanStatus').textContent=`Scanning… ${Math.round((m.progress||0)*100)}%`}}),words=res.data.words||[],nameHit=findNameWord(words),days=daysInMonth($('#bMonth').value);if(!nameHit){$('#bScanStatus').textContent=`OCR could not confidently find ${profile()?.name||'the profile name'} in the schedule. No dates were changed.`;return}let mapped=mapSymbolsToDays(words,nameHit,days),applied=0,low=0;for(const [d,v] of Object.entries(mapped.out)){if(v.confidence>=55){bDraft[d]=v.code;bConfidence[d]=v.confidence;applied++;if(v.confidence<75)low++}}renderBReview();if(applied){$('#bScanStatus').textContent=`Mapped ${applied} X/D/H cells to specific calendar dates using the date header. ${low?`${low} low-confidence date${low===1?'':'s'} are outlined for review. `:''}Review every date before Save.`}else{$('#bScanStatus').textContent=`OCR found the name row and ${mapped.symbols} schedule symbols, but could not map them safely to date columns. Nothing was overwritten. Rotate/crop the image or use the review grid.`}}catch(e){console.error(e);$('#bScanStatus').textContent='OCR could not reliably read this photo. No schedule data was overwritten.'}finally{$('#bScan').disabled=false}}
+function offerOcrRawReview(text,message){let status=$('#bScanStatus');if(!status)return;status.innerHTML=`${esc(message)} <button type="button" id="bReviewOcrText">Review extracted text</button>`;$('#bReviewOcrText').onclick=()=>{closeModal('bellevueDialog');page('home');setTimeout(()=>{if(!window.WGC19?.reviewRawText?.(text))toast('Open Quick Plan and paste the extracted schedule text')},80)}}
+async function scanSchedulePhoto(){
+ if(!bPhotoFile)return $('#bScanStatus').textContent='Choose a schedule photo first.';
+ if(!(await loadTesseract()))return $('#bScanStatus').textContent='OCR assistant could not load. Use the manual review grid.';
+ $('#bScan').disabled=true;$('#bScanStatus').textContent='Scanning photo locally in this browser. The photo is not saved…';
+ try{
+  let blob=await rotatedPhotoBlob(),res=await Tesseract.recognize(blob,'eng',{logger:m=>{if(m.status==='recognizing text')$('#bScanStatus').textContent=`Scanning… ${Math.round((m.progress||0)*100)}%`}}),words=res.data.words||[],rawText=String(res.data.text||'').trim(),nameHit=findNameWord(words),days=daysInMonth($('#bMonth').value);
+  if(!nameHit){
+   let parsed=window.WGC19?.parseRawInput?.(rawText)||[],reviewable=parsed.some(item=>!item.needsReview);
+   if(reviewable)offerOcrRawReview(rawText,`The grid layout was not reliable enough to auto-map dates. Nothing was changed.`);
+   else $('#bScanStatus').textContent=`OCR could not confidently find ${profile()?.name||'the profile name'} or dated shifts. No dates were changed.`;
+   return
+  }
+  let mapped=mapSymbolsToDays(words,nameHit,days),applied=0,low=0;
+  for(const [d,v] of Object.entries(mapped.out)){if(v.confidence>=55){bDraft[d]=v.code;bConfidence[d]=v.confidence;applied++;if(v.confidence<75)low++}}
+  renderBReview();
+  if(applied)$('#bScanStatus').textContent=`Mapped ${applied} X/D/H cells to specific calendar dates using the date header. ${low?`${low} low-confidence date${low===1?'':'s'} are outlined for review. `:''}Review every date before Save.`;
+  else if(rawText&&window.WGC19?.parseRawInput?.(rawText).some(item=>!item.needsReview))offerOcrRawReview(rawText,`The name row was found, but its columns could not be mapped safely. Nothing was overwritten.`);
+  else $('#bScanStatus').textContent=`OCR found the name row and ${mapped.symbols} schedule symbols, but could not map them safely to date columns. Nothing was overwritten. Rotate/crop the image or use the review grid.`;
+ }catch(e){console.error(e);$('#bScanStatus').textContent='OCR could not reliably read this photo. No schedule data was overwritten.'}
+ finally{$('#bScan').disabled=false}
+}

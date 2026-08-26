@@ -462,7 +462,7 @@
     profileSummaryModal();
     const name=p.name||'Your profile';
     const work=p.fixed?.enabled?(p.fixed.name||'Work')+' · '+(p.fixed.start||'09:00')+'–'+(p.fixed.end||'17:00'):'No repeating work schedule';
-    const training=(p.trainingDaysPerWeek||3)+' days/week · '+(get('duration','60')||60)+' min';
+    const training=(p.trainingDaysPerWeek||3)+' days/week · '+(p.trainingDuration||60)+' min';
     document.getElementById('guidedProfileInitial').textContent=name.trim().charAt(0).toUpperCase()||'W';
     document.getElementById('guidedProfileTitle').textContent=name;
     document.getElementById('guidedProfileEmail').textContent=A.session?.user?.email||'Saved on this device';

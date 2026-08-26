@@ -67,7 +67,8 @@ function saveAltPrefs(x){localStorage.setItem(ALT_PREF_KEY,JSON.stringify(x))}
 function exerciseOptions(base){return [base.name,...(EXERCISE_ALTERNATIVES[base.name]||[])].filter((x,i,a)=>a.indexOf(x)===i)}
 function equipmentFor(name){return EQUIPMENT_LABELS[name]||'Equivalent equipment'}
 function activeExerciseMeta(base,name){return {...base,name:name||base.name,inc:Object.prototype.hasOwnProperty.call(ALT_INCREMENT_OVERRIDES,name)?ALT_INCREMENT_OVERRIDES[name]:base.inc}}
-function preferredExerciseName(wi,ei,base){let p=altPrefs(),name=p[wi+':'+ei];return exerciseOptions(base).includes(name)?name:base.name}
+function preferredExerciseName(wi,ei,base){let p=altPrefs(),name=p[wi+':'+ei],options=exerciseOptions(base);return options.includes(name)?name:(options[0]||base.name)}
+function sessionExerciseLimit(){let p=profile()||{},minutes=clamp(+p.trainingDuration||60,30,90),limit=minutes<=30?4:minutes<=45?5:minutes<=60?7:9;if(p.trainingExperience==='beginner')limit=Math.min(limit,5);return limit}
 function priorWeightFor(name,k){let ex=exposures(name,k)[0]?.ex;return ex?.sets?.find(z=>+z.w)?.w||''}
 function makeVariantSets(meta,k,stored=null){if(stored?.length)return structuredClone(stored);let count=typeof prescribedSets==='function'?prescribedSets(meta,k):meta.sets,guess=priorWeightFor(meta.name,k);return Array.from({length:count},()=>({w:guess,r:'',rir:''}))}
 
@@ -76,15 +77,15 @@ const _baseSessionDraft=sessionDraft;
 sessionDraft=function(k,wi){
  let ds=drafts();if(ds[k]&&ds[k].workoutIndex===wi)return ds[k];
  let done=completedOn(k);if(done)return structuredClone(done);
- let w=WORKOUTS[wi],variantSets={};
- let ex=w.ex.map((base,ei)=>{let name=preferredExerciseName(wi,ei,base),meta=activeExerciseMeta(base,name);return{name,baseName:base.name,sets:makeVariantSets(meta,k)}});
+ let w=WORKOUTS[wi],variantSets={},limit=sessionExerciseLimit();
+ let ex=w.ex.slice(0,limit).map((base,ei)=>{let name=preferredExerciseName(wi,ei,base),meta=activeExerciseMeta(base,name);return{name,baseName:base.name,sets:makeVariantSets(meta,k)}});
  return{id:uid('session'),date:k,workoutIndex:wi,completed:false,phase:typeof phaseInfo==='function'?phaseInfo(k):null,variantSets,exercises:ex};
 };
 
 // Save the selected variation name with the set data.
 collectTrainingInputs=function(k,wi){
  let s=sessionDraft(k,wi),w=WORKOUTS[wi];s.variantSets=s.variantSets||{};
- s.exercises=w.ex.map((base,ei)=>{let old=s.exercises[ei]||{},sel=document.querySelector(`[data-exercise-swap="${ei}"]`),name=sel?.value||old.name||base.name,count=old.sets?.length||base.sets,sets=Array.from({length:count},(_,si)=>({w:$(`[data-e="${ei}"][data-s="${si}"][data-f="w"]`)?.value||'',r:$(`[data-e="${ei}"][data-s="${si}"][data-f="r"]`)?.value||'',rir:$(`[data-e="${ei}"][data-s="${si}"][data-f="rir"]`)?.value||''}));s.variantSets[ei+':'+name]=structuredClone(sets);return{name,baseName:base.name,sets}});return s;
+ s.exercises=s.exercises.map((old,ei)=>{let base=w.ex[ei],sel=document.querySelector(`[data-exercise-swap="${ei}"]`),name=sel?.value||old.name||base.name,count=old.sets?.length||base.sets,sets=Array.from({length:count},(_,si)=>({w:$(`[data-e="${ei}"][data-s="${si}"][data-f="w"]`)?.value||'',r:$(`[data-e="${ei}"][data-s="${si}"][data-f="r"]`)?.value||'',rir:$(`[data-e="${ei}"][data-s="${si}"][data-f="rir"]`)?.value||''}));s.variantSets[ei+':'+name]=structuredClone(sets);return{name,baseName:base.name,sets}});return s;
 };
 
 function swapExerciseVariation(ei,newName){

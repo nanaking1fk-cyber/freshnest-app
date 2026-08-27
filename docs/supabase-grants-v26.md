@@ -1,12 +1,16 @@
-# Pending: finish the v26 least-privilege pass (requires explicit approval)
+# Finishing the v26 least-privilege pass
 
-**Status: NOT APPLIED. Do not run this without the owner's approval.**
+**Status: APPLIED to the live project on 2026-08-27, with the owner's approval.**
 
-This file is deliberately outside `supabase/migrations/` so that it cannot be
-picked up by `supabase db push` or `supabase migration up`. Apply it by hand in
-the Supabase SQL editor, then record it however the owner prefers. Do not
-rewrite the existing live migration history
-(`20260827140029_security_hardening_v26`, `20260827140126_user_table_least_privilege_v26`).
+Applied directly through the Supabase SQL editor, deliberately outside
+`supabase/migrations/` so the live migration history
+(`20260827140029_security_hardening_v26`,
+`20260827140126_user_table_least_privilege_v26`) was not rewritten and no
+tooling can re-run it.
+
+The applied statements were subtractive only — surplus privileges were revoked
+rather than the table being revoked and re-granted, so there was never a window
+in which a signed-in user lacked an access the app needs.
 
 ## What is wrong
 
@@ -37,26 +41,38 @@ every row to `auth.uid()`. But `TRUNCATE` is not filtered by RLS, so the grant
 is a latent hole rather than a cosmetic one, and the schema does not match its
 stated intent — which is what a future reader will trust.
 
-## The change
+## What was applied
 
 ```sql
--- User-owned tables: reduce `authenticated` to the actions the app performs.
-revoke all on public.profiles            from authenticated;
-revoke all on public.user_state          from authenticated;
-revoke all on public.onboarding_answers  from authenticated;
-revoke all on public.user_plans          from authenticated;
-revoke all on public.chat_messages       from authenticated;
+revoke delete, references, trigger, truncate on public.profiles           from authenticated;
+revoke delete, references, trigger, truncate on public.user_state         from authenticated;
+revoke delete, references, trigger, truncate on public.onboarding_answers from authenticated;
+revoke delete, references, trigger, truncate on public.user_plans         from authenticated;
+revoke references, trigger, truncate         on public.chat_messages      from authenticated;
+revoke update                                on public.chat_messages      from authenticated;
 
-grant select,insert,update on public.profiles           to authenticated;
-grant select,insert,update on public.user_state         to authenticated;
-grant select,insert,update on public.onboarding_answers to authenticated;
-grant select,insert,update on public.user_plans         to authenticated;
-grant select,insert,delete on public.chat_messages      to authenticated;
-
--- ai_usage_daily is service-role only, like state_write_usage_daily.
-revoke all on public.ai_usage_daily from public,anon,authenticated;
-grant select,insert,update on public.ai_usage_daily to service_role;
+revoke all on public.ai_usage_daily from anon;
+revoke all on public.ai_usage_daily from authenticated;
+grant select, insert, update on public.ai_usage_daily to service_role;
 ```
+
+## Resulting grants (verified 2026-08-27)
+
+| Table | `authenticated` | `anon` |
+| --- | --- | --- |
+| `profiles` | `SELECT, INSERT, UPDATE` | none |
+| `user_state` | `SELECT, INSERT, UPDATE` | none |
+| `onboarding_answers` | `SELECT, INSERT, UPDATE` | none |
+| `user_plans` | `SELECT, INSERT, UPDATE` | none |
+| `chat_messages` | `SELECT, INSERT, DELETE` | none |
+| `ai_usage_daily` | none | none |
+| `state_write_usage_daily` | none | none |
+| `calendar_*` | none | none |
+
+No `TRUNCATE`, `REFERENCES` or `TRIGGER` remains on any user-owned table, so
+the `TRUNCATE`-bypasses-RLS hole is closed. The security advisor reports only
+the expected INFO notices for service-role-only tables that have RLS enabled
+with no policies (correct by design) and the Free-plan leaked-password WARN.
 
 Each grant is sized to a real call path: `user_state` and `onboarding_answers`
 are upserted (`select,insert,update`); `user_plans` is written by

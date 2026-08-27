@@ -81,6 +81,15 @@ The same file also carries a guard test asserting the shell's script-strip
 regexes still match the v15 markup they target — the same silent-no-op failure
 mode as defect 2, in the boot path.
 
+## Applied to the live project
+
+- The v26 least-privilege pass was finished on 2026-08-27 with the owner's
+  approval: surplus `DELETE`/`REFERENCES`/`TRIGGER`/`TRUNCATE` were revoked
+  from `authenticated` on the five user-owned tables, and `ai_usage_daily` was
+  reduced to service-role only. Applied subtractively through the SQL editor,
+  outside `supabase/migrations/`, so the live migration history is unchanged.
+  Details and the verified result table are in `docs/supabase-grants-v26.md`.
+
 ## Known follow-up
 
 - Complete a real-account onboarding and persistence test.
@@ -89,12 +98,12 @@ mode as defect 2, in the boot path.
 - End-to-end browser testing of signup, PKCE confirmation, recovery, sign-out
   and schedule review-before-save has NOT been run; only unit-level checks.
   This is the largest remaining gap and should happen before deploying.
-- The `authenticated` grants still do not match the stated least-privilege
-  intent, and `ai_usage_daily` was missed by that pass. The exact SQL, its
-  rationale and a verification query are in
-  `docs/PENDING-APPROVAL-supabase-grants-v26.md`. It is deliberately outside
-  `supabase/migrations/` so no tooling can apply it — it needs owner approval
-  and a manual run.
+- The Supabase redirect allowlist is still wrong. As of 2026-08-27 it contains
+  exactly one entry — `https://nanaking1fk-cyber.github.io/freshnest-app/work-gym-planner/`
+  — and does NOT contain `https://www.workandworkout.com/`, which is what
+  `authRedirectUrl()` sends. Confirmation currently survives only because
+  Supabase falls back to the Site URL, which is set correctly. Add the canonical
+  URL and remove the Pages entry.
 - `authRedirectUrl()` is hardcoded to `https://www.workandworkout.com/`, but
   `capacitor://localhost` and `ionic://localhost` are in the API CORS
   allowlist. A native build using the PKCE flow would send users to the website,

@@ -40,6 +40,8 @@ test('secondary training analytics are available without dominating the session'
   assert.match(script,/v30InsightsOpen/);
   assert.match(css,/#trainingRoot:not\(\.v30InsightsOpen\)>\.muscleCard/);
   assert.match(css,/#trainingRoot:not\(\.v30InsightsOpen\)>#completedWorkoutHistory/);
+  assert.match(script,/actions\.insertAdjacentElement\('afterend',stats\)/,
+    'training statistics belong after the workout actions, not above exercise one');
 });
 
 test('nutrition shows essentials before detailed limits and meal templates',()=>{

@@ -88,8 +88,9 @@
     }
 
     var stats=root.querySelector('.trainStats');
-    if(stats&&!root.querySelector('#trainingInsightsToggleV30')){
-      var insights=button('View training insights and history','trainingInsightsToggleV30');
+    var insights=root.querySelector('#trainingInsightsToggleV30');
+    if(stats&&!insights){
+      insights=button('View training insights and history','trainingInsightsToggleV30');
       insights.id='trainingInsightsToggleV30';
       insights.setAttribute('aria-expanded','false');
       insights.addEventListener('click',function(){
@@ -98,6 +99,16 @@
         insights.setAttribute('aria-expanded',String(open));
       });
       stats.insertAdjacentElement('afterend',insights);
+    }
+    var actions=root.querySelector('.trainActionGrid');
+    if(actions&&stats&&insights){
+      if(actions.nextElementSibling!==stats)actions.insertAdjacentElement('afterend',stats);
+      if(stats.nextElementSibling!==insights)stats.insertAdjacentElement('afterend',insights);
+      var cursor=insights;
+      [root.querySelector('.muscleCard'),root.querySelector('#completedWorkoutHistory')].concat(Array.from(root.querySelectorAll('.trainingChartWrap'))).filter(Boolean).forEach(function(node){
+        if(cursor.nextElementSibling!==node)cursor.insertAdjacentElement('afterend',node);
+        cursor=node;
+      });
     }
   }
 

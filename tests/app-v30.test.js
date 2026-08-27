@@ -24,9 +24,9 @@ test('v30 assets load last and are available offline',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.0/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.0');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.0/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.1/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.1');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.1/);
 });
 
 test('training opens one exercise at a time',()=>{

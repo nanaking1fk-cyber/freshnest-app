@@ -60,7 +60,13 @@ async function verifyUser(req){
     result=await request();
   }
   if(!result.response.ok){
-    const status=result.response.status>=400&&result.response.status<500?result.response.status:502;
+    // GoTrue answers a revoked session with 403 session_not_found, not 401.
+    // Passing that through unchanged left the browser looping: its retry path
+    // only recognises 401, so it never refreshed and never signed the user out.
+    // Any rejection of the caller's token means the same thing to the client.
+    const upstream=result.response.status;
+    const rejected=upstream===401||upstream===403;
+    const status=rejected?401:(upstream>=400&&upstream<500?upstream:502);
     throw Object.assign(new Error(status===401?'Session expired. Sign in again.':(result.data?.message||'Authentication service is temporarily unavailable.')),{status});
   }
   return{...result.data,authorization:auth};

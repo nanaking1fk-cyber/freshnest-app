@@ -65,7 +65,7 @@
         '<section class="ww29Section ww29System" id="ww29System">'+
           '<div class="ww29SectionHead"><p class="ww29Kicker">One system · four signals</p><h2>Your life isn’t split into apps.<br>Why should your plan be?</h2><p>Every recommendation sees the same day, so a longer shift can change tonight’s workout, meal timing, and recovery target together.</p></div>'+
           '<div class="ww29Tabs" role="tablist" aria-label="Connected planning features">'+
-            '<button class="active" data-feature="work"><span>01</span>Work</button><button data-feature="train"><span>02</span>Train</button><button data-feature="fuel"><span>03</span>Fuel</button><button data-feature="recover"><span>04</span>Recover</button>'+
+            '<button class="active" data-feature="work" role="tab" aria-selected="true"><span>01</span>Work</button><button data-feature="train" role="tab" aria-selected="false"><span>02</span>Train</button><button data-feature="fuel" role="tab" aria-selected="false"><span>03</span>Fuel</button><button data-feature="recover" role="tab" aria-selected="false"><span>04</span>Recover</button>'+
           '</div>'+
           '<div class="ww29FeatureStage">'+
             '<div class="ww29FeatureCopy">'+
@@ -141,12 +141,12 @@
       var on=video.dataset.film===key;video.classList.toggle('active',on);
       if(on&&video.paused)video.play().catch(function(){});else if(!on)video.pause();
     });
-    root.querySelectorAll('.ww29FilmSteps [data-scene]').forEach(function(button){button.classList.toggle('active',button.dataset.scene===key)});
+    root.querySelectorAll('.ww29FilmSteps [data-scene]').forEach(function(button){var on=button.dataset.scene===key;button.classList.toggle('active',on);button.setAttribute('aria-selected',String(on))});
     var content=sceneContent[key];root.querySelector('[data-scene-label]').textContent=content[0];root.querySelector('[data-scene-title]').textContent=content[1];
   }
   function showFeature(root,key){
     var content=featureContent[key]||featureContent.work;
-    root.querySelectorAll('.ww29Tabs [data-feature]').forEach(function(button){button.classList.toggle('active',button.dataset.feature===key)});
+    root.querySelectorAll('.ww29Tabs [data-feature]').forEach(function(button){var on=button.dataset.feature===key;button.classList.toggle('active',on);button.setAttribute('aria-selected',String(on))});
     root.querySelector('[data-feature-kicker]').textContent=content.kicker;
     root.querySelector('[data-feature-title]').textContent=content.title;
     root.querySelector('[data-feature-copy]').textContent=content.copy;

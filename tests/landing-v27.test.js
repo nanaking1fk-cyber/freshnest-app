@@ -57,6 +57,8 @@ test('typefaces and cinematic media stay same-origin',()=>{
 test('feature and worker controls are interactive and motion-safe',()=>{
   assert.match(js,/showFeature/);
   assert.match(js,/showScene/);
+  assert.match(js,/data-feature="train" role="tab" aria-selected="false"/);
+  assert.match(js,/setAttribute\('aria-selected'/);
   assert.match(js,/data-worker-next/);
   assert.match(js,/prefers-reduced-motion/);
   assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);

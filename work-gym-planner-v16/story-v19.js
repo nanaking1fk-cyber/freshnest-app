@@ -460,7 +460,7 @@
     if(!dash||document.getElementById('smartCaptureV19'))return;
     var summary=dash.querySelector('.homeSummaryGrid');
     if(!summary)return;
-    summary.insertAdjacentHTML('afterend',captureMarkup()+inAppWorkersMarkup());
+    summary.insertAdjacentHTML('afterend',captureMarkup());
     bindCapture();
     var quick=dash.querySelector('.quickGrid');
     if(quick&&!document.getElementById('quickPlanWeek')){

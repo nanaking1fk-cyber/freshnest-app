@@ -33,8 +33,16 @@ test('v25 scheduling assets are loaded and cached by the production wrapper',()=
   assert.match(index,/schedule-platform-v25\.css/);
   assert.match(index,/schedule-platform-v25\.js/);
   assert.match(index,/v25-scheduling\.js/);
-  assert.match(index,/Loading Work \+ Workout 25\.1\.1/);
-  assert.match(worker,/wgp-stable-v25\.1\.1/);
+  // Version-derived rather than pinned: a partial bump used to pass here.
+  const manifest=JSON.parse(read('work-gym-planner/manifest.webmanifest'));
+  const version=(manifest.start_url.match(/\?v=([\d.]+)/)||[])[1];
+  assert.ok(version,'the manifest must carry a version in start_url');
+  assert.ok(index.includes(`Loading Work + Workout ${version}`),
+    `the shell boot message must state version ${version}`);
+  assert.ok(worker.includes(`wgp-stable-v${version}`),
+    `the service-worker cache key must state version ${version}`);
+  const stray=(index.match(/\?v=[\d.]+/g)||[]).filter(q=>q!==`?v=${version}`);
+  assert.deepEqual(stray,[],'every cache-busting query in the shell must use the same version');
   assert.match(worker,/adaptive-planner-v24\.js/);
   assert.match(worker,/vendor\/tesseract\/worker\.min\.js/);
 });

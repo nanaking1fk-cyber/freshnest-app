@@ -1,0 +1,189 @@
+/* Work + Workout v27 — signed-in Home.
+   Same system as the landing page. Scoped to .homeDashV27 so nothing else moves. */
+
+.homeDashV27{
+  --hv-ground:#0B0D0C;
+  --hv-raise:#131614;
+  --hv-raise-2:#191D1B;
+  --hv-hair:#242926;
+  --hv-hair-soft:#1A1E1C;
+
+  --hv-ink:#F2F4F1;
+  --hv-ink-2:#A3ADA7;
+  --hv-ink-3:#6C7671;
+
+  --hv-bone:#E4DFD3;
+  --hv-work:#5B7A96;
+  --hv-train:#6FA8A2;
+  --hv-meal:#C4A276;
+  --hv-rest:#8E86A8;
+
+  --hv-sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --hv-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+
+  display:grid;gap:14px;
+  padding:0 0 132px;
+  font-family:var(--hv-sans);color:var(--hv-ink);
+  -webkit-font-smoothing:antialiased;
+}
+.homeDashV27 *{box-sizing:border-box}
+
+.homeDashV27 .hvCode{
+  font-family:var(--hv-mono);font-size:10px;font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--hv-ink-3);
+  font-variant-numeric:tabular-nums;margin:0;
+}
+
+/* header */
+.homeDashV27 .hvHead{
+  display:grid;grid-template-columns:1fr auto;align-items:center;
+  gap:10px 14px;padding:4px 2px 6px;
+}
+.homeDashV27 .hvBrand{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  background:none;border:0;padding:0;cursor:pointer;text-align:left;
+}
+.homeDashV27 .hvBrand b{font-size:14px;font-weight:600;color:var(--hv-ink);letter-spacing:-.01em}
+.homeDashV27 .hvAvatar{
+  width:38px;height:38px;border-radius:50%;flex:none;
+  background:var(--hv-raise-2);border:1px solid var(--hv-hair);
+  color:var(--hv-bone);font-family:var(--hv-sans);font-size:14px;font-weight:600;cursor:pointer;
+}
+.homeDashV27 .hvHello{grid-column:1 / -1}
+.homeDashV27 .hvHello h1{
+  font-size:clamp(21px,5.4vw,26px);font-weight:600;letter-spacing:-.02em;
+  margin:5px 0 0;color:var(--hv-ink);
+}
+
+/* today strip — three tiles, each one a different domain */
+.homeDashV27 .hvStrip{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--hv-hair-soft);border:1px solid var(--hv-hair-soft);border-radius:4px;overflow:hidden;
+}
+@media(max-width:560px){.homeDashV27 .hvStrip{grid-template-columns:1fr}}
+.homeDashV27 .hvTile{
+  background:var(--hv-raise);border:0;border-left:2px solid var(--hv-ink-3);
+  padding:13px 14px;text-align:left;cursor:pointer;display:block;min-width:0;
+}
+.homeDashV27 .hvTile.w{border-left-color:var(--hv-work)}
+.homeDashV27 .hvTile.t{border-left-color:var(--hv-train)}
+.homeDashV27 .hvTile.r{border-left-color:var(--hv-rest)}
+.homeDashV27 .hvTile b{
+  display:block;margin-top:7px;font-size:16px;font-weight:600;letter-spacing:-.01em;
+  color:var(--hv-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.homeDashV27 .hvTile b i{font-style:normal;font-size:12px;color:var(--hv-ink-3);margin-left:2px}
+.homeDashV27 .hvTile em{
+  display:block;margin-top:3px;font-style:normal;font-size:12px;color:var(--hv-ink-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* panels */
+.homeDashV27 .hvPanel{
+  background:var(--hv-raise);border:1px solid var(--hv-hair);border-radius:4px;overflow:hidden;
+}
+.homeDashV27 .hvPanelHead{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--hv-hair-soft);
+}
+.homeDashV27 .hvPanelHead h2{
+  font-size:13px;font-weight:600;letter-spacing:.01em;margin:0;color:var(--hv-ink);
+}
+.homeDashV27 .hvLink{
+  background:none;border:0;padding:4px 0;cursor:pointer;
+  font-family:var(--hv-sans);font-size:12.5px;color:var(--hv-ink-2);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.homeDashV27 .hvLink:hover{color:var(--hv-ink)}
+
+/* the day, as a roster */
+.homeDashV27 .hvRows{padding:2px 0}
+.homeDashV27 .hvRow{
+  display:grid;grid-template-columns:124px 3px 1fr;gap:12px;align-items:center;padding:12px 16px;
+}
+.homeDashV27 .hvRow + .hvRow{border-top:1px solid var(--hv-hair-soft)}
+.homeDashV27 .hvRow time{
+  font-family:var(--hv-mono);font-size:11px;color:var(--hv-ink-2);
+  font-variant-numeric:tabular-nums;letter-spacing:-.03em;white-space:nowrap;
+}
+.homeDashV27 .hvTick{width:3px;height:28px;border-radius:2px;background:var(--hv-ink-3);display:block}
+.homeDashV27 .hvRow.w .hvTick{background:var(--hv-work)}
+.homeDashV27 .hvRow.t .hvTick{background:var(--hv-train)}
+.homeDashV27 .hvRow.r .hvTick{background:var(--hv-rest)}
+.homeDashV27 .hvWhat{min-width:0}
+.homeDashV27 .hvWhat b{
+  display:block;font-size:14px;font-weight:600;letter-spacing:-.005em;color:var(--hv-ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.homeDashV27 .hvWhat small{display:block;font-size:11.5px;color:var(--hv-ink-3);margin-top:2px}
+@media(max-width:420px){
+  .homeDashV27 .hvRow{grid-template-columns:108px 3px 1fr;gap:9px;padding:11px 12px}
+  .homeDashV27 .hvRow time{font-size:10px}
+}
+
+.homeDashV27 .hvPanelFoot{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:13px 16px;border-top:1px solid var(--hv-hair-soft);background:var(--hv-raise-2);
+}
+.homeDashV27 .hvNote{font-size:12.5px;color:var(--hv-ink-2);flex:1;min-width:180px}
+.homeDashV27 .hvBtn{
+  background:var(--hv-bone);color:#0B0D0C;border:0;border-radius:2px;
+  font-family:var(--hv-sans);font-size:13px;font-weight:600;padding:10px 16px;cursor:pointer;
+}
+.homeDashV27 .hvBtn:hover{background:#fff}
+
+/* fuel */
+.homeDashV27 .hvHero{
+  display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  padding:16px 16px 14px;
+}
+.homeDashV27 .hvHeroNum{
+  display:block;font-family:var(--hv-mono);font-size:26px;font-weight:500;
+  color:var(--hv-ink);font-variant-numeric:tabular-nums;letter-spacing:-.03em;
+}
+.homeDashV27 .hvHeroNum i{font-style:normal;font-size:12.5px;color:var(--hv-ink-3);margin-left:8px;letter-spacing:0}
+.homeDashV27 .hvBar{
+  display:block;height:3px;border-radius:2px;background:var(--hv-hair);
+  margin:12px 0 0;overflow:hidden;
+}
+.homeDashV27 .hvBar.big{height:4px}
+.homeDashV27 .hvBar i{display:block;height:100%;border-radius:2px;background:var(--hv-ink-3)}
+.homeDashV27 .hvBar i.m{background:var(--hv-meal)}
+.homeDashV27 .hvHero .hvCode{display:block;margin-top:9px}
+
+.homeDashV27 .hvMacros{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--hv-hair-soft);border-top:1px solid var(--hv-hair-soft);
+}
+@media(max-width:520px){.homeDashV27 .hvMacros{grid-template-columns:1fr}}
+.homeDashV27 .hvMacro{
+  background:var(--hv-raise);border:0;padding:13px 16px;text-align:left;display:block;width:100%;
+}
+.homeDashV27 button.hvMacro{cursor:pointer}
+.homeDashV27 .hvMacroTop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.homeDashV27 .hvMacroTop small{
+  font-family:var(--hv-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--hv-ink-3);
+}
+.homeDashV27 .hvMacroTop b{
+  font-family:var(--hv-mono);font-size:12px;font-weight:500;color:var(--hv-ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.homeDashV27 .hvMacro.t .hvBar i{background:var(--hv-train)}
+.homeDashV27 .hvMacro.m .hvBar i{background:var(--hv-meal)}
+.homeDashV27 .hvMacro.r .hvBar i{background:var(--hv-rest)}
+.homeDashV27 .hvMacro .hvBar{margin-top:10px}
+
+/* log something */
+.homeDashV27 .hvQuick{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hv-hair-soft);
+}
+@media(max-width:520px){.homeDashV27 .hvQuick{grid-template-columns:1fr}}
+.homeDashV27 .hvQuick button{
+  background:var(--hv-raise);border:0;padding:14px 16px;text-align:left;cursor:pointer;
+  display:block;width:100%;
+}
+.homeDashV27 .hvQuick button b{display:block;font-size:13.5px;font-weight:600;color:var(--hv-ink)}
+.homeDashV27 .hvQuick button .hvCode{display:block;margin-top:4px}
+
+.homeDashV27 button:focus-visible{outline:2px solid var(--hv-train);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.homeDashV27 *{transition:none!important;animation:none!important}}

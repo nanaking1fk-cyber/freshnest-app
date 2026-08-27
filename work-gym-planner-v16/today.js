@@ -25,21 +25,121 @@ function workLoadLabel(s){return s.kind==='both'?'High Load':s.kind==='one'?'Wor
 function todayTrainingInfo(k){let comp=completedOn(k),scheduled=isScheduled(k),wi=comp?.workoutIndex??(scheduled?projectedWorkoutIndex(k):null),next=nextPlannedWorkout(addDays(k,wi!=null?1:0));if(wi!=null)return{title:WORKOUTS[wi].name,sub:comp?'Completed':`Week ${phaseInfo(k).week} · ${phaseInfo(k).name}`,date:k,wi,completed:!!comp};if(next)return{title:'Recovery Day',sub:`Next: ${WORKOUTS[next.wi].name}`,date:next.k,wi:next.wi,next:true};return{title:'Recovery Day',sub:'No workout scheduled',date:null,wi:null}}
 function dashboardWorkRows(k,s){let p=profile(),rows=[],smart=typeof smartWork==='function'?smartWork(k):null;if(smart){rows.push({name:smart.label||p?.variable?.name||'Work shift',value:smart.start&&smart.end?`${homeTime(smart.start)} – ${homeTime(smart.end)}`:'Working',state:'work'})}else if(p?.variable?.enabled){let code=variableCode(k),on=code==='X';rows.push({name:p.variable.name||'Variable job',value:code==='?'?'Schedule unknown':shiftText(on,p.variable.start,p.variable.end),state:code==='?'?'unknown':on?'work':'off'})}if(p?.fixed?.enabled){let on=fixedWork(k);rows.push({name:p.fixed.name||'Fixed job',value:shiftText(on,p.fixed.start,p.fixed.end),state:on?'work':'off'})}return rows}
 function renderTodayDashboard(){
- let root=$('#todayDashboard');if(!root||!profile())return;let k=dkey(),p=profile(),s=workState(k),r=recoveryReadiness(k),n=target(k),t=totals(k),training=todayTrainingInfo(k),calPct=clamp(Math.round(t.cal/Math.max(1,n.cal)*100),0,100),proteinPct=clamp(Math.round(t.p/Math.max(1,n.p)*100),0,100),carbPct=clamp(Math.round(t.c/Math.max(1,n.c)*100),0,100),fatPct=clamp(Math.round(t.f/Math.max(1,n.f)*100),0,100),left=Math.max(0,Math.round(n.cal-t.cal)),pLeft=Math.max(0,Math.round(n.p-t.p)),color=readinessColor(r.score),rows=dashboardWorkRows(k,s),workingRows=rows.filter(x=>x.state==='work'),workSummary=workingRows.length?workingRows.map(x=>x.name).join(' + '):(s.kind==='unknown'?'Schedule needs review':'No work added'),initial=(p.name||'U').trim().charAt(0).toUpperCase();
- let recoveryMsg=r.score>=80?'Recovery looks strong. You can follow the planned training prescription.':r.score>=65?'Recovery is good. Train as planned and respect the prescribed RIR.':r.score>=50?'Recovery is moderate. Keep the session controlled and avoid unnecessary failure work.':'Recovery is low. Consider moving heavy training or using the fatigue-adjusted prescription.';
- root.innerHTML=`<div class="homeDash">
-  <header class="homeHeader"><button class="homeBrand" id="homeMenuBtn" aria-label="Open menu"><span class="brandMark">${HOME_ICONS.brand}</span><span class="brandCopy"><b>WORK / GYM</b><small>COACH</small></span></button><div class="homeHello"><h1>${esc(homeGreeting())}, ${esc(p.name||'there')}</h1><p>${fmt(k,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</p></div><button class="homeAvatar" id="homeProfileBtn" aria-label="Open profile">${esc(initial)}</button></header>
-  <div class="homeSummaryGrid">
-   <button class="homeSummary workCard" id="homeWorkCard"><span class="homeIcon green">${HOME_ICONS.work}</span><small>Work Today</small><b>${esc(workSummary)}</b><em>${esc(workLoadLabel(s))}</em></button>
-   <button class="homeSummary trainingCard" id="homeTrainingCard"><span class="homeIcon blue">${HOME_ICONS.training}</span><small>Training</small><b>${esc(training.title)}</b><em>${esc(training.sub)}</em></button>
-   <button class="homeSummary calorieCard" id="homeCaloriesCard"><span class="homeIcon orange">${HOME_ICONS.fire}</span><small>Calories</small><b>${Math.round(t.cal).toLocaleString()} / ${n.cal.toLocaleString()}</b><em>${left.toLocaleString()} left</em></button>
-   <button class="homeSummary proteinCard" id="homeProteinCard"><span class="homeIcon purple">${HOME_ICONS.target}</span><small>Protein</small><b>${Math.round(t.p)} / ${n.p}g</b><em>${pLeft}g left</em></button>
+ let root=$('#todayDashboard');if(!root||!profile())return;
+ let k=dkey(),p=profile(),s=workState(k),r=recoveryReadiness(k),n=target(k),t=totals(k),training=todayTrainingInfo(k),
+  calPct=clamp(Math.round(t.cal/Math.max(1,n.cal)*100),0,100),
+  proteinPct=clamp(Math.round(t.p/Math.max(1,n.p)*100),0,100),
+  carbPct=clamp(Math.round(t.c/Math.max(1,n.c)*100),0,100),
+  fatPct=clamp(Math.round(t.f/Math.max(1,n.f)*100),0,100),
+  left=Math.max(0,Math.round(n.cal-t.cal)),
+  rows=dashboardWorkRows(k,s),
+  workingRows=rows.filter(x=>x.state==='work'),
+  workSummary=workingRows.length?workingRows.map(x=>x.name).join(' + '):(s.kind==='unknown'?'Needs review':'No work added'),
+  initial=(p.name||'U').trim().charAt(0).toUpperCase(),
+  loadLabel=workingRows.length>1?'High load':s.kind==='unknown'?'Needs review':workingRows.length?'Work day':'Open day';
+
+ // One line, not a paragraph. The panel it sits in already says "readiness".
+ let recoveryMsg=r.score>=80?'Train as prescribed.':r.score>=65?'Train as planned, respect the RIR.':r.score>=50?'Keep it controlled. Avoid failure work.':'Move heavy work or use the fatigue-adjusted set.';
+
+ // A macro row carries its own colour so the bar means something.
+ const macro=(id,kind,label,now,goal,unit,pct)=>
+  `<${id?'button':'div'} class="hvMacro ${kind}"${id?` id="${id}"`:''}>
+    <span class="hvMacroTop"><small>${esc(label)}</small><b>${now} / ${goal}${unit}</b></span>
+    <span class="hvBar"><i style="width:${pct}%"></i></span>
+   </${id?'button':'div'}>`;
+
+ root.innerHTML=`<div class="homeDash homeDashV27">
+
+  <header class="hvHead">
+   <button class="hvBrand" id="homeMenuBtn" aria-label="Open menu">
+    <b>Work + Workout</b><span class="hvCode">Menu</span>
+   </button>
+   <button class="hvAvatar" id="homeProfileBtn" aria-label="Open profile">${esc(initial)}</button>
+   <div class="hvHello">
+    <p class="hvCode">${fmt(k,{weekday:'long',day:'numeric',month:'long'})}</p>
+    <h1>${esc(homeGreeting())}, ${esc(p.name||'there')}</h1>
+   </div>
+  </header>
+
+  <div class="homeSummaryGrid hvStrip">
+   <button class="hvTile w" id="homeWorkCard">
+    <span class="hvCode">Shift</span><b>${esc(workSummary)}</b><em>${esc(loadLabel)}</em>
+   </button>
+   <button class="hvTile t" id="homeTrainingCard">
+    <span class="hvCode">Training</span><b>${esc(training.title)}</b><em>${esc(training.sub)}</em>
+   </button>
+   <button class="hvTile r" id="homeRecoveryCard">
+    <span class="hvCode">Readiness</span><b>${r.score}<i>%</i></b><em>${esc(r.band)} · ${r.sleep?r.sleep.toFixed(1)+'h sleep':'sleep not logged'}</em>
+   </button>
   </div>
-  <button class="homePanel readinessPanel" id="homeRecoveryCard" style="--ready:${r.score*3.6}deg;--readyColor:${color}"><div class="homeRing"><div><b>${r.score}%</b><small>${esc(r.band)}</small></div></div><div class="readinessBody"><div class="homePanelHead"><div><h2>Recovery Readiness</h2><p>${esc(recoveryMsg)}</p></div>${HOME_ICONS.chevron}</div><div class="recoveryMetrics"><span><i class="metricIcon green">${HOME_ICONS.bed}</i><b>${r.sleep?r.sleep.toFixed(1)+'h':'—'}</b><small>Sleep</small></span><span><i class="metricIcon blue">${HOME_ICONS.steps}</i><b>${r.steps?Math.round(r.steps).toLocaleString():'—'}</b><small>Steps</small></span><span><i class="metricIcon red">${HOME_ICONS.heart}</i><b>${r.rhr?Math.round(r.rhr):'—'}</b><small>RHR</small></span><span><i class="metricIcon yellow">${HOME_ICONS.bolt}</i><b>${esc(r.band)}</b><small>Recovery</small></span></div></div></button>
-  <section class="homePanel planPanel"><div class="homePanelHead"><h2>Today's Plan</h2><button id="homeFullPlan">View Full Plan ${HOME_ICONS.chevron}</button></div><div class="homePlanGrid"><div class="workPlan"><h3>${HOME_ICONS.work} Work Schedule</h3>${rows.map(x=>`<div class="homePlanRow"><span>${esc(x.name)}</span><b class="${x.state}">${esc(x.value)}</b></div>`).join('')||'<div class="homePlanRow"><span>Work</span><b class="off">Nothing scheduled</b></div>'}<div class="loadTag ${s.kind}">${workingRows.length>1?'High Workload Day':s.kind==='unknown'?'Schedule Needs Review':workingRows.length?'Work Day':'Open Day'}</div></div><div class="trainingPlan"><h3>${HOME_ICONS.training} Training</h3><b class="planWorkout">${esc(training.title)}</b><p>${training.title==='Recovery Day'?'Focus on mobility, steps, nutrition and good sleep.':training.completed?'Workout logged. Recovery and nutrition now drive the next recommendation.':'Follow the adaptive set, rep and RIR targets for today.'}</p><button id="homeNextWorkout">${training.title==='Recovery Day'?'View Next Workout':'Open Workout'} ${HOME_ICONS.chevron}</button></div></div></section>
-  <section class="homePanel nutritionPanel"><h2>Nutrition Progress</h2><div class="homeNutritionGrid"><div class="nutritionRing" style="--nutrition:${calPct*3.6}deg"><div><b>${calPct}%</b><small>Calories</small></div></div><div class="homeMacros"><div class="homeMacro"><label><span><i class="macroIcon orange">${HOME_ICONS.fire}</i>Calories</span><b>${Math.round(t.cal).toLocaleString()} / ${n.cal.toLocaleString()} kcal</b></label><div><i class="greenFill" style="width:${calPct}%"></i></div></div><div class="homeMacro"><label><span><i class="macroIcon green">${HOME_ICONS.training}</i>Protein</span><b>${Math.round(t.p)} / ${n.p} g</b></label><div><i class="greenFill" style="width:${proteinPct}%"></i></div></div><div class="homeMacro"><label><span><i class="macroIcon blue">${HOME_ICONS.apple}</i>Carbs</span><b>${Math.round(t.c)} / ${Math.round(n.c)} g</b></label><div><i class="blueFill" style="width:${carbPct}%"></i></div></div><div class="homeMacro"><label><span><i class="macroIcon yellow">${HOME_ICONS.target}</i>Fat</span><b>${Math.round(t.f)} / ${Math.round(n.f)} g</b></label><div><i class="orangeFill" style="width:${fatPct}%"></i></div></div><button class="homeAddFood" id="homeAddFood">Add Food <span>＋</span></button></div></div></section>
-  <section class="homePanel quickPanel"><h2>Quick Actions</h2><div class="quickGrid"><button id="quickWorkout"><i class="green">${HOME_ICONS.training}</i><span>Log Workout</span></button><button id="quickFood"><i class="green">${HOME_ICONS.apple}</i><span>Add Food</span></button><button id="quickWeight"><i class="purple">${HOME_ICONS.scale}</i><span>Weigh In</span></button><button id="quickBody"><i class="blue">${HOME_ICONS.body}</i><span>Body Stats</span></button><button id="quickBarcode"><i class="orange">${HOME_ICONS.barcode}</i><span>Scan Barcode</span></button></div></section>
+
+  <section class="hvPanel">
+   <div class="hvPanelHead">
+    <h2>Today</h2>
+    <button class="hvLink" id="homeFullPlan">Full plan <span aria-hidden="true">→</span></button>
+   </div>
+   <div class="hvRows">
+    ${rows.map(x=>`<div class="hvRow ${x.state==='work'?'w':'r'}">
+      <time>${esc(x.value)}</time><i class="hvTick"></i>
+      <span class="hvWhat"><b>${esc(x.name)}</b><small>${x.state==='work'?'Protected':'Not working'}</small></span>
+     </div>`).join('')||
+     `<div class="hvRow r"><time>—</time><i class="hvTick"></i>
+       <span class="hvWhat"><b>No work added</b><small>The whole day is yours</small></span></div>`}
+    <div class="hvRow t">
+     <time>${training.completed?'Logged':'Planned'}</time><i class="hvTick"></i>
+     <span class="hvWhat"><b>${esc(training.title)}</b><small>${esc(training.sub)}</small></span>
+    </div>
+   </div>
+   <div class="hvPanelFoot">
+    <span class="hvNote">${training.title==='Recovery Day'?'Mobility, steps, nutrition and sleep.':training.completed?'Logged. Recovery now drives the next recommendation.':esc(recoveryMsg)}</span>
+    <button class="hvBtn" id="homeNextWorkout">${training.title==='Recovery Day'?'Next workout':'Open workout'}</button>
+   </div>
+  </section>
+
+  <section class="hvPanel">
+   <div class="hvPanelHead">
+    <h2>Fuel</h2>
+    <button class="hvLink" id="homeAddFood">Add food <span aria-hidden="true">+</span></button>
+   </div>
+   <button class="hvHero" id="homeCaloriesCard">
+    <span class="hvHeroNum">${Math.round(t.cal).toLocaleString()}<i>/ ${n.cal.toLocaleString()} kcal</i></span>
+    <span class="hvBar big"><i class="m" style="width:${calPct}%"></i></span>
+    <span class="hvCode">${left.toLocaleString()} left today</span>
+   </button>
+   <div class="hvMacros">
+    ${macro('homeProteinCard','t','Protein',Math.round(t.p),n.p,'g',proteinPct)}
+    ${macro('','m','Carbs',Math.round(t.c),Math.round(n.c),'g',carbPct)}
+    ${macro('','r','Fat',Math.round(t.f),Math.round(n.f),'g',fatPct)}
+   </div>
+  </section>
+
+  <section class="hvPanel quickPanel">
+   <div class="hvPanelHead"><h2>Log something</h2></div>
+   <div class="quickGrid hvQuick">
+    <button id="quickWeight"><b>Weigh in</b><span class="hvCode">Morning weight</span></button>
+    <button id="quickBody"><b>Body stats</b><span class="hvCode">Waist, photos</span></button>
+    <button id="quickBarcode"><b>Scan barcode</b><span class="hvCode">Packaged food</span></button>
+   </div>
+  </section>
+
  </div>`;
- $('#homeMenuBtn').onclick=()=>page('more');$('#homeProfileBtn').onclick=()=>{fillProfileForm();openModal('profileDialog')};$('#homeWorkCard').onclick=()=>page('calendar');$('#homeCaloriesCard').onclick=$('#homeProteinCard').onclick=()=>page('diary');$('#homeTrainingCard').onclick=()=>training.date?openTrainingDate(training.date):page('training');$('#homeRecoveryCard').onclick=()=>{fillHealthForm?.();openModal('healthDialog')};$('#homeFullPlan').onclick=()=>page('calendar');$('#homeNextWorkout').onclick=()=>training.date?openTrainingDate(training.date):page('training');
- const addFood=()=>{page('diary');setTimeout(()=>openFood('Breakfast'),80)};$('#homeAddFood').onclick=addFood;$('#quickFood').onclick=addFood;$('#quickBarcode').onclick=()=>{page('diary');setTimeout(()=>{openFood('Breakfast');foodTab('scan')},80)};$('#quickWorkout').onclick=()=>training.date?openTrainingDate(training.date):page('training');$('#quickWeight').onclick=()=>{page('progress');setTimeout(()=>$('#checkWeight')?.focus(),120)};$('#quickBody').onclick=()=>{page('progress');setTimeout(()=>$('#checkWaist')?.focus(),120)};
+
+ // Every binding is guarded: the quick grid no longer duplicates actions that
+ // already exist in the panels above, so some ids are intentionally absent.
+ const on=(id,fn)=>{const el=$('#'+id);if(el)el.onclick=fn};
+ const addFood=()=>{page('diary');setTimeout(()=>openFood('Breakfast'),80)};
+
+ on('homeMenuBtn',()=>page('more'));
+ on('homeProfileBtn',()=>{fillProfileForm();openModal('profileDialog')});
+ on('homeWorkCard',()=>page('calendar'));
+ on('homeTrainingCard',()=>training.date?openTrainingDate(training.date):page('training'));
+ on('homeRecoveryCard',()=>{fillHealthForm?.();openModal('healthDialog')});
+ on('homeFullPlan',()=>page('calendar'));
+ on('homeNextWorkout',()=>training.date?openTrainingDate(training.date):page('training'));
+ on('homeCaloriesCard',()=>page('diary'));
+ on('homeProteinCard',()=>page('diary'));
+ on('homeAddFood',addFood);
+ on('quickWeight',()=>{page('progress');setTimeout(()=>$('#checkWeight')?.focus(),120)});
+ on('quickBody',()=>{page('progress');setTimeout(()=>$('#checkWaist')?.focus(),120)});
+ on('quickBarcode',()=>{page('diary');setTimeout(()=>{openFood('Breakfast');foodTab('scan')},80)});
 }

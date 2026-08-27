@@ -22,19 +22,21 @@ test('the cinematic hero shows the app in use across the day',()=>{
     assert.ok(fs.existsSync(path.join(root,'work-gym-planner-v16/assets',film)));
   }
   assert.match(js,/Plan active/);
-  assert.match(js,/Progressive Coach/);
-  assert.match(js,/Plan adapted/);
+  assert.match(js,/Adaptive Coach/);
+  assert.match(js,/Schedule changed/);
 });
 
 test('the story is authentic to connected working lives',()=>{
-  assert.match(js,/Your shift is fixed/);
+  assert.match(js,/Plan work, workouts, meals and life/);
+  assert.match(js,/photo or PDF of your work schedule/);
+  assert.match(js,/personal tasks and reminders/);
   for(const signal of ['Work','Train','Fuel','Recover'])assert.match(js,new RegExp('>'+signal+'<'));
   for(const worker of ['Healthcare','Construction','Logistics','Hospitality'])assert.match(js,new RegExp(worker));
 });
 
 test('the trust layer appears before commitment',()=>{
   assert.match(js,/Review before saving/);
-  assert.match(js,/Nothing saved silently/);
+  assert.match(js,/Review before it is saved/);
   assert.match(js,/Nothing saved yet/);
   assert.match(js,/confidence/i);
   assert.match(js,/Conflict found/);

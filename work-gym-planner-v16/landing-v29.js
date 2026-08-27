@@ -6,7 +6,7 @@
   var ASSET='../work-gym-planner-v16/assets/';
 
   function cta(label,extra){
-    return '<button class="ww29Button'+(extra?' '+extra:'')+'" data-ww29="signup">'+(label||'Build my plan')+'<span aria-hidden="true">↗</span></button>';
+    return '<button class="ww29Button'+(extra?' '+extra:'')+'" data-ww29="signup">'+(label||'Plan my week')+'<span aria-hidden="true">↗</span></button>';
   }
   function signal(kind,label,value,note){
     return '<div class="ww29Signal '+kind+'"><i></i><span><small>'+label+'</small><b>'+value+'</b><em>'+note+'</em></span></div>';
@@ -22,17 +22,17 @@
     return '<div id="'+ID+'" class="ww29" hidden>'+
       '<header class="ww29Nav"><div class="ww29NavIn">'+
         '<button class="ww29Brand" data-ww29="top" aria-label="Work + Workout home"><span>W<span>+</span>W</span><b>Work + Workout</b></button>'+
-        '<nav aria-label="Landing page"><a href="#ww29System">How it adapts</a><a href="#ww29Day">The full day</a><a href="#ww29Workers">Built for work</a></nav>'+
-        '<div class="ww29NavActions"><button class="ww29SignIn" data-ww29="signin">Sign in</button>'+cta('Start free','small')+'</div>'+
+        '<nav aria-label="Landing page"><a href="#ww29System">How it works</a><a href="#ww29Day">What it plans</a><a href="#ww29Workers">Who it is for</a></nav>'+
+        '<div class="ww29NavActions"><button class="ww29SignIn" data-ww29="signin">Sign in</button>'+cta('Plan my week','small')+'</div>'+
       '</div></header>'+
 
       '<main class="ww29Main">'+
         '<section class="ww29Hero">'+
           '<div class="ww29HeroCopy">'+
-            '<p class="ww29Eyebrow"><span></span>The adaptive health planner for working lives</p>'+
-            '<h1>Your shift is fixed.<br><em>Your health plan shouldn’t be.</em></h1>'+
-            '<p class="ww29Lead">Work goes in first. Then Work + Workout finds the real openings for training, meals, recovery, and everything else your day needs.</p>'+
-            '<div class="ww29HeroActions">'+cta('Build my plan')+'<a href="#ww29Day">See a day in motion <span>↓</span></a></div>'+
+            '<p class="ww29Eyebrow"><span></span>The all-in-one planner for busy working people</p>'+
+            '<h1>Plan work, workouts, meals and life.<br><em>All in one calendar.</em></h1>'+
+            '<p class="ww29Lead">Upload a photo or PDF of your work schedule, paste your shifts, or type them once. Work + Workout builds a realistic week with workouts, meal guidance, recovery, personal tasks and reminders fitted around your job.</p>'+
+            '<div class="ww29HeroActions">'+cta('Plan my week')+'<a href="#ww29Day">See how it works <span>↓</span></a></div>'+
             '<div class="ww29Trust"><span>No card required</span><span>Review before saving</span><span>Your own private plan</span></div>'+
           '</div>'+
 
@@ -43,7 +43,7 @@
               '<video data-film="fuel" muted loop playsinline preload="metadata"><source src="'+ASSET+'story-phone-meal-v21.mp4" type="video/mp4"></video>'+
               '<div class="ww29FilmShade"></div>'+
               '<div class="ww29FilmTop"><span>Thursday</span><b>Plan active</b></div>'+
-              '<div class="ww29FilmCaption"><p data-scene-label>07:00 · Work protected</p><h2 data-scene-title>The plan already knows the day.</h2></div>'+
+              '<div class="ww29FilmCaption"><p data-scene-label>07:00 · Shift added</p><h2 data-scene-title>Work goes in first. Your week is planned around it.</h2></div>'+
               '<div class="ww29FilmSteps" role="tablist" aria-label="Day scenes">'+
                 '<button class="active" data-scene="work" role="tab"><i></i><span>Work</span></button>'+
                 '<button data-scene="train" role="tab"><i></i><span>Train</span></button>'+
@@ -51,25 +51,25 @@
               '</div>'+
             '</div>'+
             '<div class="ww29LiveCard">'+
-              '<div class="ww29LiveHead"><span><i></i>Live plan</span><em>Adjusted 2m ago</em></div>'+
-              timeline('work','07:00','Hospital shift','Protected until 19:00')+
-              timeline('train','19:45','Strength · 42 min','Moved after late handoff')+
-              timeline('fuel','21:00','Recovery dinner','38g protein · ready')+
-              '<p class="ww29Adapt"><b>Plan adapted.</b> Sleep target remains protected.</p>'+
+              '<div class="ww29LiveHead"><span><i></i>Today’s plan</span><em>Updated 2m ago</em></div>'+
+              timeline('work','07:00','Hospital shift','Imported from work schedule')+
+              timeline('train','19:45','Strength workout · 42 min','Moved after a late handoff')+
+              timeline('fuel','21:00','Post-workout dinner','38g protein · meal ready')+
+              '<p class="ww29Adapt"><b>Schedule changed.</b> Workout and dinner moved automatically.</p>'+
             '</div>'+
           '</div>'+
         '</section>'+
 
-        '<section class="ww29Proof" aria-label="Product principles"><div><b>01</b><span><strong>Shift first</strong><small>The immovable parts lead.</small></span></div><div><b>02</b><span><strong>Nothing saved silently</strong><small>You approve what the app finds.</small></span></div><div><b>03</b><span><strong>One connected day</strong><small>Work, training, food, recovery.</small></span></div></section>'+
+        '<section class="ww29Proof" aria-label="Product principles"><div><b>01</b><span><strong>Add your schedule easily</strong><small>Use a photo, PDF, text or work rotation.</small></span></div><div><b>02</b><span><strong>Review before it is saved</strong><small>Approve shifts and resolve conflicts first.</small></span></div><div><b>03</b><span><strong>Get one realistic plan</strong><small>Work, workouts, meals, tasks and recovery.</small></span></div></section>'+
 
         '<section class="ww29Section ww29System" id="ww29System">'+
-          '<div class="ww29SectionHead"><p class="ww29Kicker">One system · four signals</p><h2>Your life isn’t split into apps.<br>Why should your plan be?</h2><p>Every recommendation sees the same day, so a longer shift can change tonight’s workout, meal timing, and recovery target together.</p></div>'+
+          '<div class="ww29SectionHead"><p class="ww29Kicker">How Work + Workout works</p><h2>One schedule becomes your complete weekly plan.</h2><p>Your work hours, workouts, meals, personal tasks and recovery share one calendar. When a shift changes, the rest of the plan can move with it.</p></div>'+
           '<div class="ww29Tabs" role="tablist" aria-label="Connected planning features">'+
             '<button class="active" data-feature="work" role="tab" aria-selected="true"><span>01</span>Work</button><button data-feature="train" role="tab" aria-selected="false"><span>02</span>Train</button><button data-feature="fuel" role="tab" aria-selected="false"><span>03</span>Fuel</button><button data-feature="recover" role="tab" aria-selected="false"><span>04</span>Recover</button>'+
           '</div>'+
           '<div class="ww29FeatureStage">'+
             '<div class="ww29FeatureCopy">'+
-              '<p class="ww29Kicker" data-feature-kicker>Work signal</p><h3 data-feature-title>Bring the roster. Leave the forms.</h3><p data-feature-copy>Upload a photo or PDF, paste raw text, or describe your rotation. Every detected shift is shown with confidence and conflicts before it reaches your calendar.</p>'+cta('Plan around my work','dark')+
+              '<p class="ww29Kicker" data-feature-kicker>Step 1 · Add work</p><h3 data-feature-title>Add your work schedule in seconds.</h3><p data-feature-copy>Upload a schedule photo or PDF, paste a list of shifts, or enter a repeating rotation. The app extracts every shift and lets you review confidence and conflicts before saving.</p>'+cta('Add my schedule','dark')+
             '</div>'+
             '<div class="ww29Product" data-feature-panel="work">'+
               '<div class="ww29ProductTop"><span>Schedule intake</span><em>Review required</em></div>'+
@@ -82,7 +82,7 @@
         '</section>'+
 
         '<section class="ww29Day" id="ww29Day">'+
-          '<div class="ww29DayCopy"><p class="ww29Kicker">A full day, not a fitness fantasy</p><h2>Built around the hours you actually have.</h2><p>Before work, between shifts, or after the kids are asleep—the plan protects what matters and uses what remains.</p></div>'+
+          '<div class="ww29DayCopy"><p class="ww29Kicker">Your entire day in one place</p><h2>See exactly what to do—and when it fits.</h2><p>Your shift, workout, meals, personal tasks and recovery appear on one timeline. If work runs late, the plan adjusts the flexible parts instead of letting the whole day fall apart.</p></div>'+
           '<div class="ww29DayBoard">'+
             '<div class="ww29Date"><small>THU · AUG 27</small><b>Today is handled.</b><span>Readiness 82 <i></i></span></div>'+
             '<div class="ww29DayLine">'+
@@ -93,12 +93,12 @@
               timeline('fuel','21:00','Dinner','Fast recovery meal')+
               timeline('recover','22:35','Wind down','Tomorrow starts here')+
             '</div>'+
-            '<div class="ww29CoachNote"><span>✦</span><p><b>Progressive Coach</b>Your handoff ran 25 minutes late, so I trimmed accessory work—not the strength progression.</p><button>Why?</button></div>'+
+            '<div class="ww29CoachNote"><span>✦</span><p><b>Adaptive Coach</b>Your shift ended 25 minutes late, so your workout is shorter and dinner moved later. Your main strength work and sleep target are still protected.</p><button>Why?</button></div>'+
           '</div>'+
         '</section>'+
 
         '<section class="ww29Section ww29Capture">'+
-          '<div class="ww29SectionHead"><p class="ww29Kicker">Effortless utility planner</p><h2>Give it the messy version.<br>Get back a clear week.</h2></div>'+
+          '<div class="ww29SectionHead"><p class="ww29Kicker">Plan with ordinary language</p><h2>Type your week the way you would text it.</h2><p>Paste a rough list, speak it, or upload your schedule. Work + Workout turns it into a proposed calendar, finds conflicts, and places workouts and tasks into realistic open times. You approve everything before it is saved.</p></div>'+
           '<div class="ww29CaptureGrid">'+
             '<div class="ww29Raw"><div class="ww29RawTop"><span>Quick plan</span><em>Paste · speak · upload</em></div><p>Work Monday–Thursday 7 AM–7 PM. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week.</p><div><button>＋ Photo or PDF</button><button>⌁ Voice</button><button class="send">↑</button></div></div>'+
             '<div class="ww29Arrow" aria-hidden="true">→</div>'+
@@ -107,33 +107,33 @@
         '</section>'+
 
         '<section class="ww29Workers" id="ww29Workers">'+
-          '<div class="ww29SectionHead"><p class="ww29Kicker">Every working rhythm</p><h2>The job changes.<br>The promise doesn’t.</h2><p>The app adapts to the person behind the uniform—from twelve-hour clinical shifts to rotating nights and early starts.</p></div>'+
+          '<div class="ww29SectionHead"><p class="ww29Kicker">Made for real work schedules</p><h2>Day shifts, night shifts, rotating weeks and more.</h2><p>Whether your schedule is regular, overnight, physically demanding or always changing, the app plans your health and personal life around the hours you actually work.</p></div>'+
           '<div class="ww29WorkerStage">'+
-            '<article class="active" data-worker="0"><img src="'+ASSET+'story-nurse-v19.jpg" alt="Healthcare worker in scrubs checking her phone"><div><small>Healthcare</small><h3>Protect the person<br>inside the scrubs.</h3><p>Recovery and meals shaped around twelve-hour care.</p></div></article>'+
-            '<article data-worker="1"><img src="'+ASSET+'story-road-worker-v19.jpg" alt="Road construction worker during a shift"><div><small>Construction</small><h3>Strength for the work<br>and life after it.</h3><p>Training scaled to physically demanding days.</p></div></article>'+
-            '<article data-worker="2"><img src="'+ASSET+'story-logistics-v22.jpg" alt="Logistics worker using a phone"><div><small>Logistics</small><h3>Rotating hours.<br>One steady system.</h3><p>A plan that follows the roster as it changes.</p></div></article>'+
-            '<article data-worker="3"><img src="'+ASSET+'story-chef-v19.jpg" alt="Chef working in a professional kitchen"><div><small>Hospitality</small><h3>When everyone else eats,<br>your plan still works.</h3><p>Meal timing and training built around service.</p></div></article>'+
+            '<article class="active" data-worker="0"><img src="'+ASSET+'story-nurse-v19.jpg" alt="Healthcare worker in scrubs checking her phone"><div><small>Healthcare</small><h3>Stay healthy around<br>twelve-hour shifts.</h3><p>Workouts, meals and recovery planned around long days and changing handoffs.</p></div></article>'+
+            '<article data-worker="1"><img src="'+ASSET+'story-road-worker-v19.jpg" alt="Road construction worker during a shift"><div><small>Construction</small><h3>Train without ignoring<br>a physically demanding job.</h3><p>Workout intensity and recovery adjusted for the work your body already does.</p></div></article>'+
+            '<article data-worker="2"><img src="'+ASSET+'story-logistics-v22.jpg" alt="Logistics worker using a phone"><div><small>Logistics</small><h3>Keep a plan through<br>rotating and overnight shifts.</h3><p>Your calendar, workouts and meals follow the roster whenever it changes.</p></div></article>'+
+            '<article data-worker="3"><img src="'+ASSET+'story-chef-v19.jpg" alt="Chef working in a professional kitchen"><div><small>Hospitality</small><h3>Fit meals and training<br>around service hours.</h3><p>Practical timing for early starts, late finishes and unpredictable breaks.</p></div></article>'+
             '<div class="ww29WorkerControls"><button data-worker-prev aria-label="Previous worker">←</button><span><i></i><i></i><i></i><i></i></span><button data-worker-next aria-label="Next worker">→</button></div>'+
           '</div>'+
         '</section>'+
 
-        '<section class="ww29Close"><div><p class="ww29Kicker">Your work already has a plan</p><h2>Now your health does too.</h2><p>Start with your schedule. Review the week Work + Workout creates. Keep adapting from there.</p>'+cta('Build my first week')+'<button class="ww29SignIn closeSign" data-ww29="signin">Already have an account? Sign in</button></div></section>'+
+        '<section class="ww29Close"><div><p class="ww29Kicker">Start with the schedule you already have</p><h2>Put in your work hours. Get back a healthier week.</h2><p>Work + Workout finds realistic times for training, meals, recovery, tasks and reminders—then keeps the plan updated when life changes.</p>'+cta('Create my free plan')+'<button class="ww29SignIn closeSign" data-ww29="signin">Already have an account? Sign in</button></div></section>'+
 
-        '<footer class="ww29Footer"><div class="ww29Brand"><span>W<span>+</span>W</span><b>Work + Workout</b></div><p>Health that works around your work.</p><nav><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a><a href="./support.html">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
+        '<footer class="ww29Footer"><div class="ww29Brand"><span>W<span>+</span>W</span><b>Work + Workout</b></div><p>Your work, workouts, meals, tasks and recovery—in one plan.</p><nav><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a><a href="./support.html">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
       '</main>'+
     '</div>';
   }
 
   var featureContent={
-    work:{kicker:'Work signal',title:'Bring the roster. Leave the forms.',copy:'Upload a photo or PDF, paste raw text, or describe your rotation. Every detected shift is shown with confidence and conflicts before it reaches your calendar.'},
-    train:{kicker:'Training signal',title:'Progressive training that knows your load.',copy:'The plan progresses your lifts, then adjusts the session when work, sleep, or time changes—without losing the goal of the week.'},
-    fuel:{kicker:'Fuel signal',title:'Meals that fit the shift—not an ideal day.',copy:'Get calorie and protein targets, familiar-food ideas, and meal timing that works around breaks, commutes, and late finishes.'},
-    recover:{kicker:'Recovery signal',title:'Protect tomorrow while planning today.',copy:'Sleep, fatigue, workload, and completed training shape the next recommendation so hard days do not quietly become burnout.'}
+    work:{kicker:'Step 1 · Add work',title:'Add your work schedule in seconds.',copy:'Upload a schedule photo or PDF, paste a list of shifts, or enter a repeating rotation. The app extracts every shift and lets you review confidence and conflicts before saving.'},
+    train:{kicker:'Step 2 · Plan workouts',title:'Get workouts placed where they actually fit.',copy:'Choose your goal, experience and available equipment. The app builds progressive workouts in realistic free times, then shortens or moves them when work changes.'},
+    fuel:{kicker:'Step 3 · Plan meals',title:'Know what and when to eat around your shift.',copy:'Get daily calorie and protein targets, meal ideas based on foods you enjoy, and practical meal timing around breaks, commutes, workouts and late finishes.'},
+    recover:{kicker:'Step 4 · Keep adapting',title:'Let sleep, fatigue and schedule changes update the plan.',copy:'Log sleep, workload and completed training. The app adjusts upcoming workouts, meal timing and recovery so the plan remains realistic instead of becoming another abandoned routine.'}
   };
   var sceneContent={
-    work:['07:00 · Work protected','The plan already knows the day.'],
-    train:['19:45 · Workout adapted','Progress continues—even when work runs late.'],
-    fuel:['21:00 · Recovery meal','The right target at a realistic time.']
+    work:['07:00 · Shift added','Work goes in first. Your week is planned around it.'],
+    train:['19:45 · Workout adjusted','The workout moves when your workday runs late.'],
+    fuel:['21:00 · Dinner planned','Meals and nutrition targets fit the day you actually had.']
   };
 
   function showScene(root,key){

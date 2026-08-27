@@ -4,6 +4,8 @@
  const remove=['workout-plan.js','nutrition-core.js','calendar.js','training.js','diary.js','progress.js','schedule.js','data.js','init.js'];
  for(const f of remove)h=h.replace(new RegExp('<script\\s+defer\\s+src="\\./'+f.replace('.','\\.')+'"><\\/script>\\s*','g'),'');
  h=h.replace('<head>','<head><base href="../work-gym-planner-v15/">');
+ h=h.replace('<meta name="description" content="Work, training, nutrition, and body-composition planner.">','<meta name="description" content="Plan work, workouts, meals, recovery, tasks and reminders in one calendar built around your job schedule.">');
+ h=h.replace('<title>Work + Gym Planner</title>','<title>Work + Workout | Plan your week around work</title>');
  h=h.replace('<link rel="manifest" href="./manifest.webmanifest">','<link rel="manifest" href="../work-gym-planner/manifest.webmanifest?v=29.1.0">');
  h=h.replace('<link rel="icon" href="./icons/icon-192.png" type="image/png">','<link rel="icon" type="image/svg+xml" href="../work-gym-planner-v16/icons/icon.svg?v=29.1.0">');
  h=h.replace('<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">','<link rel="apple-touch-icon" sizes="180x180" href="../work-gym-planner-v16/icons/icon-180.png?v=29.1.0">');

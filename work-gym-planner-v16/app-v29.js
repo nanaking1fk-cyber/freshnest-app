@@ -11,7 +11,7 @@
     more:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>'
   };
   function normalizeBrand(){
-    document.title='Work + Workout | Your adaptive day';
+    document.title='Work + Workout | Plan your week around work';
     var apple=document.querySelector('meta[name="apple-mobile-web-app-title"]');if(apple)apple.content='Work + Workout';
     document.querySelectorAll('h1,h2,h3,p,small,b,span,button,label').forEach(function(node){
       if(node.children.length)return;

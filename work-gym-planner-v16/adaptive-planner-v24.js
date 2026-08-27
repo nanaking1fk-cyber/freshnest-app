@@ -1,8 +1,8 @@
 // Work + Workout 24.0 — adaptive calendar intake and effortless life planning.
 (function adaptivePlannerV24(){
   'use strict';
-  var PDF_MODULE='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
-  var PDF_WORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+  var PDF_MODULE='/work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs';
+  var PDF_WORKER='/work-gym-planner-v16/vendor/pdfjs/pdf.worker.min.mjs';
   var mounting=false;
 
   function heroMarkup(){
@@ -83,7 +83,7 @@
   async function extractImage(file){
     setStatus('Preparing private photo scan…');
     if(typeof window.loadTesseract!=='function'||!(await window.loadTesseract()))throw Error('The photo reader could not load. You can still paste the schedule as text.');
-    var result=await window.Tesseract.recognize(file,'eng',{logger:function(progress){
+    var result=await window.Tesseract.recognize(file,'eng',{...(window.TESSERACT_OPTIONS||{}),logger:function(progress){
       if(progress.status==='recognizing text')setStatus('Reading schedule… '+Math.round((progress.progress||0)*100)+'%');
     }});
     return String(result?.data?.text||'').trim();

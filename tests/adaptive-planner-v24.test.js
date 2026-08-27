@@ -20,7 +20,7 @@ test('adaptive planner accepts text, voice, image and PDF with review before sav
   const planner=read('work-gym-planner-v16/adaptive-planner-v24.js');
   assert.match(planner,/accept="image\/\*,application\/pdf,\.pdf"/);
   assert.match(planner,/loadTesseract/);
-  assert.match(planner,/pdfjs-dist/);
+  assert.match(planner,/vendor\/pdfjs\/pdf\.min\.mjs/);
   assert.match(planner,/reviewRawText/);
   assert.match(planner,/Nothing is added until you review and approve it/);
 });
@@ -33,7 +33,8 @@ test('v25 scheduling assets are loaded and cached by the production wrapper',()=
   assert.match(index,/schedule-platform-v25\.css/);
   assert.match(index,/schedule-platform-v25\.js/);
   assert.match(index,/v25-scheduling\.js/);
-  assert.match(index,/Loading Work \+ Workout 25\.0\.0/);
-  assert.match(worker,/wgp-stable-v25\.0\.0/);
+  assert.match(index,/Loading Work \+ Workout 25\.1\.0/);
+  assert.match(worker,/wgp-stable-v25\.1\.0/);
   assert.match(worker,/adaptive-planner-v24\.js/);
+  assert.match(worker,/vendor\/tesseract\/worker\.min\.js/);
 });

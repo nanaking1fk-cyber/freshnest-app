@@ -1,0 +1,17 @@
+# Secrets and local deployment state
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Dependencies and generated native projects
+node_modules/
+**/node_modules/
+ios/
+**/ios/
+android/
+**/android/
+
+# OS/editor artifacts
+.DS_Store
+*.log

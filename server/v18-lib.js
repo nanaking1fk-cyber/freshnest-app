@@ -11,10 +11,10 @@ function requestMeta(req,res){
   res.setHeader('X-Request-Id',req.requestId);
 }
 
-function json(res,status,body){
+function json(res,status,body,{cacheControl='no-store'}={}){
   res.statusCode=status;
   res.setHeader('Content-Type','application/json');
-  res.setHeader('Cache-Control','no-store');
+  res.setHeader('Cache-Control',cacheControl);
   const req=res._wgcRequest;
   console.log(JSON.stringify({event:'api_response',requestId:req?.requestId||null,method:req?.method||null,path:req?.url?.split('?')[0]||null,status}));
   res.end(JSON.stringify(body));
@@ -23,13 +23,20 @@ function json(res,status,body){
 function cors(req,res){
   requestMeta(req,res);
   const origin=req.headers.origin||'';
-  const allow=(process.env.CORS_ORIGINS||'').split(',').map(x=>x.trim()).filter(Boolean);
-  if(origin)res.setHeader('Access-Control-Allow-Origin',allow.includes(origin)?origin:'null');
+  const allow=new Set([
+    'https://www.workandworkout.com',
+    'https://workandworkout.com',
+    'capacitor://localhost',
+    'ionic://localhost',
+    String(process.env.APP_ORIGIN||'').replace(/\/$/,'')
+  ].filter(Boolean));
+  const accepted=allow.has(origin);
+  if(origin&&accepted)res.setHeader('Access-Control-Allow-Origin',origin);
   res.setHeader('Vary','Origin');
   res.setHeader('Access-Control-Allow-Headers','Authorization, Content-Type');
   res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS');
   if(req.method==='OPTIONS'){
-    res.statusCode=allow.includes(origin)?204:403;
+    res.statusCode=accepted?204:403;
     res.end();
     return true;
   }
@@ -42,9 +49,21 @@ async function verifyUser(req){
   if(!envReady())throw Object.assign(new Error('Cloud backend is not configured.'),{status:503});
   const auth=req.headers.authorization||'';
   if(!auth.startsWith('Bearer '))throw Object.assign(new Error('Sign in required.'),{status:401});
-  const response=await fetch(`${SUPABASE_URL()}/auth/v1/user`,{headers:{apikey:ANON(),Authorization:auth}});
-  if(!response.ok)throw Object.assign(new Error('Session expired. Sign in again.'),{status:401});
-  return await response.json();
+  async function request(){
+    const response=await fetch(`${SUPABASE_URL()}/auth/v1/user`,{headers:{apikey:ANON(),Authorization:auth}});
+    const text=await response.text();let data={};try{data=text?JSON.parse(text):{}}catch{data={message:text}}
+    return{response,data};
+  }
+  let result=await request();
+  if(!result.response.ok&&/jwt issued at future/i.test(String(result.data?.message||result.data?.msg||''))){
+    await new Promise(resolve=>setTimeout(resolve,350));
+    result=await request();
+  }
+  if(!result.response.ok){
+    const status=result.response.status>=400&&result.response.status<500?result.response.status:502;
+    throw Object.assign(new Error(status===401?'Session expired. Sign in again.':(result.data?.message||'Authentication service is temporarily unavailable.')),{status});
+  }
+  return{...result.data,authorization:auth};
 }
 
 function serviceHeaders(extra={}){
@@ -65,22 +84,43 @@ async function serviceFetch(path,{method='GET',body,prefer='return=representatio
   if(text){try{data=JSON.parse(text)}catch{data=text}}
   if(!response.ok){
     const error=new Error(data?.message||data?.error||`Database request failed (${response.status})`);
-    error.status=500;
+    error.status=response.status>=400&&response.status<500?response.status:502;
     throw error;
   }
   return data;
 }
 
-async function getState(userId){
-  const rows=await serviceFetch(`user_state?user_id=eq.${encodeURIComponent(userId)}&select=state,schema_version,updated_at`);
+function userHeaders(authorization,extra={}){
+  if(!authorization?.startsWith?.('Bearer '))throw Object.assign(new Error('Sign in required.'),{status:401});
+  return{apikey:ANON(),Authorization:authorization,...extra};
+}
+
+async function userFetch(authorization,path,{method='GET',body,prefer='return=representation'}={}){
+  const response=await fetch(`${SUPABASE_URL()}/rest/v1/${path}`,{
+    method,
+    headers:userHeaders(authorization,{'Content-Type':'application/json',Prefer:prefer}),
+    body:body==null?undefined:JSON.stringify(body)
+  });
+  const text=await response.text();let data=null;
+  if(text){try{data=JSON.parse(text)}catch{data=text}}
+  if(!response.ok){
+    const error=new Error(data?.message||data?.error||`Database request failed (${response.status})`);
+    error.status=response.status>=400&&response.status<500?response.status:502;
+    throw error;
+  }
+  return data;
+}
+
+async function getState(userIdOrAuthorization,authorization=userIdOrAuthorization){
+  const rows=await userFetch(authorization,'user_state?select=state,schema_version,updated_at&limit=1');
   const row=rows?.[0];
   if(!row)return null;
   return{...row,state:sanitizePlannerState(row.state,{appVersion:'23.0.0'}),schema_version:23};
 }
 
-async function saveState(userId,state){
+async function saveState(userId,state,authorization){
   const sanitized=sanitizePlannerState(state,{appVersion:'23.0.0'});
-  const rows=await serviceFetch('user_state?on_conflict=user_id',{
+  const rows=await userFetch(authorization,'user_state?on_conflict=user_id',{
     method:'POST',
     body:{user_id:userId,state:sanitized,schema_version:23,updated_at:new Date().toISOString()},
     prefer:'resolution=merge-duplicates,return=representation'
@@ -88,26 +128,25 @@ async function saveState(userId,state){
   return{...(rows?.[0]||{}),state:sanitized};
 }
 
-async function saveOnboarding(userId,answers){
-  await serviceFetch('onboarding_answers?on_conflict=user_id',{
+async function saveOnboarding(userId,answers,authorization){
+  await userFetch(authorization,'onboarding_answers?on_conflict=user_id',{
     method:'POST',
     body:{user_id:userId,answers,updated_at:new Date().toISOString()},
     prefer:'resolution=merge-duplicates,return=minimal'
   });
 }
 
-async function savePlan(userId,plan){
-  await serviceFetch('rpc/replace_active_user_plan',{
+async function savePlan(plan,authorization){
+  await userFetch(authorization,'rpc/replace_own_active_user_plan',{
     method:'POST',
-    body:{target_user_id:userId,target_kind:'combined',target_plan:plan,target_source:'deterministic+ai'},
+    body:{target_kind:'combined',target_plan:plan,target_source:'deterministic+ai'},
     prefer:'return=representation'
   });
 }
 
-async function deleteChat(userId,threadId=null){
-  let path=`chat_messages?user_id=eq.${encodeURIComponent(userId)}`;
-  if(threadId)path+=`&thread_id=eq.${encodeURIComponent(threadId)}`;
-  await serviceFetch(path,{method:'DELETE',prefer:'return=minimal'});
+async function deleteChat(threadId=null,authorization){
+  const path=threadId?`chat_messages?thread_id=eq.${encodeURIComponent(threadId)}`:'chat_messages';
+  await userFetch(authorization,path,{method:'DELETE',prefer:'return=minimal'});
 }
 
 async function countAI(userId){
@@ -115,6 +154,15 @@ async function countAI(userId){
   const used=await serviceFetch('rpc/count_ai_request',{method:'POST',body:{target_user_id:userId,daily_limit:limit},prefer:'return=representation'});
   if(used==null)throw Object.assign(new Error('Daily AI coach limit reached. Try again tomorrow.'),{status:429});
   return{used:+used,limit};
+}
+
+async function countStateWrite(userId,payloadBytes){
+  const dailyLimit=Math.max(10,Math.min(5000,+(process.env.STATE_DAILY_WRITE_LIMIT||300)||300));
+  const byteLimit=Math.max(8_000_000,Math.min(2_000_000_000,+(process.env.STATE_DAILY_BYTE_LIMIT||256_000_000)||256_000_000));
+  const used=await serviceFetch('rpc/count_state_write',{method:'POST',body:{target_user_id:userId,payload_bytes:payloadBytes,daily_write_limit:dailyLimit,daily_byte_limit:byteLimit},prefer:'return=representation'});
+  const row=Array.isArray(used)?used[0]:used;
+  if(!row)throw Object.assign(new Error('Daily account-sync budget reached. Your data is safe on this device; try syncing again tomorrow.'),{status:429,retryAfter:3600});
+  return{writes:+row.writes,bytes:+row.bytes,dailyLimit,byteLimit};
 }
 
 function parseStored(value,fallback=null){
@@ -165,7 +213,8 @@ function parseAIJson(text,fallback=null){try{return JSON.parse(cleanJsonText(tex
 
 function errorResponse(res,error){
   console.error(JSON.stringify({event:'api_error',requestId:res._wgcRequest?.requestId||null,path:res._wgcRequest?.url?.split('?')[0]||null,status:error.status||500,message:error.message||'Unexpected server error'}));
+  if(error.retryAfter)res.setHeader('Retry-After',String(error.retryAfter));
   json(res,error.status||500,{ok:false,error:error.message||'Unexpected server error'});
 }
 
-module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};
+module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

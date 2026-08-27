@@ -16,9 +16,11 @@ test('server independently sanitizes state before database storage',async()=>{
     'wgp-v15-profile':'{"name":"Private A"}',
     'wgc-v18-session':'{"refresh_token":"must-not-upload"}',
     'wgc-v18-user-cache:user-b':'other-user'
-  }});
+  }},'Bearer user-jwt');
   const body=JSON.parse(request.options.body);
   assert.equal(request.url.endsWith('/rest/v1/user_state?on_conflict=user_id'),true);
+  assert.equal(request.options.headers.Authorization,'Bearer user-jwt');
+  assert.notEqual(request.options.headers.Authorization,process.env.SUPABASE_SECRET_KEY);
   assert.deepEqual(Object.keys(body.state.storage),['wgp-v15-profile']);
   assert.equal(JSON.stringify(body).includes('must-not-upload'),false);
   assert.equal(saved.state.schemaVersion,23);
@@ -27,9 +29,10 @@ test('server independently sanitizes state before database storage',async()=>{
 test('plan save uses atomic replacement RPC',async()=>{
   let request;
   global.fetch=async(url,options)=>{request={url,options};return new Response('"plan-id"',{status:200})};
-  await lib.savePlan('user-a',{summary:'ready'});
-  assert.equal(request.url.endsWith('/rest/v1/rpc/replace_active_user_plan'),true);
+  await lib.savePlan({summary:'ready'},'Bearer user-jwt');
+  assert.equal(request.url.endsWith('/rest/v1/rpc/replace_own_active_user_plan'),true);
   assert.deepEqual(JSON.parse(request.options.body),{
-    target_user_id:'user-a',target_kind:'combined',target_plan:{summary:'ready'},target_source:'deterministic+ai'
+    target_kind:'combined',target_plan:{summary:'ready'},target_source:'deterministic+ai'
   });
+  assert.equal(request.options.headers.Authorization,'Bearer user-jwt');
 });

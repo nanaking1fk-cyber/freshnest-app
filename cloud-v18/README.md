@@ -10,7 +10,7 @@ The client is local-first but v18 supports authenticated accounts, account migra
 
 ## Supabase
 
-Run `cloud-v18/schema.sql` in the project SQL editor. Enable email/password authentication. For production, configure the Site URL / redirect URLs for the web app and iOS deep-link strategy. The schema enables RLS on user-owned data; the server-side service role is used only by authenticated API routes.
+Run `cloud-v18/schema.sql`, then the ordered files in `supabase/migrations/`. Enable email/password authentication, leaked-password protection, and the project password policy. For production, set the Site URL and exact web redirect to `https://www.workandworkout.com/`; add only explicit native deep links that are actually shipped. The schema enables RLS on user-owned data, and user-state/onboarding/plan/chat operations are performed with the caller JWT rather than the service role.
 
 ## Server environment variables
 
@@ -22,6 +22,8 @@ Set these only on the server; never commit their values:
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL` / `OPENAI_COACH_MODEL` / `OPENAI_PLAN_MODEL` (optional overrides)
 - `AI_DAILY_LIMIT` (optional; defaults to 40 requests/user/day)
+- `STATE_DAILY_WRITE_LIMIT` (optional; defaults to 300 writes/user/day)
+- `STATE_DAILY_BYTE_LIMIT` (optional; defaults to 256 MB/user/day)
 
 The browser/native client obtains only the Supabase URL + public/anon key from `/api/v18/config`. Service-role and OpenAI keys never ship in the client.
 
@@ -39,9 +41,9 @@ After account creation/sign-in, `accounts-v18.js` offers **Migrate this device**
 
 `DELETE /api/v18/account` verifies the user's session and deletes the Supabase auth user. Foreign-key cascades remove cloud planner state, plans and chat rows. This supports the in-app account deletion requirement for a commercial iOS app.
 
-## Web / GitHub Pages
+## Web hosting
 
-GitHub Pages cannot securely host the API. Once the Vercel backend is deployed, set `wgc-v18-vercel-api` in the web client's local storage to the full backend prefix (for example `https://APP.vercel.app/api/v18`) during testing. For production, bake the production API base into the client/native build instead of asking users to configure it.
+The production web app and API are a single Vercel origin at `https://www.workandworkout.com/`. GitHub Pages must remain disabled. The browser client uses the same-origin `/api/v18` endpoint and deliberately has no local-storage API-host override, preventing a bearer token from being redirected to another origin.
 
 ## iOS
 

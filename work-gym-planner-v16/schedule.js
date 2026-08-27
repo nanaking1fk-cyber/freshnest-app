@@ -5,7 +5,8 @@ function renderBReview(){if(!bDraft)return;$('#bReview').innerHTML=Object.entrie
 function saveBMonth(){let ym=$('#bMonth').value;if(!ym||!bDraft)return;let pack={};for(const [d,c] of Object.entries(bDraft))pack[d]=c;jset(K.bellevue+ym,pack);closeModal('bellevueDialog');renderAll();toast('Schedule month saved')}
 function renderSavedMonths(){let a=[];for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(k?.startsWith(K.bellevue))a.push(k.slice(K.bellevue.length))}a.sort();$('#savedMonths').innerHTML=a.map(ym=>`<button data-savedmonth="${ym}">${ym}</button>`).join('');$$('[data-savedmonth]').forEach(b=>b.onclick=()=>{$('#bMonth').value=b.dataset.savedmonth;loadBDraft(b.dataset.savedmonth)})}
 async function rotatedPhotoBlob(){if(!bPhotoFile||!bRotation)return bPhotoFile;let bmp=await createImageBitmap(bPhotoFile),c=document.createElement('canvas'),ctx=c.getContext('2d'),r=bRotation%360;if(r===90||r===270){c.width=bmp.height;c.height=bmp.width}else{c.width=bmp.width;c.height=bmp.height}ctx.translate(c.width/2,c.height/2);ctx.rotate(r*Math.PI/180);ctx.drawImage(bmp,-bmp.width/2,-bmp.height/2);return new Promise(res=>c.toBlob(res,'image/jpeg',.92))}
-async function loadTesseract(){if(window.Tesseract)return true;return new Promise(resolve=>{let s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=()=>resolve(!!window.Tesseract);s.onerror=()=>resolve(false);document.head.appendChild(s)})}
+const TESSERACT_OPTIONS=window.TESSERACT_OPTIONS={workerPath:'/work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'/work-gym-planner-v16/vendor/tesseract-core',langPath:'https://tessdata.projectnaptha.com/4.0.0'};
+async function loadTesseract(){if(window.Tesseract)return true;return new Promise(resolve=>{let s=document.createElement('script');s.src='/work-gym-planner-v16/vendor/tesseract/tesseract.min.js';s.onload=()=>resolve(!!window.Tesseract);s.onerror=()=>resolve(false);document.head.appendChild(s)})}
 function wordText(w){return String(w.text||'').trim()}
 function wordCenter(w){return{x:(w.bbox.x0+w.bbox.x1)/2,y:(w.bbox.y0+w.bbox.y1)/2,h:Math.max(1,w.bbox.y1-w.bbox.y0)}}
 function findNameWord(words){let p=profile(),tokens=String(p?.name||'').toLowerCase().split(/\s+/).filter(x=>x.length>=2);if(!tokens.length)return null;let hits=words.filter(w=>tokens.some(t=>wordText(w).toLowerCase().includes(t)));if(!hits.length)return null;return hits.sort((a,b)=>(+b.confidence||0)-(+a.confidence||0))[0]}
@@ -21,7 +22,7 @@ async function scanSchedulePhoto(){
  if(!(await loadTesseract()))return $('#bScanStatus').textContent='OCR assistant could not load. Use the manual review grid.';
  $('#bScan').disabled=true;$('#bScanStatus').textContent='Scanning photo locally in this browser. The photo is not saved…';
  try{
-  let blob=await rotatedPhotoBlob(),res=await Tesseract.recognize(blob,'eng',{logger:m=>{if(m.status==='recognizing text')$('#bScanStatus').textContent=`Scanning… ${Math.round((m.progress||0)*100)}%`}}),words=res.data.words||[],rawText=String(res.data.text||'').trim(),nameHit=findNameWord(words),days=daysInMonth($('#bMonth').value);
+  let blob=await rotatedPhotoBlob(),res=await Tesseract.recognize(blob,'eng',{...TESSERACT_OPTIONS,logger:m=>{if(m.status==='recognizing text')$('#bScanStatus').textContent=`Scanning… ${Math.round((m.progress||0)*100)}%`}}),words=res.data.words||[],rawText=String(res.data.text||'').trim(),nameHit=findNameWord(words),days=daysInMonth($('#bMonth').value);
   if(!nameHit){
    let parsed=window.WGC19?.parseRawInput?.(rawText)||[],reviewable=parsed.some(item=>!item.needsReview);
    if(reviewable)offerOcrRawReview(rawText,`The grid layout was not reliable enough to auto-map dates. Nothing was changed.`);

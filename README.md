@@ -26,8 +26,8 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 
 ## Cloud setup
 
-1. Create a Supabase project and run `cloud-v18/schema.sql` in the SQL editor.
-2. In Supabase Auth, enable Email/Password. Configure the Site URL / redirect URLs for the production web domain and iOS app as appropriate.
+1. Create a Supabase project, run `cloud-v18/schema.sql`, then apply the ordered files in `supabase/migrations/`.
+2. In Supabase Auth, enable Email/Password, leaked-password protection, and a minimum password policy. Set the Site URL and exact web redirect to `https://www.workandworkout.com/`; add only explicit native deep links that are actually shipped. Confirmation and recovery use PKCE and must finish in the browser where they started.
 3. Deploy this repository to Vercel and set server environment variables:
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
@@ -35,14 +35,17 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
    - `OPENAI_API_KEY` (server only)
    - `OPENAI_MODEL` / `OPENAI_COACH_MODEL` / `OPENAI_PLAN_MODEL` optional; defaults use `gpt-5.6-terra` in the current source
    - `AI_DAILY_LIMIT` optional; defaults to 40 requests/user/day
-4. For the GitHub Pages build, open Account & Sync → Advanced API base and set the Vercel origin ending in `/api/v18`, or preconfigure it for the native build with `WGC_API_BASE`.
+   - `STATE_DAILY_WRITE_LIMIT` optional; defaults to 300 account-sync writes/user/day
+   - `STATE_DAILY_BYTE_LIMIT` optional; defaults to 256 MB of account-sync data/user/day
+4. Serve the web product only from Vercel at `https://www.workandworkout.com/`. GitHub Pages is intentionally unsupported and should remain disabled; the client will not send bearer tokens to a configurable API origin.
 5. For iOS, from `app-store/`: `npm install`, then build with `WGC_API_BASE=https://YOUR-API-HOST/api/v18 npm run ios:sync`, and open Xcode with `npm run ios:open`.
 
 ## Security notes
 
 - Supabase service-role and OpenAI keys belong only in server environment variables.
-- The public Supabase anon key is intentionally returned by `/api/v18/config`; Row Level Security and verified user sessions protect user data.
-- AI requests are authenticated and rate-limited. Equipment images are sent to the AI endpoint for the current answer but are not stored in `chat_messages` by the app API.
+- The public Supabase anon/publishable key is intentionally returned by `/api/v18/config`. User-owned reads and writes forward the caller JWT to Supabase, so Row Level Security is the enforcing boundary; the service role is reserved for counters and administrative account deletion.
+- AI requests and state writes are authenticated and rate-limited. Equipment images are sent to the AI endpoint for the current answer but are not stored in `chat_messages` by the app API.
+- Browser-executed PDF, OCR and barcode libraries are pinned in `work-gym-planner-v16/vendor/` and served from the same origin. Their versions, checksums and licenses are recorded beside the files.
 - Treat nutrition and training outputs as educational planning, not medical diagnosis or treatment.
 
 ## App Store readiness

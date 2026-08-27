@@ -1,13 +1,12 @@
-# Work + Workout v22 takeover
+# Work + Workout takeover
 
 ## Current release
 
-Version 22.0 is the Working Lives Edition. Its autoplay hero demonstrates the app throughout a worker's day, while an accessible six-profession carousel shows how the plan adapts for healthcare, construction, transit, hospitality, education and logistics. It preserves the natural-language Quick Plan, adaptive scheduling, reminders, Supabase accounts and AI architecture.
+Version 25.1 is the audit-hardening release. It retains the Working Lives story and trusted adaptive scheduling while hardening account isolation, PKCE email flows, same-origin browser dependencies, API rate limits and upstream error handling.
 
 ## Current architecture
 
-- Frontend: GitHub Pages (`work-gym-planner/`)
-- API: Vercel serverless functions (`api/v18/`)
+- Frontend and API: one Vercel origin at `https://www.workandworkout.com/`
 - Database and Auth: Supabase project `work-gym-coach`
 - AI: OpenAI Responses API through the Vercel backend
 
@@ -15,14 +14,14 @@ Version 22.0 is the Working Lives Edition. Its autoplay hero demonstrates the ap
 
 The backend requires the variables listed in `.env.example`. Secrets must be configured only in Vercel and local ignored env files.
 
-The public frontend origin is explicitly allowlisted with `CORS_ORIGINS`.
+The API permits only the canonical production origins plus explicit native origins. The browser has no configurable API-host override. User-owned database operations run with the caller JWT so Supabase RLS is the enforcing boundary.
 
 ## Release sequence
 
 1. Validate the pull-request preview deployment.
 2. Run config, CORS, unauthenticated, authenticated, persistence, and AI quota checks.
 3. Merge the hardening pull request after preview verification.
-4. Confirm the production deployment and GitHub Pages frontend integration.
+4. Confirm the production deployment and keep GitHub Pages disabled.
 
 ## Known follow-up
 

@@ -43,6 +43,22 @@
     };
   }
 
+  // Legacy Supabase implicit-flow responses put bearer tokens in the URL fragment.
+  // Only those fragments may be rejected as legacy auth; ordinary in-page
+  // anchors (for example #landingFeatures) must survive untouched.
+  const LEGACY_AUTH_FRAGMENT_KEYS=['access_token','refresh_token','provider_token','provider_refresh_token','id_token'];
+
+  function isLegacyAuthFragment(hash){
+    const raw=String(hash==null?'':hash).replace(/^#/,'').trim();
+    if(!raw||raw.indexOf('=')<0)return false;
+    let params;
+    try{params=new URLSearchParams(raw)}catch{return false}
+    return LEGACY_AUTH_FRAGMENT_KEYS.some(key=>{
+      const value=params.get(key);
+      return typeof value==='string'&&value.length>0;
+    });
+  }
+
   function restrictionTokens(value){
     const stop=new Set(['avoid','allergy','allergies','allergic','intolerance','intolerant','no','none','and','or','the','food','foods']);
     return String(value||'').toLowerCase().split(/[,;/\n]+|\s+/).map(x=>x.replace(/[^a-z0-9-]/g,'')).filter(x=>x.length>2&&!stop.has(x));
@@ -76,5 +92,5 @@
     return{delta:0,text:'Weight trend is in the target range. Keep calories unchanged.'};
   }
 
-  return{DEFAULT_PREFIX,isPlannerKey,sanitizePlannerState,restrictionTokens,foodAllowed,calorieAdjustment};
+  return{DEFAULT_PREFIX,isPlannerKey,sanitizePlannerState,restrictionTokens,foodAllowed,calorieAdjustment,isLegacyAuthFragment};
 });

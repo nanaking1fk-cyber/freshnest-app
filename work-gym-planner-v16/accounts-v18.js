@@ -2,8 +2,17 @@
 APP_VERSION='25.1.0';
 window.WGC18=window.WGC18||{};
 (function(A){
- const SESSION_KEY='wgc-v18-session',LAST_SYNC_KEY='wgc-v18-last-sync',OWNER_KEY='wgc-v18-local-owner',UNCLAIMED_KEY='wgc-v18-unclaimed-device-state',USER_CACHE_PREFIX='wgc-v18-user-cache:',PKCE_VERIFIER_KEY='wgc-v25-pkce-verifier',PKCE_PURPOSE_KEY='wgc-v25-pkce-purpose',RECOVERY_KEY='wgc-v25-password-recovery',LEGACY_AUTH_FRAGMENT=!!location.hash;
+ const SESSION_KEY='wgc-v18-session',LAST_SYNC_KEY='wgc-v18-last-sync',OWNER_KEY='wgc-v18-local-owner',UNCLAIMED_KEY='wgc-v18-unclaimed-device-state',USER_CACHE_PREFIX='wgc-v18-user-cache:',PKCE_VERIFIER_KEY='wgc-v25-pkce-verifier',PKCE_PURPOSE_KEY='wgc-v25-pkce-purpose',RECOVERY_KEY='wgc-v25-password-recovery',LEGACY_AUTH_FRAGMENT=legacyAuthFragment(location.hash);
  if(LEGACY_AUTH_FRAGMENT)history.replaceState(null,'',location.pathname+location.search);
+ // Only bearer-token fragments from the retired implicit flow are rejected.
+ // In-page anchors such as #landingFeatures must keep working.
+ function legacyAuthFragment(hash){
+  const core=window.WGC23Core;
+  if(core&&typeof core.isLegacyAuthFragment==='function')return core.isLegacyAuthFragment(hash);
+  const raw=String(hash==null?'':hash).replace(/^#/,'').trim();
+  if(!raw||raw.indexOf('=')<0)return false;
+  return /(?:^|&)(?:access_token|refresh_token|provider_token|provider_refresh_token|id_token)=[^&]/.test(raw);
+ }
  A.config={loaded:false,cloudConfigured:false,aiConfigured:false,supabaseUrl:null,supabaseAnonKey:null,apiVersion:18};
  A.session=null;A.apiBase='';A.syncTimer=null;A.authBusy=false;A.passwordRecovery=sessionStorage.getItem(RECOVERY_KEY)==='1';
  function absoluteApiBase(){return '/api/v18'}

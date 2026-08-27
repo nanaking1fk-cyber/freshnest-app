@@ -1,7 +1,7 @@
 // Work + Workout v29 — final visual shell and brand normalization.
 (function workWorkoutAppV29(window){
   'use strict';
-  window.APP_VERSION='29.1.0';
+  window.APP_VERSION='30.0.0';
   var A=window.WGC18=window.WGC18||{};
   var icons={
     calendar:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v3M19 4v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12H4V7a1 1 0 0 1 1-1Z"/><path d="M8 13h3v3H8z"/></svg>',
@@ -19,7 +19,7 @@
       if(text&&text.includes('Work + Gym Coach'))node.textContent=text.replaceAll('Work + Gym Coach','Work + Workout');
       else if(text&&text.includes('Work + Gym Planner'))node.textContent=text.replaceAll('Work + Gym Planner','Work + Workout');
     });
-    var about=document.querySelector('#aboutDialog .card p');if(about&&about.innerHTML.includes('Version:'))about.innerHTML='<b>Version:</b> 29.1.0';
+    var about=document.querySelector('#aboutDialog .card p');if(about&&about.innerHTML.includes('Version:'))about.innerHTML='<b>Version:</b> 30.0.0';
   }
   function enhanceNavigation(){
     var nav=document.querySelector('.bottomNav');if(!nav||nav.dataset.v29)return;nav.dataset.v29='true';

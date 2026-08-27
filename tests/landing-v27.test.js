@@ -60,6 +60,17 @@ test('one verb for the primary action',()=>{
   assert.equal(unique.size,1,`the primary action must read the same everywhere, found: ${[...unique]}`);
 });
 
+test('the landing sits above the app chrome but below its own dialog',()=>{
+  // .bottomNav is z-index:50 and .modal is 100 in the app stylesheets. Shipping
+  // the landing at 40 put the app's tab bar on top of it.
+  const z=(css.match(/#wwLanding\{[\s\S]*?z-index:(\d+)/)||[])[1];
+  assert.ok(z,'the landing must declare a z-index');
+  assert.ok(Number(z)>50,`must sit above .bottomNav (50), got ${z}`);
+  assert.ok(Number(z)<100,`must sit below .modal (100) so the account dialog opens over it, got ${z}`);
+  assert.match(css,/body\.landingActive \.bottomNav[^{]*\{display:none\}/,
+    'app chrome must be hidden, not merely covered');
+});
+
 test('the landing only shows to signed-out visitors',()=>{
   assert.match(js,/function shouldShow\(\)\{return !A\.session\}/);
   assert.match(js,/wgc:authchange/);

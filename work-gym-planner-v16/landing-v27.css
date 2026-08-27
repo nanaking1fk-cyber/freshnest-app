@@ -36,7 +36,7 @@
 
   --gut:clamp(20px,5vw,64px);
 
-  position:fixed;inset:0;z-index:40;overflow-y:auto;overflow-x:hidden;
+  position:fixed;inset:0;z-index:60;overflow-y:auto;overflow-x:hidden;
   background:var(--ground);color:var(--ink);
   font-family:var(--sans);font-size:16px;line-height:1.55;
   -webkit-font-smoothing:antialiased;
@@ -44,6 +44,7 @@
 }
 #wwLanding[hidden]{display:none}
 body.landingActive{overflow:hidden}
+body.landingActive .bottomNav,body.landingActive .aiCoachFab{display:none}
 
 #wwLanding *{box-sizing:border-box}
 #wwLanding .shell{max-width:1180px;margin:0 auto;padding:0 var(--gut)}
@@ -57,7 +58,7 @@ body.landingActive{overflow:hidden}
 
 /* nav */
 #wwLanding .wwNav{
-  position:sticky;top:0;z-index:60;background:rgba(11,13,12,.84);
+  position:sticky;top:0;z-index:2;background:rgba(11,13,12,.84);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom:1px solid var(--hair-soft);
 }

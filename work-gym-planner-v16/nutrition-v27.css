@@ -1,0 +1,135 @@
+/* Work + Workout v27 — food diary.
+   Scoped to #page-diary so nothing else moves. */
+
+#page-diary{
+  --nv-raise:#131614;
+  --nv-raise-2:#191D1B;
+  --nv-hair:#242926;
+  --nv-hair-soft:#1A1E1C;
+  --nv-ink:#F2F4F1;
+  --nv-ink-2:#A3ADA7;
+  --nv-ink-3:#6C7671;
+  --nv-bone:#E4DFD3;
+  --nv-train:#6FA8A2;
+  --nv-meal:#C4A276;
+  --nv-rest:#8E86A8;
+  --nv-sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --nv-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+}
+
+/* the one number, stated once */
+#page-diary .energyCard{
+  background:var(--nv-raise);border:1px solid var(--nv-hair);border-radius:4px;
+  padding:0;overflow:hidden;
+}
+#page-diary .energyHero{
+  display:block;padding:22px 20px 18px;text-align:left;
+  border-bottom:1px solid var(--nv-hair-soft);
+}
+#page-diary .energyHero strong{
+  display:block;font-family:var(--nv-mono);font-size:clamp(38px,9vw,54px);font-weight:500;
+  color:var(--nv-ink);font-variant-numeric:tabular-nums;letter-spacing:-.04em;line-height:1;
+}
+#page-diary .energyHero span{
+  display:block;margin-top:10px;font-family:var(--nv-mono);font-size:10px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--nv-ink-3);
+}
+/* one quiet line replaces the goal − food = left equation */
+#page-diary .energyLine{
+  display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
+  margin-top:12px;font-family:var(--nv-mono);font-size:12px;
+  color:var(--nv-ink-2);font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+}
+#page-diary .energyLine i{font-style:normal;color:var(--nv-ink-3)}
+#page-diary .energyEquation{display:none}
+
+/* macros — colour carries the domain */
+#page-diary .macroGrid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--nv-hair-soft);
+}
+@media(max-width:640px){#page-diary .macroGrid{grid-template-columns:1fr}}
+#page-diary .macroLine{background:var(--nv-raise);padding:13px 16px;margin:0}
+#page-diary .macroLine label{
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0;
+}
+#page-diary .macroLine label span:first-child{
+  font-family:var(--nv-mono);font-size:10px;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--nv-ink-3);
+}
+#page-diary .macroLine label span:last-child{
+  font-family:var(--nv-mono);font-size:12px;color:var(--nv-ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+#page-diary .macroLine .track{
+  height:3px;border-radius:2px;background:var(--nv-hair);
+  margin-top:10px;overflow:hidden;
+}
+#page-diary .macroLine .track i{display:block;height:100%;border-radius:2px;background:var(--nv-ink-3)}
+#page-diary .macroLine.mProtein .track i{background:var(--nv-train)}
+#page-diary .macroLine.mCarbs   .track i{background:var(--nv-meal)}
+#page-diary .macroLine.mFat     .track i{background:var(--nv-rest)}
+/* fiber, sodium, saturated fat are secondary — quieter, not colour-coded */
+#page-diary .macroLine.mMinor{background:var(--nv-raise-2)}
+#page-diary .macroLine.mMinor label span:last-child{color:var(--nv-ink-3)}
+
+#page-diary .miniCoach{
+  font-size:12.5px;color:var(--nv-ink-3);padding:12px 2px 0;line-height:1.5;
+}
+
+/* meals */
+#page-diary .meal{
+  background:var(--nv-raise);border:1px solid var(--nv-hair);border-radius:4px;
+  overflow:hidden;margin-top:12px;
+}
+#page-diary .mealHead{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:13px 16px;border-bottom:1px solid var(--nv-hair-soft);
+}
+#page-diary .mealHead h3{
+  margin:0;font-family:var(--nv-sans);font-size:13.5px;font-weight:600;color:var(--nv-ink);
+}
+#page-diary .mealHead h3 small{
+  font-family:var(--nv-mono);font-size:11px;font-weight:500;color:var(--nv-ink-3);
+  margin-left:8px;font-variant-numeric:tabular-nums;
+}
+#page-diary .mealActions{display:flex;gap:8px}
+#page-diary .mealActions button{
+  background:none;border:1px solid var(--nv-hair);border-radius:2px;
+  font-family:var(--nv-sans);font-size:12px;color:var(--nv-ink-2);
+  padding:6px 11px;cursor:pointer;
+}
+#page-diary .mealActions button:hover{color:var(--nv-ink);border-color:var(--nv-ink-3)}
+#page-diary .mealActions button[data-add-food]{background:var(--nv-bone);color:#0B0D0C;border-color:var(--nv-bone);font-weight:600}
+#page-diary .mealActions button[data-add-food]:hover{background:#fff}
+
+#page-diary .foodRow{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;
+  background:none;border:0;border-top:1px solid var(--nv-hair-soft);
+  padding:12px 16px;text-align:left;cursor:pointer;
+}
+#page-diary .meal .foodRow:first-of-type{border-top:0}
+#page-diary .foodRow:hover{background:var(--nv-raise-2)}
+#page-diary .foodName{font-family:var(--nv-sans);font-size:14px;font-weight:600;color:var(--nv-ink)}
+#page-diary .foodSub{
+  font-family:var(--nv-mono);font-size:11px;color:var(--nv-ink-3);margin-top:3px;
+  font-variant-numeric:tabular-nums;
+}
+#page-diary .foodCal{
+  font-family:var(--nv-mono);font-size:13px;color:var(--nv-ink-2);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+#page-diary .emptyMeal{
+  padding:14px 16px;font-size:12.5px;color:var(--nv-ink-3);border-top:1px solid var(--nv-hair-soft);
+}
+
+#page-diary .waterRow{
+  background:var(--nv-raise);border:1px solid var(--nv-hair);border-radius:4px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:13px 16px;margin-top:12px;
+}
+#page-diary .waterRow b{font-family:var(--nv-sans);font-size:13.5px;font-weight:600;color:var(--nv-ink)}
+#page-diary .waterRow small{
+  display:block;font-family:var(--nv-mono);font-size:11px;color:var(--nv-ink-3);margin-top:3px;
+  font-variant-numeric:tabular-nums;
+}

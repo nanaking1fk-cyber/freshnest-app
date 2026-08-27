@@ -54,9 +54,28 @@ does not contain the affected code.
    `TESSERACT_OPTIONS`), and a new bundle-audit rule that rejects web-only
    absolute `/work-gym-planner-v1[56]/` paths.
 
+3. **An abandoned password recovery stayed armed for the whole tab session.**
+   The `wgc-v25-password-recovery` flag was cleared only on a successful
+   password change, so quitting the recovery halfway left the "Choose a new
+   password" panel showing for the *next* account signed in on that tab.
+   `clearRecoveryFlag()` now runs on sign-in, on sign-out, and when a PKCE
+   exchange fails.
+
+4. **`deleteChat()` issued an unfiltered PostgREST DELETE.** With no thread id
+   the path was bare `chat_messages`, leaning entirely on RLS to scope the
+   delete. It now always carries `user_id=eq.<caller>` and refuses to run
+   without an owner, so a policy regression cannot widen it and PostgREST never
+   sees an unqualified mutation. `api/v18/chat.js` passes `user.id` through.
+
+5. **`work-gym-planner-v16/sw.js` cached its shell atomically.** `cache.addAll()`
+   rejects the whole install if any single URL fails — and the shell had just
+   gained nine vendor entries including multi-MB `.wasm` cores. It now uses the
+   same `Promise.allSettled` pattern as `work-gym-planner/sw.js`.
+
 Regression tests live in `tests/auth-fragment-and-native-bundle-v26.test.js`
-(9 tests). Both fixes were mutation-checked: reverting either one fails the
-suite. Total: 35 tests passing.
+(9 tests) and `tests/account-lifecycle-v26.test.js` (7 tests). Every fix was
+mutation-checked: reverting any one of them fails the suite. Total: 42 tests
+passing.
 
 The same file also carries a guard test asserting the shell's script-strip
 regexes still match the v15 markup they target — the same silent-no-op failure
@@ -69,21 +88,16 @@ mode as defect 2, in the boot path.
 - Add product analytics and error monitoring before wider launch.
 - End-to-end browser testing of signup, PKCE confirmation, recovery, sign-out
   and schedule review-before-save has NOT been run; only unit-level checks.
-- The live `authenticated` role still holds `DELETE`/`TRUNCATE` on the
-  user-owned tables. `20260827113000_user_table_least_privilege_v26.sql`
-  revoked only from `public` and `anon`, so its stated intent
-  ("column-action specific") is not yet met. Not reachable through PostgREST,
-  but the grants do not match the migration's intent. `ai_usage_daily` was
-  missed entirely and still grants everything to `anon` and `authenticated`
-  (RLS is on with no policies, so reads return nothing).
+  This is the largest remaining gap and should happen before deploying.
+- The `authenticated` grants still do not match the stated least-privilege
+  intent, and `ai_usage_daily` was missed by that pass. The exact SQL, its
+  rationale and a verification query are in
+  `docs/PENDING-APPROVAL-supabase-grants-v26.md`. It is deliberately outside
+  `supabase/migrations/` so no tooling can apply it — it needs owner approval
+  and a manual run.
 - `authRedirectUrl()` is hardcoded to `https://www.workandworkout.com/`, but
   `capacitor://localhost` and `ionic://localhost` are in the API CORS
   allowlist. A native build using the PKCE flow would send users to the website,
   where the PKCE verifier is not in storage. The current native bundle uses the
   older `account-v18.js` stack and excludes `accounts-v18.js`, so this is latent
   rather than broken today.
-- `work-gym-planner-v16/sw.js` uses `cache.addAll(SHELL)`, which is atomic: one
-  failed vendor asset (including the multi-MB `.wasm` files just added) aborts
-  the whole install. `work-gym-planner/sw.js` uses `Promise.allSettled` and is
-  resilient. Only the latter is registered by `pwa-patch.js`, so the v16 worker
-  is effectively legacy.

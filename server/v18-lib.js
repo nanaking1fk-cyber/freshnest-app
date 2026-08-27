@@ -144,8 +144,13 @@ async function savePlan(plan,authorization){
   });
 }
 
-async function deleteChat(threadId=null,authorization){
-  const path=threadId?`chat_messages?thread_id=eq.${encodeURIComponent(threadId)}`:'chat_messages';
+async function deleteChat(userId,threadId=null,authorization){
+  // RLS already scopes this to the caller. The explicit owner filter keeps the
+  // DELETE qualified as well, so a policy regression cannot widen it and
+  // PostgREST never sees an unfiltered mutation.
+  if(!userId)throw Object.assign(new Error('Sign in required.'),{status:401});
+  let path=`chat_messages?user_id=eq.${encodeURIComponent(userId)}`;
+  if(threadId)path+=`&thread_id=eq.${encodeURIComponent(threadId)}`;
   await userFetch(authorization,path,{method:'DELETE',prefer:'return=minimal'});
 }
 

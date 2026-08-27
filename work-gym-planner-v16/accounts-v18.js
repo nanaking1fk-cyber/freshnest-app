@@ -19,6 +19,9 @@ window.WGC18=window.WGC18||{};
  A.api=function(path=''){let b=A.apiBase||absoluteApiBase();return b?b+('/'+String(path).replace(/^\//,'')):''};
  function status(t,bad=false){let el=$('#accountStatus');if(el){el.textContent=t||'';el.classList.toggle('bad',!!bad)}}
  function saveSession(s){A.session=s||null;if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY);renderAccountUI();window.dispatchEvent(new CustomEvent('wgc:authchange',{detail:{signedIn:!!A.session}}))}
+ // A recovery session that is abandoned must not leave the "choose a new
+ // password" panel armed for the next account signed in on this tab.
+ function clearRecoveryFlag(){try{sessionStorage.removeItem(RECOVERY_KEY)}catch{}A.passwordRecovery=false}
  function loadSession(){try{A.session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{A.session=null}}
  function sessionExpired(s=A.session){if(!s?.access_token)return true;let exp=+s.expires_at||0;return exp&&Date.now()/1000>exp-60}
  async function raw(url,opt={}){let r=await fetch(url,opt),txt=await r.text(),j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:txt}}}if(!r.ok)throw Error(j.error_description||j.msg||j.error||j.message||`Request failed (${r.status})`);return j}
@@ -29,7 +32,7 @@ window.WGC18=window.WGC18||{};
  async function refreshSession(){let s=A.session;if(!s?.refresh_token||!A.config.supabaseUrl)return null;try{let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});saveSession(j);return j}catch(e){lockPlannerForLoggedOut();saveSession(null);throw e}}
  A.accessToken=async function(){if(!A.session)return null;if(sessionExpired())await refreshSession();return A.session?.access_token||null};
  A.authedFetch=async function(path,opt={},retry=true){let token=await A.accessToken();if(!token)throw Error('Sign in required.');let headers={...(opt.headers||{}),Authorization:`Bearer ${token}`,'Content-Type':'application/json'};let r=await fetch(A.api(path),{...opt,headers}),txt=await r.text(),j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:txt}}}if(r.status===401&&retry&&A.session?.refresh_token){await refreshSession();return A.authedFetch(path,opt,false)}if(!r.ok||j.ok===false)throw Error(j.error||j.message||`Request failed (${r.status})`);return j};
- async function signIn(email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});saveSession(j);await afterAuth();return j}
+ async function signIn(email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});clearRecoveryFlag();saveSession(j);await afterAuth();return j}
  function authRedirectUrl(){return 'https://www.workandworkout.com/'}
  async function signUp(name,email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');if(!passwordStrong(password))throw Error('Use 12+ characters with uppercase, lowercase, a number and a symbol.');let target=encodeURIComponent(authRedirectUrl()),challenge=await beginPkce('signup'),j=await raw(`${A.config.supabaseUrl}/auth/v1/signup?redirect_to=${target}`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,data:{display_name:name||''},code_challenge:challenge,code_challenge_method:'s256'})});if(j.access_token){saveSession(j);await afterAuth()}else lockPlannerForLoggedOut();return j}
  async function recover(email){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let target=encodeURIComponent(authRedirectUrl()),challenge=await beginPkce('recovery');await raw(`${A.config.supabaseUrl}/auth/v1/recover?redirect_to=${target}`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,code_challenge:challenge,code_challenge_method:'s256'})})}
@@ -49,6 +52,7 @@ window.WGC18=window.WGC18||{};
  }
  async function signOut(){
   let uid=A.session?.user?.id;
+  clearRecoveryFlag();
   try{if(A.session)await A.pushState({quiet:true})}catch(e){recordDiagnostic?.('signout-sync',e)}
   stashForUser(uid);
   clearLocalPlanner();
@@ -102,7 +106,7 @@ window.WGC18=window.WGC18||{};
    await afterAuth();
    if(purpose==='recovery'){openAccount('signin');toast('Choose a new password to finish recovery.')}else toast('Email confirmed. Your private plan is ready to build.');
    return true
-  }catch(e){localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);status('The confirmation link could not be completed. Request a new email in this browser.',true);return false}
+  }catch(e){localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);clearRecoveryFlag();status('The confirmation link could not be completed. Request a new email in this browser.',true);return false}
  }
  A.signIn=signIn;A.signUp=signUp;A.signOut=signOut;A.recover=recover;A.captureLocalState=captureLocalState;A.restoreCloudState=restoreCloudState;
  function accountEmail(){return A.session?.user?.email||A.session?.user?.user_metadata?.email||''}

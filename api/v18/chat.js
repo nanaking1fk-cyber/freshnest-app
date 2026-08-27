@@ -7,7 +7,7 @@ module.exports=async(req,res)=>{
     const user=await verifyUser(req);
     const threadId=req.body?.threadId||null;
     if(threadId&&!/^[0-9a-f-]{36}$/i.test(threadId))return json(res,400,{ok:false,error:'Invalid chat thread.'});
-    await deleteChat(threadId,user.authorization);
+    await deleteChat(user.id,threadId,user.authorization);
     return json(res,200,{ok:true,deleted:true});
   }catch(error){errorResponse(res,error)}
 };

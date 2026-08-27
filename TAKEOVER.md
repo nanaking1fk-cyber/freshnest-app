@@ -76,7 +76,22 @@ does not contain the affected code.
 
 Regression tests live in `tests/auth-fragment-and-native-bundle-v26.test.js`
 and `tests/account-lifecycle-v26.test.js`. Every fix was mutation-checked:
-reverting any one of them fails the suite. The post-review suite has 45 tests.
+reverting any one of them fails the suite.
+
+6. **The root entrypoint redirected to itself.** Vercel serves the physical
+   `/index.html` rather than the `vercel.json` `"source": "/"` rewrite, so that
+   file is what `/` does. Its meta refresh pointed at
+   `https://www.workandworkout.com/` unconditionally — on the canonical host,
+   the current URL. Serving `/` on production would have looped forever, and
+   every preview deployment bounced to production instead of showing itself,
+   which makes the "validate the preview" release step impossible. Observed on
+   the `codex/post-claude-audit-v26` preview: `/` rendered the redirect stub
+   while `/work-gym-planner/` served the app. The refresh and the no-JS
+   fallback link now use the relative `./work-gym-planner/` target;
+   `rel=canonical` still points at production. Covered by
+   `tests/root-entrypoint-v26.test.js`.
+
+The suite has 51 tests.
 
 The same file also carries a guard test asserting the shell's script-strip
 regexes still match the v15 markup they target — the same silent-no-op failure

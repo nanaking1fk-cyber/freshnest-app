@@ -5,13 +5,15 @@
 //    new password" panel armed for the next account signed in on that tab.
 // 2. deleteChat() issued an unfiltered PostgREST DELETE when no thread was
 //    given, leaning entirely on RLS to scope it.
-// 3. work-gym-planner-v16/sw.js used cache.addAll(), which is atomic: one
-//    failed vendor asset aborts the whole service-worker install.
+// 3. work-gym-planner-v16/sw.js used one atomic cache.addAll() for both the
+//    essential shell and large optional OCR assets. A vendor failure must not
+//    block an update, but a missing index or core script must still fail it.
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 
 process.env.SUPABASE_URL='https://example.supabase.co';
 process.env.SUPABASE_PUBLISHABLE_KEY='publishable-test';
@@ -25,6 +27,25 @@ const AUTH='Bearer test-token';
 function captureFetch(){
   const calls=[];
   global.fetch=async(url,options)=>{calls.push({url:String(url),options});return new Response(null,{status:204})};
+  return calls;
+}
+
+async function runWorkerInstall(file,{failRequired=false,failOptional=false}={}){
+  const listeners={},calls={required:[],optional:[],skipWaiting:0};
+  const cache={
+    addAll:async urls=>{calls.required=[...urls];if(failRequired)throw Error('required asset failed')},
+    add:async url=>{calls.optional.push(url);if(failOptional&&calls.optional.length===1)throw Error('optional asset failed')}
+  };
+  const self={
+    addEventListener:(name,listener)=>{listeners[name]=listener},
+    skipWaiting:async()=>{calls.skipWaiting++},
+    clients:{claim:async()=>{}}
+  };
+  const caches={open:async()=>cache,keys:async()=>[],delete:async()=>true,match:async()=>null};
+  vm.runInNewContext(read(file),{self,caches,fetch:async()=>({ok:true,clone(){return this}}),URL,location:{origin:'https://example.test'},Promise});
+  let pending;
+  listeners.install({waitUntil:value=>{pending=value}});
+  await pending;
   return calls;
 }
 
@@ -65,11 +86,13 @@ test('an abandoned password recovery is cleared on sign-in and sign-out',()=>{
   assert.match(failedExchange.slice(0,300),/clearRecoveryFlag\(\)/,'a failed PKCE exchange must clear the recovery flag');
 });
 
-test('service workers cache their shell resiliently, not atomically',()=>{
+test('service workers require the core shell and tolerate optional vendor failures',()=>{
   for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
     const source=read(worker);
-    assert.match(source,/Promise\.allSettled\(SHELL\.map\(url=>c\.add\(url\)\)\)/,`${worker} must not abort install on one bad asset`);
-    assert.doesNotMatch(source,/c\.addAll\(SHELL\)/,`${worker} still uses atomic addAll`);
+    assert.match(source,/const OPTIONAL_SHELL=SHELL\.filter\(url=>url\.includes\('\/vendor\/'\)\)/,`${worker} must separate optional vendor assets`);
+    assert.match(source,/const REQUIRED_SHELL=SHELL\.filter\(url=>!OPTIONAL_SHELL\.includes\(url\)\)/,`${worker} must identify the required shell`);
+    assert.match(source,/await c\.addAll\(REQUIRED_SHELL\)/,`${worker} must fail installation when an essential shell asset is missing`);
+    assert.match(source,/Promise\.allSettled\(OPTIONAL_SHELL\.map\(url=>c\.add\(url\)\)\)/,`${worker} must tolerate an optional vendor-cache failure`);
   }
 });
 
@@ -79,4 +102,20 @@ test('both service-worker shells list the vendored browser dependencies',()=>{
     for(const asset of ['vendor/pdfjs/pdf.min.mjs','vendor/tesseract/tesseract.min.js','vendor/html5-qrcode/html5-qrcode.min.js'])
       assert.ok(source.includes(asset),`${worker} is missing ${asset}`);
   }
+});
+
+test('service-worker installation executes required and optional cache phases',async()=>{
+  for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
+    const calls=await runWorkerInstall(worker,{failOptional:true});
+    assert.ok(calls.required.length>10,`${worker} should have a substantial required shell`);
+    assert.ok(calls.required.every(url=>!url.includes('/vendor/')),`${worker} put a vendor asset in the required shell`);
+    assert.ok(calls.optional.length>=3,`${worker} should attempt optional vendor assets`);
+    assert.ok(calls.optional.every(url=>url.includes('/vendor/')),`${worker} put a core asset in the optional shell`);
+    assert.equal(calls.skipWaiting,1,`${worker} should install despite one optional cache failure`);
+  }
+});
+
+test('service-worker installation fails closed when the required shell is incomplete',async()=>{
+  for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js'])
+    await assert.rejects(runWorkerInstall(worker,{failRequired:true}),/required asset failed/);
 });

@@ -381,8 +381,8 @@ body.premiumV18 .premiumAccountSheet .authTabs{padding:5px;border-radius:14px;ba
   body.premiumV18 .guidedOnboardingSheet{grid-template-columns:30% 70%}
 }
 @media(max-width:640px){
-  .landingNav{min-height:68px;padding:10px 14px}.landingBrand b{font-size:10px}.landingBrand small{font-size:6px}.landingBrandMark{width:37px;height:37px}
-  .landingNavActions button:first-child{display:none}.landingNavActions button{padding:0 13px;font-size:9px}
+  .landingNav{min-height:68px;grid-template-columns:minmax(0,1fr) auto;gap:6px;padding:10px 14px}.landingBrand b{font-size:10px}.landingBrand small{font-size:6px}.landingBrandMark{width:37px;height:37px}
+  .landingNavActions{gap:4px}body.premiumV18 .landingNavActions button{min-height:38px;padding:0 8px;font-size:10px}body.premiumV18 .landingNavActions button:first-child{display:block;padding-inline:6px;border-color:transparent;background:transparent}
   .landingHero{min-height:780px;align-items:flex-end}.landingHeroImage img{object-position:63% center}.landingHeroShade{background:linear-gradient(0deg,#080b10 5%,rgba(8,11,16,.93) 42%,rgba(8,11,16,.3) 78%,rgba(8,11,16,.05))}
   .landingHeroCopy{width:auto;margin:0;padding:260px 20px 48px}.landingHero h1{font-size:54px}.landingHeroCopy>p{font-size:15px}.landingHeroActions{flex-direction:column}.landingHeroActions button{width:100%}
   .landingHeroProof{gap:12px}.landingHeroProof span{flex:1}.landingHeroProof small{font-size:7px}

@@ -53,8 +53,10 @@ test('database transport preserves upstream 4xx and maps upstream failures to 50
 });
 
 test('security migration makes RLS and rate limits load-bearing',()=>{
-  const sql=read('supabase/migrations/20260827100000_security_hardening_v26.sql');
-  const privileges=read('supabase/migrations/20260827113000_user_table_least_privilege_v26.sql');
+  const sql=read('supabase/migrations/20260827140029_security_hardening_v26.sql');
+  const privileges=read('supabase/migrations/20260827140126_user_table_least_privilege_v26.sql');
+  assert.equal(fs.existsSync(path.join(root,'supabase/migrations/20260827100000_security_hardening_v26.sql')),false);
+  assert.equal(fs.existsSync(path.join(root,'supabase/migrations/20260827113000_user_table_least_privilege_v26.sql')),false);
   assert.match(sql,/state_write_usage_daily enable row level security/i);
   assert.match(sql,/revoke all on public\.state_write_usage_daily from public,anon,authenticated/i);
   assert.match(sql,/grant select,insert,update,delete on public\.state_write_usage_daily to service_role/i);
@@ -62,8 +64,9 @@ test('security migration makes RLS and rate limits load-bearing',()=>{
   assert.match(sql,/replace_own_active_user_plan/);
   assert.match(sql,/auth\.uid\(\)/);
   assert.match(sql,/pg_advisory_xact_lock/);
-  assert.match(privileges,/revoke all on public\.user_state from public,anon/i);
+  assert.match(privileges,/revoke all on public\.user_state from public,anon,authenticated/i);
   assert.match(privileges,/grant select,insert,update on public\.user_state to authenticated/i);
+  assert.match(privileges,/revoke all on public\.ai_usage_daily from public,anon,authenticated/i);
 });
 
 test('state writes reserve a budget and config is edge-cacheable',()=>{

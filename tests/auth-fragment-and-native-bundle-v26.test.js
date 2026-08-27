@@ -46,6 +46,12 @@ test('the account module classifies fragments instead of stripping every hash',(
   assert.match(account,/access_token\|refresh_token\|provider_token/,'needs a standalone fallback if the shared module is absent');
 });
 
+test('mobile first visit keeps sign in visible beside the primary CTA',()=>{
+  const css=read('work-gym-planner-v16/landing-v18.css');
+  assert.doesNotMatch(css,/\.landingNavActions button:first-child\{display:none\}/);
+  assert.match(css,/body\.premiumV18 \.landingNavActions button:first-child\{display:block/);
+});
+
 test('the shared classifier loads before the account module in the app shell',()=>{
   const shell=read('work-gym-planner/index.html');
   const core=shell.indexOf('v23-core.js');

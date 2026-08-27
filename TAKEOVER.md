@@ -67,15 +67,16 @@ does not contain the affected code.
    without an owner, so a policy regression cannot widen it and PostgREST never
    sees an unqualified mutation. `api/v18/chat.js` passes `user.id` through.
 
-5. **`work-gym-planner-v16/sw.js` cached its shell atomically.** `cache.addAll()`
-   rejects the whole install if any single URL fails — and the shell had just
-   gained nine vendor entries including multi-MB `.wasm` cores. It now uses the
-   same `Promise.allSettled` pattern as `work-gym-planner/sw.js`.
+5. **`work-gym-planner-v16/sw.js` cached its shell atomically.** The first
+   follow-up changed every asset to best-effort caching. The Codex review then
+   split the list: the essential app shell still installs atomically, while
+   large optional OCR/vendor assets use `Promise.allSettled`. A vendor outage
+   can no longer block an update, and a missing index or core script can no
+   longer produce a falsely successful offline installation.
 
 Regression tests live in `tests/auth-fragment-and-native-bundle-v26.test.js`
-(9 tests) and `tests/account-lifecycle-v26.test.js` (7 tests). Every fix was
-mutation-checked: reverting any one of them fails the suite. Total: 42 tests
-passing.
+and `tests/account-lifecycle-v26.test.js`. Every fix was mutation-checked:
+reverting any one of them fails the suite. The post-review suite has 45 tests.
 
 The same file also carries a guard test asserting the shell's script-strip
 regexes still match the v15 markup they target — the same silent-no-op failure
@@ -86,9 +87,25 @@ mode as defect 2, in the boot path.
 - The v26 least-privilege pass was finished on 2026-08-27 with the owner's
   approval: surplus `DELETE`/`REFERENCES`/`TRIGGER`/`TRUNCATE` were revoked
   from `authenticated` on the five user-owned tables, and `ai_usage_daily` was
-  reduced to service-role only. Applied subtractively through the SQL editor,
-  outside `supabase/migrations/`, so the live migration history is unchanged.
-  Details and the verified result table are in `docs/supabase-grants-v26.md`.
+  reduced to service-role only. It was applied subtractively through the SQL
+  editor. The local filenames now match the live migration versions, and the
+  least-privilege migration records the final intended grants. Details and the
+  verified result table are in `docs/supabase-grants-v26.md`.
+
+## Codex review after the Claude continuation
+
+- Independently verified the live grants, RLS state, migration list and
+  Supabase advisors. No anonymous table grants remain; authenticated access is
+  limited to the operations documented above.
+- Reconciled the two local migration filenames with the versions already
+  recorded live (`20260827140029` and `20260827140126`) so future tooling does
+  not mistake the existing migrations for pending work.
+- Kept mobile `Sign in` visible beside the primary landing CTA. Desktop and
+  390px first-visit checks show no horizontal overflow or legacy-fragment
+  warning, and `#landingFeatures` remains intact.
+- Split service-worker precaching into required and optional assets so an
+  incomplete core shell cannot activate while large OCR dependencies remain
+  best-effort.
 
 ## Known follow-up
 

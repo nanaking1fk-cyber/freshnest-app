@@ -2,11 +2,12 @@
 
 **Status: APPLIED to the live project on 2026-08-27, with the owner's approval.**
 
-Applied directly through the Supabase SQL editor, deliberately outside
-`supabase/migrations/` so the live migration history
-(`20260827140029_security_hardening_v26`,
-`20260827140126_user_table_least_privilege_v26`) was not rewritten and no
-tooling can re-run it.
+Applied directly through the Supabase SQL editor. The repository has since
+been reconciled to the live migration versions
+(`20260827140029_security_hardening_v26` and
+`20260827140126_user_table_least_privilege_v26`), and the latter now records
+the final subtractive grants. No additional live migration was run during that
+reconciliation.
 
 The applied statements were subtractive only — surplus privileges were revoked
 rather than the table being revoked and re-granted, so there was never a window
@@ -14,9 +15,8 @@ in which a signed-in user lacked an access the app needs.
 
 ## What is wrong
 
-`20260827113000_user_table_least_privilege_v26.sql` states that authenticated
-access is "column-action specific". It is not. The migration revokes only from
-`public` and `anon`:
+The original least-privilege migration stated that authenticated access was
+"column-action specific", but revoked only from `public` and `anon`:
 
 ```sql
 revoke all on public.user_state from public,anon;

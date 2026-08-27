@@ -33,8 +33,8 @@ test('v25 scheduling assets are loaded and cached by the production wrapper',()=
   assert.match(index,/schedule-platform-v25\.css/);
   assert.match(index,/schedule-platform-v25\.js/);
   assert.match(index,/v25-scheduling\.js/);
-  assert.match(index,/Loading Work \+ Workout 25\.1\.0/);
-  assert.match(worker,/wgp-stable-v25\.1\.0/);
+  assert.match(index,/Loading Work \+ Workout 25\.1\.1/);
+  assert.match(worker,/wgp-stable-v25\.1\.1/);
   assert.match(worker,/adaptive-planner-v24\.js/);
   assert.match(worker,/vendor\/tesseract\/worker\.min\.js/);
 });

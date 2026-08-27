@@ -54,10 +54,50 @@ test('typefaces are self-hosted so the CSP stays same-origin',()=>{
 });
 
 test('one verb for the primary action',()=>{
-  const labels=js.match(/data-ww="signup">([^<]+)</g)||[];
-  assert.ok(labels.length>=2,'the signup action appears more than once');
-  const unique=new Set(labels.map(l=>l.replace(/.*>/,'')));
-  assert.equal(unique.size,1,`the primary action must read the same everywhere, found: ${[...unique]}`);
+  // The label used to be repeated as three inline strings and drifted. It is
+  // now one constant rendered by one helper, so drift is structurally impossible.
+  assert.deepEqual(js.match(/data-ww="signup">[^'<]+</g)||[],[],
+    'signup labels must come from the CTA constant, never inline strings');
+  assert.match(js,/var CTA='[^']+';/,'a single constant defines the primary action label');
+  const uses=js.match(/\bcta\(1?\)/g)||[];
+  assert.equal(uses.length,3,`the CTA belongs in nav, hero and close, found ${uses.length}`);
+});
+
+test('the phone gets the same argument in fewer screens',()=>{
+  // Unabridged, the page ran 6.5 phone screens; the week board alone was 2.2 of
+  // them. These four rules are what took it to 4.4 — each one is load-bearing.
+  const phone=(css.match(/@media\(max-width:720px\)\{([\s\S]*?)\n\}/)||[])[1]||'';
+  assert.ok(phone,'a phone block must exist');
+  assert.match(phone,/\.wwBoard\{display:flex;overflow-x:auto/,
+    'the week swipes sideways instead of stacking seven days deep');
+  assert.match(phone,/\.wwRow:nth-of-type\(n\+4\)\{display:none\}/,
+    'the hero device shows three rows on a phone, not five');
+  assert.match(phone,/\.wwChip\{display:none\}/,
+    'the narrative chips are desktop garnish and must not stack on a phone');
+  assert.match(phone,/\.wwSticky\{order:-1\}/,
+    'without the sticky column the phone must lead the claims, not trail them');
+});
+
+test('section spacing cannot cancel the page gutter',()=>{
+  // .wwSec and .shell sit on the same element, so a `padding:X 0 0` shorthand on
+  // .wwSec wins on source order and zeroes the shell's horizontal gutter. On a
+  // desktop the centring margin hid it; on a phone the week board sat flush
+  // against the screen edge.
+  assert.match(js,/class="wwSec shell"/,'sections carry both classes');
+  const rule=(css.match(/#wwLanding \.wwSec\{([^}]*)\}/)||[])[1]||'';
+  assert.ok(rule,'a .wwSec rule must exist');
+  assert.doesNotMatch(rule,/(^|;)padding:/,'.wwSec must not use the padding shorthand');
+  assert.match(rule,/padding-top:/,'.wwSec sets only its own top padding');
+});
+
+test('the product is the only dark object on the page',()=>{
+  // The whole direction rests on this inversion: light marketing ground, and
+  // the app screen carrying the only dark surface so the eye lands on it.
+  assert.match(css,/--paper:#FAFAF8/,'the ground is a warm off-white');
+  assert.match(css,/#wwLanding\{[\s\S]*?background:var\(--paper\)/,
+    'the landing ground must be the light paper token');
+  assert.match(css,/\.wwScreen\{background:var\(--app\)/,
+    'the device screen must keep the dark app palette');
 });
 
 test('the landing sits above the app chrome but below its own dialog',()=>{

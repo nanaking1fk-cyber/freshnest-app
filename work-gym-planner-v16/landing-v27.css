@@ -8,206 +8,294 @@
 @font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:400;font-display:swap;src:url("./vendor/fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2")}
 @font-face{font-family:"IBM Plex Mono";font-style:normal;font-weight:500;font-display:swap;src:url("./vendor/fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2")}
 
-/* Work + Workout v27 — restrained instrument landing.
+/* Work + Workout v27 — the landing page.
+   A light marketing ground; the product is the only dark object on it.
    Everything is scoped under #wwLanding so the signed-in app is untouched. */
 
 #wwLanding{
-  --ground:#0B0D0C;
-  --raise:#131614;
-  --raise-2:#191D1B;
-  --hair:#242926;
-  --hair-soft:#1A1E1C;
+  /* warm off-white, not the default pure white */
+  --paper:#FAFAF8;
+  --paper-2:#F2F2EE;
+  --card:#FFFFFF;
+  --rule:#E4E4DE;
+  --rule-soft:#EEEEE9;
 
-  --ink:#F2F4F1;
-  --ink-2:#A3ADA7;
-  --ink-3:#6C7671;
+  --ink:#14171A;
+  --ink-2:#5A6268;
+  --ink-3:#8A9196;
 
-  --bone:#E4DFD3;
-  --live:#6FA8A2;
+  /* the four domains, darkened to hold on a light ground */
+  --work:#3D5F7D;
+  --train:#1B6B66;
+  --meal:#9A7440;
+  --rest:#6B5F8C;
 
-  --work:#5B7A96;
-  --train:#6FA8A2;
-  --meal:#C4A276;
-  --rest:#8E86A8;
+  /* the app itself stays dark — this is the device palette */
+  --app:#0B0D0C;
+  --app-2:#131614;
+  --app-hair:#242926;
+  --app-ink:#F2F4F1;
+  --app-ink-2:#A3ADA7;
+  --app-ink-3:#6C7671;
+  --app-work:#5B7A96;
+  --app-train:#6FA8A2;
+  --app-meal:#C4A276;
+  --app-rest:#8E86A8;
 
   --sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  --serif:"Instrument Serif",Georgia,serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
-
-  --gut:clamp(20px,5vw,64px);
+  --gut:clamp(20px,5vw,56px);
 
   position:fixed;inset:0;z-index:60;overflow-y:auto;overflow-x:hidden;
-  background:var(--ground);color:var(--ink);
+  background:var(--paper);color:var(--ink);
   font-family:var(--sans);font-size:16px;line-height:1.55;
-  -webkit-font-smoothing:antialiased;
-  -webkit-overflow-scrolling:touch;
+  -webkit-font-smoothing:antialiased;-webkit-overflow-scrolling:touch;
 }
 #wwLanding[hidden]{display:none}
 body.landingActive{overflow:hidden}
 body.landingActive .bottomNav,body.landingActive .aiCoachFab{display:none}
 
 #wwLanding *{box-sizing:border-box}
-#wwLanding .shell{max-width:1180px;margin:0 auto;padding:0 var(--gut)}
-
+#wwLanding .shell{max-width:1120px;margin:0 auto;padding:0 var(--gut)}
 #wwLanding .code{
-  font-family:var(--mono);font-size:11px;font-weight:500;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
-  font-variant-numeric:tabular-nums;margin:0;
+  font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--ink-3);margin:0;font-variant-numeric:tabular-nums;
 }
-#wwLanding .code.live{color:var(--live)}
 
-/* nav */
-#wwLanding .wwNav{
-  position:sticky;top:0;z-index:2;background:rgba(11,13,12,.84);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--hair-soft);
+/* ambient wash — our four hues, barely there */
+#wwLanding .wwWash{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#wwLanding .wwWash i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.16;display:block}
+#wwLanding .wwWash i:nth-child(1){width:520px;height:520px;background:var(--train);top:-160px;left:-120px}
+#wwLanding .wwWash i:nth-child(2){width:460px;height:460px;background:var(--meal);top:-80px;right:-140px}
+#wwLanding .wwWash i:nth-child(3){width:440px;height:440px;background:var(--rest);top:520px;left:40%}
+#wwLanding .wwMain,#wwLanding .wwNav{position:relative;z-index:1}
+
+/* floating pill nav */
+#wwLanding .wwNav{position:sticky;top:14px;z-index:50;padding:0 var(--gut)}
+#wwLanding .wwNavIn{
+  max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:22px;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--rule);border-radius:999px;padding:9px 10px 9px 20px;
+  box-shadow:0 8px 30px -18px rgba(20,23,26,.4);
 }
-#wwLanding .wwNavIn{display:flex;align-items:center;gap:28px;height:66px;
-  max-width:1180px;margin:0 auto;padding:0 var(--gut)}
-#wwLanding .wwMark{display:flex;align-items:baseline;gap:9px;margin-right:auto;
-  text-decoration:none;background:none;border:0;padding:0;cursor:pointer}
-#wwLanding .wwMark b{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-#wwLanding .wwMark span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--ink-3)}
-#wwLanding .wwNavLinks{display:flex;gap:26px}
+#wwLanding .wwMark{display:flex;align-items:center;gap:10px;margin-right:auto;
+  background:none;border:0;padding:0;cursor:pointer}
+#wwLanding .wwGlyph{width:26px;height:26px;border-radius:7px;background:var(--ink);
+  display:grid;place-items:center;flex:none;color:#fff;font-size:13px;font-weight:700;line-height:1}
+#wwLanding .wwMark b{font-size:14.5px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+#wwLanding .wwNavLinks{display:flex;gap:22px}
 #wwLanding .wwNavLinks a{color:var(--ink-2);text-decoration:none;font-size:14px}
 #wwLanding .wwNavLinks a:hover{color:var(--ink)}
-#wwLanding .wwNavRight{display:flex;align-items:center;gap:16px}
-
-#wwLanding .wwQuiet{color:var(--ink-2);background:none;border:0;padding:6px 2px;
+#wwLanding .wwQuiet{color:var(--ink-2);background:none;border:0;padding:4px 2px;
   font-family:var(--sans);font-size:14px;cursor:pointer;text-decoration:none}
 #wwLanding .wwQuiet:hover{color:var(--ink)}
 #wwLanding .wwBtn{
-  display:inline-flex;align-items:center;gap:9px;
-  background:var(--bone);color:#0B0D0C;border:0;border-radius:2px;
-  font-family:var(--sans);font-size:14px;font-weight:600;
-  padding:11px 20px;cursor:pointer;text-decoration:none;
-  transition:transform .18s ease,background .18s ease;
+  display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;
+  border:0;border-radius:999px;font-family:var(--sans);font-size:14px;font-weight:600;
+  padding:11px 20px;cursor:pointer;text-decoration:none;white-space:nowrap;
+  transition:transform .18s ease,opacity .18s ease;
 }
-#wwLanding .wwBtn:hover{background:#fff;transform:translateY(-1px)}
-#wwLanding .wwBtn.lg{padding:15px 26px;font-size:15px}
-@media(max-width:880px){#wwLanding .wwNavLinks{display:none}}
-@media(max-width:520px){
-  #wwLanding .wwNavIn{gap:12px}
-  #wwLanding .wwMark span{display:none}
-  #wwLanding .wwBtn{padding:10px 14px;font-size:13px}
+#wwLanding .wwBtn:hover{transform:translateY(-1px);opacity:.9}
+#wwLanding .wwBtn.lg{padding:15px 28px;font-size:15.5px}
+@media(max-width:900px){#wwLanding .wwNavLinks{display:none}}
+@media(max-width:560px){
+  #wwLanding .wwNav{padding:0 12px}
+  #wwLanding .wwNavIn{gap:10px;padding:8px 8px 8px 14px}
+  #wwLanding .wwMark b{white-space:nowrap;font-size:13.5px}
+  #wwLanding .wwNavRight .wwQuiet{display:none}
+  #wwLanding .wwBtn{font-size:13px;padding:10px 15px}
 }
+#wwLanding .wwNavRight{display:flex;align-items:center;gap:16px}
 
 /* hero */
-#wwLanding .wwHero{padding:clamp(34px,5vw,64px) 0 clamp(44px,6vw,84px)}
-#wwLanding .wwHeroGrid{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
-  gap:clamp(30px,6vw,74px);align-items:center}
-@media(max-width:960px){#wwLanding .wwHeroGrid{grid-template-columns:1fr;gap:38px}}
-
+#wwLanding .wwHero{padding:clamp(48px,8vw,86px) 0 0;text-align:center}
 #wwLanding h1{
-  font-family:var(--serif);font-weight:400;
-  font-size:clamp(38px,4.9vw,60px);line-height:1.06;letter-spacing:-.016em;
-  margin:18px 0 0;color:var(--ink);text-wrap:balance;
+  font-size:clamp(38px,6.6vw,68px);font-weight:700;line-height:1.03;letter-spacing:-.035em;
+  margin:0 auto;max-width:17ch;text-wrap:balance;
 }
-#wwLanding h1 em{font-style:italic;color:var(--bone)}
-#wwLanding .wwHeroCopy{color:var(--ink-2);font-size:17px;line-height:1.6;max-width:46ch;margin:22px 0 0}
-#wwLanding .wwHeroActs{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:30px}
-#wwLanding .wwHeroNote{font-family:var(--mono);font-size:11px;color:var(--ink-3);
-  letter-spacing:.04em;margin:16px 0 0}
+#wwLanding .wwHeroCopy{margin:20px auto 0;max-width:52ch;font-size:17.5px;line-height:1.55;color:var(--ink-2)}
+#wwLanding .wwHeroActs{display:flex;justify-content:center;align-items:center;gap:18px;
+  margin-top:30px;flex-wrap:wrap}
+#wwLanding .wwHeroNote{margin-top:14px;font-family:var(--mono);font-size:11px;
+  color:var(--ink-3);letter-spacing:.04em}
 
-/* roster */
-#wwLanding .wwRoster{
-  background:var(--raise);border:1px solid var(--hair);border-radius:4px;
-  overflow:hidden;box-shadow:0 40px 90px -50px rgba(0,0,0,.9);
+/* the product, in a device */
+#wwLanding .wwDeviceWrap{display:flex;justify-content:center;margin-top:clamp(36px,6vw,64px)}
+#wwLanding .wwDevice{
+  width:300px;flex:none;background:#1A1D1B;border-radius:42px;padding:9px;
+  box-shadow:0 60px 120px -50px rgba(20,23,26,.55),0 0 0 1px rgba(20,23,26,.08);
 }
-#wwLanding .wwRosterTop{display:flex;align-items:baseline;justify-content:space-between;
-  gap:16px;padding:16px 20px;border-bottom:1px solid var(--hair-soft)}
-#wwLanding .wwRosterTop b{font-size:14px;font-weight:600}
-#wwLanding .wwRows{padding:4px 0}
-#wwLanding .wwRow{display:grid;grid-template-columns:82px 3px 1fr auto;gap:14px;
-  align-items:center;padding:14px 20px}
-#wwLanding .wwRow + .wwRow{border-top:1px solid var(--hair-soft)}
-#wwLanding .wwRow time{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);
-  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-#wwLanding .wwTick{width:3px;height:30px;border-radius:2px;background:var(--ink-3);display:block}
-#wwLanding .wwRow.w .wwTick{background:var(--work)}
-#wwLanding .wwRow.t .wwTick{background:var(--train)}
-#wwLanding .wwRow.m .wwTick{background:var(--meal)}
-#wwLanding .wwRow.r .wwTick{background:var(--rest)}
-#wwLanding .wwWhat b{display:block;font-size:14.5px;font-weight:600;letter-spacing:-.005em}
-#wwLanding .wwWhat small{display:block;color:var(--ink-3);font-size:12.5px;margin-top:2px}
-#wwLanding .wwFlag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
-#wwLanding .wwRosterFoot{display:flex;align-items:center;gap:10px;padding:14px 20px;
-  border-top:1px solid var(--hair-soft);background:var(--raise-2)}
-#wwLanding .wwDot{width:6px;height:6px;border-radius:50%;background:var(--live);flex:none}
-#wwLanding .wwRosterFoot span{font-size:13px;color:var(--ink-2)}
-@media(max-width:520px){
-  #wwLanding .wwRow{grid-template-columns:78px 3px 1fr;gap:10px;padding:12px 14px}
-  #wwLanding .wwRow time{font-size:11px;white-space:nowrap}
-  #wwLanding .wwFlag{display:none}
-}
+#wwLanding .wwDevice.sm{width:262px}
+#wwLanding .wwScreen{background:var(--app);border-radius:34px;overflow:hidden;
+  color:var(--app-ink);font-size:13px;padding:12px 0 0;text-align:left}
+#wwLanding .wwStatus{display:flex;justify-content:space-between;align-items:center;
+  padding:0 18px 10px;font-family:var(--mono);font-size:10px;color:var(--app-ink-3)}
+#wwLanding .wwScrTop{padding:4px 16px 12px;border-bottom:1px solid var(--app-hair)}
+#wwLanding .wwScrTop .code{color:var(--app-ink-3);font-size:9.5px}
+#wwLanding .wwScrTop b{display:block;margin:6px 0 0;font-size:17px;font-weight:600;
+  letter-spacing:-.02em;color:var(--app-ink)}
+#wwLanding .wwRows{padding:2px 0}
+#wwLanding .wwRow{display:grid;grid-template-columns:64px 3px 1fr;gap:10px;
+  align-items:center;padding:11px 16px}
+#wwLanding .wwRow + .wwRow{border-top:1px solid #1A1E1C}
+#wwLanding .wwRow time{font-family:var(--mono);font-size:10px;color:var(--app-ink-2);
+  font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+#wwLanding .wwTick{width:3px;height:26px;border-radius:2px;display:block;background:var(--app-ink-3)}
+#wwLanding .wwRow.w .wwTick{background:var(--app-work)}
+#wwLanding .wwRow.t .wwTick{background:var(--app-train)}
+#wwLanding .wwRow.m .wwTick{background:var(--app-meal)}
+#wwLanding .wwRow.r .wwTick{background:var(--app-rest)}
+#wwLanding .wwRow b{display:block;font-size:12.5px;font-weight:600;color:var(--app-ink)}
+#wwLanding .wwRow small{display:block;font-size:10.5px;color:var(--app-ink-3);margin-top:1px}
+#wwLanding .wwScrFoot{display:flex;align-items:center;gap:8px;padding:11px 16px;
+  border-top:1px solid var(--app-hair);background:var(--app-2)}
+#wwLanding .wwDot{width:5px;height:5px;border-radius:50%;background:var(--app-train);flex:none}
+#wwLanding .wwScrFoot span{font-size:10.5px;color:var(--app-ink-2)}
+#wwLanding .wwScrNav{display:grid;grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--app-hair);padding:9px 0 14px;text-align:center}
+#wwLanding .wwScrNav span{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--app-ink-3)}
+#wwLanding .wwScrNav span.on{color:var(--app-train)}
 
-/* sections */
-#wwLanding .wwSec{border-top:1px solid var(--hair-soft);padding:clamp(50px,8vw,96px) 0}
-#wwLanding .wwHead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(22px,5vw,58px);align-items:end;margin-bottom:42px}
-@media(max-width:860px){#wwLanding .wwHead{grid-template-columns:1fr;gap:14px}}
-#wwLanding h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4.1vw,46px);
-  line-height:1.08;letter-spacing:-.015em;margin:12px 0 0;text-wrap:balance}
-#wwLanding .wwHead p{margin:0;color:var(--ink-2);font-size:15.5px;max-width:44ch}
+/* pinned narrative — the phone holds while the claims scroll past it */
+#wwLanding .wwPin{position:relative;margin-top:clamp(56px,9vw,110px)}
+#wwLanding .wwPinGrid{display:grid;grid-template-columns:1fr auto 1fr;
+  gap:clamp(16px,4vw,44px);align-items:start}
+@media(max-width:980px){#wwLanding .wwPinGrid{grid-template-columns:1fr;justify-items:center}}
+#wwLanding .wwPinCol{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding-top:60px}
+@media(max-width:980px){#wwLanding .wwPinCol{padding-top:0;width:100%;max-width:420px}}
+#wwLanding .wwChip{
+  display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--rule);
+  border-radius:999px;padding:11px 18px 11px 12px;font-size:14px;
+  box-shadow:0 10px 26px -20px rgba(20,23,26,.5);
+}
+#wwLanding .wwChip i{width:26px;height:26px;border-radius:50%;flex:none;display:grid;
+  place-items:center;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;font-style:normal}
+#wwLanding .wwChip.w i{background:var(--work)}
+#wwLanding .wwChip.t i{background:var(--train)}
+#wwLanding .wwChip.m i{background:var(--meal)}
+#wwLanding .wwChip.r i{background:var(--rest)}
+#wwLanding .wwChip b{font-weight:600}
+#wwLanding .wwChip span{color:var(--ink-3)}
+#wwLanding .wwNote{
+  background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:18px 20px;
+  box-shadow:0 12px 30px -22px rgba(20,23,26,.5);max-width:330px;
+}
+#wwLanding .wwNote b{display:block;font-size:14.5px;font-weight:700;margin-bottom:5px}
+#wwLanding .wwNote p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.5}
+#wwLanding .wwSticky{position:sticky;top:96px}
+@media(max-width:980px){#wwLanding .wwSticky{position:static}}
 
 /* three jobs */
-#wwLanding .wwJobs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
-  background:var(--hair-soft);border:1px solid var(--hair-soft)}
-@media(max-width:820px){#wwLanding .wwJobs{grid-template-columns:1fr}}
-#wwLanding .wwJobs > div{background:var(--ground);padding:28px 26px}
-#wwLanding .wwJobs h3{font-size:16px;font-weight:600;margin:14px 0 8px;letter-spacing:-.005em}
-#wwLanding .wwJobs p{margin:0;color:var(--ink-2);font-size:14.5px;max-width:34ch}
+/* padding-top, never the shorthand: .wwSec shares its element with .shell
+   and a `padding:X 0 0` here wins on source order, zeroing the gutter. */
+#wwLanding .wwSec{padding-top:clamp(56px,9vw,110px)}
+#wwLanding .wwHead{max-width:60ch}
+#wwLanding h2{font-size:clamp(28px,4.2vw,42px);font-weight:700;letter-spacing:-.03em;
+  line-height:1.1;margin:12px 0 0;text-wrap:balance}
+#wwLanding .wwHead p{margin:14px 0 0;font-size:16.5px;color:var(--ink-2);max-width:52ch}
+#wwLanding .wwJobs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:38px}
+@media(max-width:860px){#wwLanding .wwJobs{grid-template-columns:1fr}}
+#wwLanding .wwCap{grid-template-columns:repeat(2,1fr)}
+#wwLanding .wwJob{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:24px}
+#wwLanding .wwJob > i{width:30px;height:3px;border-radius:2px;display:block;margin-bottom:16px;
+  background:var(--ink-3)}
+#wwLanding .wwJob.w > i{background:var(--work)}
+#wwLanding .wwJob.t > i{background:var(--train)}
+#wwLanding .wwJob.r > i{background:var(--rest)}
+#wwLanding .wwJob h3{margin:0 0 8px;font-size:16.5px;font-weight:700;letter-spacing:-.01em}
+#wwLanding .wwJob p{margin:0;font-size:14.5px;color:var(--ink-2);max-width:34ch}
 
-#wwLanding .wwProof{display:flex;flex-wrap:wrap;gap:14px 44px;padding:26px 0 0;margin-top:36px;
-  border-top:1px solid var(--hair-soft)}
-#wwLanding .wwProof span{display:flex;align-items:baseline;gap:10px}
-#wwLanding .wwProof b{font-family:var(--mono);font-size:13px;color:var(--bone);font-weight:500}
-#wwLanding .wwProof small{color:var(--ink-3);font-size:13px}
-
-/* week board */
-#wwLanding .wwBoard{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
-  background:var(--hair-soft);border:1px solid var(--hair-soft);border-radius:3px;overflow:hidden}
+/* the week, on light */
+#wwLanding .wwBoard{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:16px;overflow:hidden;margin-top:34px}
 @media(max-width:860px){#wwLanding .wwBoard{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){#wwLanding .wwBoard{grid-template-columns:1fr}}
-#wwLanding .wwDay{background:var(--raise);padding:14px 12px 18px;min-height:180px}
+#wwLanding .wwDay{background:var(--card);padding:14px 12px 18px;min-height:168px}
 #wwLanding .wwDay > .code{display:block;margin-bottom:12px}
-#wwLanding .wwBlk{border-left:2px solid var(--ink-3);padding:7px 0 7px 9px;margin-bottom:8px}
+#wwLanding .wwBlk{border-left:2px solid var(--ink-3);padding:6px 0 6px 9px;margin-bottom:8px}
 #wwLanding .wwBlk b{display:block;font-size:12.5px;font-weight:600}
-#wwLanding .wwBlk time{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);
+#wwLanding .wwBlk time{display:block;font-family:var(--mono);font-size:10px;color:var(--ink-3);
   font-variant-numeric:tabular-nums;margin-top:2px}
 #wwLanding .wwBlk.w{border-color:var(--work)}
 #wwLanding .wwBlk.t{border-color:var(--train)}
 #wwLanding .wwBlk.m{border-color:var(--meal)}
 #wwLanding .wwBlk.r{border-color:var(--rest)}
-#wwLanding .wwLegend{display:flex;flex-wrap:wrap;gap:20px;margin-top:22px}
+#wwLanding .wwLegend{display:flex;flex-wrap:wrap;gap:18px;margin-top:20px}
 #wwLanding .wwLegend span{display:flex;align-items:center;gap:8px}
 #wwLanding .wwLegend i{width:14px;height:2px;border-radius:2px;display:block}
 
 /* quick plan */
-#wwLanding .wwCap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(22px,4vw,46px);align-items:start}
-@media(max-width:880px){#wwLanding .wwCap{grid-template-columns:1fr}}
-#wwLanding .wwPaste{background:var(--raise);border:1px solid var(--hair);border-radius:3px;padding:20px}
-#wwLanding .wwPaste .code{display:block;margin-bottom:12px}
-#wwLanding .wwPaste pre{font-family:var(--sans);font-size:14.5px;line-height:1.85;
-  color:var(--ink-2);margin:0;white-space:pre-wrap;word-break:break-word}
-#wwLanding .wwArrow{display:flex;align-items:center;gap:12px;margin:0 0 18px}
-#wwLanding .wwArrow hr{flex:1;border:0;border-top:1px solid var(--hair-soft);margin:0}
-#wwLanding .wwParsed{background:var(--raise);border:1px solid var(--hair);
-  border-radius:3px;overflow:hidden}
+#wwLanding .wwPasteCard{padding:22px}
+#wwLanding .wwPasteCard pre{font-family:var(--sans);font-size:14.5px;line-height:1.85;
+  color:var(--ink-2);margin:12px 0 0;white-space:pre-wrap;word-break:break-word}
+#wwLanding .wwParsed{padding:0;overflow:hidden}
+#wwLanding .wwParsedTop{padding:14px 20px;border-bottom:1px solid var(--rule)}
+#wwLanding .wwParsed .wwRows{padding:4px 0}
+#wwLanding .wwParsed .wwRow{grid-template-columns:76px 3px 1fr;padding:11px 18px}
+#wwLanding .wwParsed .wwRow + .wwRow{border-top:1px solid var(--rule-soft)}
+#wwLanding .wwParsed .wwRow time{font-size:11px;color:var(--ink-2)}
+#wwLanding .wwParsed .wwRow b{font-size:13px;color:var(--ink)}
+#wwLanding .wwParsed .wwRow small{font-size:11.5px;color:var(--ink-3)}
+#wwLanding .wwParsed .wwRow.w .wwTick{background:var(--work)}
+#wwLanding .wwParsed .wwRow.t .wwTick{background:var(--train)}
+#wwLanding .wwParsed .wwRow.m .wwTick{background:var(--meal)}
+#wwLanding .wwParsed .wwRow.r .wwTick{background:var(--rest)}
 
 /* close */
-#wwLanding .wwClose{border-top:1px solid var(--hair-soft);padding:clamp(56px,9vw,104px) 0 0}
-#wwLanding .wwCloseIn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:34px;align-items:center}
-@media(max-width:780px){#wwLanding .wwCloseIn{grid-template-columns:1fr}}
-#wwLanding .wwFoot{margin-top:clamp(48px,8vw,86px);padding:26px 0 44px;
-  border-top:1px solid var(--hair-soft);display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center}
+#wwLanding .wwClose{margin-top:clamp(64px,10vw,120px);padding:clamp(44px,6vw,72px) var(--gut);
+  background:var(--ink);border-radius:28px;text-align:center;color:#fff}
+#wwLanding .wwCloseIn{max-width:1120px;margin:0 auto}
+#wwLanding .wwClose h2{color:#fff;max-width:18ch;margin:12px auto 0}
+#wwLanding .wwClose .code{color:rgba(255,255,255,.5)}
+#wwLanding .wwClose p{color:rgba(255,255,255,.66);margin:16px auto 0;max-width:46ch;font-size:16px}
+#wwLanding .wwClose .wwBtn{background:#fff;color:var(--ink);margin-top:28px}
+#wwLanding .wwFoot{padding:28px var(--gut) 46px;display:flex;flex-wrap:wrap;gap:12px 26px;
+  align-items:center;max-width:1120px;margin:0 auto}
 #wwLanding .wwFoot .code{margin-right:auto}
 #wwLanding .wwFoot a,#wwLanding .wwFoot button{color:var(--ink-3);text-decoration:none;font-size:13px;
   background:none;border:0;padding:0;cursor:pointer;font-family:var(--sans)}
 #wwLanding .wwFoot a:hover,#wwLanding .wwFoot button:hover{color:var(--ink-2)}
 
-#wwLanding a:focus-visible,#wwLanding button:focus-visible{outline:2px solid var(--live);outline-offset:3px}
+/* phone: the same argument, made in fewer screens */
+@media(max-width:720px){
+  #wwLanding .wwHero{padding-top:36px}
+  #wwLanding .wwHeroCopy{margin-top:16px;font-size:16px;max-width:36ch}
+  #wwLanding .wwHeroActs{margin-top:22px;gap:14px}
+  #wwLanding .wwHeroNote{margin-top:12px}
+  #wwLanding .wwDeviceWrap{margin-top:30px}
+  #wwLanding .wwDevice{width:268px}
+  /* three lines make the point; five is a scroll */
+  #wwLanding .wwHero .wwRow:nth-of-type(n+4){display:none}
+  #wwLanding .wwHero .wwScrNav{padding:8px 0 12px}
+
+  #wwLanding .wwSec{padding-top:52px}
+  #wwLanding .wwPin{margin-top:52px}
+  #wwLanding h2{font-size:26px}
+  #wwLanding .wwHead p{margin-top:10px;font-size:15.5px}
+  /* the quick-plan pair stacks rather than squeezing into two columns */
+  #wwLanding .wwJobs{margin-top:22px;gap:10px;grid-template-columns:1fr}
+  #wwLanding .wwJob{padding:18px}
+  #wwLanding .wwJob p{font-size:14px;max-width:none}
+  #wwLanding .wwPasteCard{padding:18px}
+
+  /* the phone leads, the two claims follow — chips are desktop garnish */
+  #wwLanding .wwPinGrid{gap:16px}
+  #wwLanding .wwSticky{order:-1}
+  #wwLanding .wwPinCol{max-width:none;gap:10px}
+  #wwLanding .wwChip{display:none}
+  #wwLanding .wwNote{max-width:none;padding:15px 17px;border-radius:14px}
+
+  /* the week swipes sideways instead of stacking seven deep */
+  #wwLanding .wwBoard{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;
+    margin-top:24px;border-radius:14px;-webkit-overflow-scrolling:touch}
+  #wwLanding .wwDay{flex:0 0 168px;min-height:0;padding:13px 12px 15px;scroll-snap-align:start}
+  #wwLanding .wwLegend{margin-top:14px;gap:10px 16px}
+
+  #wwLanding .wwClose{margin-top:52px;padding:38px 20px;border-radius:22px}
+  #wwLanding .wwClose p{margin-top:12px;font-size:15.5px}
+  #wwLanding .wwClose .wwBtn{margin-top:22px}
+  #wwLanding .wwFoot{padding:22px var(--gut) 34px}
+}
+
+#wwLanding a:focus-visible,#wwLanding button:focus-visible{outline:2px solid var(--train);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){#wwLanding *{transition:none!important;animation:none!important}}

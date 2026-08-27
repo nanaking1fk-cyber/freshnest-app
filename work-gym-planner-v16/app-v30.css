@@ -312,3 +312,195 @@ body.premiumV30 .coachFab{z-index:81}
 @media(prefers-reduced-motion:reduce){
   body.premiumV30 *,body.premiumV30 *::before,body.premiumV30 *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}
 }
+
+/* Guided setup is a focused workspace of its own. These rules live in the
+   current release so onboarding cannot silently depend on an older landing
+   page stylesheet. */
+body.premiumV30 .guidedOnboarding{
+  z-index:1300;
+  align-items:center;
+  padding:16px;
+  overflow:hidden;
+  background:rgba(2,4,7,.9);
+}
+body.premiumV30 .guidedOnboarding *,
+body.premiumV30 .guidedOnboarding *::before,
+body.premiumV30 .guidedOnboarding *::after{box-sizing:border-box;min-width:0}
+body.premiumV30 .guidedOnboardingSheet{
+  display:grid;
+  grid-template-columns:minmax(260px,36%) minmax(0,1fr);
+  width:min(calc(100vw - 32px),1040px);
+  height:min(760px,calc(100dvh - 32px));
+  max-height:none;
+  padding:0;
+  overflow:hidden;
+  border:1px solid var(--v30-line-strong);
+  border-radius:28px;
+  background:#0c1117;
+  box-shadow:0 44px 110px rgba(0,0,0,.62);
+}
+body.premiumV30 .guidedVisualRail{
+  position:relative;
+  display:block;
+  min-height:0;
+  overflow:hidden;
+  background:#11171e;
+}
+body.premiumV30 .guidedVisualRail::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(0deg,rgba(8,11,16,.97),rgba(8,11,16,.1) 72%);
+}
+body.premiumV30 .guidedVisualRail img{display:block;width:100%;height:100%;object-fit:cover}
+body.premiumV30 .guidedVisualRail>div{position:absolute;z-index:1;left:28px;right:28px;bottom:30px}
+body.premiumV30 .guidedVisualRail span,
+body.premiumV30 .guidedVisualRail b,
+body.premiumV30 .guidedVisualRail small{display:block}
+body.premiumV30 .guidedVisualRail span{color:var(--v30-signal);font:600 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.13em}
+body.premiumV30 .guidedVisualRail b{margin-top:12px;color:var(--v30-ink);font-size:26px;line-height:1.06;letter-spacing:-.045em}
+body.premiumV30 .guidedVisualRail small{margin-top:12px;color:var(--v30-muted);font-size:11px;line-height:1.5}
+body.premiumV30 .guidedJourney{
+  display:grid;
+  grid-template-rows:auto 3px minmax(0,1fr) auto auto;
+  min-height:0;
+  padding:18px 30px 24px;
+  overflow:hidden;
+}
+body.premiumV30 .guidedJourney .sheetHandle{display:none}
+body.premiumV30 .guidedHead{
+  min-height:66px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding-bottom:15px;
+  border-bottom:1px solid var(--v30-line);
+}
+body.premiumV30 .guidedHead small{display:block;color:var(--v30-signal);font:600 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.12em;text-transform:uppercase}
+body.premiumV30 .guidedHead h2{margin:5px 0 0;font-size:22px;letter-spacing:-.035em}
+body.premiumV30 .guidedHead>button{min-height:42px;padding:0 12px;border:1px solid transparent;border-radius:10px;color:var(--v30-muted);background:transparent;font-size:12px;font-weight:700}
+body.premiumV30 .guidedHead>button:hover{border-color:var(--v30-line);color:var(--v30-ink)}
+body.premiumV30 .guidedProgress{height:3px;margin:0 -30px;background:#1a211c}
+body.premiumV30 .guidedProgress i{height:100%;display:block;border-radius:99px;background:var(--v30-signal);transition:width .3s ease}
+body.premiumV30 #guidedOnboardingBody{
+  min-height:0;
+  padding-right:5px;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  -webkit-overflow-scrolling:touch;
+}
+body.premiumV30 .guidedQuestion{width:min(100%,590px);margin:auto;padding:28px 0 20px}
+body.premiumV30 .guidedQuestionIcon{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  margin-bottom:20px;
+  border-radius:14px;
+  color:var(--v30-signal);
+  background:rgba(214,255,63,.09);
+}
+body.premiumV30 .guidedQuestionIcon svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV30 .guidedEyebrow{margin:0;color:var(--v30-signal);font:600 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
+body.premiumV30 .guidedQuestion h3,
+body.premiumV30 .guidedPlanReady h3{margin:10px 0 9px;font-size:clamp(31px,3.4vw,43px);line-height:1.03;letter-spacing:-.05em}
+body.premiumV30 .guidedPrompt{max-width:540px;margin:0;color:var(--v30-muted);font-size:14px;line-height:1.55}
+body.premiumV30 .guidedAnswer{margin-top:24px}
+body.premiumV30 .guidedChoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+body.premiumV30 .guidedChoice{
+  width:100%;
+  min-height:84px;
+  display:grid;
+  grid-template-columns:40px minmax(0,1fr) 18px;
+  align-items:center;
+  gap:12px;
+  padding:13px;
+  border:1px solid var(--v30-line);
+  border-radius:15px;
+  color:var(--v30-ink);
+  background:#11171e;
+  text-align:left;
+}
+body.premiumV30 .guidedChoice:hover{border-color:rgba(214,255,63,.35);transform:translateY(-1px)}
+body.premiumV30 .guidedChoice.selected{border-color:var(--v30-signal);background:rgba(214,255,63,.08);box-shadow:0 12px 30px rgba(0,0,0,.16)}
+body.premiumV30 .guidedChoiceMark{width:40px;height:40px;display:grid;place-items:center;border-radius:11px;color:#dffb7b;background:#1a2318;font-size:13px;font-weight:800}
+body.premiumV30 .guidedChoice b,
+body.premiumV30 .guidedChoice small{display:block;white-space:normal}
+body.premiumV30 .guidedChoice b{font-size:14px;line-height:1.2}
+body.premiumV30 .guidedChoice small{margin-top:5px;color:#8f9993;font-size:11px;line-height:1.35}
+body.premiumV30 .guidedChoice>i{font-size:12px;font-style:normal;color:transparent}
+body.premiumV30 .guidedChoice.selected>i{color:var(--v30-signal)}
+body.premiumV30 .guidedField{display:block;color:var(--v30-muted);font-size:12px;font-weight:700;letter-spacing:.01em}
+body.premiumV30 .guidedField>span{display:block;margin-bottom:8px}
+body.premiumV30 .guidedField input,
+body.premiumV30 .guidedField select,
+body.premiumV30 .guidedField textarea{width:100%;font-size:16px!important}
+body.premiumV30 .guidedFieldGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body.premiumV30 .guidedStack{display:grid;gap:14px}
+body.premiumV30 .guidedFieldTop{margin-top:15px}
+body.premiumV30 .guidedDays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:14px}
+body.premiumV30 .guidedDays label{position:relative}
+body.premiumV30 .guidedDays input{position:absolute;opacity:0;pointer-events:none}
+body.premiumV30 .guidedDays span{min-height:47px;display:grid;place-items:center;border:1px solid var(--v30-line);border-radius:11px;color:var(--v30-muted);background:#11171e;font-size:11px;font-weight:800;cursor:pointer}
+body.premiumV30 .guidedDays input:checked+span{border-color:var(--v30-signal);color:#10140a;background:var(--v30-signal)}
+body.premiumV30 #guidedStatus{min-height:24px;margin:0;color:#f4c96b;font-size:12px;line-height:1.5}
+body.premiumV30 #guidedStatus:empty{min-height:0}
+body.premiumV30 .guidedActions{display:flex;justify-content:space-between;gap:10px;padding-top:14px;border-top:1px solid var(--v30-line)}
+body.premiumV30 .guidedActions button{min-width:116px;min-height:47px;padding:0 18px;border:1px solid var(--v30-line);border-radius:12px;color:var(--v30-ink);background:#141b23;font-size:13px;font-weight:750}
+body.premiumV30 .guidedActions button.primary{border-color:var(--v30-signal);background:var(--v30-signal);color:#0b1108}
+body.premiumV30 .guidedActions button:disabled{opacity:.4}
+body.premiumV30 .guidedPlanPhoto{height:145px;margin-bottom:22px;overflow:hidden;border-radius:17px}
+body.premiumV30 .guidedPlanPhoto img{width:100%;height:100%;object-fit:cover}
+body.premiumV30 .guidedPreviewGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:18px}
+
+@media(max-width:700px){
+  body.premiumV30 .guidedOnboarding{align-items:stretch;padding:0}
+  body.premiumV30 .guidedOnboardingSheet{
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    grid-template-columns:1fr;
+    grid-template-rows:96px minmax(0,1fr);
+    border:0;
+    border-radius:0;
+  }
+  body.premiumV30 .guidedVisualRail>div{left:18px;right:18px;bottom:11px}
+  body.premiumV30 .guidedVisualRail b{margin-top:5px;font-size:17px;line-height:1.08}
+  body.premiumV30 .guidedVisualRail small{display:none}
+  body.premiumV30 .guidedJourney{height:100%;padding:0 16px max(8px,env(safe-area-inset-bottom))}
+  body.premiumV30 .guidedHead{min-height:70px;padding:10px 0}
+  body.premiumV30 .guidedHead h2{font-size:20px}
+  body.premiumV30 .guidedHead>button{min-height:42px;padding-inline:10px}
+  body.premiumV30 .guidedProgress{margin:0 -16px}
+  body.premiumV30 #guidedOnboardingBody{padding-right:2px;scrollbar-gutter:auto}
+  body.premiumV30 .guidedQuestion{width:100%;padding:20px 0 16px}
+  body.premiumV30 .guidedQuestion h3{font-size:30px}
+  body.premiumV30 .guidedPrompt{font-size:14px}
+  body.premiumV30 .guidedChoices{grid-template-columns:1fr}
+  body.premiumV30 .guidedChoice{min-height:72px}
+  body.premiumV30 .guidedFieldGrid{grid-template-columns:1fr}
+  body.premiumV30 .guidedDays{gap:4px}
+  body.premiumV30 .guidedDays span{min-height:44px;font-size:10px}
+  body.premiumV30 .guidedActions{padding:12px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(12,17,23,.82),#0c1117 26%)}
+  body.premiumV30 .guidedActions button{flex:1;min-width:0;min-height:48px}
+  body.premiumV30 .guidedPreviewGrid{grid-template-columns:1fr}
+  body.premiumV30 .guidedPlanPhoto{height:110px}
+}
+
+@media(max-width:700px) and (max-height:700px){
+  body.premiumV30 .guidedOnboardingSheet{grid-template-rows:70px minmax(0,1fr)}
+  body.premiumV30 .guidedVisualRail>div{bottom:8px}
+  body.premiumV30 .guidedVisualRail span{font-size:8px}
+  body.premiumV30 .guidedVisualRail b{font-size:14px}
+  body.premiumV30 .guidedHead{min-height:58px;padding:7px 0}
+  body.premiumV30 .guidedHead h2{font-size:18px}
+  body.premiumV30 .guidedQuestion{padding-top:15px}
+  body.premiumV30 .guidedQuestionIcon{display:none}
+  body.premiumV30 .guidedQuestion h3{font-size:27px}
+  body.premiumV30 .guidedAnswer{margin-top:17px}
+  body.premiumV30 .guidedChoice{min-height:66px}
+  body.premiumV30 .guidedActions{padding-top:9px}
+}

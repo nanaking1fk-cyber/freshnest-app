@@ -26,9 +26,9 @@ test('v30 assets load last and are available offline',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.2/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.2');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.2/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.3/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.3');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.3/);
 });
 
 test('training opens one exercise at a time',()=>{
@@ -64,4 +64,19 @@ test('mobile and desktop get purpose-built navigation',()=>{
   assert.match(css,/\.bottomNavV30::before/);
   assert.match(css,/@media\(max-width:760px\)/);
   assert.match(css,/\.hvStrip\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
+test('guided onboarding owns a complete responsive layout',()=>{
+  assert.match(css,/\.guidedOnboardingSheet\{[\s\S]*display:grid/,
+    'the onboarding sheet must not fall back to the legacy block layout');
+  assert.match(css,/\.guidedQuestionIcon svg\{[\s\S]*width:24px;[\s\S]*height:24px/,
+    'the onboarding icon must stay constrained on phones');
+  assert.match(css,/\.guidedChoice\{[\s\S]*display:grid/,
+    'answer choices must remain readable cards');
+  assert.match(css,/#guidedOnboardingBody\{[\s\S]*overflow-y:auto/,
+    'questions should scroll independently of the fixed actions');
+  assert.match(css,/@media\(max-width:700px\)[\s\S]*grid-template-rows:96px minmax\(0,1fr\)/,
+    'mobile onboarding needs an explicit viewport-safe composition');
+  assert.match(css,/@media\(max-width:700px\) and \(max-height:700px\)/,
+    'short mobile browser viewports need a compact mode');
 });

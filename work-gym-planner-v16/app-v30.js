@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.0.1';
+  var VERSION='30.0.2';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}
@@ -203,12 +203,18 @@
     });
   }
 
+  function ensureStylesLast(){
+    var style=document.querySelector('link[href*="app-v30.css"]');
+    if(style&&style!==document.head.lastElementChild)document.head.appendChild(style);
+  }
+
   function enhance(){
     scheduled=false;
     window.APP_VERSION=VERSION;
     document.body.classList.add('premiumV30');
     document.body.classList.remove('premiumV28');
     document.title='Work + Workout | Your day, already planned';
+    ensureStylesLast();
     enhanceNavigation();
     enhancePages();
     enhanceTraining();

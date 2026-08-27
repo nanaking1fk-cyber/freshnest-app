@@ -31,6 +31,7 @@ body.premiumV30 .app{
 
 body.premiumV30 .topbar{display:none!important}
 body.premiumV30 .v30LegacyIntro{display:none!important}
+body.premiumV30 #premiumMoreIntro{display:none!important}
 body.premiumV30 .page{max-width:1180px;margin-inline:auto}
 body.premiumV30 .page.active{animation:v30-enter .3s cubic-bezier(.2,.8,.3,1)}
 

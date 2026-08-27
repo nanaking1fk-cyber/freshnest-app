@@ -21,12 +21,14 @@ test('v30 assets load last and are available offline',()=>{
   assert.ok(js30>js29,'v30 behavior must run after the older shell');
   assert.match(read('work-gym-planner/sw.js'),/app-v30\.css/);
   assert.match(read('work-gym-planner/sw.js'),/app-v30\.js/);
+  assert.match(script,/ensureStylesLast\(\)/,
+    'the runtime must restore v30 after the legacy theme moves its stylesheet');
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.1/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.1');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.1/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.2/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.2');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.2/);
 });
 
 test('training opens one exercise at a time',()=>{

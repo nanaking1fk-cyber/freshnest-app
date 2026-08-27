@@ -95,7 +95,7 @@
     if(!input)throw Error('The calendar intake is not ready yet. Please try again.');
     input.value=text;
     setStatus('Text extracted from '+fileName+'. Review the suggested dates below before saving.');
-    if(!window.WGC19?.reviewRawText?.(text))document.getElementById('smartCaptureBuild')?.click();
+    if(!window.WGC19?.reviewRawText?.(text,{sourceType:'ocr',fileName:fileName}))document.getElementById('smartCaptureBuild')?.click();
   }
 
   async function processFile(file,input){
@@ -167,7 +167,7 @@
       var legend=calendar.querySelector('.legend');
       if(!document.getElementById('calendarUtilityV24'))legend?.insertAdjacentHTML('beforebegin',heroMarkup());
       var capture=document.getElementById('smartCaptureV19'),hero=document.getElementById('calendarUtilityV24');
-      if(capture&&capture.parentElement!==calendar)hero?.insertAdjacentElement('afterend',capture);
+      if(capture&&!calendar.contains(capture))hero?.insertAdjacentElement('afterend',capture);
       if(capture)personalizeCapture(capture);
       if(legend&&!document.getElementById('calendarActionBarV24'))legend.insertAdjacentHTML('afterend',toolbarMarkup());
       bindCalendarActions();

@@ -1,7 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/v18/*.js": { "maxDuration": 60 }
+    "api/v18/*.js": { "maxDuration": 60 },
+    "api/v25/*.js": { "maxDuration": 60 }
   },
   "rewrites": [
     {
@@ -22,6 +23,13 @@
     },
     {
       "source": "/api/v18/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    },
+    {
+      "source": "/api/v25/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "no-referrer" }

@@ -25,12 +25,15 @@ test('adaptive planner accepts text, voice, image and PDF with review before sav
   assert.match(planner,/Nothing is added until you review and approve it/);
 });
 
-test('v24 assets are loaded and cached by the production wrapper',()=>{
+test('v25 scheduling assets are loaded and cached by the production wrapper',()=>{
   const index=read('work-gym-planner/index.html');
   const worker=read('work-gym-planner/sw.js');
   assert.match(index,/adaptive-planner-v24\.css/);
   assert.match(index,/adaptive-planner-v24\.js/);
-  assert.match(index,/Loading Work \+ Workout 24\.0\.1/);
-  assert.match(worker,/wgp-stable-v24\.0\.1/);
+  assert.match(index,/schedule-platform-v25\.css/);
+  assert.match(index,/schedule-platform-v25\.js/);
+  assert.match(index,/v25-scheduling\.js/);
+  assert.match(index,/Loading Work \+ Workout 25\.0\.0/);
+  assert.match(worker,/wgp-stable-v25\.0\.0/);
   assert.match(worker,/adaptive-planner-v24\.js/);
 });

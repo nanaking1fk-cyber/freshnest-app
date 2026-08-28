@@ -118,7 +118,7 @@
     return[...text.matchAll(pattern)].map(match=>({raw:match[0],index:match.index}));
   }
   function dateHeaders(lines,identityIndex,now){
-    const before=lines.slice(Math.max(0,identityIndex-10),identityIndex+1).join(' | '),explicit=datesIn(before,now);
+    const before=lines.slice(Math.max(0,identityIndex-42),identityIndex+1).join(' | '),explicit=datesIn(before,now);
     return explicit.length?explicit:weekdayDatesIn(before,now);
   }
   function likelyEmployeeHeading(line){
@@ -129,7 +129,8 @@
     const selected=[match.line];
     for(let index=match.index+1;index<Math.min(lines.length,match.index+18);index++){
       const line=lines[index];
-      if(index>match.index+1&&likelyEmployeeHeading(line))break;
+      const leadingText=clean(line).split(/(?:\||\t|\b\d{1,2}(?::\d{2})?\s*[ap](?:\.?m\.?)?\s*(?:-|to)|\b\d{3,4}\s*(?:-|to))/i)[0].trim();
+      if(index>match.index+1&&(likelyEmployeeHeading(line)||likelyEmployeeHeading(leadingText)))break;
       if(datesIn(line).length||parseTimeRange(line)||shiftTokens(line).length||/^\s*(?:mon|tue|wed|thu|fri|sat|sun)\b/i.test(line))selected.push(line);
       else if(selected.length>1)break;
     }
@@ -149,7 +150,10 @@
     });
     if(results.length)return{shifts:results,headers,block};
     // Table layout: date columns sit above one row for the matched employee.
-    const row=clean(match.line).replace(new RegExp(match.identity.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),' '),cells=shiftTokens(row);
+    // OCR often emits the employee name as one line and each table cell as a
+    // separate following line. Keep the trusted personal block together so a
+    // name-only row can still map its cells to the date headings above it.
+    const row=clean(block.join(' | ')).replace(new RegExp(match.identity.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i'),' '),cells=shiftTokens(row);
     if(headers.length&&cells.length){
       const count=Math.min(headers.length,cells.length);for(let index=0;index<count;index++)add(shiftFromToken(cells[index].raw,headers[index].date,{...options,confidence,needsReview:!!headers[index].needsReview}));
     }

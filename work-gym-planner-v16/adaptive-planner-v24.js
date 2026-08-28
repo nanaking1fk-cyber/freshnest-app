@@ -84,14 +84,28 @@
     return output.join('\n').trim();
   }
 
+  async function prepareImage(file){
+    var url=URL.createObjectURL(file),source=null;
+    try{
+      if(typeof createImageBitmap==='function')try{source=await createImageBitmap(file,{imageOrientation:'from-image'})}catch(error){}
+      if(!source)source=await new Promise(function(resolve,reject){var image=new Image();image.onload=function(){resolve(image)};image.onerror=function(){reject(Error('This photo format could not be opened. If it is an HEIC photo, take a screenshot or save it as JPG, PNG or PDF and upload that copy.'))};image.src=url});
+      var width=Number(source.width||source.naturalWidth||0),height=Number(source.height||source.naturalHeight||0);if(!width||!height)throw Error('This photo has no readable image area. Try a screenshot, JPG, PNG or PDF.');
+      var longest=Math.max(width,height),scale=longest<1500?Math.min(2,1500/longest):Math.min(1,3000/longest),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(width*scale));canvas.height=Math.max(1,Math.round(height*scale));
+      var context=canvas.getContext('2d',{alpha:false});context.fillStyle='#fff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(source,0,0,canvas.width,canvas.height);source.close?.();return canvas;
+    }finally{URL.revokeObjectURL(url)}
+  }
+
   async function extractImage(file){
     setStatus('Preparing private photo scan…');
     if(typeof window.loadTesseract!=='function'||!(await window.loadTesseract()))throw Error('The photo reader could not load. You can still paste the schedule as text.');
-    var result=await window.Tesseract.recognize(file,'eng',{...(window.TESSERACT_OPTIONS||{}),logger:function(progress){
-      if(progress.status==='recognizing text')setStatus('Reading schedule… '+Math.round((progress.progress||0)*100)+'%');
-    }});
-    var lines=(result?.data?.lines||[]).map(function(line){return String(line.text||'').trim()}).filter(Boolean);
-    return(lines.length?lines.join('\n'):String(result?.data?.text||'')).trim();
+    var canvas=await prepareImage(file);
+    try{
+      var result=await window.Tesseract.recognize(canvas,'eng',{...(window.TESSERACT_OPTIONS||{}),logger:function(progress){
+        if(progress.status==='recognizing text')setStatus('Reading schedule… '+Math.round((progress.progress||0)*100)+'%');
+      }});
+      var lines=(result?.data?.lines||[]).map(function(line){return String(line.text||'').trim()}).filter(Boolean);
+      return(lines.length?lines.join('\n'):String(result?.data?.text||'')).trim();
+    }finally{canvas.width=1;canvas.height=1}
   }
 
   function pdfLayoutLines(items){
@@ -117,7 +131,7 @@
     if(file.size>20*1024*1024){setStatus('Choose a file smaller than 20 MB.',true);input.value='';return}
     try{
       var identity=String(document.getElementById('rosterIdentityV31')?.value||rosterIdentity()).trim();if(!identity)throw Error('Enter your name or employee ID exactly as it appears on the roster first.');saveRosterIdentity(identity);
-      var type=String(file.type||'').toLowerCase(),isPdf=type==='application/pdf'||/\.pdf$/i.test(file.name),isImage=type.startsWith('image/');
+      var type=String(file.type||'').toLowerCase(),isPdf=type==='application/pdf'||/\.pdf$/i.test(file.name),isImage=type.startsWith('image/')||/\.(?:png|jpe?g|webp|heic|heif|bmp|gif)$/i.test(file.name||'');
       if(!isPdf&&!isImage)throw Error('Choose a schedule photo or PDF.');
       var text=isPdf?await extractPdf(file):await extractImage(file);
       reviewExtractedText(text,file.name||'your file',identity);

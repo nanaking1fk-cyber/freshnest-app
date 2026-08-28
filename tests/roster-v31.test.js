@@ -49,6 +49,28 @@ test('the parser refuses to guess when the roster identity is not found',()=>{
   assert.deepEqual(result.shifts,[]);
 });
 
+test('a name-only OCR row maps following shift cells to the dates above it',()=>{
+  const text=`Weekly roster · September 2026
+Mon 9/1
+Tue 9/2
+Wed 9/3
+Francis Kwarteng
+7:00 AM - 7:00 PM
+OFF
+7:00 AM - 7:00 PM
+Jordan Mensah
+3:00 PM - 11:00 PM
+3:00 PM - 11:00 PM
+OFF`;
+  const result=roster.analyze(text,{identity:'Francis Kwarteng',now:new Date(2026,7,28)});
+  assert.equal(result.status,'matched');
+  assert.deepEqual(result.shifts.map(item=>[item.date,item.start,item.end]),[
+    ['2026-09-01','07:00','19:00'],
+    ['2026-09-03','07:00','19:00']
+  ]);
+  assert.doesNotMatch(result.normalizedText,/Jordan|15:00|23:00/);
+});
+
 test('repeated work sequences become an optional indefinite rotation',()=>{
   const shifts=[];
   for(let day=1;day<=12;day++)if((day-1)%6<4)shifts.push({date:`2026-09-${String(day).padStart(2,'0')}`,start:'07:00',end:'19:00',overnight:false});
@@ -76,6 +98,7 @@ test('scanned PDFs use local OCR and uncertain identities stop before proposals'
   const platform=read('work-gym-planner-v16/schedule-platform-v25.js');
   assert.match(adaptive,/Scanning image-only PDF page/);
   assert.match(adaptive,/Tesseract\.recognize\(canvas/);
+  assert.match(adaptive,/prepareImage\(file\)/);
   assert.match(adaptive,/id="rosterIdentityV31"/);
   assert.match(adaptive,/reviewRosterText/);
   assert.doesNotMatch(adaptive,/input\.value=text;input\.dataset\.sourceType='ocr'/);
@@ -84,6 +107,9 @@ test('scanned PDFs use local OCR and uncertain identities stop before proposals'
   assert.match(platform,/Other employees’ rows are not added/);
   assert.match(platform,/Continue the detected pattern/);
   assert.match(platform,/Work rotation added to your calendar/);
+  assert.match(read('work-gym-planner-v16/schedule.js'),/langPath:'\/work-gym-planner-v16\/vendor\/tessdata'/);
+  assert.ok(fs.statSync(path.join(root,'work-gym-planner-v16/vendor/tessdata/eng.traineddata.gz')).size>10_000_000);
+  assert.ok(fs.statSync(path.join(root,'work-gym-planner-v16/vendor/tesseract-core/tesseract-core-simd-lstm.wasm.js')).size>3_000_000);
 });
 
 test('production loads the identity-aware roster engine before calendar intake',()=>{

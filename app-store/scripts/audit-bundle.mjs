@@ -15,6 +15,9 @@ const required=[
   'work-gym-planner-v16/nutrition-plan-v18.js','work-gym-planner-v16/training-guides-v18.js',
   'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',
   'work-gym-planner-v16/vendor/tesseract/tesseract.min.js',
+  'work-gym-planner-v16/vendor/tesseract-core/tesseract-core-lstm.wasm.js',
+  'work-gym-planner-v16/vendor/tesseract-core/tesseract-core-simd-lstm.wasm.js',
+  'work-gym-planner-v16/vendor/tessdata/eng.traineddata.gz',
   'work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js'
 ];
 const errors=[];
@@ -33,7 +36,7 @@ const bridge=await readFile(join(root,'native','native-bridge.js'),'utf8');
 const runtime=[index,account,calendar,schedule,diary,adaptive,bridge].join('\n');
 
 if(!/Work \+ Workout/.test(index))errors.push('Current product name missing from native index');
-if(!/30\.1\.0/.test(index))errors.push('Current production version missing from native index');
+if(!/30\.1\.1/.test(index))errors.push('Current production version missing from native index');
 if(!index.includes('native/native-bridge.js'))errors.push('Native bridge is not loaded');
 if(index.includes("'pwa-patch.js'"))errors.push('Service-worker patch is loaded in the native app');
 if(!index.includes("'pwa.js'"))errors.push('Legacy PWA script is not explicitly removed');
@@ -48,4 +51,4 @@ if(errors.length){
   console.error('Native bundle audit FAILED\n- '+errors.join('\n- '));
   process.exit(1);
 }
-console.log('Native bundle audit passed: v30.1.0 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');
+console.log('Native bundle audit passed: v30.1.1 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');

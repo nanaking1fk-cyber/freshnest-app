@@ -47,11 +47,11 @@ html=rewrite(
 html=rewrite(
   html,
   "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\">');",
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.0\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.1\"></scr'+'ipt>');",
   'load native bridge first'
 );
 html=html.replace("'pwa-patch.js',",'');
-html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.0\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
+html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.1\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
 await writeFile(join(out,'index.html'),html);
 
 // Native WebViews have their own localhost origin. Keep all authenticated API
@@ -93,6 +93,7 @@ await writeFile(platformSchedulePath,platformSchedule);
 const legacySchedulePath=join(out,'work-gym-planner-v16','schedule.js');
 let schedule=await readFile(legacySchedulePath,'utf8');
 schedule=rewrite(schedule,"workerPath:'/work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'/work-gym-planner-v16/vendor/tesseract-core'","workerPath:'../work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'../work-gym-planner-v16/vendor/tesseract-core'",'schedule OCR paths');
+schedule=rewrite(schedule,"langPath:'/work-gym-planner-v16/vendor/tessdata'","langPath:'../work-gym-planner-v16/vendor/tessdata'",'schedule OCR language path');
 schedule=rewrite(schedule,"s.src='/work-gym-planner-v16/vendor/tesseract/tesseract.min.js'","s.src='../work-gym-planner-v16/vendor/tesseract/tesseract.min.js'",'schedule OCR loader');
 await writeFile(legacySchedulePath,schedule);
 
@@ -115,6 +116,9 @@ const required=[
   'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/schedule-platform-v25.js',
   'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',
   'work-gym-planner-v16/vendor/tesseract/tesseract.min.js',
+  'work-gym-planner-v16/vendor/tesseract-core/tesseract-core-lstm.wasm.js',
+  'work-gym-planner-v16/vendor/tesseract-core/tesseract-core-simd-lstm.wasm.js',
+  'work-gym-planner-v16/vendor/tessdata/eng.traineddata.gz',
   'work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js'
 ];
 for(const file of required){
@@ -122,4 +126,4 @@ for(const file of required){
   if(!info.size)throw new Error(`Native bundle check failed: ${file}`);
 }
 
-console.log(`Built Work + Workout 30.1.0 native web bundle: ${out}`);
+console.log(`Built Work + Workout 30.1.1 native web bundle: ${out}`);

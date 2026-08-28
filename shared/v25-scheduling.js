@@ -22,7 +22,8 @@
   function normalizeHour(hour,minute,meridiem,{assumeAfternoon=false}={}){
     hour=Number(hour);minute=Number(minute||0);
     if(meridiem){
-      meridiem=String(meridiem).toLowerCase();
+      meridiem=String(meridiem).toLowerCase().replace(/\./g,'');
+      if(meridiem==='a')meridiem='am';if(meridiem==='p')meridiem='pm';
       if(meridiem==='pm'&&hour<12)hour+=12;
       if(meridiem==='am'&&hour===12)hour=0;
     }else if(assumeAfternoon&&hour>=1&&hour<=6)hour+=12;
@@ -30,16 +31,19 @@
   }
   function parseTimes(text){
     const value=String(text||'');
-    const range=value.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*(?:-|–|—|to)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+    const range=value.match(/\b(\d{1,2})(?::(\d{2}))?\s*([ap](?:\.?m\.?)?)?\s*(?:-|–|—|to)\s*(\d{1,2})(?::(\d{2}))?\s*([ap](?:\.?m\.?)?)?\b/i);
     if(range){
       let firstMeridiem=range[3],secondMeridiem=range[6];
       if(!firstMeridiem&&secondMeridiem)firstMeridiem=secondMeridiem;
       if(firstMeridiem&&!secondMeridiem)secondMeridiem=firstMeridiem;
       const start=normalizeHour(range[1],range[2],firstMeridiem);
-      const end=normalizeHour(range[4],range[5],secondMeridiem);
+      let end=normalizeHour(range[4],range[5],secondMeridiem);
+      if(!firstMeridiem&&!secondMeridiem&&start===end)end=pad((Number(range[4])+12)%24)+':'+pad(Number(range[5]||0));
       return{start,end,overnight:minutes(end)<=minutes(start),ambiguous:!range[3]&&!range[6]};
     }
-    const single=value.match(/(?:\bat\b|@)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+    const compact=value.match(/\b(\d{3,4})\s*(?:-|–|—|to)\s*(\d{3,4})\b/);
+    if(compact){const clock=value=>{const digits=String(value),hour=Number(digits.slice(0,-2)),minute=Number(digits.slice(-2));return pad(hour%24)+':'+pad(Math.min(59,minute))},start=clock(compact[1]),end=clock(compact[2]);return{start,end,overnight:minutes(end)<=minutes(start),ambiguous:false}}
+    const single=value.match(/(?:\bat\b|@)\s*(\d{1,2})(?::(\d{2}))?\s*([ap](?:\.?m\.?)?)?\b/i);
     if(single){
       const ambiguous=!single[3];
       return{start:normalizeHour(single[1],single[2],single[3],{assumeAfternoon:ambiguous}),end:'',overnight:false,ambiguous};
@@ -64,12 +68,20 @@
     if(/\btomorrow\b/i.test(text))return keyFromDate(addDays(now,1));
     const iso=text.match(/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/);
     if(iso)return keyFromDate(new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3])));
+    const yearFor=(month,day,year)=>{if(year)return Number(year);let candidate=new Date(now.getFullYear(),month,day),distance=(candidate-now)/86400000;return now.getFullYear()+(distance<-180?1:distance>300?-1:0)};
     const slash=text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}))?\b/);
-    if(slash)return keyFromDate(new Date(Number(slash[3]||now.getFullYear()),Number(slash[1])-1,Number(slash[2])));
+    if(slash)return keyFromDate(new Date(yearFor(Number(slash[1])-1,Number(slash[2]),slash[3]),Number(slash[1])-1,Number(slash[2])));
     const months={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
     const named=text.match(/\b(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+(\d{1,2})(?:,?\s+(20\d{2}))?\b/i);
-    if(named)return keyFromDate(new Date(Number(named[3]||now.getFullYear()),months[named[1].toLowerCase()],Number(named[2])));
+    if(named){const month=months[named[1].toLowerCase()],day=Number(named[2]);return keyFromDate(new Date(yearFor(month,day,named[3]),month,day))}
+    const reverseNamed=text.match(/\b(\d{1,2})\s+(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(?:,?\s+(20\d{2}))?\b/i);
+    if(reverseNamed){const month=months[reverseNamed[2].toLowerCase()],day=Number(reverseNamed[1]);return keyFromDate(new Date(yearFor(month,day,reverseNamed[3]),month,day))}
     return'';
+  }
+  function explicitDatesIn(text,now=new Date()){
+    const source=String(text||''),matches=[],patterns=[/\b20\d{2}-\d{1,2}-\d{1,2}\b/g,/\b\d{1,2}\/\d{1,2}(?:\/20\d{2})?\b/g,/\b(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+\d{1,2}(?:,?\s+20\d{2})?\b/gi,/\b\d{1,2}\s+(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(?:,?\s+20\d{2})?\b/gi];
+    patterns.forEach(pattern=>{for(const match of source.matchAll(pattern)){const date=explicitDate(match[0],now);if(date)matches.push({date,index:match.index,raw:match[0]})}});
+    return matches.sort((left,right)=>left.index-right.index).filter((item,index,list)=>!index||item.index!==list[index-1].index);
   }
   function nextWeekday(index,now=new Date(),weekOffset=0){
     let delta=(index-now.getDay()+7)%7;
@@ -89,7 +101,7 @@
     return keyFromDate(addDays(nextWeekday(WEEKDAYS[before[1].toLowerCase()],now),-1));
   }
   function classify(text){
-    if(/\b(work|working|shift|job|on call|double)\b/i.test(text))return'work';
+    if(/\b(work|working|shifts?|jobs?|on call|double)\b/i.test(text))return'work';
     if(/\b(workout|gym|train|training|run|walk|yoga|lift|cardio)\b/i.test(text))return'workout';
     if(/\b(meal|lunch|dinner|breakfast|grocer|cook|food|prep)\b/i.test(text))return'meal';
     if(/\b(doctor|dentist|appointment|pickup|pick up|meeting|class|church)\b/i.test(text))return'event';
@@ -128,27 +140,60 @@
     if(exact)return[exact];
     const found=weekdaysIn(text);
     if(!found.length)return[keyFromDate(now)];
+    const namedWeek=/\b(this|next)\s+week\b/i.exec(text);
+    if(namedWeek){
+      const start=addDays(new Date(now.getFullYear(),now.getMonth(),now.getDate()),-((now.getDay()+6)%7)+(namedWeek[1].toLowerCase()==='next'?7:0));
+      return found.map(index=>keyFromDate(addDays(start,(index+6)%7))).sort();
+    }
     const recurring=kind==='work'&&(/\bevery\b|\beach\b|\bweekly\b|\bshifts?\b/i.test(text)||found.length>1);
     const values=[];
     found.forEach(index=>{for(let week=0;week<(recurring?weeks:1);week++)values.push(keyFromDate(nextWeekday(index,now,week+(/\bnext\b/i.test(text)?1:0))))});
     return values.sort();
   }
+  function nearbyWeekdayMismatch(source,item){
+    const local=source.slice(Math.max(0,item.index-18),Math.min(source.length,item.index+item.raw.length+12)),days=weekdaysIn(local);
+    return days.length===1&&dateFromKey(item.date).getDay()!==days[0];
+  }
+  function timeRangesIn(source){
+    const value=String(source||''),matches=[],patterns=[/\b\d{1,2}(?::\d{2})?\s*[ap](?:\.?m\.?)?\s*(?:-|–|—|to)\s*\d{1,2}(?::\d{2})?\s*[ap](?:\.?m\.?)?\b/gi,/\b\d{3,4}\s*(?:-|–|—|to)\s*\d{3,4}\b/g];
+    patterns.forEach(pattern=>{for(const match of value.matchAll(pattern)){const times=parseTimes(match[0]);if(times.start)matches.push({index:match.index,end:match.index+match[0].length,times})}});
+    return matches;
+  }
+  function timeForExplicitDate(source,item,index,items,fallback){
+    const dateStart=item.index,dateEnd=item.index+item.raw.length,candidates=timeRangesIn(source).filter(range=>range.end<=dateStart||range.index>=dateEnd).map(range=>Object.assign(range,{distance:range.end<=dateStart?dateStart-range.end:range.index-dateEnd})).sort((left,right)=>left.distance-right.distance);
+    // Use the closest range to the date. This supports both "date, time" and
+    // "time, date" roster formats without applying a neighbor's hours.
+    return candidates[0]?.times||fallback;
+  }
+  function workEntriesFromExplicitDates(source,now,fallback){
+    const items=explicitDatesIn(source,now);
+    return items.map((item,index)=>({date:item.date,times:timeForExplicitDate(source,item,index,items,fallback),needsReview:nearbyWeekdayMismatch(source,item)}));
+  }
+  function confidenceWithDateWarning(value,needsReview){
+    if(!needsReview)return value;
+    const score=Math.max(.2,Number((value.score-.32).toFixed(2))),reasons=value.reasons.concat('weekday and calendar date disagree');
+    return{score,label:score>=.84?'High':score>=.63?'Medium':'Low',reasons};
+  }
   function parseNaturalLanguage(raw,{now=new Date(),sourceId='work',sourceType='text',weeks=8}={}){
     const entries=[];
     splitInput(raw).forEach((segment,segmentIndex)=>{
-      const normalized=expandDayLanguage(segment),kind=classify(normalized),times=parseTimes(normalized),days=weekdaysIn(normalized),exact=explicitDate(normalized,now),deadline=deadlineDate(normalized,now),count=frequency(normalized),seriesId='series-'+segmentIndex+'-'+Math.abs(hashString(segment));
-      const hasDate=!!exact||days.length>0||!!deadline;
+      const normalized=expandDayLanguage(segment),kind=classify(normalized),times=parseTimes(normalized),days=weekdaysIn(normalized),exact=explicitDate(normalized,now),deadline=deadlineDate(normalized,now),count=frequency(normalized),seriesId='series-'+segmentIndex+'-'+Math.abs(hashString(segment)),explicitWork=kind==='work'?workEntriesFromExplicitDates(normalized,now,times):[];
+      const hasDate=!!exact||days.length>0||!!deadline||explicitWork.length>0;
+      if(explicitWork.length){
+        explicitWork.forEach((item,index)=>{const confidence=confidenceWithDateWarning(confidenceFor({hasDate:true,hasTime:!!item.times.start,hasEnd:!!item.times.end,kind,ambiguous:item.times.ambiguous,sourceType}),item.needsReview);entries.push(makeEntry({segment,segmentIndex,index,kind,date:item.date,times:item.times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate:true,needsReview:item.needsReview,flexible:false,deadline:'',confidence}))});
+        return;
+      }
       if(count>1&&(kind==='workout'||kind==='todo'||kind==='meal')&&!exact&&!days.length){
         for(let index=0;index<count;index++)entries.push(makeEntry({segment,segmentIndex,index,kind,date:keyFromDate(now),times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate:true,flexible:true,deadline:deadline||keyFromDate(addDays(now,6)),confidence:confidenceFor({hasDate:true,hasTime:!!times.start,hasEnd:!!times.end,kind,ambiguous:times.ambiguous,sourceType})}));
         return;
       }
       const dates=deadline&&!exact&&!days.length?[deadline]:datesFor(normalized,kind,{now,weeks});
-      dates.forEach((date,index)=>entries.push(makeEntry({segment,segmentIndex,index,kind,date,times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate,flexible:!!deadline&&!times.start,deadline,confidence:confidenceFor({hasDate,hasTime:!!times.start,hasEnd:!!times.end,kind,ambiguous:times.ambiguous,sourceType})})));
+      dates.forEach((date,index)=>entries.push(makeEntry({segment,segmentIndex,index,kind,date,times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate,needsReview:false,flexible:!!deadline&&!times.start,deadline,confidence:confidenceFor({hasDate,hasTime:!!times.start,hasEnd:!!times.end,kind,ambiguous:times.ambiguous,sourceType})})));
     });
     return entries;
   }
-  function makeEntry({segment,segmentIndex,index,kind,date,times,title,sourceId,sourceType,seriesId,hasDate,flexible,deadline,confidence}){
-    return{id:'proposal-'+segmentIndex+'-'+index+'-'+Math.abs(hashString(segment+'|'+date+'|'+index)),kind,date,title,start:times.start,end:times.end,overnight:times.overnight,reminder:kind==='work'?60:(kind==='event'||kind==='workout'?30:0),sourceText:segment,sourceType,sourceId:kind==='work'?sourceId:'',seriesId,series:index>0||kind==='work'&&seriesId,index,needsReview:!hasDate,flexible:!!flexible,deadline:deadline||'',confidence};
+  function makeEntry({segment,segmentIndex,index,kind,date,times,title,sourceId,sourceType,seriesId,hasDate,needsReview,flexible,deadline,confidence}){
+    return{id:'proposal-'+segmentIndex+'-'+index+'-'+Math.abs(hashString(segment+'|'+date+'|'+index)),kind,date,title,start:times.start,end:times.end,overnight:times.overnight,reminder:kind==='work'?60:(kind==='event'||kind==='workout'?30:0),sourceText:segment,sourceType,sourceId:kind==='work'?sourceId:'',seriesId,series:index>0||kind==='work'&&seriesId,index,needsReview:!!needsReview||!hasDate,flexible:!!flexible,deadline:deadline||'',confidence};
   }
   function hashString(value){let hash=2166136261;for(const char of String(value)){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619)}return hash|0}
 

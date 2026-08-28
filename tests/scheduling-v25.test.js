@@ -27,6 +27,35 @@ test('utility planner understands the full mixed-life example and proposes free 
   assert.ok(conflicts[dentist.id].some(item=>item.type==='proposal-overlap'));
 });
 
+test('raw typed shifts keep each explicit date paired with its own time range',()=>{
+  const now=new Date(2026,7,26,9);
+  const parsed=scheduling.parseNaturalLanguage('My shifts: Mon 8/24 0700-1900, Wed 8/26 7a-7p, Fri 8/28 3p-11p.',{now,sourceId:'hospital'});
+  const shifts=parsed.filter(item=>item.kind==='work');
+  assert.deepEqual(shifts.map(item=>[item.date,item.start,item.end]),[
+    ['2026-08-24','07:00','19:00'],
+    ['2026-08-26','07:00','19:00'],
+    ['2026-08-28','15:00','23:00']
+  ]);
+  assert.ok(shifts.every(item=>!item.needsReview));
+});
+
+test('this week and next week wording uses the named calendar week',()=>{
+  const now=new Date(2026,7,26,9);
+  const thisWeek=scheduling.parseNaturalLanguage('This week I work Monday, Wednesday and Friday 7am-3pm.',{now,sourceId:'hospital'});
+  assert.deepEqual(thisWeek.map(item=>item.date),['2026-08-24','2026-08-26','2026-08-28']);
+  const nextWeek=scheduling.parseNaturalLanguage('Next week I work Monday through Thursday 7am-7pm.',{now,sourceId:'hospital'});
+  assert.deepEqual(nextWeek.map(item=>item.date),['2026-08-31','2026-09-01','2026-09-02','2026-09-03']);
+});
+
+test('weekday and numeric date disagreements require confirmation instead of silent saving',()=>{
+  const now=new Date(2026,7,26,9);
+  const [shift]=scheduling.parseNaturalLanguage('Work Monday 8/26 from 7am to 3pm.',{now,sourceId:'hospital'});
+  assert.equal(shift.date,'2026-08-26');
+  assert.equal(shift.needsReview,true);
+  assert.equal(shift.confidence.label,'Low');
+  assert.ok(shift.confidence.reasons.includes('weekday and calendar date disagree'));
+});
+
 test('rotation engine projects 4-on/2-off indefinitely and preserves exceptions',()=>{
   const rotation=scheduling.normalizeRotation({
     id:'rotation-a',sourceId:'hospital',name:'Clinical rotation',anchor:'2026-08-24',

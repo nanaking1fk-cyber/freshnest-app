@@ -1,7 +1,8 @@
 // Work + Workout 18.4 guided, adaptive onboarding.
 (function guidedOnboarding(){
   const A=window.WGC18=window.WGC18||{};
-  const DRAFT_KEY='wgc-guided-onboarding-v18';
+  const DRAFT_KEY=PREFIX+'guided-onboarding-draft-v30';
+  const LEGACY_DRAFT_KEY='wgc-guided-onboarding-v18';
   const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const safe=window.esc||function(value){return String(value??'').replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})};
   let step=0;
@@ -11,14 +12,18 @@
 
   function loadDraft(){
     try{
-      const saved=JSON.parse(sessionStorage.getItem(DRAFT_KEY)||'null');
+      const saved=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
       if(saved&&saved.version===2&&saved.values)return saved;
+    }catch{}
+    try{
+      const legacy=JSON.parse(sessionStorage.getItem(LEGACY_DRAFT_KEY)||'null');
+      if(legacy&&legacy.version===2&&legacy.values){localStorage.setItem(DRAFT_KEY,JSON.stringify(legacy));sessionStorage.removeItem(LEGACY_DRAFT_KEY);return legacy}
     }catch{}
     const p=typeof profile==='function'?profile():null;
     const previous=typeof jget==='function'?jget(PREFIX+'onboarding-v18',{})?.answers:null;
     const basics=previous?.basics||{},work=previous?.work||{},training=previous?.training||{},nutrition=previous?.nutrition||{};
     const commitments=(work.commitments||[]).map(function(item){return DAYS[item.day]+' '+item.start+'-'+item.end+' '+(item.label||'Commitment')}).join('\n');
-    return{version:2,values:{
+    return{version:2,step:0,values:{
       name:basics.name||p?.name||'',
       goal:basics.goal||'recomp',
       age:basics.age||'',
@@ -55,8 +60,8 @@
       cook:nutrition.cook||'moderate'
     },days:{job:(work.primaryDays||[1,2,3,4,5]).slice(),second:(work.secondaryDays||[]).slice()}};
   }
-  function saveDraft(){try{sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch{}}
-  function clearDraft(){try{sessionStorage.removeItem(DRAFT_KEY)}catch{};draft=loadDraft()}
+  function saveDraft(){draft.step=step;try{localStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch{}}
+  function clearDraft(){try{localStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(LEGACY_DRAFT_KEY)}catch{};draft=loadDraft()}
   function get(key,fallback=''){const value=draft.values[key];return value===undefined||value===null?fallback:value}
   function set(key,value){draft.values[key]=value;saveDraft()}
   function icon(name){
@@ -276,6 +281,7 @@
   function render(){
     modal();
     const state=mountedScreen();
+    saveDraft();
     document.getElementById('guidedStepLabel').textContent='Question '+(step+1)+' of '+state.list.length;
     document.getElementById('guidedProgressFill').style.width=((step+1)/state.list.length*100)+'%';
     document.getElementById('guidedOnboardingBody').innerHTML=state.screen.render();
@@ -430,16 +436,18 @@
     document.getElementById('guidedStatus').textContent=refining&&A.session&&A.config?.aiConfigured?'Your plan is ready. Coaching details are refining quietly in the background.':'Your plan is saved. You can edit every choice later.';
   }
   function closeGuided(){
-    if(previewReady){try{sessionStorage.removeItem(DRAFT_KEY)}catch{};previewReady=false}
-    else syncVisible();
+    const paused=!previewReady&&!(typeof profile==='function'&&profile());
+    if(previewReady){try{localStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(LEGACY_DRAFT_KEY)}catch{};previewReady=false}
+    else{syncVisible();A.queueSync?.()}
     window.closeModal?.('guidedOnboarding');
+    if(paused){window.page?.('home');window.renderTodayDashboard?.();window.toast?.('Setup saved. Resume whenever you are ready.')}
   }
   function openGuided(){
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}
     document.querySelectorAll('.modal.open').forEach(function(open){window.closeModal?.(open.id)});
     previewReady=false;
     draft=loadDraft();
-    step=0;
+    step=Math.max(0,+draft.step||0);
     render();
     window.openModal?.('guidedOnboarding');
   }

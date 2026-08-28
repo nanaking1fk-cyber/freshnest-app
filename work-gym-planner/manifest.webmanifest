@@ -3,14 +3,14 @@
   "short_name":"W+Workout",
   "description":"Health that works around your work: adaptive shifts, workouts, meals, recovery and reminders.",
   "id":"./",
-  "start_url":"./?v=30.0.6",
+  "start_url":"./?v=30.0.7",
   "scope":"./",
   "display":"standalone",
   "background_color":"#070a0d",
   "theme_color":"#070a0d",
   "orientation":"portrait-primary",
   "icons":[
-    {"src":"../work-gym-planner-v16/icons/icon-180.png?v=30.0.6","sizes":"180x180","type":"image/png","purpose":"any"},
-    {"src":"../work-gym-planner-v16/icons/icon.svg?v=30.0.6","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+    {"src":"../work-gym-planner-v16/icons/icon-180.png?v=30.0.7","sizes":"180x180","type":"image/png","purpose":"any"},
+    {"src":"../work-gym-planner-v16/icons/icon.svg?v=30.0.7","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
   ]
 }

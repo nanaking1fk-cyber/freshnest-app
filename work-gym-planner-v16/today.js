@@ -24,8 +24,33 @@ function readinessColor(score){return score>=80?'#34d058':score>=65?'#5bd66f':sc
 function workLoadLabel(s){return s.kind==='both'?'High Load':s.kind==='one'?'Work Day':s.kind==='unknown'?'Needs Review':'Recovery Opportunity'}
 function todayTrainingInfo(k){let comp=completedOn(k),scheduled=isScheduled(k),wi=comp?.workoutIndex??(scheduled?projectedWorkoutIndex(k):null),next=nextPlannedWorkout(addDays(k,wi!=null?1:0));if(wi!=null)return{title:WORKOUTS[wi].name,sub:comp?'Completed':`Week ${phaseInfo(k).week} · ${phaseInfo(k).name}`,date:k,wi,completed:!!comp};if(next)return{title:'Recovery Day',sub:`Next: ${WORKOUTS[next.wi].name}`,date:next.k,wi:next.wi,next:true};return{title:'Recovery Day',sub:'No workout scheduled',date:null,wi:null}}
 function dashboardWorkRows(k,s){let p=profile(),rows=[],smart=typeof smartWork==='function'?smartWork(k):null;if(smart){rows.push({name:smart.label||p?.variable?.name||'Work shift',value:smart.start&&smart.end?`${homeTime(smart.start)} – ${homeTime(smart.end)}`:'Working',state:'work'})}else if(p?.variable?.enabled){let code=variableCode(k),on=code==='X';rows.push({name:p.variable.name||'Variable job',value:code==='?'?'Schedule unknown':shiftText(on,p.variable.start,p.variable.end),state:code==='?'?'unknown':on?'work':'off'})}if(p?.fixed?.enabled){let on=fixedWork(k);rows.push({name:p.fixed.name||'Fixed job',value:shiftText(on,p.fixed.start,p.fixed.end),state:on?'work':'off'})}return rows}
+function renderPausedSetupDashboard(root){
+ let account=window.WGC18||{},user=account.session?.user||{},name=String(user.user_metadata?.display_name||user.email?.split('@')[0]||'there').trim(),hasDraft=!!localStorage.getItem(PREFIX+'guided-onboarding-draft-v30');
+ root.innerHTML=`<div class="homeDash homeDashV27 onboardingPausedHome">
+  <header class="hvHead pausedHead">
+   <button class="hvBrand" id="pausedMenuBtn" aria-label="Open menu"><b>Work + Workout</b><span class="hvCode">Menu</span></button>
+   <button class="hvAvatar" id="pausedAccountBtn" aria-label="Open account">${esc(name.charAt(0).toUpperCase()||'W')}</button>
+   <div class="hvHello"><p class="hvCode">YOUR PRIVATE PLAN</p><h1>Welcome, ${esc(name)}.</h1></div>
+  </header>
+  <section class="pausedSetupHero">
+   <p class="hvCode">${hasDraft?'SETUP SAVED':'READY WHEN YOU ARE'}</p>
+   <h2>${hasDraft?'Pick up where you left off.':'Build a week that fits your real life.'}</h2>
+   <p>${hasDraft?'Your answers are safely saved on this account. Finish when you have a few minutes.':'Tell us about your work, training and food preferences when you are ready. You can leave and return at any time.'}</p>
+   <button id="resumeOnboarding" class="pausedPrimary">${hasDraft?'Resume setup':'Start setup'} <span aria-hidden="true">→</span></button>
+  </section>
+  <section class="pausedPreview" aria-label="What your plan will include">
+   <article><span>01</span><b>Work schedule</b><small>Photo, PDF, pasted shifts or a repeating rotation</small></article>
+   <article><span>02</span><b>Training</b><small>Realistic workout windows fitted around your job</small></article>
+   <article><span>03</span><b>Nutrition</b><small>Meal guidance and targets shaped around your day</small></article>
+  </section>
+  <p class="pausedNote">Nothing is added to your calendar until you review and approve it.</p>
+ </div>`;
+ document.getElementById('resumeOnboarding').onclick=()=>account.openOnboarding?.();
+ document.getElementById('pausedMenuBtn').onclick=()=>page('more');
+ document.getElementById('pausedAccountBtn').onclick=()=>account.openAccount?.('account');
+}
 function renderTodayDashboard(){
- let root=$('#todayDashboard');if(!root||!profile())return;
+ let root=$('#todayDashboard');if(!root)return;if(!profile()){renderPausedSetupDashboard(root);return}
  let k=dkey(),p=profile(),s=workState(k),r=recoveryReadiness(k),n=target(k),t=totals(k),training=todayTrainingInfo(k),
   calPct=clamp(Math.round(t.cal/Math.max(1,n.cal)*100),0,100),
   proteinPct=clamp(Math.round(t.p/Math.max(1,n.p)*100),0,100),

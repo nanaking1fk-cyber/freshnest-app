@@ -37,8 +37,8 @@ test('v25 scheduling assets are loaded and cached by the production wrapper',()=
   const manifest=JSON.parse(read('work-gym-planner/manifest.webmanifest'));
   const version=(manifest.start_url.match(/\?v=([\d.]+)/)||[])[1];
   assert.ok(version,'the manifest must carry a version in start_url');
-  assert.ok(index.includes(`Loading Work + Workout ${version}`),
-    `the shell boot message must state version ${version}`);
+  assert.match(index,/Getting your week ready/,
+    'the shell must render a branded boot state while the application loads');
   assert.ok(worker.includes(`wgp-stable-v${version}`),
     `the service-worker cache key must state version ${version}`);
   const stray=(index.match(/\?v=[\d.]+/g)||[]).filter(q=>q!==`?v=${version}`);

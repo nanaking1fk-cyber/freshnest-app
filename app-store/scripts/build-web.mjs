@@ -1,26 +1,125 @@
-import {readFile,writeFile,mkdir,rm,copyFile,readdir,stat} from 'node:fs/promises';
-import {dirname,resolve,join} from 'node:path';
+import {cp, readFile, writeFile, mkdir, rm, stat} from 'node:fs/promises';
+import {dirname, resolve, join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-const here=dirname(fileURLToPath(import.meta.url)),appStore=resolve(here,'..'),repo=resolve(appStore,'..'),v15=join(repo,'work-gym-planner-v15'),v16=join(repo,'work-gym-planner-v16'),stable=join(repo,'work-gym-planner'),out=join(appStore,'www');
-await rm(out,{recursive:true,force:true});for(const d of ['v15','v16','icons','vendor/tesseract','vendor/tesseract-core'])await mkdir(join(out,d),{recursive:true});
-const v15Files=['base.css','training.css','responsive.css','base.js','work-model.js','profile.js','nutrition-ui.js','ui.js'];for(const f of v15Files)await copyFile(join(v15,f),join(out,'v15',f));
-const v16Files=[
- 'v16.css','base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','alternatives.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','audit-v169.js','singlejob-ui-v169.js','body-bmr-v169.js','training-history-v1610.js','commercial-v17.js','commercial-legal-v17.js','commercial-polish-v17.js','commercial-cyclefix-v17.js',
- // One coherent v18 stack. Older draft account/coach files intentionally excluded.
- 'cloud-config-v18.js','account-v18.js','account-direct-v18.js','account-security-v18.js','account-routing-v18.js','onboarding-v18.js','onboarding-accountfix-v18.js','exercise-library-v18.js','training-guides-v18.js','nutrition-plan-v18.js','ai-coach-v18.js','init.js'
+
+const here=dirname(fileURLToPath(import.meta.url));
+const appStore=resolve(here,'..');
+const repo=resolve(appStore,'..');
+const out=join(appStore,'www');
+const source={
+  wrapper:join(repo,'work-gym-planner','index.html'),
+  stable:join(repo,'work-gym-planner'),
+  v15:join(repo,'work-gym-planner-v15'),
+  v16:join(repo,'work-gym-planner-v16'),
+  shared:join(repo,'shared')
+};
+
+async function copyTree(from,to){await cp(from,to,{recursive:true,force:true})}
+function rewrite(source,find,replacement,label){
+  if(!source.includes(find))throw new Error(`Native bundle rewrite failed (${label}): source no longer contains ${JSON.stringify(find)}`);
+  return source.split(find).join(replacement);
+}
+
+await rm(out,{recursive:true,force:true});
+await mkdir(out,{recursive:true});
+await Promise.all([
+  copyTree(source.v15,join(out,'work-gym-planner-v15')),
+  copyTree(source.v16,join(out,'work-gym-planner-v16')),
+  copyTree(source.shared,join(out,'shared')),
+  copyTree(join(appStore,'native'),join(out,'native'))
+]);
+
+// Public legal pages are available both at the app root and underneath the
+// v15 base path used by the assembled production document.
+const legal=['privacy.html','support.html','terms.html','delete-account.html'];
+for(const file of legal){
+  await cp(join(source.stable,file),join(out,file),{force:true});
+  await cp(join(source.stable,file),join(out,'work-gym-planner-v15',file),{force:true});
+}
+
+let html=await readFile(source.wrapper,'utf8');
+html=rewrite(
+  html,
+  "const remove=['workout-plan.js','nutrition-core.js','calendar.js','training.js','diary.js','progress.js','schedule.js','data.js','init.js'];",
+  "const remove=['workout-plan.js','nutrition-core.js','calendar.js','training.js','diary.js','progress.js','schedule.js','data.js','init.js','pwa.js'];",
+  'disable legacy service worker'
+);
+html=rewrite(
+  html,
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\">');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.0.6\"></scr'+'ipt>');",
+  'load native bridge first'
+);
+html=html.replace("'pwa-patch.js',",'');
+html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.0.6\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
+await writeFile(join(out,'index.html'),html);
+
+// Native WebViews have their own localhost origin. Keep all authenticated API
+// traffic on the production hostname and never place server secrets in the app.
+const accountPath=join(out,'work-gym-planner-v16','accounts-v18.js');
+let account=await readFile(accountPath,'utf8');
+account=rewrite(
+  account,
+  "function absoluteApiBase(){return '/api/v18'}",
+  "function absoluteApiBase(){return((window.WGPNative&&window.WGPNative.apiBase)||'https://www.workandworkout.com')+'/api/v18'}",
+  'account API base'
+);
+await writeFile(accountPath,account);
+
+const platformSchedulePath=join(out,'work-gym-planner-v16','schedule-platform-v25.js');
+let platformSchedule=await readFile(platformSchedulePath,'utf8');
+platformSchedule=rewrite(
+  platformSchedule,
+  "return fetch('/api/v25/calendar?action='+encodeURIComponent(action)",
+  "return fetch(((window.WGPNative&&window.WGPNative.apiBase)||'')+'/api/v25/calendar?action='+encodeURIComponent(action)",
+  'calendar API base'
+);
+platformSchedule=rewrite(
+  platformSchedule,
+  "returnTo:location.origin+'/'",
+  "returnTo:(window.WGPNative&&window.WGPNative.returnUrl)||location.origin+'/'",
+  'calendar OAuth return URL'
+);
+platformSchedule=rewrite(
+  platformSchedule,
+  "location.assign(result.authorizationUrl)",
+  "window.WGPNative&&window.WGPNative.openExternal?window.WGPNative.openExternal(result.authorizationUrl):location.assign(result.authorizationUrl)",
+  'calendar OAuth browser'
+);
+await writeFile(platformSchedulePath,platformSchedule);
+
+// OCR/barcode loaders are dynamic, so make their native paths explicit rather
+// than relying on WebView handling of web-root absolute URLs.
+const legacySchedulePath=join(out,'work-gym-planner-v16','schedule.js');
+let schedule=await readFile(legacySchedulePath,'utf8');
+schedule=rewrite(schedule,"workerPath:'/work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'/work-gym-planner-v16/vendor/tesseract-core'","workerPath:'../work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'../work-gym-planner-v16/vendor/tesseract-core'",'schedule OCR paths');
+schedule=rewrite(schedule,"s.src='/work-gym-planner-v16/vendor/tesseract/tesseract.min.js'","s.src='../work-gym-planner-v16/vendor/tesseract/tesseract.min.js'",'schedule OCR loader');
+await writeFile(legacySchedulePath,schedule);
+
+const diaryPath=join(out,'work-gym-planner-v16','diary-b.js');
+let diary=await readFile(diaryPath,'utf8');
+if(!/const SCANNER_URL='[^']+';/.test(diary))throw new Error('Native bundle rewrite failed (barcode scanner URL)');
+diary=diary.replace(/const SCANNER_URL='[^']+';/,"const SCANNER_URL='../work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js';");
+await writeFile(diaryPath,diary);
+
+const adaptivePath=join(out,'work-gym-planner-v16','adaptive-planner-v24.js');
+let adaptive=await readFile(adaptivePath,'utf8');
+adaptive=rewrite(adaptive,"var PDF_MODULE='/work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs';","var PDF_MODULE='../work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs';",'adaptive PDF module');
+adaptive=rewrite(adaptive,"var PDF_WORKER='/work-gym-planner-v16/vendor/pdfjs/pdf.worker.min.mjs';","var PDF_WORKER='../work-gym-planner-v16/vendor/pdfjs/pdf.worker.min.mjs';",'adaptive PDF worker');
+await writeFile(adaptivePath,adaptive);
+
+const required=[
+  'index.html','privacy.html','support.html','terms.html','delete-account.html',
+  'native/native-bridge.js','work-gym-planner-v15/index.html',
+  'work-gym-planner-v16/app-v30.js','work-gym-planner-v16/app-v30.css',
+  'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/schedule-platform-v25.js',
+  'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',
+  'work-gym-planner-v16/vendor/tesseract/tesseract.min.js',
+  'work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js'
 ];
-for(const f of v16Files)await copyFile(join(v16,f),join(out,'v16',f));
-for(const f of ['privacy.html','support.html','terms.html'])await copyFile(join(stable,f),join(out,f));for(const f of ['home-180-v167.png','home-192-v167.png','home-512-v167.png'])await copyFile(join(stable,'icons',f),join(out,'icons',f));
-await copyFile(join(appStore,'node_modules','html5-qrcode','html5-qrcode.min.js'),join(out,'vendor','html5-qrcode.min.js'));await copyFile(join(appStore,'node_modules','tesseract.js','dist','tesseract.min.js'),join(out,'vendor','tesseract','tesseract.min.js'));await copyFile(join(appStore,'node_modules','tesseract.js','dist','worker.min.js'),join(out,'vendor','tesseract','worker.min.js'));for(const f of await readdir(join(appStore,'node_modules','tesseract.js-core'))){if(/^tesseract-core.*\.(?:js|wasm)$/.test(f))await copyFile(join(appStore,'node_modules','tesseract.js-core',f),join(out,'vendor','tesseract-core',f))}
-// Literal source rewrites must never silently no-op: a web-path change upstream
-// would otherwise ship absolute /work-gym-planner-v16/... URLs into the native bundle.
-function rewrite(source,find,replacement,label){if(!source.includes(find))throw new Error(`Native bundle rewrite failed (${label}): source no longer contains ${JSON.stringify(find)}`);return source.split(find).join(replacement)}
-let diaryB=await readFile(join(out,'v16','diary-b.js'),'utf8');if(!/const SCANNER_URL='[^']+';/.test(diaryB))throw new Error('Native bundle rewrite failed (diary-b SCANNER_URL)');diaryB=diaryB.replace(/const SCANNER_URL='[^']+';/,"const SCANNER_URL='./vendor/html5-qrcode.min.js';");await writeFile(join(out,'v16','diary-b.js'),diaryB);let schedule=await readFile(join(out,'v16','schedule.js'),'utf8');schedule=rewrite(schedule,"workerPath:'/work-gym-planner-v16/vendor/tesseract/worker.min.js',corePath:'/work-gym-planner-v16/vendor/tesseract-core'","workerPath:'./vendor/tesseract/worker.min.js',corePath:'./vendor/tesseract-core'",'schedule TESSERACT_OPTIONS');schedule=rewrite(schedule,"s.src='/work-gym-planner-v16/vendor/tesseract/tesseract.min.js'","s.src='./vendor/tesseract/tesseract.min.js'",'schedule tesseract loader');await writeFile(join(out,'v16','schedule.js'),schedule);
+for(const file of required){
+  const info=await stat(join(out,file));
+  if(!info.size)throw new Error(`Native bundle check failed: ${file}`);
+}
 
-// Only publishable client configuration is bundled. Secret/service-role/OpenAI
-// keys remain server-side in Supabase Edge Function secrets.
-const supabaseUrl=(process.env.WGC_SUPABASE_URL||'').replace(/\/$/,''),supabaseAnon=process.env.WGC_SUPABASE_ANON_KEY||'',aiBase=(process.env.WGC_AI_BASE||'').replace(/\/$/,'');
-await writeFile(join(out,'v16','cloud-config-v18.js'),`window.WGP_CLOUD_CONFIG=${JSON.stringify({supabaseUrl,supabaseAnonKey:supabaseAnon,aiBase,enabled:!!(supabaseUrl&&supabaseAnon)})};\n`);
-
-let html=await readFile(join(v15,'index.html'),'utf8');html=html.replace(/<link rel="manifest"[^>]*>/g,'').replace('<link rel="icon" href="./icons/icon-192.png" type="image/png">','<link rel="icon" type="image/png" sizes="192x192" href="./icons/home-192-v167.png">').replace('<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">','<link rel="apple-touch-icon" sizes="180x180" href="./icons/home-180-v167.png">').replace('<link rel="stylesheet" href="./base.css">','<link rel="stylesheet" href="./v15/base.css">').replace('<link rel="stylesheet" href="./training.css">','<link rel="stylesheet" href="./v15/training.css">').replace('<link rel="stylesheet" href="./responsive.css">','<link rel="stylesheet" href="./v15/responsive.css"><link rel="stylesheet" href="./v16/v16.css">').replace('<title>Work + Gym Planner</title>','<title>Work + Gym Coach</title>').replace(/<script defer src="\.\/[^\"]+"><\/script>/g,'');const scripts=[...v15Files.filter(f=>f.endsWith('.js')).map(f=>'./v15/'+f),...v16Files.filter(f=>f.endsWith('.js')).map(f=>'./v16/'+f)];html=html.replace('</body>',scripts.map(src=>`<script defer src="${src}"></script>`).join('')+'</body>');await writeFile(join(out,'index.html'),html);
-const checks=['index.html','v15/base.js','v16/init.js','v16/commercial-v17.js','v16/cloud-config-v18.js','v16/account-v18.js','v16/account-direct-v18.js','v16/account-security-v18.js','v16/onboarding-v18.js','v16/exercise-library-v18.js','v16/ai-coach-v18.js','v16/nutrition-plan-v18.js','v16/training-history-v1610.js','vendor/html5-qrcode.min.js','vendor/tesseract/tesseract.min.js','privacy.html'];for(const f of checks){const s=await stat(join(out,f));if(!s.size)throw new Error(`Native bundle check failed: ${f}`)}console.log(`Built Work + Gym Coach v18 native web bundle: ${out}`);if(!supabaseUrl||!supabaseAnon)console.warn('WGC_SUPABASE_URL/WGC_SUPABASE_ANON_KEY are not set; accounts remain disabled.');if(!aiBase)console.warn('WGC_AI_BASE is not set; AI Coach remains disabled.');
+console.log(`Built Work + Workout 30.0.6 native web bundle: ${out}`);

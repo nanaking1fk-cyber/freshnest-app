@@ -1,11 +1,34 @@
 {
-  "appId": "com.workgymcoach.app",
-  "appName": "Work + Gym Coach",
+  "appId": "com.bibiniifarms.workandworkout",
+  "appName": "Work + Workout",
   "webDir": "www",
   "bundledWebRuntime": false,
   "ios": {
-    "contentInset": "always",
-    "backgroundColor": "#07111f",
+    "contentInset": "never",
+    "backgroundColor": "#070a0d",
     "preferredContentMode": "mobile"
+  },
+  "android": {
+    "backgroundColor": "#070a0d",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#070a0d",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#070a0d",
+      "overlaysWebView": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_work_and_workout",
+      "iconColor": "#c8ff31"
+    }
   }
 }

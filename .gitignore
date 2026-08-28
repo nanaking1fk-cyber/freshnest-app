@@ -12,6 +12,19 @@ ios/
 android/
 **/android/
 
+# The canonical native store projects are release source; their copied web
+# payload and build products remain generated.
+!app-store/ios/
+!app-store/ios/**
+!app-store/android/
+!app-store/android/**
+app-store/www/
+app-store/icons/
+app-store/ios/App/App/public/
+app-store/android/app/src/main/assets/public/
+app-store/android/.gradle/
+app-store/android/app/build/
+
 # OS/editor artifacts
 .DS_Store
 *.log

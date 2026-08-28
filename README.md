@@ -38,7 +38,7 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
    - `STATE_DAILY_WRITE_LIMIT` optional; defaults to 300 account-sync writes/user/day
    - `STATE_DAILY_BYTE_LIMIT` optional; defaults to 256 MB of account-sync data/user/day
 4. Serve the web product only from Vercel at `https://www.workandworkout.com/`. GitHub Pages is intentionally unsupported and should remain disabled; the client will not send bearer tokens to a configurable API origin.
-5. For iOS, from `app-store/`: `npm install`, then build with `WGC_API_BASE=https://YOUR-API-HOST/api/v18 npm run ios:sync`, and open Xcode with `npm run ios:open`.
+5. For the native apps, use the canonical `app-store/` package. Run `npm install` and `npm run native:sync`, then open iOS with `npm run ios:open` or Android with `npm run android:open`. The signed-in API origin is fixed to `https://www.workandworkout.com`; no secret or configurable bearer-token destination is bundled.
 
 ## Security notes
 
@@ -48,6 +48,6 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 - Browser-executed PDF, OCR and barcode libraries are pinned in `work-gym-planner-v16/vendor/` and served from the same origin. Their versions, checksums and licenses are recorded beside the files.
 - Treat nutrition and training outputs as educational planning, not medical diagnosis or treatment.
 
-## App Store readiness
+## Apple App Store and Google Play readiness
 
-The native package is in `app-store/`. Privacy, support and terms pages are in `work-gym-planner/`. Before submission, test account creation/confirmation/password reset, migration/restore, account deletion, AI image analysis, offline behavior, and all camera permission flows on a physical iPhone.
+The canonical native package is in `app-store/`, including checked-in Xcode and Android Studio projects, native capabilities, store metadata and a release checklist. Privacy, support, terms and public account-deletion instructions are in `work-gym-planner/`. Before submission, test account creation/confirmation/password reset, migration/restore, account deletion, schedule import review, AI image analysis, offline launch, notifications, file sharing and all camera permission flows on physical iPhone and Android devices.

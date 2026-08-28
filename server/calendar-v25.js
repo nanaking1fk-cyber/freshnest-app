@@ -3,6 +3,7 @@ const {serviceFetch}=require('./v18-lib');
 const Scheduling=require('../shared/v25-scheduling');
 
 const APP_ORIGIN=()=>String(process.env.APP_ORIGIN||'https://www.workandworkout.com').replace(/\/$/,'');
+const NATIVE_RETURN_URL='workandworkout://calendar-connected';
 const PROVIDERS=new Set(['google','microsoft']);
 
 function providerConfig(provider){
@@ -37,7 +38,12 @@ function randomToken(bytes=32){return crypto.randomBytes(bytes).toString('base64
 function formBody(value){return new URLSearchParams(value).toString()}
 function normalizeProvider(value){const provider=String(value||'').toLowerCase();if(!PROVIDERS.has(provider))throw Object.assign(new Error('Choose Google or Outlook Calendar.'),{status:400});return provider}
 function allowedReturnTo(value){
-  try{const url=new URL(value||APP_ORIGIN());if(url.origin!==APP_ORIGIN())return APP_ORIGIN()+'/';return url.origin+url.pathname}catch{return APP_ORIGIN()+'/'}
+  try{
+    const url=new URL(value||APP_ORIGIN());
+    if(url.protocol==='workandworkout:'&&url.hostname==='calendar-connected')return NATIVE_RETURN_URL;
+    if(url.origin!==APP_ORIGIN())return APP_ORIGIN()+'/';
+    return url.origin+url.pathname;
+  }catch{return APP_ORIGIN()+'/'}
 }
 
 async function calendarStatus(userId){
@@ -157,4 +163,4 @@ async function disconnectCalendar(userId,{provider}={}){
   return{ok:true};
 }
 
-module.exports={providerConfig,configured,encrypt,decrypt,calendarStatus,beginOAuth,finishOAuth,syncCalendar,disconnectCalendar,proposalFromRemote,normalizeRemote,providerEventBody};
+module.exports={providerConfig,configured,encrypt,decrypt,calendarStatus,beginOAuth,finishOAuth,syncCalendar,disconnectCalendar,proposalFromRemote,normalizeRemote,providerEventBody,allowedReturnTo};

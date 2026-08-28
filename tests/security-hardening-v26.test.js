@@ -45,6 +45,16 @@ test('disallowed CORS origins receive no allow-origin header',()=>{
   assert.equal(headers.has('Access-Control-Allow-Origin'),false);
 });
 
+test('signed native app origins can reach the production API',()=>{
+  for(const origin of ['capacitor://localhost','http://localhost','https://localhost']){
+    const headers=new Map();
+    const res={setHeader:(key,value)=>headers.set(key,value),end:()=>{},statusCode:0};
+    assert.equal(lib.cors({method:'OPTIONS',headers:{origin},url:'/api/v18/state'},res),true);
+    assert.equal(res.statusCode,204);
+    assert.equal(headers.get('Access-Control-Allow-Origin'),origin);
+  }
+});
+
 test('database transport preserves upstream 4xx and maps upstream failures to 502',async()=>{
   global.fetch=async()=>new Response(JSON.stringify({message:'conflict'}),{status:409});
   await assert.rejects(lib.serviceFetch('example'),error=>error.status===409);

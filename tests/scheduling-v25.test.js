@@ -86,3 +86,10 @@ test('calendar provider tokens use authenticated encryption',()=>{
   assert.equal(calendar.decrypt(encrypted),'private-token');
   assert.match(encrypted,/^v1\./);
 });
+
+test('calendar OAuth can return safely to native apps without accepting arbitrary schemes',()=>{
+  const calendar=require('../server/calendar-v25');
+  assert.equal(calendar.allowedReturnTo('workandworkout://calendar-connected?ignored=true'),'workandworkout://calendar-connected');
+  assert.equal(calendar.allowedReturnTo('otherapp://calendar-connected'),'https://www.workandworkout.com/');
+  assert.equal(calendar.allowedReturnTo('https://attacker.example/steal'),'https://www.workandworkout.com/');
+});

@@ -1,51 +1,78 @@
-# Work + Gym Coach — iOS / App Store build
+# Work + Workout — iOS and Android release package
 
-This folder packages the commercial/general-user Work + Gym Coach as a self-contained Capacitor iOS application.
+This is the canonical native release source for the current Work + Workout product. It bundles the reviewed v30.0.6 web application inside Capacitor and adds native status-bar handling, splash behavior, haptics, local notifications, Android back navigation, OAuth browser presentation, and native file sharing.
 
-## What is already commercialized
-- Generic onboarding: no personal employer/schedule is seeded for a new user.
-- 7–28 day repeating work cycles, optional secondary/variable monthly schedules, 2–4 planned lifting days/week, and optional single-job workout availability.
-- Equipment-aware exercise alternatives and completed-workout history.
-- Nutrition, recovery, body stats/BMI/FFMI/lean mass/fat mass/BMR estimates, backup/restore and privacy controls.
-- Public privacy policy, terms and support pages.
-- App executable JavaScript is bundled into the native binary; the native build does not use the GitHub runtime loader.
+The older sibling `appstore/` directory is a legacy Work + Gym Coach prototype. Do not submit or sync that directory.
 
-## Requirements
-- macOS with a current Xcode release supported by App Store Connect.
-- Node.js 20+.
-- Apple Developer Program membership and access to App Store Connect.
-- Register/confirm the bundle identifier before the first App Store upload. The current candidate is `com.workgymcoach.app`; change it in `capacitor.config.json` before `cap add ios` if you want another identifier.
+## Release identity
 
-## Build the Xcode project
-From this `app-store` folder:
+- Product name: **Work + Workout**
+- Version: **1.0.0**
+- iOS bundle identifier / Android application ID candidate: `com.bibiniifarms.workandworkout`
+- Production API and account origin: `https://www.workandworkout.com`
+
+The identifier becomes difficult to change after the first store record or upload. Confirm it before registering the apps.
+
+## What is packaged
+
+- The same v30.0.6 landing page, account lifecycle and adaptive onboarding as production.
+- Schedule photo/PDF/text ingestion with review-before-save, recurring rotations, multi-source calendars, conflicts and overtime indicators.
+- Training planning/logging, exercise guidance and history.
+- Nutrition planning/logging, food search, barcode capture and recovery/body metrics.
+- Account sync, AI Coach and Google/Outlook calendar connections through the production HTTPS API.
+- Public privacy, terms, support and account-deletion pages.
+- Application JavaScript, images, videos, fonts and OCR/PDF libraries stored in the native bundle. There is no remote web-runtime URL and no service worker inside the app runtime.
+
+## Prerequisites
+
+- Node.js 24.
+- Apple: current full Xcode with the iOS 26 SDK, an Apple Developer Program membership, App Store Connect access and a registered bundle ID.
+- Android: current Android Studio, JDK 21, Android SDK/API 36, a Google Play Console developer account and a release upload key.
+
+This machine currently has Apple command-line tools but not full Xcode, Android Studio, a JDK or the Android SDK. The source projects can be generated here, but archives must be compiled and signed after those toolchains are installed.
+
+## Generate and sync both projects
+
+Run from `app-store/`:
 
 ```bash
 npm install
-npm run build:web
-npm run ios:add
-npm run ios:sync
-npm run ios:open
+npm run native:add
+npm run native:sync
 ```
 
-`build:web` creates `app-store/www` from the reviewed repository source and copies barcode/OCR executable JavaScript locally into the app bundle. It does not package the GitHub Pages loader.
+After the first `native:add`, use `npm run native:sync` whenever the product changes. The build fails loudly if the production loader or account/calendar integration changes in a way that would create a stale native package.
 
-## Xcode settings before archive
-1. Select your Apple Developer Team under Signing & Capabilities.
-2. Confirm the Bundle Identifier matches the identifier registered in App Store Connect.
-3. Set version `1.0.0` and build `1` (or your chosen values).
-4. Add the 1024px source icon from `resources/icon-1024.png` to the AppIcon asset set (or generate the full set with your preferred asset tool).
-5. Add these Info.plist usage descriptions:
-   - `NSCameraUsageDescription`: “Work + Gym Coach uses the camera when you choose to scan a food barcode or schedule image.”
-   - `NSPhotoLibraryUsageDescription`: “Work + Gym Coach lets you choose a barcode or schedule image for a scan you request.”
-6. Test on a physical iPhone: onboarding, every bottom tab, workout completion/history, exercise alternatives, food logging/search/barcode, body stats, work-cycle editing, variable schedule entry, backup/export/import, privacy/support links, airplane-mode launch, and camera-denied behavior.
-7. Archive with Product → Archive, then Validate App and Distribute App to App Store Connect.
+## iOS release
 
-## Privacy / review URLs
-- Privacy: `https://nanaking1fk-cyber.github.io/freshnest-app/work-gym-planner/privacy.html`
-- Support: `https://nanaking1fk-cyber.github.io/freshnest-app/work-gym-planner/support.html`
-- Terms: `https://nanaking1fk-cyber.github.io/freshnest-app/work-gym-planner/terms.html`
+1. Run `npm run ios:open`.
+2. In Xcode, select your developer Team and confirm bundle ID `com.bibiniifarms.workandworkout`.
+3. Confirm version `1.0.0` and increment the build number for every upload.
+4. Test signup, sign-in/out, onboarding, schedule import, review-before-save, workouts, nutrition, notifications, file export, camera denial, calendar OAuth and permanent account deletion on a physical iPhone.
+5. Archive, validate, and upload to App Store Connect.
+6. Supply a working reviewer account in App Review Information. Never put reviewer credentials in this repository.
 
-## Important review notes
-The app does not require an account. Core schedule, training, nutrition and body data are device-local by default. Packaged-food/barcode requests use Open Food Facts. Optional WebDAV sync is configured by the user and sends encrypted backup data to the user's chosen server. Fitness coaching is educational and not medical diagnosis or treatment.
+## Android release
 
-Before submission, complete the App Privacy questionnaire accurately for the exact build and any third-party services/SDKs included. If account creation is added later, implement in-app account deletion before submitting that version.
+1. Run `npm run android:open`.
+2. In Android Studio, install/confirm SDK 36 and test the same flows on a physical Android device.
+3. Create or select a protected upload key and configure release signing outside source control.
+4. Choose **Build → Generate Signed Bundle / APK → Android App Bundle**.
+5. Upload the `.aab` to an Internal testing release before Production.
+6. Supply a working review account under Play Console App access. Never put reviewer credentials or signing files in this repository.
+
+## Store URLs
+
+- Privacy: `https://www.workandworkout.com/work-gym-planner/privacy.html`
+- Terms: `https://www.workandworkout.com/work-gym-planner/terms.html`
+- Support: `https://www.workandworkout.com/work-gym-planner/support.html`
+- Account deletion: `https://www.workandworkout.com/work-gym-planner/delete-account.html`
+
+## Store declarations that still require the account owner
+
+- Apple App Privacy answers and age rating.
+- Google Data safety, Health apps declaration, content rating, ads declaration and target audience.
+- Developer identity, tax/banking/contracts where applicable.
+- Store screenshots, reviewer credentials, release signing and the final Submit for Review actions.
+
+Use `APP_STORE_METADATA.md`, `PLAY_STORE_METADATA.md` and `RELEASE_CHECKLIST.md` as the submission source of truth.

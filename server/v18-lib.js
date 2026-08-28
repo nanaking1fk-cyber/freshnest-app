@@ -28,6 +28,8 @@ function cors(req,res){
     'https://workandworkout.com',
     'capacitor://localhost',
     'ionic://localhost',
+    'http://localhost',
+    'https://localhost',
     String(process.env.APP_ORIGIN||'').replace(/\/$/,'')
   ].filter(Boolean));
   const accepted=allow.has(origin);

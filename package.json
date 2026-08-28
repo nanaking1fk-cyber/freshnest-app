@@ -1,7 +1,7 @@
 {
   "name": "work-and-workout",
   "private": true,
-  "version": "30.0.4",
+  "version": "30.0.5",
   "engines": { "node": "24.x" },
   "scripts": {
     "test": "node --test tests/*.test.js",

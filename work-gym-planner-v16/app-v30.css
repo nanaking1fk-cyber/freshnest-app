@@ -228,6 +228,14 @@ body.premiumV30 .aiCoachFab,
 body.premiumV30 .coachFab18,
 body.premiumV30 .coachFab{z-index:81}
 
+/* One brand mark across the authenticated product. */
+body.premiumV30 .homeDashV27 .hvBrand::before{
+  content:"";background-color:#0a0e11;
+  background-image:url("./icons/brand-mark.svg"),radial-gradient(circle at 75% 20%,rgba(214,255,63,.16),transparent 58%),linear-gradient(145deg,#171d1b,#0a0e11);
+  background-position:center;background-size:30px 30px,100% 100%,100% 100%;background-repeat:no-repeat;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 26px rgba(0,0,0,.24);
+}
+
 @media(max-width:1023px){
   body.premiumV30 .aiCoachFab,
   body.premiumV30 .coachFab18,
@@ -242,8 +250,8 @@ body.premiumV30 .coachFab{z-index:81}
     border-radius:24px;
   }
   body.premiumV30 .bottomNavV30::before{
-    content:"W+W";display:grid;place-items:center;border-bottom:1px solid var(--v30-line);
-    color:var(--v30-signal);font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.08em;
+    content:"";display:grid;place-items:center;border-bottom:1px solid var(--v30-line);
+    background:url("./icons/brand-mark.svg") center/38px 38px no-repeat;
   }
   body.premiumV30 .bottomNavV30 button{min-height:64px;padding:10px 5px}
   body.premiumV30 .bottomNavV30 small{font-size:10px!important}

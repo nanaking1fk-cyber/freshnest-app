@@ -25,10 +25,26 @@ test('v30 assets load last and are available offline',()=>{
     'the runtime must restore v30 after the legacy theme moves its stylesheet');
 });
 
+test('the premium brand uses one scalable mark instead of text initials',()=>{
+  const landing=read('work-gym-planner-v16/landing-v29.js');
+  const landingCss=read('work-gym-planner-v16/landing-v29.css');
+  const worker=read('work-gym-planner/sw.js');
+  const mark=read('work-gym-planner-v16/icons/brand-mark.svg');
+  assert.match(landing,/icons\/brand-mark\.svg/);
+  assert.match(landing,/function brandMark\(\)/);
+  assert.match(landingCss,/\.ww29BrandMark img/);
+  assert.match(css,/homeDashV27 \.hvBrand::before[\s\S]*icons\/brand-mark\.svg/);
+  assert.match(css,/bottomNavV30::before[\s\S]*icons\/brand-mark\.svg/);
+  assert.doesNotMatch(css,/bottomNavV30::before\{[\s\S]{0,180}content:"W\+W"/);
+  assert.match(mark,/stroke="#F4F7F0"/);
+  assert.match(mark,/stroke="#D6FF3F"/);
+  assert.match(worker,/icons\/brand-mark\.svg/);
+});
+
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.4/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.4');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.4/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.5/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.5');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.5/);
 });
 
 test('training opens one exercise at a time',()=>{

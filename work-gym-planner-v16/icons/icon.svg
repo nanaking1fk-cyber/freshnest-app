@@ -1,15 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
   <defs>
-    <linearGradient id="bg" x1="120" y1="80" x2="900" y2="940" gradientUnits="userSpaceOnUse"><stop stop-color="#171e27"/><stop offset="1" stop-color="#080b10"/></linearGradient>
-    <linearGradient id="lime" x1="245" y1="245" x2="790" y2="800" gradientUnits="userSpaceOnUse"><stop stop-color="#d9ff91"/><stop offset="1" stop-color="#9cda30"/></linearGradient>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+    <linearGradient id="bg" x1="118" y1="72" x2="906" y2="952" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#171D1B"/>
+      <stop offset="1" stop-color="#070A0D"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0" cy="0" r="1" gradientTransform="translate(686 292) rotate(132) scale(530)">
+      <stop stop-color="#D6FF3F" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#D6FF3F" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="1024" height="1024" rx="248" fill="url(#bg)"/>
-  <circle cx="512" cy="500" r="330" fill="#b8f34a" opacity=".08" filter="url(#glow)"/>
-  <rect x="62" y="62" width="900" height="900" rx="218" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="6"/>
-  <g fill="none" stroke="url(#lime)" stroke-linecap="round" stroke-linejoin="round" stroke-width="58">
-    <path d="M215 376v272M302 320v384M388 512h248M636 320v384M722 376v272M809 454v116"/>
-    <path d="m310 720 104-100 76 72 165-198" stroke-width="42"/>
+  <rect width="1024" height="1024" rx="244" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="244" fill="url(#halo)"/>
+  <rect x="58" y="58" width="908" height="908" rx="210" stroke="#F4F7F0" stroke-opacity=".09" stroke-width="7"/>
+  <g transform="translate(128 128) scale(12)">
+    <path d="M5 18 11 46 18 29 25 46 29 24" stroke="#F4F7F0" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="m35 24 4 22 7-17 7 17 6-28" stroke="#D6FF3F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="25" y="25" width="14" height="14" rx="4.5" fill="#D6FF3F"/>
+    <path d="M32 28.5v7M28.5 32h7" stroke="#0A0E0B" stroke-width="2.5" stroke-linecap="round"/>
   </g>
-  <circle cx="655" cy="494" r="22" fill="#b8f34a"/>
 </svg>

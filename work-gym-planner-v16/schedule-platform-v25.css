@@ -51,6 +51,12 @@ body.premiumV18 .weekSummaryV25 h2{margin:4px 0 0;font-size:22px;letter-spacing:
 body.premiumV18 .weekSummaryV25>header>span{padding:6px 9px;border-radius:99px;color:#aeb8b2;background:rgba(255,255,255,.05);font-size:7px;font-weight:850}
 body.premiumV18 .weekSummaryV25>header>span.good{color:#cfff82;background:rgba(184,243,74,.08)}
 body.premiumV18 .weekSummaryV25>header>span.warn{color:#ffaea4;background:rgba(255,122,109,.08)}
+body.premiumV18 .weekSummaryActionsV25{display:flex;align-items:center;gap:7px}
+body.premiumV18 .weekSummaryActionsV25>span{padding:6px 9px;border-radius:99px;color:#aeb8b2;background:rgba(255,255,255,.05);font-size:7px;font-weight:850;white-space:nowrap}
+body.premiumV18 .weekSummaryActionsV25>span.good{color:#cfff82;background:rgba(184,243,74,.08)}
+body.premiumV18 .weekSummaryActionsV25>span.warn{color:#ffaea4;background:rgba(255,122,109,.08)}
+body.premiumV18 #calendarClearV25{min-height:30px;padding:0 10px;border:1px solid rgba(255,146,134,.28);border-radius:9px;color:#ffb3ab;background:rgba(255,122,109,.06);font-size:7px;font-weight:900;white-space:nowrap}
+body.premiumV18 #calendarClearV25:hover{border-color:rgba(255,146,134,.55);background:rgba(255,122,109,.12)}
 body.premiumV18 .weekSummaryV25>div{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px}
 body.premiumV18 .weekSummaryV25 article{display:grid;grid-template-columns:8px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.065);border-radius:12px;background:rgba(255,255,255,.018)}
 body.premiumV18 .weekSummaryV25 article>i{width:8px;height:30px;border-radius:99px}
@@ -246,6 +252,7 @@ body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255
   body.premiumV18 .plannerTabsV25 button{padding:7px 5px}
   body.premiumV18 .plannerTabsV25 span{font-size:8px}
   body.premiumV18 .weekSummaryV25>header{align-items:flex-start}
+  body.premiumV18 .weekSummaryActionsV25{display:grid;justify-items:end}
   body.premiumV18 .proposalGroupV25>summary{grid-template-columns:auto 1fr}
   body.premiumV18 .proposalGroupV25>summary>.confidenceV25{grid-column:2}
   body.premiumV18 .proposalGroupRows{padding-left:10px;padding-right:10px}

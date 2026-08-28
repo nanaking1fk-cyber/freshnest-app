@@ -75,6 +75,16 @@ test('trusted review renders every item and requires explicit collision resoluti
   assert.match(ui,/confidenceV25/);
 });
 
+test('calendar can be cleared without deleting the account or health history',()=>{
+  const ui=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(ui,/id="calendarClearV25"/);
+  assert.match(ui,/function clearCalendarContent\(\)/);
+  assert.match(ui,/saveEvents\(\[\]\);saveRotations\(\[\]\)/);
+  assert.match(ui,/saveDayItems\(\{\}\)/);
+  assert.match(ui,/keeps your account, saved employer names, workout history, nutrition/);
+  assert.match(ui,/id="calendarClearV25"/);
+});
+
 test('calendar connection schema is RLS-enabled and browser roles cannot read tokens',()=>{
   const migration=read('supabase/migrations/20260826120000_calendar_sync_v25.sql');
   for(const table of ['calendar_oauth_states','calendar_connections','calendar_event_links']){

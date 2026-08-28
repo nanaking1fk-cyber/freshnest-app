@@ -51,4 +51,4 @@ if(errors.length){
   console.error('Native bundle audit FAILED\n- '+errors.join('\n- '));
   process.exit(1);
 }
-console.log('Native bundle audit passed: v30.1.2 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');
+console.log('Native bundle audit passed: v30.1.3 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');

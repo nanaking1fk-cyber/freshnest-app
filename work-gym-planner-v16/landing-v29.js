@@ -9,7 +9,7 @@
   function brandMark(){return '<span class="ww29BrandMark" aria-hidden="true"><img src="'+BRAND_MARK+'" alt=""></span>'}
 
   function cta(label,extra){
-    return '<button class="ww29Button'+(extra?' '+extra:'')+'" data-ww29="signup">'+(label||'Plan my week')+'<span aria-hidden="true">↗</span></button>';
+    return '<button class="ww29Button'+(extra?' '+extra:'')+'" data-ww29="signup">'+(label||'Build my week')+'<span aria-hidden="true">↗</span></button>';
   }
   function signal(kind,label,value,note){
     return '<div class="ww29Signal '+kind+'"><i></i><span><small>'+label+'</small><b>'+value+'</b><em>'+note+'</em></span></div>';
@@ -26,17 +26,17 @@
       '<header class="ww29Nav"><div class="ww29NavIn">'+
         '<button class="ww29Brand" data-ww29="top" aria-label="Work + Workout home">'+brandMark()+'<b>Work + Workout</b></button>'+
         '<nav aria-label="Landing page"><a href="#ww29System">How it works</a><a href="#ww29Day">What it plans</a><a href="#ww29Workers">Who it is for</a></nav>'+
-        '<div class="ww29NavActions"><button class="ww29SignIn" data-ww29="signin">Sign in</button>'+cta('Plan my week','small')+'</div>'+
+        '<div class="ww29NavActions"><button class="ww29SignIn" data-ww29="signin">Sign in</button>'+cta('Build my week','small')+'</div>'+
       '</div></header>'+
 
       '<main class="ww29Main">'+
         '<section class="ww29Hero">'+
           '<div class="ww29HeroCopy">'+
-            '<p class="ww29Eyebrow"><span></span>The all-in-one planner for busy working people</p>'+
-            '<h1>Plan work, workouts, meals and life.<br><em>All in one calendar.</em></h1>'+
-            '<p class="ww29Lead">Upload a photo or PDF of your work schedule, paste your shifts, or type them once. Work + Workout builds a realistic week with workouts, meal guidance, recovery, personal tasks and reminders fitted around your job.</p>'+
-            '<div class="ww29HeroActions">'+cta('Plan my week')+'<a href="#ww29Day">See how it works <span>↓</span></a></div>'+
-            '<div class="ww29Trust"><span>No card required</span><span>Review before saving</span><span>Your own private plan</span></div>'+
+            '<p class="ww29Eyebrow"><span></span>The adaptive planner built around your job</p>'+
+            '<h1>Add your work schedule.<br><em>Get your whole week planned.</em></h1>'+
+            '<p class="ww29Lead">Upload a photo or PDF, or paste your shifts. Work + Workout turns your schedule into one realistic plan for training, meals, recovery, errands and reminders—with every detail shown for your approval.</p>'+
+            '<div class="ww29HeroActions">'+cta('Build my week')+'<a href="#ww29Day">Watch it work <span>↓</span></a></div>'+
+            '<div class="ww29Trust"><span>Free to start</span><span>Nothing saves without your approval</span><span>Your plan stays private</span></div>'+
           '</div>'+
 
           '<div class="ww29Cinema" aria-label="A day planned with Work + Workout">'+

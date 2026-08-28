@@ -27,15 +27,16 @@ test('the cinematic hero shows the app in use across the day',()=>{
 });
 
 test('the story is authentic to connected working lives',()=>{
-  assert.match(js,/Plan work, workouts, meals and life/);
-  assert.match(js,/photo or PDF of your work schedule/);
-  assert.match(js,/personal tasks and reminders/);
+  assert.match(js,/Add your work schedule/);
+  assert.match(js,/Get your whole week planned/);
+  assert.match(js,/Upload a photo or PDF/);
+  assert.match(js,/errands and reminders/);
   for(const signal of ['Work','Train','Fuel','Recover'])assert.match(js,new RegExp('>'+signal+'<'));
   for(const worker of ['Healthcare','Construction','Logistics','Hospitality'])assert.match(js,new RegExp(worker));
 });
 
 test('the trust layer appears before commitment',()=>{
-  assert.match(js,/Review before saving/);
+  assert.match(js,/Nothing saves without your approval/);
   assert.match(js,/Review before it is saved/);
   assert.match(js,/Nothing saved yet/);
   assert.match(js,/confidence/i);

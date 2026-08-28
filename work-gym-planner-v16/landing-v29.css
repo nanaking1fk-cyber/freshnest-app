@@ -13,15 +13,17 @@
   --ww-sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --ww-serif:"Instrument Serif",Georgia,serif;--ww-mono:"IBM Plex Mono",ui-monospace,monospace;
   --ww-gutter:clamp(20px,5vw,72px);
-  position:fixed;inset:0;z-index:80;overflow:auto;overflow-x:hidden;background:var(--ww-bg);color:var(--ww-ink);
-  font-family:var(--ww-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-overflow-scrolling:touch;
+  position:relative;z-index:80;width:100%;min-height:100svh;overflow:clip;background:var(--ww-bg);color:var(--ww-ink);
+  font-family:var(--ww-sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
 }
-#wwLanding[hidden]{display:none!important}body.landingActive{overflow:hidden}body.landingActive .bottomNav,body.landingActive .aiCoachFab,body.landingActive .coachFab18{display:none!important}
+#wwLanding[hidden]{display:none!important}
+body.landingActive{min-height:100%;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:none;background:#070a0d}
+body.landingActive #appRoot,body.landingActive #updateToast,body.landingActive .bottomNav,body.landingActive .aiCoachFab,body.landingActive .coachFab18{display:none!important}
 #wwLanding *{box-sizing:border-box}#wwLanding button,#wwLanding a{font:inherit}#wwLanding button{cursor:pointer}
 #wwLanding a{color:inherit}#wwLanding img,#wwLanding video{display:block;max-width:100%}
 #wwLanding ::selection{background:var(--ww-signal);color:#071006}
 
-#wwLanding .ww29Nav{position:sticky;top:0;z-index:40;padding:14px var(--ww-gutter) 0;pointer-events:none}
+#wwLanding .ww29Nav{position:sticky;top:0;z-index:40;padding:calc(14px + env(safe-area-inset-top,0px)) max(var(--ww-gutter),env(safe-area-inset-right,0px)) 0 max(var(--ww-gutter),env(safe-area-inset-left,0px));pointer-events:none}
 #wwLanding .ww29NavIn{max-width:1240px;margin:auto;min-height:64px;display:flex;align-items:center;gap:30px;padding:9px 10px 9px 18px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(8,12,15,.76);box-shadow:0 16px 50px rgba(0,0,0,.28);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);pointer-events:auto}
 #wwLanding .ww29Brand{display:inline-flex;align-items:center;gap:11px;border:0;background:none;color:var(--ww-ink);padding:0;text-decoration:none;white-space:nowrap}
 #wwLanding .ww29Brand>.ww29BrandMark{width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(214,255,63,.28);border-radius:12px;background:radial-gradient(circle at 75% 20%,rgba(214,255,63,.16),transparent 58%),linear-gradient(145deg,#171d1b,#0a0e11);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 26px rgba(0,0,0,.24)}
@@ -93,7 +95,7 @@
 #wwLanding button:focus-visible,#wwLanding a:focus-visible{outline:2px solid var(--ww-signal);outline-offset:3px}
 @media(max-width:1050px){#wwLanding .ww29Nav nav{display:none}#wwLanding .ww29Hero{grid-template-columns:1fr;max-width:860px}#wwLanding .ww29HeroCopy{max-width:750px}#wwLanding .ww29Hero h1{max-width:11ch}#wwLanding .ww29Cinema{min-height:640px}#wwLanding .ww29Day{grid-template-columns:1fr}.ww29DayCopy{max-width:700px}#wwLanding .ww29Workers .ww29SectionHead{grid-template-columns:1fr}.ww29Workers .ww29SectionHead>p:last-child{grid-column:1}}
 @media(max-width:780px){
-  #wwLanding .ww29Nav{padding:9px 10px 0}#wwLanding .ww29NavIn{min-height:58px;padding:7px 8px 7px 12px;border-radius:15px;gap:10px}#wwLanding .ww29Brand>span{width:33px;height:33px}.ww29Brand>b{font-size:13px!important}#wwLanding .ww29NavActions{margin-left:auto;gap:9px}#wwLanding .ww29SignIn{display:block;font-size:12px;padding:10px 2px}#wwLanding .ww29Button.small{min-height:39px;padding:0 11px;font-size:11px;gap:6px}
+  #wwLanding .ww29Nav{padding:calc(9px + env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-right,0px)) 0 max(10px,env(safe-area-inset-left,0px))}#wwLanding .ww29NavIn{min-height:58px;padding:7px 8px 7px 12px;border-radius:15px;gap:10px;background:rgba(8,12,15,.96);backdrop-filter:none;-webkit-backdrop-filter:none}#wwLanding .ww29Brand>span{width:33px;height:33px}.ww29Brand>b{font-size:13px!important}#wwLanding .ww29NavActions{margin-left:auto;gap:9px}#wwLanding .ww29SignIn{display:block;font-size:12px;padding:10px 2px}#wwLanding .ww29Button.small{min-height:39px;padding:0 11px;font-size:11px;gap:6px}
   #wwLanding .ww29Hero{padding-top:64px;min-height:auto}#wwLanding .ww29Hero h1{font-size:clamp(44px,13vw,70px)}#wwLanding .ww29Cinema{min-height:560px;margin-top:8px}#wwLanding .ww29Film{width:100%;border-radius:24px;aspect-ratio:4/5}#wwLanding .ww29LiveCard{width:67%;right:-3%;bottom:-4%}
   #wwLanding .ww29Proof{grid-template-columns:1fr;margin-top:20px;margin-bottom:110px}.ww29Proof>div+div{border-left:0!important;border-top:0!important}
   #wwLanding .ww29Section{padding-bottom:110px}#wwLanding .ww29Tabs{overflow:auto;grid-template-columns:repeat(4,minmax(110px,1fr));margin-right:calc(var(--ww-gutter)*-1);padding-right:var(--ww-gutter)}#wwLanding .ww29FeatureStage{grid-template-columns:1fr}.ww29FeatureCopy{max-width:650px}
@@ -101,11 +103,11 @@
 }
 @media(max-width:520px){
   #wwLanding .ww29NavIn .ww29Brand>b{display:none}#wwLanding .ww29NavActions{gap:7px}#wwLanding .ww29Button.small span{display:none}
-  #wwLanding .ww29Hero{padding-left:20px;padding-right:20px;padding-bottom:65px}.ww29HeroCopy br{display:none}#wwLanding .ww29Lead{font-size:16px}.ww29HeroActions{align-items:flex-start!important;flex-direction:column;gap:17px!important}.ww29HeroActions .ww29Button{width:100%}.ww29Trust{display:grid!important;grid-template-columns:1fr 1fr}
+  #wwLanding .ww29Hero{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-bottom:65px}.ww29HeroCopy br{display:none}#wwLanding .ww29Lead{font-size:16px}.ww29HeroActions{align-items:flex-start!important;flex-direction:column;gap:17px!important}.ww29HeroActions .ww29Button{width:100%}.ww29Trust{display:grid!important;grid-template-columns:1fr 1fr}
   #wwLanding .ww29Cinema{min-height:520px}.ww29FilmCaption{bottom:82px!important}.ww29FilmCaption h2{font-size:29px!important}.ww29FilmSteps{left:19px!important;right:19px!important;bottom:19px!important}.ww29LiveCard{position:absolute;width:86%;right:-4%;bottom:-8%;padding:14px}.ww29LiveCard .ww29Time{padding:7px 0}.ww29LiveCard .ww29Time:nth-of-type(4){display:none}.ww29Adapt{font-size:8px!important}
   #wwLanding .ww29Proof{padding:0 20px}.ww29Section,#wwLanding .ww29Workers{padding-left:20px;padding-right:20px}.ww29SectionHead h2,.ww29DayCopy h2,.ww29Workers h2{font-size:40px}.ww29FeatureStage{padding-top:34px}.ww29Product{padding:17px}.ww29Signal span{grid-template-columns:70px 1fr!important}.ww29Signal em{display:none}.ww29Source{grid-template-columns:38px 1fr!important}.ww29Source>em{display:none}.ww29Product .ww29Source:nth-of-type(3){display:none}
   #wwLanding .ww29Day{padding:68px 20px}.ww29DayBoard{padding:17px}.ww29Date{display:grid;grid-template-columns:1fr auto}.ww29Date>b{grid-column:1/-1;grid-row:2}.ww29CoachNote{grid-template-columns:32px 1fr}.ww29CoachNote button{display:none}
   #wwLanding .ww29Raw,.ww29Proposal{padding:17px}.ww29Raw>p{font-size:19px}.ww29Raw>div:last-child button:nth-child(2){display:none}
-  #wwLanding .ww29WorkerStage{min-height:600px;border-radius:22px}.ww29WorkerControls{left:24px;right:24px}.ww29WorkerControls i{width:20px}.ww29Close{margin:0 12px;min-height:540px;border-radius:23px}.ww29Close h2{font-size:55px}.ww29Footer{grid-template-columns:1fr}.ww29Footer nav{grid-row:3}.ww29Footer>small{grid-column:1;text-align:left}
+  #wwLanding .ww29WorkerStage{min-height:600px;border-radius:22px}.ww29WorkerControls{left:24px;right:24px}.ww29WorkerControls i{width:20px}.ww29Close{margin:0 12px;min-height:540px;border-radius:23px}.ww29Close h2{font-size:55px}.ww29Footer{grid-template-columns:1fr;padding-bottom:max(55px,calc(env(safe-area-inset-bottom,0px) + 28px))}.ww29Footer nav{grid-row:3}.ww29Footer>small{grid-column:1;text-align:left}
 }
 @media(prefers-reduced-motion:reduce){#wwLanding *,#wwLanding *:before,#wwLanding *:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}

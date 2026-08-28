@@ -76,7 +76,21 @@ test('the redesign stylesheet and final shell load last',()=>{
 test('the landing sits between app chrome and account dialogs',()=>{
   const z=(css.match(/#wwLanding\.ww29\{[\s\S]*?z-index:(\d+)/)||[])[1];
   assert.ok(Number(z)>50&&Number(z)<100,`unexpected landing z-index ${z}`);
-  assert.match(css,/body\.landingActive \.bottomNav[^{]*\{display:none!important\}/);
+  assert.match(css,/body\.landingActive #appRoot[^\{]*\{display:none!important\}/);
+  assert.match(css,/body\.landingActive\{[^}]*overflow-y:auto/);
+  assert.doesNotMatch(css,/#wwLanding\.ww29\{[^}]*position:fixed/);
+  assert.doesNotMatch(css,/#wwLanding\.ww29\{[^}]*-webkit-overflow-scrolling:touch/);
+});
+
+test('mobile landing respects device safe areas and avoids sticky blur stalls',()=>{
+  assert.match(css,/env\(safe-area-inset-top,0px\)/);
+  assert.match(css,/env\(safe-area-inset-left,0px\)/);
+  assert.match(css,/env\(safe-area-inset-right,0px\)/);
+  assert.match(css,/env\(safe-area-inset-bottom,0px\)/);
+  assert.match(css,/@media\(max-width:780px\)[\s\S]*?\.ww29NavIn\{[^}]*backdrop-filter:none/);
+  assert.match(js,/IntersectionObserver/);
+  assert.match(js,/dataset\.cinemaVisible/);
+  assert.match(js,/window\.scrollTo\(0,0\)/);
 });
 
 test('the landing only shows to signed-out visitors',()=>{

@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.5/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.5');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.5/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.6/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.6');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.6/);
 });
 
 test('training opens one exercise at a time',()=>{

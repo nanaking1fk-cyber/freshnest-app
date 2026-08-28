@@ -177,15 +177,30 @@
     root.querySelector('[data-worker-prev]').onclick=function(){worker(root,Number(root.dataset.workerIndex||0)-1)};
     root.querySelector('[data-worker-next]').onclick=function(){worker(root,Number(root.dataset.workerIndex||0)+1)};
     worker(root,0);
+    var cinema=root.querySelector('.ww29Cinema');
+    var workerStage=root.querySelector('.ww29WorkerStage');
+    root.dataset.cinemaVisible='true';root.dataset.workerVisible='false';
+    if('IntersectionObserver' in window){
+      var visibilityObserver=new IntersectionObserver(function(entries){entries.forEach(function(entry){
+        if(entry.target===cinema){
+          root.dataset.cinemaVisible=String(entry.isIntersecting);
+          cinema.querySelectorAll('video').forEach(function(video){
+            if(!entry.isIntersecting)video.pause();else if(video.classList.contains('active'))video.play().catch(function(){});
+          });
+        }
+        if(entry.target===workerStage)root.dataset.workerVisible=String(entry.isIntersecting);
+      })},{root:null,rootMargin:'120px 0px',threshold:.01});
+      if(cinema)visibilityObserver.observe(cinema);if(workerStage)visibilityObserver.observe(workerStage);
+    }
     if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
       var scenes=['work','train','fuel'],sceneIndex=0;
-      window.setInterval(function(){if(!root.hidden){sceneIndex=(sceneIndex+1)%scenes.length;showScene(root,scenes[sceneIndex])}},6500);
-      window.setInterval(function(){if(!root.hidden)worker(root,Number(root.dataset.workerIndex||0)+1)},7200);
+      window.setInterval(function(){if(!root.hidden&&root.dataset.cinemaVisible!=='false'){sceneIndex=(sceneIndex+1)%scenes.length;showScene(root,scenes[sceneIndex])}},6500);
+      window.setInterval(function(){if(!root.hidden&&root.dataset.workerVisible!=='false')worker(root,Number(root.dataset.workerIndex||0)+1)},7200);
     }
   }
   function shouldShow(){return !A.session}
-  function show(){var root=document.getElementById(ID);if(!root)return;document.querySelectorAll('.modal.open').forEach(function(modal){window.closeModal&&window.closeModal(modal.id)});root.hidden=false;document.body.classList.add('landingActive','premiumV29');root.scrollTop=0}
-  function hide(){var root=document.getElementById(ID);if(root)root.hidden=true;document.body.classList.remove('landingActive')}
+  function show(){var root=document.getElementById(ID);if(!root)return;document.querySelectorAll('.modal.open').forEach(function(modal){window.closeModal&&window.closeModal(modal.id)});root.hidden=false;document.body.classList.add('landingActive','premiumV29');window.scrollTo(0,0)}
+  function hide(){var root=document.getElementById(ID);if(root)root.hidden=true;document.body.classList.remove('landingActive');window.scrollTo(0,0)}
   function mount(){var root=document.getElementById(ID);if(!root){document.body.insertAdjacentHTML('beforeend',markup());root=document.getElementById(ID);bind(root)}if(shouldShow())show();else hide()}
 
   mount();

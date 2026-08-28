@@ -14,8 +14,14 @@ fixedWork=function(k){let p=profile();if(!p?.fixed?.enabled)return false;let pat
 const _variableCodeV184=variableCode;
 variableCode=function(k){let code=_variableCodeV184(k);if(code!=='?')return code;let setup=jget(PREFIX+'onboarding-v18',{})?.answers?.work;if(setup?.secondaryEnabled&&Array.isArray(setup.secondaryDays))return setup.secondaryDays.includes(date(k).getDay())?'X':'D';return code};
 
+function existingRoutineOn(k){let p=profile(),weekday=date(k).getDay();return p?.trainingMode==='existing'?(p.existingRoutine||[]).find(item=>+item.weekday===weekday)||null:null}
+function plannedWorkoutName(k,wi=projectedWorkoutIndex(k)){let completed=completedOn(k),override=overrides()[k];return completed?.customWorkoutName||override?.customWorkoutName||existingRoutineOn(k)?.name||WORKOUTS[wi]?.name||'Workout'}
+function plannedWorkoutTime(k){return overrides()[k]?.customStart||existingRoutineOn(k)?.start||''}
+
 suggestedTrainingDates=function(start,end){
- if(!profile())return[];let p=profile(),target=clamp(+p.trainingDaysPerWeek||3,2,4),o=overrides(),selected=[],firstMon=monOf(start),last=end;
+ if(!profile())return[];let p=profile(),o=overrides();
+ if(p.trainingMode==='existing'&&p.existingRoutine?.length){let selected=[];for(let k=start;k<=end;k=addDays(k,1)){if(existingRoutineOn(k)&&o[k]?.action!=='skip')selected.push(k)}for(const[k,v]of Object.entries(o))if(v.action==='train'&&k>=start&&k<=end&&!selected.includes(k))selected.push(k);return[...new Set(selected)].sort()}
+ let target=clamp(+p.trainingDaysPerWeek||3,2,4),selected=[],firstMon=monOf(start),last=end;
  for(let wk=firstMon;wk<=last;wk=addDays(wk,7)){
    let candidates=[];for(let i=0;i<7;i++){let k=addDays(wk,i);if(k<start||k>end)continue;if(o[k]?.action==='skip')continue;let sc=recoveryScore(k);if(Number.isFinite(sc))candidates.push({k,sc})}
    candidates.sort((a,b)=>b.sc-a.sc||a.k.localeCompare(b.k));let picked=[];
@@ -61,7 +67,7 @@ function addCommercialProductUI(){
  let more=$('#page-more .menuCards');if(more&&!$('#commercialPrivacy')){let p=document.createElement('button');p.id='commercialPrivacy';p.innerHTML='<span>🔒</span><div><b>Privacy & terms</b><small>How your schedule, health and training data are handled</small></div><i>›</i>';p.onclick=()=>location.href='/freshnest-app/work-gym-planner/privacy.html';more.appendChild(p)}
  let top=$('.topbar h1');if(top)top.textContent='Work + Workout';let about=$('#aboutDialog h2');if(about)about.textContent='About Work + Workout';document.title='Work + Workout';
 }
-function migrateCommercialProfile(){let p=profile();if(!p)return;if(!p.trainingDaysPerWeek)p.trainingDaysPerWeek=3;if(p.singleJobTraining==null)p.singleJobTraining=true;if(!p.equipmentMode)p.equipmentMode='full';if(!p.productProfileVersion)p.productProfileVersion=17;jset(K.profile,p)}
+function migrateCommercialProfile(){let p=profile();if(!p)return;if(!p.trainingDaysPerWeek)p.trainingDaysPerWeek=3;if(!p.trainingMode)p.trainingMode='adaptive';if(!Array.isArray(p.existingRoutine))p.existingRoutine=[];if(p.singleJobTraining==null)p.singleJobTraining=true;if(!p.equipmentMode)p.equipmentMode='full';if(!p.productProfileVersion)p.productProfileVersion=17;jset(K.profile,p)}
 
 function setupCommercialV17(){ensureCommercialProfileUI();migrateCommercialProfile();addCommercialProductUI();$$('[data-commercial-template]').forEach(b=>b.onclick=()=>setCommercialTemplate(b.dataset.commercialTemplate));let rl=$('#rotationLength');if(rl)rl.onchange=e=>resizeRotation(e.target.value);let custom=$('#useCustom');if(custom)custom.onclick=()=>{jset(K.profile,genericProfileTemplate());fillProfileForm()}}
 setupCommercialV17();

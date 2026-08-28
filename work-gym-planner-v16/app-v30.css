@@ -114,6 +114,16 @@ body.premiumV30 .pausedPreview b{margin-top:22px;font-size:17px}
 body.premiumV30 .pausedPreview small{margin-top:7px;color:var(--v30-muted);font-size:12px;line-height:1.45}
 body.premiumV30 .pausedNote{margin:15px 2px 0;color:var(--v30-faint);font-size:12px}
 
+/* Bring-your-own-program mode keeps scheduling and logging without replacing it. */
+body.premiumV30 .ownRoutineSession{padding:clamp(22px,4vw,38px);border-color:rgba(214,255,63,.2);background:radial-gradient(circle at 100% 0,rgba(214,255,63,.1),transparent 32%),var(--v30-panel)}
+body.premiumV30 .ownRoutineSession>p:first-child{margin:0;color:var(--v30-signal)}
+body.premiumV30 .ownRoutineSession h3{margin:10px 0;font-size:clamp(28px,4vw,44px);letter-spacing:-.045em}
+body.premiumV30 .ownRoutineSession>p:not(:first-child){max-width:680px;color:var(--v30-muted);line-height:1.55}
+body.premiumV30 .ownRoutineGrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-top:24px}
+body.premiumV30 .ownRoutineGrid label{display:grid;gap:7px;color:var(--v30-muted);font-size:11px}
+body.premiumV30 .ownRoutineGrid .span2{grid-column:1/-1}
+body.premiumV30 .ownRoutineGrid input,body.premiumV30 .ownRoutineGrid textarea{width:100%;border:1px solid var(--v30-line);border-radius:13px;background:#0b1013;color:var(--v30-text);padding:13px}
+
 @media(max-width:700px){
   body.premiumV30 .onboardingPausedHome{min-height:calc(100dvh - 130px)}
   body.premiumV30 .pausedSetupHero{padding:30px 22px;border-radius:22px}
@@ -122,6 +132,8 @@ body.premiumV30 .pausedNote{margin:15px 2px 0;color:var(--v30-faint);font-size:1
   body.premiumV30 .pausedPreview{grid-template-columns:1fr}
   body.premiumV30 .pausedPreview article{min-height:112px}
   body.premiumV30 .pausedPreview b{margin-top:15px}
+  body.premiumV30 .ownRoutineGrid{grid-template-columns:1fr}
+  body.premiumV30 .ownRoutineGrid .span2{grid-column:1}
 }
 
 /* Calendar: a workspace with one calm, scrollable tool rail. */

@@ -46,6 +46,8 @@
       sleepHours:String(basics.sleepHours||p?.sleepTarget||7.5),
       bedtime:basics.bedtime||'23:00',
       commitments:commitments,
+      trainingMode:training.mode||p?.trainingMode||'adaptive',
+      existingRoutine:training.existingRoutineText||p?.existingRoutineText||(p?.existingRoutine||[]).map(function(item){return DAYS[item.weekday]+' '+(item.start||'18:00')+' '+(item.name||'Workout')}).join('\n'),
       trainingDays:String(training.days||p?.trainingDaysPerWeek||3),
       duration:String(training.duration||60),
       experience:training.experience||'intermediate',
@@ -197,8 +199,13 @@
     },
     {
       id:'training',
-      render:function(){return question('dumbbell','Training that fits','What can you realistically sustain?','Choose a weekly rhythm, session length, experience level, equipment and preferred time.',
-        choices('trainingDays',[
+      dynamic:true,
+      render:function(){const own=get('trainingMode','adaptive')==='existing';return question('dumbbell','Your training, your choice','How should Work + Workout handle your workouts?','Use our adaptive program, or keep the routine you already follow and let us protect its place in your week.',
+        choices('trainingMode',[
+          {value:'adaptive',label:'Build a program for me',copy:'Choose realistic days and provide a progressive routine',icon:'↗'},
+          {value:'existing',label:'I already have a routine',copy:'Keep my workout names, days and times exactly as entered',icon:'✓'}
+        ],'adaptive')+
+        (own?'<label class="guidedField guidedFieldTop"><span>Paste your weekly workout schedule</span><textarea data-answer="existingRoutine" rows="5" placeholder="Mon 18:00 Push\nWed 18:00 Pull\nFri 17:30 Legs">'+safe(get('existingRoutine'))+'</textarea><small>One workout per line: day, time, then your workout name. We schedule and track it—we do not replace it.</small></label>':choices('trainingDays',[
         {value:'2',label:'2 sessions',copy:'A focused minimum-effective plan',icon:'2'},
         {value:'3',label:'3 sessions',copy:'Balanced progress and recovery',icon:'3'},
         {value:'4',label:'4 sessions',copy:'More volume when your week supports it',icon:'4'}
@@ -208,7 +215,8 @@
           selectInput('experience','Experience',[{value:'beginner',label:'Getting started'},{value:'intermediate',label:'Consistent lifter'},{value:'advanced',label:'Highly experienced'}])+
           selectInput('equipment','Equipment',[{value:'full',label:'Full commercial gym'},{value:'basic',label:'Basic gym'},{value:'home',label:'Home or minimal'}])+
           selectInput('preferred','Best energy window',[{value:'morning',label:'Morning'},{value:'afternoon',label:'Afternoon'},{value:'evening',label:'Evening'},{value:'flexible',label:'Flexible'}])+
-        '</div><label class="guidedField guidedFieldTop"><span>Limitations or movements to avoid · optional</span><textarea data-answer="limitations" rows="3" placeholder="Example: avoid deep knee flexion; prefer machines for pressing">'+safe(get('limitations'))+'</textarea></label>')}
+        '</div><label class="guidedField guidedFieldTop"><span>Limitations or movements to avoid · optional</span><textarea data-answer="limitations" rows="3" placeholder="Example: avoid deep knee flexion; prefer machines for pressing">'+safe(get('limitations'))+'</textarea></label>'))},
+      validate:function(){return get('trainingMode','adaptive')==='existing'&&!parseTrainingRoutine(get('existingRoutine'),+get('duration')||60).length?'Add at least one workout like “Mon 18:00 Push”.':''}
     },
     {
       id:'nutrition',
@@ -251,6 +259,7 @@
         const field=button.dataset.choiceField;
         set(field,button.dataset.choiceValue);
         document.querySelectorAll('[data-choice-field="'+field+'"]').forEach(function(other){other.classList.toggle('selected',other===button)});
+        if(screen.dynamic){setTimeout(function(){render()},80);return}
         if(screen.auto)setTimeout(function(){goNext()},230);
       });
     });
@@ -319,6 +328,22 @@
     });
     return out;
   }
+  function parseTrainingRoutine(text,duration){
+    const byDay=new Map();
+    String(text||'').split(/\n+/).forEach(function(raw){
+      const match=raw.trim().match(/^(Sun|Mon|Tue|Wed|Thu|Fri|Sat)(?:day)?\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?(?:\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?)?\s+(.+)$/i);
+      if(!match)return;
+      const weekday=DAYS.findIndex(function(value){return value.toLowerCase()===match[1].slice(0,3).toLowerCase()});
+      function minutes(hour,minute,period){let h=+hour,m=+minute||0;if(period){h%=12;if(period.toLowerCase()==='pm')h+=12}return h>=0&&h<24&&m>=0&&m<60?h*60+m:null}
+      const startMinutes=minutes(match[2],match[3],match[4]);
+      if(startMinutes==null)return;
+      let endMinutes=match[5]?minutes(match[5],match[6],match[7]):startMinutes+(+duration||60);
+      if(endMinutes==null)return;if(endMinutes<=startMinutes)endMinutes+=1440;
+      const clock=function(value){value=((value%1440)+1440)%1440;return String(Math.floor(value/60)).padStart(2,'0')+':'+String(value%60).padStart(2,'0')};
+      byDay.set(weekday,{weekday:weekday,dayName:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][weekday],start:clock(startMinutes),end:clock(endMinutes),duration:endMinutes-startMinutes,name:match[8].trim().slice(0,80)||'Workout'});
+    });
+    return[...byDay.values()].sort(function(a,b){return a.weekday-b.weekday});
+  }
   function collectAnswers(){
     const workMode=get('workMode','standard');
     const second=get('secondJob','no')==='yes'&&workMode!=='none';
@@ -353,7 +378,10 @@
         commitments:parseCommitments(get('commitments'))
       },
       training:{
-        days:+get('trainingDays')||3,
+        mode:get('trainingMode','adaptive'),
+        existingRoutineText:get('existingRoutine').trim(),
+        existingRoutine:parseTrainingRoutine(get('existingRoutine'),+get('duration')||60),
+        days:get('trainingMode','adaptive')==='existing'?Math.max(1,parseTrainingRoutine(get('existingRoutine'),+get('duration')||60).length):(+get('trainingDays')||3),
         duration:+get('duration')||60,
         experience:get('experience','intermediate'),
         equipment:get('equipment','full'),
@@ -385,7 +413,7 @@
       window.dispatchEvent(new CustomEvent('wgc:profile-ready'));
       showPreview(answers,plan,true);
       A.pushState?.({quiet:true}).catch(function(){});
-      if(A.session&&A.config?.aiConfigured){
+      if(A.session&&A.config?.aiConfigured&&answers.training.mode!=='existing'){
         A.authedFetch('onboarding',{method:'POST',body:JSON.stringify({answers:answers,deterministicPlan:plan})})
           .then(function(result){
             if(!result.plan)return;
@@ -413,11 +441,11 @@
       '<div class="guidedPlanReady">'+
         '<div class="guidedPlanPhoto"><img src="../work-gym-planner-v16/assets/whole-day-system-v18-web.jpg" alt="A balanced day of training, food and planning"></div>'+
         '<p class="guidedEyebrow">READY FOR '+safe(answers.basics.name.toUpperCase())+'</p>'+
-        '<h3>Your first week has a rhythm.</h3>'+
-        '<p>'+safe(ai.summary||'We protected work, commute and sleep first, then placed training and nutrition around the strongest available windows.')+'</p>'+
+        '<h3>'+(answers.training.mode==='existing'?'Your routine stays yours.':'Your first week has a rhythm.')+'</h3>'+
+        '<p>'+safe(ai.summary||(answers.training.mode==='existing'?'We kept your workout names, days and times, then placed work, nutrition and recovery around them.':'We protected work, commute and sleep first, then placed training and nutrition around the strongest available windows.'))+'</p>'+
       '</div>'+
       '<div class="guidedPreviewGrid">'+
-        '<section><span>TRAINING</span><h4>Best workout windows</h4>'+
+        '<section><span>TRAINING</span><h4>'+(answers.training.mode==='existing'?'Your existing schedule':'Best workout windows')+'</h4>'+
           ((training.days||[]).map(function(day){return '<div class="guidedPlanRow"><div><b>'+safe(day.dayName)+' · '+safe(day.workout)+'</b><small>'+safe(day.reason||'Best available window')+'</small></div><strong>'+safe(day.start)+'–'+safe(day.end)+'</strong></div>'}).join('')||'<p>No reliable workout windows were found yet. You can adjust availability after setup.</p>')+
         '</section>'+
         '<section><span>NUTRITION</span><h4>Starting daily targets</h4>'+

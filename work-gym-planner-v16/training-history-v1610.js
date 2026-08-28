@@ -11,7 +11,7 @@ function completedWorkoutSummary(s){
     let er=e1rm(e);if(er>0&&(!best||er>best.value))best={name:e.name,value:er};
   }
   let wi=Number.isInteger(+s.workoutIndex)?+s.workoutIndex:0,w=WORKOUTS[wi]||{};
-  return{workout:w.name||'Workout',focus:w.focus||'',exercises:exercises.length,workingSets,hardSets,volume,best};
+  return{workout:s.customWorkoutName||w.name||'Workout',focus:s.customRoutine?'Your existing routine':(w.focus||''),exercises:exercises.length,workingSets,hardSets,volume,best};
 }
 function workoutSessionPRs(s){
   let older=history().filter(x=>x.completed&&x.date<s.date),prs=[];

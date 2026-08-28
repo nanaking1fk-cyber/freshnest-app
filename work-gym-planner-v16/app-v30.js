@@ -213,7 +213,7 @@
     window.APP_VERSION=VERSION;
     document.body.classList.add('premiumV30');
     document.body.classList.remove('premiumV28');
-    document.title='Work + Workout | Your day, already planned';
+    document.title='Work + Workout | Your whole week, planned';
     ensureStylesLast();
     enhanceNavigation();
     enhancePages();

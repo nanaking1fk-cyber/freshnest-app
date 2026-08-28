@@ -1,10 +1,10 @@
 {
   "name": "work-and-workout",
   "private": true,
-  "version": "30.0.9",
+  "version": "30.1.0",
   "engines": { "node": "24.x" },
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "check": "node --check server/v18-lib.js && node --check server/calendar-v25.js && node --check api/v18/*.js && node --check api/v25/*.js && node --check shared/v25-scheduling.js && node --check work-gym-planner-v16/schedule-platform-v25.js && node --check app-store/native/native-bridge.js && node --check app-store/scripts/build-web.mjs && node --check app-store/scripts/audit-bundle.mjs && node --test tests/*.test.js"
+    "check": "node --check server/v18-lib.js && node --check server/calendar-v25.js && node --check api/v18/*.js && node --check api/v25/*.js && node --check shared/v25-scheduling.js && node --check shared/v31-roster.js && node --check work-gym-planner-v16/adaptive-planner-v24.js && node --check work-gym-planner-v16/schedule-platform-v25.js && node --check app-store/native/native-bridge.js && node --check app-store/scripts/build-web.mjs && node --check app-store/scripts/audit-bundle.mjs && node --test tests/*.test.js"
   }
 }

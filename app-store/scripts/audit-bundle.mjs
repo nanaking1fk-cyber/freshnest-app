@@ -6,7 +6,7 @@ const here=dirname(fileURLToPath(import.meta.url));
 const root=resolve(here,'..','www');
 const required=[
   'index.html','privacy.html','support.html','terms.html','delete-account.html',
-  'native/native-bridge.js','shared/v23-core.js','shared/v25-scheduling.js',
+  'native/native-bridge.js','shared/v23-core.js','shared/v25-scheduling.js','shared/v31-roster.js',
   'work-gym-planner-v16/app-v30.js','work-gym-planner-v16/app-v30.css',
   'work-gym-planner-v16/landing-v29.js','work-gym-planner-v16/landing-v29.css',
   'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/account-security-v18.js',
@@ -33,7 +33,7 @@ const bridge=await readFile(join(root,'native','native-bridge.js'),'utf8');
 const runtime=[index,account,calendar,schedule,diary,adaptive,bridge].join('\n');
 
 if(!/Work \+ Workout/.test(index))errors.push('Current product name missing from native index');
-if(!/30\.0\.9/.test(index))errors.push('Current production version missing from native index');
+if(!/30\.1\.0/.test(index))errors.push('Current production version missing from native index');
 if(!index.includes('native/native-bridge.js'))errors.push('Native bridge is not loaded');
 if(index.includes("'pwa-patch.js'"))errors.push('Service-worker patch is loaded in the native app');
 if(!index.includes("'pwa.js'"))errors.push('Legacy PWA script is not explicitly removed');
@@ -48,4 +48,4 @@ if(errors.length){
   console.error('Native bundle audit FAILED\n- '+errors.join('\n- '));
   process.exit(1);
 }
-console.log('Native bundle audit passed: v30.0.9 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');
+console.log('Native bundle audit passed: v30.1.0 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');

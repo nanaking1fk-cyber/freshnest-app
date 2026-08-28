@@ -21,7 +21,8 @@ test('adaptive planner accepts text, voice, image and PDF with review before sav
   assert.match(planner,/accept="image\/\*,application\/pdf,\.pdf"/);
   assert.match(planner,/loadTesseract/);
   assert.match(planner,/vendor\/pdfjs\/pdf\.min\.mjs/);
-  assert.match(planner,/reviewRawText/);
+  assert.match(planner,/reviewRosterText/);
+  assert.match(planner,/rosterIdentityV31/);
   assert.match(planner,/Nothing is added until you review and approve it/);
 });
 

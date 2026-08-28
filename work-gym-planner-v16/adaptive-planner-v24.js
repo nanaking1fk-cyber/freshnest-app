@@ -14,7 +14,8 @@
 
   function importMarkup(){
     return '<div id="scheduleImportV24" class="scheduleImportV24">'+
-      '<div><b>Import a master schedule</b><small>Use the format you already have. We extract the text locally, then let you review every item.</small></div>'+
+      '<div><b>Import your work roster</b><small>We match your roster name first, ignore other employees, then show only your proposed shifts for approval.</small></div>'+
+      '<label class="rosterIdentityV31"><span>Your name or employee ID on the roster</span><input id="rosterIdentityV31" autocomplete="name" placeholder="Exactly as it appears on the roster"><small>Used only to find your row. Other employees are never added to your calendar.</small></label>'+
       '<div class="scheduleImportButtons">'+
         '<label><span aria-hidden="true">⌁</span> Take a photo<input id="scheduleCameraV24" type="file" accept="image/*" capture="environment"></label>'+
         '<label><span aria-hidden="true">＋</span> Upload photo or PDF<input id="scheduleFileV24" type="file" accept="image/*,application/pdf,.pdf"></label>'+
@@ -66,13 +67,16 @@
     var pages=Math.min(pdf.numPages,15),output=[];
     for(var pageNumber=1;pageNumber<=pages;pageNumber++){
       setStatus('Reading PDF page '+pageNumber+' of '+pages+'…');
-      var page=await pdf.getPage(pageNumber),content=await page.getTextContent(),line='',lines=[];
-      content.items.forEach(function(item){
-        var value=String(item.str||'').trim();
-        if(value)line+=(line?' ':'')+value;
-        if(item.hasEOL&&line){lines.push(line);line=''}
-      });
-      if(line)lines.push(line);
+      var page=await pdf.getPage(pageNumber),content=await page.getTextContent(),lines=pdfLayoutLines(content.items);
+      if(lines.join('').replace(/\s/g,'').length<24){
+        setStatus('Scanning image-only PDF page '+pageNumber+' of '+pages+'…');
+        if(typeof window.loadTesseract!=='function'||!(await window.loadTesseract()))throw Error('This PDF contains scanned pages and the private OCR reader could not load.');
+        var viewport=page.getViewport({scale:1.8}),canvas=document.createElement('canvas'),context=canvas.getContext('2d',{alpha:false});canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+        await page.render({canvasContext:context,viewport:viewport}).promise;
+        var scanned=await window.Tesseract.recognize(canvas,'eng',{...(window.TESSERACT_OPTIONS||{}),logger:function(progress){if(progress.status==='recognizing text')setStatus('Reading PDF roster… '+Math.round((progress.progress||0)*100)+'%')}});
+        lines=(scanned?.data?.lines||[]).map(function(line){return String(line.text||'').trim()}).filter(Boolean);if(!lines.length)lines=String(scanned?.data?.text||'').split(/\n+/).map(function(line){return line.trim()}).filter(Boolean);
+        canvas.width=1;canvas.height=1;
+      }
       output.push(lines.join('\n'));
       page.cleanup?.();
     }
@@ -86,26 +90,37 @@
     var result=await window.Tesseract.recognize(file,'eng',{...(window.TESSERACT_OPTIONS||{}),logger:function(progress){
       if(progress.status==='recognizing text')setStatus('Reading schedule… '+Math.round((progress.progress||0)*100)+'%');
     }});
-    return String(result?.data?.text||'').trim();
+    var lines=(result?.data?.lines||[]).map(function(line){return String(line.text||'').trim()}).filter(Boolean);
+    return(lines.length?lines.join('\n'):String(result?.data?.text||'')).trim();
   }
 
-  function reviewExtractedText(text,fileName){
+  function pdfLayoutLines(items){
+    var rows=[];
+    (items||[]).forEach(function(item){var text=String(item.str||'').trim();if(!text)return;var x=Number(item.transform?.[4]||0),y=Number(item.transform?.[5]||0),row=rows.find(function(candidate){return Math.abs(candidate.y-y)<3});if(!row){row={y:y,items:[]};rows.push(row)}row.items.push({x:x,width:Number(item.width||0),text:text})});
+    return rows.sort(function(a,b){return b.y-a.y}).map(function(row){var previous=null;return row.items.sort(function(a,b){return a.x-b.x}).map(function(item){var gap=previous?item.x-(previous.x+previous.width):0;previous=item;return(gap>12?' | ':' ')+item.text}).join('').trim()}).filter(Boolean);
+  }
+
+  function rosterIdentity(){var saved=typeof profile==='function'?profile():null;return String(saved?.rosterIdentity||saved?.name||'').trim()}
+  function saveRosterIdentity(value){var current=typeof profile==='function'?profile():null;if(!current||!value||current.rosterIdentity===value)return;if(typeof saveProfileObj==='function')saveProfileObj(Object.assign({},current,{rosterIdentity:value}))}
+
+  function reviewExtractedText(text,fileName,identity){
     if(!text)throw Error('No readable schedule text was found. Try a brighter, straighter photo or paste the schedule.');
     var input=document.getElementById('smartCaptureInput');
     if(!input)throw Error('The calendar intake is not ready yet. Please try again.');
-    input.value=text;
-    setStatus('Text extracted from '+fileName+'. Review the suggested dates below before saving.');
-    if(!window.WGC19?.reviewRawText?.(text,{sourceType:'ocr',fileName:fileName}))document.getElementById('smartCaptureBuild')?.click();
+    setStatus('Roster read from '+fileName+'. Matching '+identity+' before proposing any shifts.');
+    if(window.WGC19?.reviewRosterText?.(text,{sourceType:'roster',fileName:fileName,identity:identity}))return;
+    throw Error('The private roster matcher is not ready. Nothing was added; refresh and try again.');
   }
 
   async function processFile(file,input){
     if(!file)return;
     if(file.size>20*1024*1024){setStatus('Choose a file smaller than 20 MB.',true);input.value='';return}
     try{
+      var identity=String(document.getElementById('rosterIdentityV31')?.value||rosterIdentity()).trim();if(!identity)throw Error('Enter your name or employee ID exactly as it appears on the roster first.');saveRosterIdentity(identity);
       var type=String(file.type||'').toLowerCase(),isPdf=type==='application/pdf'||/\.pdf$/i.test(file.name),isImage=type.startsWith('image/');
       if(!isPdf&&!isImage)throw Error('Choose a schedule photo or PDF.');
       var text=isPdf?await extractPdf(file):await extractImage(file);
-      reviewExtractedText(text,file.name||'your file');
+      reviewExtractedText(text,file.name||'your file',identity);
     }catch(error){
       console.error(error);
       setStatus(error.message||'This schedule could not be read. Nothing was changed.',true);
@@ -119,6 +134,7 @@
       input.dataset.bound='true';
       input.addEventListener('change',function(){processFile(input.files?.[0],input)});
     });
+    var identity=document.getElementById('rosterIdentityV31');if(identity&&!identity.dataset.bound){identity.dataset.bound='true';identity.value=identity.value||rosterIdentity();identity.addEventListener('change',function(){saveRosterIdentity(identity.value.trim())})}
   }
 
   function personalizeCapture(capture){

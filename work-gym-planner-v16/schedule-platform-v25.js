@@ -2,11 +2,13 @@
 (function schedulePlatformV25(){
   'use strict';
   var Core=window.WWScheduling;
+  var Roster=window.WWRoster;
   if(!Core)return;
   var V=window.WWV25=window.WWV25||{};
+  var Capture=window.WGC19=window.WGC19||{};
   var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25'};
   var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
-  var proposals=[],proposalConflicts={},mounting=false,sourceEditId='';
+  var proposals=[],proposalConflicts={},rosterReview=null,mounting=false,sourceEditId='';
 
   function safe(value){return String(value==null?'':value).replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})}
   function sources(){var value=jget(KEY.sources,[]);return Array.isArray(value)?value:[]}
@@ -140,7 +142,25 @@
     var voice=document.getElementById('smartCaptureVoice');if(voice)voice.onclick=startVoiceCapture;
     document.querySelectorAll('[data-capture-example]').forEach(function(button){button.onclick=function(){var input=document.getElementById('smartCaptureInput');if(!input)return;input.value+=(input.value?'\n':'')+button.dataset.captureExample;input.focus()}});
     captureSourceControl();
-    if(window.WGC19)window.WGC19.reviewRawText=function(text,meta){selectTab('add',true);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.dataset.sourceType=meta?.sourceType||'ocr';buildTrustedProposal();return true};
+    Capture.reviewRawText=function(text,meta){rosterReview=null;selectTab('add',true);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.dataset.sourceType=meta?.sourceType||'ocr';buildTrustedProposal();return true};
+    Capture.reviewRosterText=reviewRosterText;
+  }
+
+  function currentRosterIdentity(){var p=typeof profile==='function'?profile():null;return String(document.getElementById('rosterIdentityV31')?.value||p?.rosterIdentity||p?.name||'').trim()}
+  function rememberRosterIdentity(identity){var p=typeof profile==='function'?profile():null;if(p&&identity&&p.rosterIdentity!==identity&&typeof saveProfileObj==='function')saveProfileObj(Object.assign({},p,{rosterIdentity:identity}))}
+  function rosterOptions(identity){var p=typeof profile==='function'?profile():null,source=sourceById(document.getElementById('captureSourceV25')?.value)||{};return{identity:identity,aliases:[p?.name,p?.rosterIdentity].filter(Boolean),title:(source.name||'Work')+' shift',dayStart:p?.fixed?.start||'07:00',dayEnd:p?.fixed?.end||'19:00',nightStart:'19:00',nightEnd:'07:00',now:new Date()}}
+  function reviewRosterText(text,meta){
+    if(!Roster)return false;
+    selectTab('add',true);var identity=String(meta?.identity||currentRosterIdentity()).trim(),analysis=Roster.analyze(text,rosterOptions(identity));
+    rosterReview={rawText:String(text||''),meta:meta||{},analysis:analysis,identity:identity};
+    if(analysis.status!=='matched'){renderRosterIdentityPrompt();return true}
+    rememberRosterIdentity(identity);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=analysis.normalizedText;input.dataset.sourceType='roster';buildTrustedProposal();return true;
+  }
+  function renderRosterIdentityPrompt(){
+    var root=document.getElementById('smartCapturePreview');if(!root||!rosterReview)return;var analysis=rosterReview.analysis||{},identity=rosterReview.identity||currentRosterIdentity();
+    root.innerHTML='<section class="rosterIdentityReviewV31"><small>ROSTER IDENTITY CHECK</small><h3>Which row belongs to you?</h3><p>'+safe(analysis.message||'Enter your name or employee ID exactly as it appears on the roster.')+'</p><label>Name, initials or employee ID<input id="rosterRetryIdentityV31" value="'+safe(identity)+'" autocomplete="name"></label><button class="primary" id="rosterRetryV31" type="button">Find only my shifts</button><div><b>Privacy safeguard</b><span>The full roster stays in memory only while you review it. Other employees’ rows are not added to your plan or saved with your account.</span></div></section>';
+    document.getElementById('rosterRetryV31').onclick=function(){var value=document.getElementById('rosterRetryIdentityV31').value.trim();if(!value){document.getElementById('rosterRetryIdentityV31').focus();return}reviewRosterText(rosterReview.rawText,Object.assign({},rosterReview.meta,{identity:value}))};
+    root.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   function startVoiceCapture(){
     var Recognition=window.SpeechRecognition||window.webkitSpeechRecognition,input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureVoice');
@@ -156,6 +176,7 @@
     if(button){button.disabled=true;button.textContent='Finding openings…'}
     var sourceId=document.getElementById('captureSourceV25')?.value||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8}),existing=existingForReview();
     proposals=Core.placeFlexibleEntries(parsed,existing,{now:new Date()});proposalConflicts=Core.detectConflicts(proposals,existing);
+    if(sourceType==='roster'&&rosterReview?.analysis?.shifts)proposals=proposals.map(function(item){var matched=rosterReview.analysis.shifts.find(function(shift){return shift.date===item.date&&shift.start===item.start&&shift.end===item.end});return matched?Object.assign({},item,{sourceType:'roster',sourceText:matched.sourceText,confidence:matched.confidence,rosterIdentity:rosterReview.identity}):item});
     renderTrustedReview();
     if(button){button.disabled=false;button.innerHTML='Review my plan <span>→</span>'}
     input.dataset.sourceType='text';
@@ -166,17 +187,21 @@
     var duplicate=conflicts.every(function(conflict){return conflict.type==='duplicate'}),messages=[...new Set(conflicts.map(function(conflict){return conflict.message}))];
     return'<div class="proposalConflictV25"><b>Conflict</b><span>'+messages.map(safe).join(' · ')+'</span><label>Choose what happens<select data-resolution="'+safe(item.id)+'"><option value="">Choose…</option><option value="keep">Keep both</option><option value="replace">Replace the existing item</option><option value="skip" '+(duplicate?'selected':'')+'>Skip this suggestion</option></select></label></div>';
   }
+  function rosterSummaryMarkup(){
+    if(!rosterReview||rosterReview.analysis?.status!=='matched')return'';var analysis=rosterReview.analysis,rotation=analysis.rotation,score=Math.round((analysis.identity?.confidence||0)*100);
+    return'<section class="rosterSummaryV31"><header><span aria-hidden="true">✓</span><div><small>IDENTITY MATCHED · '+score+'%</small><h3>'+safe(analysis.identity?.requested||rosterReview.identity)+'</h3><p>'+analysis.shifts.length+' personal shifts found. Other employee rows were ignored.</p></div></header>'+(rotation?'<label class="rosterRotationV31"><input id="rosterRotationV31" type="checkbox" '+(rotation.confidence>=.82?'checked':'')+'><span><b>Continue the detected pattern</b><small>'+safe(rotation.label)+' · '+safe(rotation.pattern.join(' '))+' · '+Math.round(rotation.confidence*100)+'% confidence</small><em>When approved, this rotation continues automatically. Uploaded dates will not be duplicated.</em></span></label>':'<p class="rosterNoRotationV31">No reliable repeating pattern was assumed. Only the dated shifts below will be added.</p>')+'<p class="rosterPrivacyV31">The calendar proposal contains only your matched row. The original roster is not stored.</p></section>';
+  }
   function renderTrustedReview(){
     var root=document.getElementById('smartCapturePreview');if(!root)return;
     if(!proposals.length){root.innerHTML='<p class="smartCaptureEmpty">Tell us at least one shift, appointment, workout or task.</p>';return}
     var groups={};proposals.forEach(function(item){(groups[item.seriesId]||(groups[item.seriesId]=[])).push(item)});
     var conflictCount=Object.keys(proposalConflicts).length,low=proposals.filter(function(item){return item.confidence?.label==='Low'}).length;
-    root.innerHTML='<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>Nothing changes until you approve it.</h3><p>Every item is shown below. Recurring items are grouped, but each date stays individually selectable.</p></div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
+    root.innerHTML=rosterSummaryMarkup()+'<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>Nothing changes until you approve it.</h3><p>Every item is shown below. Recurring items are grouped, but each date stays individually selectable.</p></div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
       Object.values(groups).map(function(group,groupIndex){var first=group[0],recurring=group.length>1;return'<details class="proposalGroupV25" open><summary><input type="checkbox" checked data-group-toggle="'+groupIndex+'" aria-label="Select this group"><span><b>'+safe(first.title)+'</b><small>'+safe(first.sourceText)+(recurring?' · '+group.length+' dates':'')+'</small></span>'+confidenceMarkup(first)+'</summary><div class="proposalGroupRows" data-group="'+groupIndex+'">'+(first.kind==='work'?'<label class="groupSourceV25">Employer or work source<select data-group-source="'+groupIndex+'">'+sourceOptions(first.sourceId)+'</select></label>':'')+group.map(proposalRow).join('')+'</div></details>'}).join('')+
       '<footer><button id="proposalClearV25">Clear</button><button id="proposalCalendarV25">Export selected</button><button class="primary" id="proposalSaveV25">Approve selected items</button></footer><p id="proposalStatusV25" role="status"></p></div>';
     root.querySelectorAll('[data-group-toggle]').forEach(function(toggle){toggle.onclick=function(event){event.stopPropagation();root.querySelectorAll('[data-group="'+toggle.dataset.groupToggle+'"] [data-proposal-check]').forEach(function(check){check.checked=toggle.checked})}});
     root.querySelectorAll('[data-group-source]').forEach(function(select){select.onchange=function(){root.querySelectorAll('[data-group="'+select.dataset.groupSource+'"] [data-proposal-source]').forEach(function(choice){choice.value=select.value})}});
-    document.getElementById('proposalClearV25').onclick=function(){proposals=[];proposalConflicts={};root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
+    document.getElementById('proposalClearV25').onclick=function(){proposals=[];proposalConflicts={};rosterReview=null;root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
     document.getElementById('proposalSaveV25').onclick=saveTrustedProposal;
     document.getElementById('proposalCalendarV25').onclick=function(){exportSelectedCalendar(selectedProposalValues())};
     root.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -205,9 +230,16 @@
     var selected=selectedProposalValues(),status=document.getElementById('proposalStatusV25');if(!selected.length){if(status)status.textContent='Select at least one item.';return}
     var unresolved=selected.filter(function(item){return proposalConflicts[item.id]?.length&&!item.resolution});
     if(unresolved.length){if(status){status.textContent='Choose Keep, Replace or Skip for every conflict.';status.classList.add('bad')}document.querySelector('[data-resolution="'+unresolved[0].id+'"]')?.focus();return}
-    var allEvents=events(),allItems=typeof dayItems==='function'?dayItems():jget(PREFIX+'calendar-items',{}),allRotations=rotations(),now=new Date().toISOString(),saved=0;
+    var useRosterRotation=!!(rosterReview?.analysis?.rotation&&document.getElementById('rosterRotationV31')?.checked),rosterWork=proposals.filter(function(item){return item.sourceType==='roster'&&item.kind==='work'}),selectedRosterWork=selected.filter(function(item){return item.sourceType==='roster'&&item.kind==='work'});
+    if(useRosterRotation&&selectedRosterWork.length!==rosterWork.length){if(status){status.textContent='Select every extracted roster shift to continue the full pattern, or turn off “Continue the detected pattern”.';status.classList.add('bad')}return}
+    var allEvents=events(),allItems=typeof dayItems==='function'?dayItems():jget(PREFIX+'calendar-items',{}),allRotations=rotations(),now=new Date().toISOString(),saved=0,rotationSaved=false;
+    if(useRosterRotation){
+      var inferred=rosterReview.analysis.rotation,rotationSource=sourceById(selectedRosterWork[0]?.sourceId)||enabledSources()[0]||{id:'work',name:'Work'},rotationExceptions={};selectedRosterWork.forEach(function(item){if(item.resolution==='replace'){var removed=removeConflictTargets(item,allEvents,allItems,allRotations);allEvents=removed.allEvents;allItems=removed.allItems;allRotations=removed.allRotations}else if(item.resolution==='skip')rotationExceptions[item.date]={action:'skip',createdAt:now}});var sameRotation=allRotations.some(function(rotation){return rotation.sourceId===rotationSource.id&&rotation.anchor===inferred.anchor&&Core.parsePattern(rotation.pattern).join('')===inferred.pattern.join('')});
+      if(!sameRotation){allRotations.push(Core.normalizeRotation({id:makeId('rotation'),name:(rotationSource.name||'Work')+' roster rotation',sourceId:rotationSource.id,preset:'custom',anchor:inferred.anchor,pattern:inferred.pattern,dayStart:inferred.dayStart,dayEnd:inferred.dayEnd,nightStart:inferred.nightStart,nightEnd:inferred.nightEnd,exceptions:rotationExceptions,active:true,confidence:{label:inferred.confidence>=.85?'High':'Medium',score:inferred.confidence,reasons:['Repeated pattern detected in uploaded roster']},provenance:{type:'roster',fileName:rosterReview.meta?.fileName||'',identity:rosterReview.identity,sourceDates:inferred.sourceDates},createdAt:now,updatedAt:now}));rotationSaved=true;saved++}
+    }
     selected.forEach(function(item){
       if(item.resolution==='skip')return;
+      if(useRosterRotation&&item.sourceType==='roster'&&item.kind==='work')return;
       if(item.resolution==='replace'){var removed=removeConflictTargets(item,allEvents,allItems,allRotations);allEvents=removed.allEvents;allItems=removed.allItems;allRotations=removed.allRotations}
       if(item.kind==='work'){
         var source=sourceById(item.sourceId)||{};
@@ -219,10 +251,10 @@
       saved++;
     });
     saveEvents(allEvents);saveRotations(allRotations);if(typeof saveDayItems==='function')saveDayItems(allItems);else jset(PREFIX+'calendar-items',allItems);
-    proposals=[];proposalConflicts={};if(typeof renderAll==='function')renderAll();renderWeekPulse(selectedDate||dkey());
+    proposals=[];proposalConflicts={};rosterReview=null;if(typeof renderAll==='function')renderAll();renderWeekPulse(selectedDate||dkey());
     var input=document.getElementById('smartCaptureInput');if(input)input.value='';
-    document.getElementById('smartCapturePreview').innerHTML='<div class="smartCaptureSuccess"><i>✓</i><span><b>'+saved+' items approved.</b><small>Your schedule was updated without silently replacing anything.</small></span><button id="trustedOpenCalendarV25">Open calendar</button></div>';
-    document.getElementById('trustedOpenCalendarV25').onclick=function(){selectTab('calendar',true)};toast(saved+' calendar items added');
+    document.getElementById('smartCapturePreview').innerHTML='<div class="smartCaptureSuccess"><i>✓</i><span><b>'+(rotationSaved?'Roster pattern approved.':saved+' items approved.')+'</b><small>'+(rotationSaved?'Your work rotation now populates future calendar dates automatically.':'Your schedule was updated without silently replacing anything.')+'</small></span><button id="trustedOpenCalendarV25">Open calendar</button></div>';
+    document.getElementById('trustedOpenCalendarV25').onclick=function(){selectTab('calendar',true)};toast(rotationSaved?'Work rotation added to your calendar':saved+' calendar items added');
   }
 
   function renderSources(){
@@ -299,6 +331,6 @@
   }
   function boot(){mount();handleOAuthReturn();var queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;mount()})}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
 
-  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
+  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

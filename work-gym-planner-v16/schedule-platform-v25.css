@@ -150,6 +150,25 @@ body.premiumV18 .syncTrustV25{padding:16px;border:1px solid rgba(184,243,74,.14)
 body.premiumV18 .syncTrustV25 b{font-size:10px}
 body.premiumV18 .syncTrustV25 p{margin:5px 0 0;color:#829078;font-size:8px;line-height:1.55}
 body.premiumV18 #syncStatusV25{color:#909b95;font-size:8px}
+body.premiumV18 .rosterIdentityReviewV31,body.premiumV18 .rosterSummaryV31{margin:0 0 14px;padding:18px;border:1px solid rgba(88,166,255,.2);border-radius:18px;background:linear-gradient(145deg,rgba(88,166,255,.08),rgba(8,13,18,.96))}
+body.premiumV18 .rosterIdentityReviewV31>small,body.premiumV18 .rosterSummaryV31 header small{color:#77b6ff;font-size:7px;font-weight:950;letter-spacing:.14em}
+body.premiumV18 .rosterIdentityReviewV31 h3{margin:6px 0;font-size:20px;letter-spacing:-.035em}
+body.premiumV18 .rosterIdentityReviewV31>p{margin:0 0 13px;color:#929e97;font-size:9px;line-height:1.55}
+body.premiumV18 .rosterIdentityReviewV31>label{display:grid;gap:5px;color:#cbd3ce;font-size:8px;font-weight:850}
+body.premiumV18 .rosterIdentityReviewV31 input{min-height:42px;padding:0 12px;border:1px solid rgba(184,243,74,.22);border-radius:10px;color:#f1f5f2;background:#090e13;font-size:11px}
+body.premiumV18 .rosterIdentityReviewV31>button{min-height:42px;margin-top:9px;padding:0 14px;border-radius:10px}
+body.premiumV18 .rosterIdentityReviewV31>div{display:grid;gap:3px;margin-top:14px;padding:11px;border:1px solid rgba(184,243,74,.13);border-radius:11px;background:rgba(184,243,74,.035)}
+body.premiumV18 .rosterIdentityReviewV31>div b{font-size:8px}body.premiumV18 .rosterIdentityReviewV31>div span{color:#7e8a83;font-size:7px;line-height:1.5}
+body.premiumV18 .rosterSummaryV31 header{display:grid;grid-template-columns:38px 1fr;gap:11px;align-items:center}
+body.premiumV18 .rosterSummaryV31 header>span{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:#11150a;background:var(--premium-accent);font-size:15px;font-weight:950}
+body.premiumV18 .rosterSummaryV31 header h3{margin:3px 0 1px;font-size:16px;letter-spacing:-.03em}
+body.premiumV18 .rosterSummaryV31 header p{margin:0;color:#8e9992;font-size:8px}
+body.premiumV18 .rosterRotationV31{display:grid;grid-template-columns:auto 1fr;gap:10px;margin-top:14px;padding:13px;border:1px solid rgba(184,243,74,.18);border-radius:13px;background:rgba(184,243,74,.045);cursor:pointer}
+body.premiumV18 .rosterRotationV31 input{margin-top:3px;accent-color:var(--premium-accent)}
+body.premiumV18 .rosterRotationV31 b,body.premiumV18 .rosterRotationV31 small,body.premiumV18 .rosterRotationV31 em{display:block}
+body.premiumV18 .rosterRotationV31 b{font-size:9px}body.premiumV18 .rosterRotationV31 small{margin-top:3px;color:#b7f05c;font-size:8px}body.premiumV18 .rosterRotationV31 em{margin-top:6px;color:#7f8b84;font-size:7px;font-style:normal;line-height:1.45}
+body.premiumV18 .rosterNoRotationV31,body.premiumV18 .rosterPrivacyV31{margin:12px 0 0;color:#839087;font-size:8px;line-height:1.5}
+body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255,255,255,.07);color:#6f7b74}
 
 @media(max-width:760px){
   body.premiumV18 .plannerWorkspaceHead{display:block;padding-top:0}

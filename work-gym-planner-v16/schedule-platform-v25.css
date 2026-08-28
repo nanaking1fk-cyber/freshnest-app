@@ -42,7 +42,7 @@ body.premiumV18 .smartCaptureExamples button:hover{color:#e7ede9;border-color:rg
 body.premiumV18 .smartCapturePreview:not(:empty){margin-top:17px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
 body.premiumV18 .captureContextV25{display:flex;gap:16px;align-items:end;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(88,166,255,.15);border-radius:14px;background:rgba(88,166,255,.04)}
 body.premiumV18 .captureContextV25 label{min-width:200px;color:#88938d;font-size:7px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
-body.premiumV18 .captureContextV25 select{display:block;width:100%;margin-top:5px}
+body.premiumV18 .captureContextV25 input{display:block;width:100%;min-height:38px;margin-top:5px;padding:0 10px;border:1px solid rgba(255,255,255,.11);border-radius:9px;color:#eef2ee;background:#0b1218;font-size:10px;text-transform:none;letter-spacing:0}
 body.premiumV18 .captureContextV25 p{margin:0;color:#738078;font-size:8px;line-height:1.5}
 
 body.premiumV18 .weekSummaryV25{margin:0 0 12px;padding:17px;border:1px solid var(--v25-line);border-radius:20px;background:linear-gradient(145deg,rgba(18,25,32,.95),rgba(11,16,21,.98))}
@@ -105,6 +105,42 @@ body.premiumV18 .proposalConflictV25 select{min-width:150px}
 body.premiumV18 .trustReviewV25>footer{display:flex;justify-content:flex-end;gap:7px;padding:14px 18px;background:rgba(255,255,255,.018)}
 body.premiumV18 #proposalStatusV25{margin:0;padding:0 18px 14px;color:#9ca6a0;font-size:8px}
 body.premiumV18 #proposalStatusV25.bad{color:#ffaaa0}
+body.premiumV18 .proposalCalendarIntroV25{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px 11px}
+body.premiumV18 .proposalCalendarIntroV25 b,body.premiumV18 .proposalCalendarIntroV25 small{display:block}
+body.premiumV18 .proposalCalendarIntroV25 b{font-size:11px}
+body.premiumV18 .proposalCalendarIntroV25 small{max-width:700px;margin-top:3px;color:#758079;font-size:7px;line-height:1.45}
+body.premiumV18 .proposalCalendarIntroV25>span{color:#b6c48f;font-size:7px;font-weight:800;white-space:nowrap}
+body.premiumV18 .proposalCalendarV25{padding:0 18px 16px}
+body.premiumV18 .proposalMonthV25{padding:13px;border:1px solid rgba(255,255,255,.07);border-radius:15px;background:rgba(255,255,255,.015)}
+body.premiumV18 .proposalMonthV25+ .proposalMonthV25{margin-top:10px}
+body.premiumV18 .proposalMonthV25 h4{margin:0 0 10px;font-size:11px;letter-spacing:-.02em}
+body.premiumV18 .proposalWeekdaysV25,body.premiumV18 .proposalMonthGridV25{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+body.premiumV18 .proposalWeekdaysV25{margin-bottom:4px}
+body.premiumV18 .proposalWeekdaysV25 span{padding:0 4px;color:#65716a;font-size:6px;font-weight:900;text-align:right;text-transform:uppercase;letter-spacing:.05em}
+body.premiumV18 .proposalDayV25{min-height:78px;padding:4px;border-top:1px solid rgba(255,255,255,.055);border-left:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.006)}
+body.premiumV18 .proposalDayV25:nth-child(7n){border-right:1px solid rgba(255,255,255,.055)}
+body.premiumV18 .proposalDayV25:nth-last-child(-n+7){border-bottom:1px solid rgba(255,255,255,.055)}
+body.premiumV18 .proposalDayV25.blank{background:transparent;opacity:.45}
+body.premiumV18 .proposalDayV25 time{display:block;margin:0 1px 4px;color:#77827c;font-size:7px;font-weight:800;text-align:right}
+body.premiumV18 .proposalCalendarChipV25{display:block;position:relative;margin:3px 0;padding:5px;border-left:3px solid var(--proposal-color);border-radius:5px;color:#dbe1dc;background:rgba(255,255,255,.055);cursor:pointer}
+body.premiumV18 .proposalCalendarChipV25.hasConflict{border-left-color:#ffad63;background:rgba(255,173,99,.09)}
+body.premiumV18 .proposalCalendarChipV25 input[type="checkbox"]{position:absolute;opacity:0;pointer-events:none}
+body.premiumV18 .proposalCalendarChipV25:has(input:not(:checked)){opacity:.35;text-decoration:line-through}
+body.premiumV18 .proposalCalendarChipV25 b,body.premiumV18 .proposalCalendarChipV25 small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV18 .proposalCalendarChipV25 b{font-size:7px}
+body.premiumV18 .proposalCalendarChipV25 small{margin-top:2px;color:#98a29c;font-size:6px}
+body.premiumV18 .proposalAttentionV25{margin:0 18px 16px;padding:13px;border:1px solid rgba(255,173,99,.18);border-radius:14px;background:rgba(255,173,99,.035)}
+body.premiumV18 .proposalAttentionV25>h4{margin:0 0 9px;color:#ffc17e;font-size:9px}
+body.premiumV18 .proposalUnknownDatesV25{display:grid;gap:7px}
+body.premiumV18 .proposalUnknownDateV25{display:grid;grid-template-columns:auto 1fr minmax(130px,auto);gap:9px;align-items:center;padding:9px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(0,0,0,.13)}
+body.premiumV18 .proposalUnknownDateV25>input:first-child{width:17px;height:17px;accent-color:var(--premium-accent)}
+body.premiumV18 .proposalUnknownDateV25 span b,body.premiumV18 .proposalUnknownDateV25 span small{display:block}
+body.premiumV18 .proposalUnknownDateV25 span b{font-size:9px}.premiumV18 .proposalUnknownDateV25 span small{margin-top:2px;color:#8b968f;font-size:7px}
+body.premiumV18 .proposalConflictListV25{display:grid;gap:7px;margin-top:8px}
+body.premiumV18 .proposalConflictListV25 article{padding:9px;border:1px solid rgba(255,255,255,.07);border-radius:10px;background:rgba(0,0,0,.13)}
+body.premiumV18 .proposalConflictListV25 article>div>b,body.premiumV18 .proposalConflictListV25 article>div>small{display:block}
+body.premiumV18 .proposalConflictListV25 article>div>b{font-size:9px}.premiumV18 .proposalConflictListV25 article>div>small{margin-top:2px;color:#8b968f;font-size:7px}
+body.premiumV18 .proposalConflictListV25 .proposalConflictV25{margin-left:0}
 
 body.premiumV18 .managerHeadV25{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;padding:24px;border:1px solid var(--v25-line);border-radius:22px;background:radial-gradient(circle at 100% 0,rgba(88,166,255,.09),transparent 42%),#0d1319}
 body.premiumV18 .managerHeadV25 h2{max-width:680px;margin:7px 0 7px;font-size:clamp(24px,3.5vw,36px);line-height:1.02;letter-spacing:-.045em}
@@ -171,6 +207,8 @@ body.premiumV18 .rosterNoRotationV31,body.premiumV18 .rosterPrivacyV31{margin:12
 body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255,255,255,.07);color:#6f7b74}
 
 @media(max-width:760px){
+  /* iOS Safari enlarges any editable control below 16px, which made the page jump while typing. */
+  body.premiumV18 .plannerWorkspaceV25 input:not([type="checkbox"]),body.premiumV18 .plannerWorkspaceV25 select,body.premiumV18 .plannerWorkspaceV25 textarea{font-size:16px!important;touch-action:manipulation}
   body.premiumV18 .plannerWorkspaceHead{display:block;padding-top:0}
   body.premiumV18 .plannerWeekPulse{margin-top:14px;overflow:auto;padding-bottom:2px}
   body.premiumV18 .plannerWeekPulse span{min-width:92px}
@@ -190,6 +228,14 @@ body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255
   body.premiumV18 .managerFormV25 h3,body.premiumV18 .wideLabelV25{grid-column:1/-1}
   body.premiumV18 .captureContextV25{display:block}
   body.premiumV18 .captureContextV25 p{margin-top:8px}
+  body.premiumV18 .proposalCalendarIntroV25{display:block}
+  body.premiumV18 .proposalCalendarIntroV25>span{display:block;margin-top:6px;white-space:normal}
+  body.premiumV18 .proposalCalendarV25{padding-left:10px;padding-right:10px}
+  body.premiumV18 .proposalMonthV25{min-width:0}
+  body.premiumV18 .proposalDayV25{min-height:84px}
+  body.premiumV18 .proposalAttentionV25{margin-left:10px;margin-right:10px}
+  body.premiumV18 .proposalUnknownDateV25{grid-template-columns:auto 1fr}
+  body.premiumV18 .proposalUnknownDateV25>input[type="date"]{grid-column:2}
   body.premiumV18 .smartCaptureIntro{grid-template-columns:39px 1fr}
   body.premiumV18 .smartCaptureIntro>span{width:39px;height:39px}
   body.premiumV18 .smartCaptureIntro>button{grid-column:2;width:max-content}
@@ -206,6 +252,9 @@ body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255
   body.premiumV18 .proposalMainV25{grid-template-columns:auto 27px 1fr}
   body.premiumV18 .proposalMainV25>.confidenceV25{grid-column:3;justify-self:start}
   body.premiumV18 .proposalMainV25>select{grid-column:3}
+  body.premiumV18 .proposalCalendarV25{margin-left:-6px;margin-right:-6px}
+  body.premiumV18 .proposalMonthV25{min-width:0;padding:9px}
+  body.premiumV18 .proposalDayV25{min-height:78px;padding:3px}
   body.premiumV18 .trustReviewV25>footer{display:grid;grid-template-columns:1fr 1fr}
   body.premiumV18 .trustReviewV25>footer .primary{grid-column:1/-1}
   body.premiumV18 .managerFormV25,body.premiumV18 .rotationFormV25{grid-template-columns:1fr}

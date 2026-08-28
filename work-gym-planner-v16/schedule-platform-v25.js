@@ -29,6 +29,25 @@
     saveSources(list);
   }
   function sourceOptions(selected){return enabledSources().map(function(source){return'<option value="'+safe(source.id)+'" '+(source.id===selected?'selected':'')+'>'+safe(source.name)+'</option>'}).join('')}
+  function sourceDatalistOptions(){return sources().map(function(source){return'<option value="'+safe(source.name)+'"></option>'}).join('')}
+  function captureSource(){
+    var input=document.getElementById('captureSourceNameV25'),id=input?.dataset.sourceId||'',name=String(input?.value||'').trim(),list=sources();
+    var matched=list.find(function(source){return source.id===id})||list.find(function(source){return source.name.trim().toLowerCase()===name.toLowerCase()});
+    return matched||enabledSources()[0]||list[0]||{id:'work',name:'Work',color:Core.COLORS[0]};
+  }
+  function resolveCaptureSource(){
+    var input=document.getElementById('captureSourceNameV25'),name=String(input?.value||'').trim(),list=sources();
+    if(!name)return captureSource();
+    var matched=list.find(function(source){return source.name.trim().toLowerCase()===name.toLowerCase()});
+    if(!matched){
+      matched={id:makeId('source'),name:name,color:Core.COLORS[list.length%Core.COLORS.length],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()};
+      list.push(matched);saveSources(list);
+    }else if(matched.enabled===false){
+      matched=Object.assign({},matched,{enabled:true,updatedAt:new Date().toISOString()});saveSources(list.map(function(source){return source.id===matched.id?matched:source}));
+    }
+    if(input){input.value=matched.name;input.dataset.sourceId=matched.id}
+    return matched;
+  }
   function timeLabel(start,end){if(!start)return'Scheduled work';return formatTime(start)+(end?'–'+formatTime(end):'')}
   function formatTime(value){
     if(!value)return'';
@@ -131,10 +150,12 @@
   function bindTabs(){document.querySelectorAll('[data-planner-tab]').forEach(function(button){if(button.dataset.v25Bound)return;button.dataset.v25Bound='true';button.onclick=function(){selectTab(button.dataset.plannerTab,false)};button.onkeydown=function(event){var tabs=[...button.parentElement.querySelectorAll('[data-planner-tab]')],index=tabs.indexOf(button),next=null;if(event.key==='ArrowRight')next=tabs[(index+1)%tabs.length];if(event.key==='ArrowLeft')next=tabs[(index-1+tabs.length)%tabs.length];if(event.key==='Home')next=tabs[0];if(event.key==='End')next=tabs[tabs.length-1];if(next){event.preventDefault();next.click();next.focus()}}})}
 
   function captureSourceControl(){
-    var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceV25');
-    if(existing){var selected=existing.value;existing.innerHTML=sourceOptions(selected);return}
+    var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceNameV25');
+    if(existing){var value=existing.value,source=captureSource();document.getElementById('captureSourceListV25').innerHTML=sourceDatalistOptions();existing.value=value||source.name;return}
     if(!composer)return;
-    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label>Work source<select id="captureSourceV25">'+sourceOptions(enabledSources()[0]?.id)+'</select></label><p>Appointments, tasks and workouts stay personal. Work shifts use the selected source and color.</p></div>');
+    var source=captureSource();
+    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label for="captureSourceNameV25">Work source or employer<input id="captureSourceNameV25" list="captureSourceListV25" data-source-id="'+safe(source.id)+'" value="'+safe(source.name)+'" placeholder="e.g. Bellevue Hospital" autocomplete="organization"></label><datalist id="captureSourceListV25">'+sourceDatalistOptions()+'</datalist><p>Type a new employer or choose a saved one. Work shifts use its color; appointments, tasks and workouts stay personal.</p></div>');
+    document.getElementById('captureSourceNameV25').oninput=function(){this.dataset.sourceId=''};
   }
   function bindTrustedCapture(){
     var build=document.getElementById('smartCaptureBuild');if(build)build.onclick=buildTrustedProposal;
@@ -148,7 +169,7 @@
 
   function currentRosterIdentity(){var p=typeof profile==='function'?profile():null;return String(document.getElementById('rosterIdentityV31')?.value||p?.rosterIdentity||p?.name||'').trim()}
   function rememberRosterIdentity(identity){var p=typeof profile==='function'?profile():null;if(p&&identity&&p.rosterIdentity!==identity&&typeof saveProfileObj==='function')saveProfileObj(Object.assign({},p,{rosterIdentity:identity}))}
-  function rosterOptions(identity){var p=typeof profile==='function'?profile():null,source=sourceById(document.getElementById('captureSourceV25')?.value)||{};return{identity:identity,aliases:[p?.name,p?.rosterIdentity].filter(Boolean),title:(source.name||'Work')+' shift',dayStart:p?.fixed?.start||'07:00',dayEnd:p?.fixed?.end||'19:00',nightStart:'19:00',nightEnd:'07:00',now:new Date()}}
+  function rosterOptions(identity){var p=typeof profile==='function'?profile():null,source=captureSource()||{};return{identity:identity,aliases:[p?.name,p?.rosterIdentity].filter(Boolean),title:(source.name||'Work')+' shift',dayStart:p?.fixed?.start||'07:00',dayEnd:p?.fixed?.end||'19:00',nightStart:'19:00',nightEnd:'07:00',now:new Date()}}
   function reviewRosterText(text,meta){
     if(!Roster)return false;
     selectTab('add',true);var identity=String(meta?.identity||currentRosterIdentity()).trim(),analysis=Roster.analyze(text,rosterOptions(identity));
@@ -174,7 +195,7 @@
   function buildTrustedProposal(){
     var input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureBuild');if(!input)return;
     if(button){button.disabled=true;button.textContent='Finding openings…'}
-    var sourceId=document.getElementById('captureSourceV25')?.value||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8}),existing=existingForReview();
+    var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8}),existing=existingForReview();
     proposals=Core.placeFlexibleEntries(parsed,existing,{now:new Date()});proposalConflicts=Core.detectConflicts(proposals,existing);
     if(sourceType==='roster'&&rosterReview?.analysis?.shifts)proposals=proposals.map(function(item){var matched=rosterReview.analysis.shifts.find(function(shift){return shift.date===item.date&&shift.start===item.start&&shift.end===item.end});return matched?Object.assign({},item,{sourceType:'roster',sourceText:matched.sourceText,confidence:matched.confidence,rosterIdentity:rosterReview.identity}):item});
     renderTrustedReview();
@@ -196,15 +217,27 @@
     if(!proposals.length){root.innerHTML='<p class="smartCaptureEmpty">Tell us at least one shift, appointment, workout or task.</p>';return}
     var groups={};proposals.forEach(function(item){(groups[item.seriesId]||(groups[item.seriesId]=[])).push(item)});
     var conflictCount=Object.keys(proposalConflicts).length,low=proposals.filter(function(item){return item.confidence?.label==='Low'}).length;
-    root.innerHTML=rosterSummaryMarkup()+'<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>Nothing changes until you approve it.</h3><p>Every item is shown below. Recurring items are grouped, but each date stays individually selectable.</p></div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
-      Object.values(groups).map(function(group,groupIndex){var first=group[0],recurring=group.length>1;return'<details class="proposalGroupV25" open><summary><input type="checkbox" checked data-group-toggle="'+groupIndex+'" aria-label="Select this group"><span><b>'+safe(first.title)+'</b><small>'+safe(first.sourceText)+(recurring?' · '+group.length+' dates':'')+'</small></span>'+confidenceMarkup(first)+'</summary><div class="proposalGroupRows" data-group="'+groupIndex+'">'+(first.kind==='work'?'<label class="groupSourceV25">Employer or work source<select data-group-source="'+groupIndex+'">'+sourceOptions(first.sourceId)+'</select></label>':'')+group.map(proposalRow).join('')+'</div></details>'}).join('')+
+    root.innerHTML=rosterSummaryMarkup()+'<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>See your proposed week before saving.</h3><p>Nothing changes until you approve it. Every date is individually selectable in the calendar below.</p></div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
+      '<div class="proposalCalendarIntroV25"><div><b>Calendar preview</b><small>'+Object.values(groups).map(function(group){var first=group[0];return safe(first.title)+(group.length>1?' · '+group.length+' dates':'')}).join(' &nbsp;•&nbsp; ')+'</small></div><span>Tap a card to include or remove it</span></div>'+proposalCalendarMarkup()+proposalAttentionMarkup()+
       '<footer><button id="proposalClearV25">Clear</button><button id="proposalCalendarV25">Export selected</button><button class="primary" id="proposalSaveV25">Approve selected items</button></footer><p id="proposalStatusV25" role="status"></p></div>';
-    root.querySelectorAll('[data-group-toggle]').forEach(function(toggle){toggle.onclick=function(event){event.stopPropagation();root.querySelectorAll('[data-group="'+toggle.dataset.groupToggle+'"] [data-proposal-check]').forEach(function(check){check.checked=toggle.checked})}});
-    root.querySelectorAll('[data-group-source]').forEach(function(select){select.onchange=function(){root.querySelectorAll('[data-group="'+select.dataset.groupSource+'"] [data-proposal-source]').forEach(function(choice){choice.value=select.value})}});
     document.getElementById('proposalClearV25').onclick=function(){proposals=[];proposalConflicts={};rosterReview=null;root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
     document.getElementById('proposalSaveV25').onclick=saveTrustedProposal;
     document.getElementById('proposalCalendarV25').onclick=function(){exportSelectedCalendar(selectedProposalValues())};
     root.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+  function monthLabel(date){return date.toLocaleDateString(undefined,{month:'long',year:'numeric'})}
+  function proposalCalendarMarkup(){
+    var byMonth={};proposals.filter(function(item){return item.date&&!item.needsReview}).forEach(function(item){var date=Core.dateFromKey(item.date),key=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');(byMonth[key]||(byMonth[key]=[])).push(item)});
+    var keys=Object.keys(byMonth).sort();if(!keys.length)return'';
+    return'<div class="proposalCalendarV25">'+keys.map(function(key){var parts=key.split('-').map(Number),month=new Date(parts[0],parts[1]-1,1),offset=month.getDay(),days=new Date(parts[0],parts[1],0).getDate(),items=byMonth[key];return'<section class="proposalMonthV25"><h4>'+monthLabel(month)+'</h4><div class="proposalWeekdaysV25"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div class="proposalMonthGridV25">'+Array.from({length:offset},function(){return'<div class="proposalDayV25 blank"></div>'}).join('')+Array.from({length:days},function(_,day){var date=Core.keyFromDate(new Date(parts[0],parts[1]-1,day)),dayItems=items.filter(function(item){return item.date===date});return'<div class="proposalDayV25 '+(dayItems.length?'hasItems':'')+'"><time datetime="'+date+'">'+day+'</time>'+dayItems.map(proposalCalendarChip).join('')+'</div>'}).join('')+'</div></section>'}).join('')+'</div>';
+  }
+  function proposalCalendarChip(item){
+    var source=sourceById(item.sourceId)||{},time=item.start?(formatTime(item.start)+(item.end?'–'+formatTime(item.end):'')):'Any time',workSource=item.kind==='work'?'<input type="hidden" value="'+safe(item.sourceId)+'" data-proposal-source="'+safe(item.id)+'">':'';
+    return'<label class="proposalCalendarChipV25 '+safe(item.kind)+' '+(proposalConflicts[item.id]?'hasConflict':'')+'" style="--proposal-color:'+safe(source.color||Core.COLORS[0])+'"><input type="checkbox" checked data-proposal-check="'+safe(item.id)+'" aria-label="Include '+safe(item.title)+' on '+friendlyDate(item.date)+'"><span><b>'+safe(item.title)+'</b><small>'+safe(time)+(proposalConflicts[item.id]?' · conflict':'')+'</small></span>'+workSource+'<input type="hidden" value="'+safe(item.date)+'" data-proposal-date="'+safe(item.id)+'"></label>';
+  }
+  function proposalAttentionMarkup(){
+    var needsDate=proposals.filter(function(item){return item.needsReview}),conflicts=proposals.filter(function(item){return proposalConflicts[item.id]?.length});if(!needsDate.length&&!conflicts.length)return'';
+    return'<section class="proposalAttentionV25"><h4>Needs your attention</h4>'+(needsDate.length?'<div class="proposalUnknownDatesV25">'+needsDate.map(function(item){var source=item.kind==='work'?'<input type="hidden" value="'+safe(item.sourceId)+'" data-proposal-source="'+safe(item.id)+'">':'';return'<label class="proposalUnknownDateV25"><input type="checkbox" data-proposal-check="'+safe(item.id)+'" aria-label="Include '+safe(item.title)+'"><span><b>'+safe(item.title)+'</b><small>'+safe(item.sourceText||'We could not confirm the date.')+'</small></span><input type="date" value="'+safe(item.date)+'" data-proposal-date="'+safe(item.id)+'" aria-label="Confirm date for '+safe(item.title)+'">'+source+'</label>'}).join('')+'</div>':'')+(conflicts.length?'<div class="proposalConflictListV25">'+conflicts.map(function(item){return'<article><div><b>'+safe(item.title)+'</b><small>'+friendlyDate(item.date)+'</small></div>'+conflictsMarkup(item)+'</article>'}).join('')+'</div>':'')+'</section>';
   }
   function proposalRow(item){
     var source=item.kind==='work'?'<select data-proposal-source="'+safe(item.id)+'" aria-label="Work source">'+sourceOptions(item.sourceId)+'</select>':'';

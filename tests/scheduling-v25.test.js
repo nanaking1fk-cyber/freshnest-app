@@ -60,7 +60,14 @@ test('multi-source weekly totals track source colors and overtime',()=>{
 
 test('trusted review renders every item and requires explicit collision resolution',()=>{
   const ui=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const css=read('work-gym-planner-v16/schedule-platform-v25.css');
   assert.doesNotMatch(ui,/slice\(0,10\)|index>=10/);
+  assert.match(ui,/function proposalCalendarMarkup\(\)/);
+  assert.match(ui,/Calendar preview/);
+  assert.match(ui,/data-proposal-check/);
+  assert.match(ui,/Work source or employer/);
+  assert.match(ui,/function resolveCaptureSource\(\)/);
+  assert.match(css,/plannerWorkspaceV25 input:not\(\[type="checkbox"\]\).*font-size:16px!important/);
   assert.match(ui,/Keep both/);
   assert.match(ui,/Replace the existing item/);
   assert.match(ui,/Skip this suggestion/);

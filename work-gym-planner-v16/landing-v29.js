@@ -32,9 +32,9 @@
       '<main class="ww29Main">'+
         '<section class="ww29Hero">'+
           '<div class="ww29HeroCopy">'+
-            '<p class="ww29Eyebrow"><span></span>The adaptive planner built around your job</p>'+
-            '<h1>Add your work schedule.<br><em>Get your whole week planned.</em></h1>'+
-            '<p class="ww29Lead">Upload a photo or PDF, or paste your shifts. Work + Workout turns your schedule into one realistic plan for training, meals, recovery, errands and reminders—with every detail shown for your approval.</p>'+
+            '<p class="ww29Eyebrow"><span></span>The health planner built around the hours you actually work</p>'+
+            '<h1>Add your work schedule.<br><em>Plan workouts, meals, recovery and life around it.</em></h1>'+
+            '<p class="ww29Lead">Upload a photo or PDF, or paste your shifts. Keep the workout routine you already follow or let Work + Workout build one—then fit meals, recovery, tasks and reminders around your real availability. Every change is shown for your approval.</p>'+
             '<div class="ww29HeroActions">'+cta('Build my week')+'<a href="#ww29Day">Watch it work <span>↓</span></a></div>'+
             '<div class="ww29Trust"><span>Free to start</span><span>Nothing saves without your approval</span><span>Your plan stays private</span></div>'+
           '</div>'+

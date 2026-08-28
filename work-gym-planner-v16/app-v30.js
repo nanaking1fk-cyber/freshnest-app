@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.0.8';
+  var VERSION='30.0.9';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}
@@ -213,7 +213,7 @@
     window.APP_VERSION=VERSION;
     document.body.classList.add('premiumV30');
     document.body.classList.remove('premiumV28');
-    document.title='Work + Workout | Your whole week, planned';
+    document.title='Work + Workout | Health planned around work';
     ensureStylesLast();
     enhanceNavigation();
     enhancePages();

@@ -27,10 +27,12 @@ test('the cinematic hero shows the app in use across the day',()=>{
 });
 
 test('the story is authentic to connected working lives',()=>{
-  assert.match(js,/Add your work schedule/);
-  assert.match(js,/Get your whole week planned/);
+  assert.match(js,/The health planner built around the hours you actually work/);
+  assert.match(js,/Plan workouts, meals, recovery and life around it/);
+  assert.match(js,/Keep the workout routine you already follow or let Work \+ Workout build one/);
+  assert.doesNotMatch(js,/Get your whole week planned/);
   assert.match(js,/Upload a photo or PDF/);
-  assert.match(js,/errands and reminders/);
+  assert.match(js,/tasks and reminders/);
   for(const signal of ['Work','Train','Fuel','Recover'])assert.match(js,new RegExp('>'+signal+'<'));
   for(const worker of ['Healthcare','Construction','Logistics','Hospitality'])assert.match(js,new RegExp(worker));
 });
@@ -46,6 +48,11 @@ test('the trust layer appears before commitment',()=>{
 test('mobile keeps sign in visible',()=>{
   assert.match(js,/class="ww29SignIn" data-ww29="signin">Sign in/);
   assert.doesNotMatch(css,/\.ww29NavActions \.ww29SignIn\{display:none/);
+});
+
+test('mobile keeps the product promise visually separated',()=>{
+  assert.match(css,/\.ww29HeroCopy br\{display:block\}/);
+  assert.match(css,/\.ww29Hero h1 em\{display:block;margin-top:5px\}/);
 });
 
 test('typefaces and cinematic media stay same-origin',()=>{

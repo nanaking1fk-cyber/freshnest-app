@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.1.4';
+  var VERSION='30.1.5';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}

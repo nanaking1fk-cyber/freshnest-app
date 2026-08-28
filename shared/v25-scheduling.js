@@ -9,6 +9,8 @@
   const WEEKDAYS={sun:0,sunday:0,mon:1,monday:1,tue:2,tues:2,tuesday:2,wed:3,wednesday:3,thu:4,thur:4,thurs:4,thursday:4,fri:5,friday:5,sat:6,saturday:6};
   const DAY_TOKEN='(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
   const DAY_RE=new RegExp('\\b'+DAY_TOKEN+'\\b','gi');
+  const MONTH_TOKEN='(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)';
+  const MONTHS={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
   const NUMBER_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,seven:7};
   const COLORS=['#58a6ff','#b8f34a','#a78bfa','#f59e0b','#f472b6','#22d3ee','#fb7185','#34d399'];
 
@@ -71,17 +73,56 @@
     const yearFor=(month,day,year)=>{if(year)return Number(year);let candidate=new Date(now.getFullYear(),month,day),distance=(candidate-now)/86400000;return now.getFullYear()+(distance<-180?1:distance>300?-1:0)};
     const slash=text.match(/\b(\d{1,2})\/(\d{1,2})(?:\/(20\d{2}))?\b/);
     if(slash)return keyFromDate(new Date(yearFor(Number(slash[1])-1,Number(slash[2]),slash[3]),Number(slash[1])-1,Number(slash[2])));
-    const months={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
-    const named=text.match(/\b(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+(\d{1,2})(?:,?\s+(20\d{2}))?\b/i);
-    if(named){const month=months[named[1].toLowerCase()],day=Number(named[2]);return keyFromDate(new Date(yearFor(month,day,named[3]),month,day))}
-    const reverseNamed=text.match(/\b(\d{1,2})\s+(january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(?:,?\s+(20\d{2}))?\b/i);
-    if(reverseNamed){const month=months[reverseNamed[2].toLowerCase()],day=Number(reverseNamed[1]);return keyFromDate(new Date(yearFor(month,day,reverseNamed[3]),month,day))}
+    const named=text.match(new RegExp('\\b'+MONTH_TOKEN+'\\s+(\\d{1,2})(?:,?\\s+(20\\d{2}))?\\b','i'));
+    if(named){const month=MONTHS[named[1].toLowerCase()],day=Number(named[2]);return keyFromDate(new Date(yearFor(month,day,named[3]),month,day))}
+    const reverseNamed=text.match(new RegExp('\\b(\\d{1,2})\\s+'+MONTH_TOKEN+'(?:,?\\s+(20\\d{2}))?\\b','i'));
+    if(reverseNamed){const month=MONTHS[reverseNamed[2].toLowerCase()],day=Number(reverseNamed[1]);return keyFromDate(new Date(yearFor(month,day,reverseNamed[3]),month,day))}
     return'';
   }
   function explicitDatesIn(text,now=new Date()){
-    const source=String(text||''),matches=[],patterns=[/\b20\d{2}-\d{1,2}-\d{1,2}\b/g,/\b\d{1,2}\/\d{1,2}(?:\/20\d{2})?\b/g,/\b(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)\s+\d{1,2}(?:,?\s+20\d{2})?\b/gi,/\b\d{1,2}\s+(?:january|jan|february|feb|march|mar|april|apr|may|june|jun|july|jul|august|aug|september|sept|sep|october|oct|november|nov|december|dec)(?:,?\s+20\d{2})?\b/gi];
+    const source=String(text||''),matches=[],patterns=[/\b20\d{2}-\d{1,2}-\d{1,2}\b/g,/\b\d{1,2}\/\d{1,2}(?:\/20\d{2})?\b/g,new RegExp('\\b'+MONTH_TOKEN+'\\s+\\d{1,2}(?:,?\\s+20\\d{2})?\\b','gi'),new RegExp('\\b\\d{1,2}\\s+'+MONTH_TOKEN+'(?:,?\\s+20\\d{2})?\\b','gi')];
     patterns.forEach(pattern=>{for(const match of source.matchAll(pattern)){const date=explicitDate(match[0],now);if(date)matches.push({date,index:match.index,raw:match[0]})}});
     return matches.sort((left,right)=>left.index-right.index).filter((item,index,list)=>!index||item.index!==list[index-1].index);
+  }
+  function yearForMonthDay(month,day,year,now){
+    if(year)return Number(year);
+    const candidate=new Date(now.getFullYear(),month,day),distance=(candidate-now)/86400000;
+    return now.getFullYear()+(distance<-180?1:distance>300?-1:0);
+  }
+  function boundedSpan(start,end,raw){
+    let finish=dateFromKey(end);
+    if(finish<dateFromKey(start)){finish.setFullYear(finish.getFullYear()+1);end=keyFromDate(finish)}
+    const length=diffDays(end,start);
+    return length>=0&&length<=370?{start,end,raw}:null;
+  }
+  function timelineSpanIn(text,now=new Date()){
+    const source=String(text||''),separator='(?:-|–|—|to|through|thru)';
+    const iso=new RegExp('\\b(20\\d{2}-\\d{1,2}-\\d{1,2})\\s*'+separator+'\\s*(20\\d{2}-\\d{1,2}-\\d{1,2})\\b','i').exec(source);
+    if(iso)return boundedSpan(explicitDate(iso[1],now),explicitDate(iso[2],now),iso[0]);
+    const numeric=new RegExp('\\b(\\d{1,2}\\/\\d{1,2}(?:\\/20\\d{2})?)\\s*'+separator+'\\s*(\\d{1,2}\\/\\d{1,2}(?:\\/20\\d{2})?)\\b','i').exec(source);
+    if(numeric)return boundedSpan(explicitDate(numeric[1],now),explicitDate(numeric[2],now),numeric[0]);
+    const named=new RegExp('\\b'+MONTH_TOKEN+'\\s+(\\d{1,2})(?:,?\\s+(20\\d{2}))?\\s*'+separator+'\\s*(?:'+MONTH_TOKEN+'\\s+)?(\\d{1,2})(?:,?\\s+(20\\d{2}))?\\b','i').exec(source);
+    if(named){
+      const startMonth=MONTHS[named[1].toLowerCase()],endMonth=MONTHS[(named[4]||named[1]).toLowerCase()],startYear=yearForMonthDay(startMonth,Number(named[2]),named[3],now),endYear=Number(named[6]||named[3]||startYear),start=keyFromDate(new Date(startYear,startMonth,Number(named[2]))),end=keyFromDate(new Date(endYear,endMonth,Number(named[5])));
+      return boundedSpan(start,end,named[0]);
+    }
+    const month=new RegExp('\\b'+MONTH_TOKEN+'(?:\\s+(20\\d{2}))?\\b(?!\\s+\\d)','i').exec(source);
+    if(month){
+      const index=MONTHS[month[1].toLowerCase()],year=yearForMonthDay(index,1,month[2],now);
+      return{start:keyFromDate(new Date(year,index,1)),end:keyFromDate(new Date(year,index+1,0)),raw:month[0]};
+    }
+    return null;
+  }
+  function workEntriesFromTimeline(source,span,times){
+    if(!span)return[];
+    const days=weekdaysIn(source),daily=/\b(daily|every day|each day)\b/i.test(source),alternating=/\bevery\s+other\b/i.test(source);
+    if(!days.length&&!daily)return[];
+    const values=[],start=dateFromKey(span.start),end=dateFromKey(span.end),anchorMonday=addDays(start,-((start.getDay()+6)%7));
+    for(let day=start;day<=end;day=addDays(day,1)){
+      const matches=daily||days.includes(day.getDay()),weekIndex=Math.floor(diffDays(keyFromDate(day),keyFromDate(anchorMonday))/7);
+      if(matches&&(!alternating||weekIndex%2===0))values.push({date:keyFromDate(day),times,needsReview:false});
+    }
+    return values;
   }
   function nextWeekday(index,now=new Date(),weekOffset=0){
     let delta=(index-now.getDay()+7)%7;
@@ -177,8 +218,12 @@
   function parseNaturalLanguage(raw,{now=new Date(),sourceId='work',sourceType='text',weeks=8}={}){
     const entries=[];
     splitInput(raw).forEach((segment,segmentIndex)=>{
-      const normalized=expandDayLanguage(segment),kind=classify(normalized),times=parseTimes(normalized),days=weekdaysIn(normalized),exact=explicitDate(normalized,now),deadline=deadlineDate(normalized,now),count=frequency(normalized),seriesId='series-'+segmentIndex+'-'+Math.abs(hashString(segment)),explicitWork=kind==='work'?workEntriesFromExplicitDates(normalized,now,times):[];
-      const hasDate=!!exact||days.length>0||!!deadline||explicitWork.length>0;
+      const normalized=expandDayLanguage(segment),kind=classify(normalized),timelineSpan=kind==='work'?timelineSpanIn(normalized,now):null,times=parseTimes(timelineSpan?normalized.replace(timelineSpan.raw,''):normalized),days=weekdaysIn(normalized),exact=explicitDate(normalized,now),deadline=deadlineDate(normalized,now),count=frequency(normalized),seriesId='series-'+segmentIndex+'-'+Math.abs(hashString(segment)),timelineWork=kind==='work'?workEntriesFromTimeline(normalized,timelineSpan,times):[],explicitWork=kind==='work'&&!timelineWork.length?workEntriesFromExplicitDates(normalized,now,times):[];
+      const hasDate=!!exact||days.length>0||!!deadline||timelineWork.length>0||explicitWork.length>0;
+      if(timelineWork.length){
+        timelineWork.forEach((item,index)=>entries.push(makeEntry({segment,segmentIndex,index,kind,date:item.date,times:item.times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate:true,needsReview:false,flexible:false,deadline:'',confidence:confidenceFor({hasDate:true,hasTime:!!item.times.start,hasEnd:!!item.times.end,kind,ambiguous:item.times.ambiguous,sourceType})})));
+        return;
+      }
       if(explicitWork.length){
         explicitWork.forEach((item,index)=>{const confidence=confidenceWithDateWarning(confidenceFor({hasDate:true,hasTime:!!item.times.start,hasEnd:!!item.times.end,kind,ambiguous:item.times.ambiguous,sourceType}),item.needsReview);entries.push(makeEntry({segment,segmentIndex,index,kind,date:item.date,times:item.times,title:titleFor(normalized,kind),sourceId,sourceType,seriesId,hasDate:true,needsReview:item.needsReview,flexible:false,deadline:'',confidence}))});
         return;

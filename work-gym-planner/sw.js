@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.4';
+const CACHE='wgp-stable-v30.1.5';
 const SHELL=[
  './','./index.html','./manifest.webmanifest',
  '../shared/v23-core.js',

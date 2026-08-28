@@ -39,6 +39,28 @@ test('raw typed shifts keep each explicit date paired with its own time range',(
   assert.ok(shifts.every(item=>!item.needsReview));
 });
 
+test('monthly and date-range timelines populate only the named workdays',()=>{
+  const now=new Date(2026,7,26,9);
+  const month=scheduling.parseNaturalLanguage('In September 2026 I work Monday through Friday, 7am-3pm.',{now,sourceId:'hospital'});
+  assert.equal(month.length,22);
+  assert.deepEqual([month[0].date,month.at(-1).date,month[0].start,month[0].end],['2026-09-01','2026-09-30','07:00','15:00']);
+
+  const range=scheduling.parseNaturalLanguage('August 25–September 7, 2026: I work Tuesday through Saturday, 3p-11p.',{now,sourceId:'hospital'});
+  assert.equal(range.length,10);
+  assert.deepEqual([range[0].date,range.at(-1).date,range[0].start,range[0].end],['2026-08-25','2026-09-05','15:00','23:00']);
+});
+
+test('timeline periods can use different schedules and alternate weekends',()=>{
+  const now=new Date(2026,7,26,9);
+  const parsed=scheduling.parseNaturalLanguage('August 1–15, 2026: work Monday through Friday 7am-3pm; August 16–31, 2026: work Tuesday through Saturday 3pm-11pm.',{now,sourceId:'hospital'});
+  assert.deepEqual(parsed.map(item=>[item.date,item.start,item.end]),[
+    ['2026-08-03','07:00','15:00'],['2026-08-04','07:00','15:00'],['2026-08-05','07:00','15:00'],['2026-08-06','07:00','15:00'],['2026-08-07','07:00','15:00'],['2026-08-10','07:00','15:00'],['2026-08-11','07:00','15:00'],['2026-08-12','07:00','15:00'],['2026-08-13','07:00','15:00'],['2026-08-14','07:00','15:00'],
+    ['2026-08-18','15:00','23:00'],['2026-08-19','15:00','23:00'],['2026-08-20','15:00','23:00'],['2026-08-21','15:00','23:00'],['2026-08-22','15:00','23:00'],['2026-08-25','15:00','23:00'],['2026-08-26','15:00','23:00'],['2026-08-27','15:00','23:00'],['2026-08-28','15:00','23:00'],['2026-08-29','15:00','23:00']
+  ]);
+  const alternating=scheduling.parseNaturalLanguage('In October 2026 I work every other weekend 0700-1900.',{now,sourceId:'hospital'});
+  assert.deepEqual(alternating.map(item=>item.date),['2026-10-03','2026-10-04','2026-10-17','2026-10-18','2026-10-31']);
+});
+
 test('this week and next week wording uses the named calendar week',()=>{
   const now=new Date(2026,7,26,9);
   const thisWeek=scheduling.parseNaturalLanguage('This week I work Monday, Wednesday and Friday 7am-3pm.',{now,sourceId:'hospital'});

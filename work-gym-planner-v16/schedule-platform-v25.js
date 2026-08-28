@@ -83,37 +83,50 @@
     return'<section id="plannerWorkspaceV25" class="plannerWorkspaceV25">'+
       '<header class="plannerWorkspaceHead"><div><small>YOUR PLANNER</small><h1>Everything in its place.</h1><p id="plannerWorkspaceStatus">Work, health and life—organized without the long scroll.</p></div><div id="plannerWeekPulse" class="plannerWeekPulse"></div></header>'+
       '<div class="plannerTabsV25" role="tablist" aria-label="Planner tools">'+
-        '<button class="active" data-planner-tab="calendar" role="tab" aria-selected="true"><span>Calendar</span><small>See the plan</small></button>'+
-        '<button data-planner-tab="add" role="tab" aria-selected="false"><span>Add</span><small>Paste or upload</small></button>'+
-        '<button data-planner-tab="rotations" role="tab" aria-selected="false"><span>Rotations</span><small>Set it once</small></button>'+
-        '<button data-planner-tab="sources" role="tab" aria-selected="false"><span>Work sources</span><small>Jobs &amp; colors</small></button>'+
-        '<button data-planner-tab="sync" role="tab" aria-selected="false"><span>Sync</span><small>Google &amp; Outlook</small></button>'+
+        '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>See the plan</small></button>'+
+        '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Paste or upload</small></button>'+
+        '<button id="plannerTab-rotations" data-planner-tab="rotations" role="tab" aria-selected="false" aria-controls="plannerPane-rotations" tabindex="-1"><span>Rotations</span><small>Set it once</small></button>'+
+        '<button id="plannerTab-sources" data-planner-tab="sources" role="tab" aria-selected="false" aria-controls="plannerPane-sources" tabindex="-1"><span>Work sources</span><small>Jobs &amp; colors</small></button>'+
+        '<button id="plannerTab-sync" data-planner-tab="sync" role="tab" aria-selected="false" aria-controls="plannerPane-sync" tabindex="-1"><span>Sync</span><small>Google &amp; Outlook</small></button>'+
       '</div>'+
-      '<div id="plannerPane-calendar" class="plannerPaneV25 active" role="tabpanel"></div>'+
-      '<div id="plannerPane-add" class="plannerPaneV25" role="tabpanel"></div>'+
-      '<div id="plannerPane-rotations" class="plannerPaneV25" role="tabpanel"><div id="rotationManagerV25"></div></div>'+
-      '<div id="plannerPane-sources" class="plannerPaneV25" role="tabpanel"><div id="sourceManagerV25"></div></div>'+
-      '<div id="plannerPane-sync" class="plannerPaneV25" role="tabpanel"><div id="calendarSyncV25"></div></div>'+
+      '<div id="plannerPane-calendar" class="plannerPaneV25 active" role="tabpanel" aria-labelledby="plannerTab-calendar"></div>'+
+      '<div id="plannerPane-add" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-add" hidden></div>'+
+      '<div id="plannerPane-rotations" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-rotations" hidden><div id="rotationManagerV25"></div></div>'+
+      '<div id="plannerPane-sources" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-sources" hidden><div id="sourceManagerV25"></div></div>'+
+      '<div id="plannerPane-sync" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-sync" hidden><div id="calendarSyncV25"></div></div>'+
     '</section>';
   }
   function selectTab(name,focus){
     var root=document.getElementById('plannerWorkspaceV25');if(!root)return;
-    root.querySelectorAll('[data-planner-tab]').forEach(function(button){var active=button.dataset.plannerTab===name;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active))});
-    root.querySelectorAll('.plannerPaneV25').forEach(function(pane){pane.classList.toggle('active',pane.id==='plannerPane-'+name)});
+    root.querySelectorAll('[data-planner-tab]').forEach(function(button){var active=button.dataset.plannerTab===name;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1});
+    root.querySelectorAll('.plannerPaneV25').forEach(function(pane){var active=pane.id==='plannerPane-'+name;pane.classList.toggle('active',active);pane.hidden=!active});
     sessionStorage.setItem('ww-planner-tab',name);
     if(name==='sources')renderSources();if(name==='rotations')renderRotations();if(name==='sync')renderSync();if(name==='calendar')renderWeekPulse(selectedDate||dkey());
     if(focus)root.scrollIntoView({behavior:'smooth',block:'start'});
   }
+  function captureMarkup(){
+    return'<section id="smartCaptureV19" class="smartCaptureV19" aria-labelledby="smartCaptureTitle">'+
+      '<div class="smartCaptureIntro"><span aria-hidden="true">✦</span><div><small>EFFORTLESS INPUT</small><h2 id="smartCaptureTitle">Tell us the week in your own words.</h2><p>Paste a roster, speak it, or upload what your employer sent. Work, appointments, errands and workouts are organized together.</p></div><button id="smartCaptureFilm" type="button">Use an example</button></div>'+
+      '<div class="smartCaptureComposer"><label class="srOnly" for="smartCaptureInput">Describe your work schedule, tasks, appointments and workouts</label><textarea id="smartCaptureInput" rows="5" placeholder="Try: I work Mon–Thu 7am–7pm. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week."></textarea><div><button id="smartCaptureVoice" type="button" aria-label="Speak your schedule">Speak</button><button class="primary" id="smartCaptureBuild" type="button">Review my plan <span>→</span></button></div></div>'+
+      '<div class="smartCaptureExamples" aria-label="Schedule examples"><button type="button" data-capture-example="Work every Monday, Wednesday and Friday 7am–7pm">Repeating shifts</button><button type="button" data-capture-example="Dentist Tuesday at 2pm; buy groceries before Friday">Appointments &amp; tasks</button><button type="button" data-capture-example="Gym three times this week">Flexible workouts</button></div>'+
+      '<div id="smartCapturePreview" class="smartCapturePreview" aria-live="polite"></div>'+
+    '</section>';
+  }
+  function ensureCapture(){
+    var capture=document.getElementById('smartCaptureV19'),addPane=document.getElementById('plannerPane-add');
+    if(!capture&&addPane){addPane.insertAdjacentHTML('beforeend',captureMarkup());capture=document.getElementById('smartCaptureV19');window.WGC24?.mount?.()}
+    return capture;
+  }
   function arrangeWorkspace(){
     var calendar=document.getElementById('page-calendar'),root=document.getElementById('plannerWorkspaceV25');if(!calendar||!root)return;
     var calendarPane=document.getElementById('plannerPane-calendar'),addPane=document.getElementById('plannerPane-add');
-    var capture=document.getElementById('smartCaptureV19');if(capture&&capture.parentElement!==addPane)addPane.appendChild(capture);
+    var capture=ensureCapture();if(capture&&capture.parentElement!==addPane)addPane.appendChild(capture);
     ['.legend','#calendarActionBarV24','.monthbar','.weekdays','#calendarGrid','#dayCard'].forEach(function(selector){var element=calendar.querySelector(selector);if(element&&element.parentElement!==calendarPane)calendarPane.appendChild(element)});
     var hero=document.getElementById('calendarUtilityV24');if(hero)hero.hidden=true;
     var action=document.getElementById('calendarImportV24');if(action)action.onclick=function(){selectTab('add',true);setTimeout(function(){document.getElementById('smartCaptureInput')?.focus()},250)};
     var todo=document.getElementById('calendarTodoV24');if(todo)todo.onclick=function(){window.openCalendarDate?.(selectedDate||dkey());setTimeout(function(){document.querySelector('[data-agenda-form] input[name="title"]')?.focus()},120)};
   }
-  function bindTabs(){document.querySelectorAll('[data-planner-tab]').forEach(function(button){button.onclick=function(){selectTab(button.dataset.plannerTab,false)}})}
+  function bindTabs(){document.querySelectorAll('[data-planner-tab]').forEach(function(button){if(button.dataset.v25Bound)return;button.dataset.v25Bound='true';button.onclick=function(){selectTab(button.dataset.plannerTab,false)};button.onkeydown=function(event){var tabs=[...button.parentElement.querySelectorAll('[data-planner-tab]')],index=tabs.indexOf(button),next=null;if(event.key==='ArrowRight')next=tabs[(index+1)%tabs.length];if(event.key==='ArrowLeft')next=tabs[(index-1+tabs.length)%tabs.length];if(event.key==='Home')next=tabs[0];if(event.key==='End')next=tabs[tabs.length-1];if(next){event.preventDefault();next.click();next.focus()}}})}
 
   function captureSourceControl(){
     var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceV25');
@@ -124,8 +137,19 @@
   function bindTrustedCapture(){
     var build=document.getElementById('smartCaptureBuild');if(build)build.onclick=buildTrustedProposal;
     var film=document.getElementById('smartCaptureFilm');if(film)film.onclick=function(){var input=document.getElementById('smartCaptureInput');if(input){input.value='Work Monday–Thursday 7 AM–7 PM. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week.';input.focus()}};
+    var voice=document.getElementById('smartCaptureVoice');if(voice)voice.onclick=startVoiceCapture;
+    document.querySelectorAll('[data-capture-example]').forEach(function(button){button.onclick=function(){var input=document.getElementById('smartCaptureInput');if(!input)return;input.value+=(input.value?'\n':'')+button.dataset.captureExample;input.focus()}});
     captureSourceControl();
     if(window.WGC19)window.WGC19.reviewRawText=function(text,meta){selectTab('add',true);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.dataset.sourceType=meta?.sourceType||'ocr';buildTrustedProposal();return true};
+  }
+  function startVoiceCapture(){
+    var Recognition=window.SpeechRecognition||window.webkitSpeechRecognition,input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureVoice');
+    if(!Recognition||!input||!button){toast('Voice input is not supported in this browser');return}
+    var recognition=new Recognition();recognition.lang='en-US';recognition.interimResults=false;button.disabled=true;button.textContent='Listening…';
+    recognition.onresult=function(event){input.value+=(input.value?'\n':'')+event.results[0][0].transcript};
+    recognition.onend=function(){button.disabled=false;button.textContent='Speak'};
+    recognition.onerror=function(){button.disabled=false;button.textContent='Speak';toast('Voice input stopped. You can paste or type instead.')};
+    recognition.start();
   }
   function buildTrustedProposal(){
     var input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureBuild');if(!input)return;

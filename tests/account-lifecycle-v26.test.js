@@ -104,6 +104,31 @@ test('both service-worker shells list the vendored browser dependencies',()=>{
   }
 });
 
+test('service workers never cache authenticated API responses',()=>{
+  for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
+    const source=read(worker);
+    assert.match(source,/u\.pathname\.startsWith\('\/api\/'\)/,`${worker} must bypass every API request`);
+    assert.match(source,/e\.request\.headers\.has\('Authorization'\)/,`${worker} must bypass authenticated requests`);
+    assert.match(source,/if\(r\.ok\)/,`${worker} must cache successful static responses only`);
+  }
+  assert.match(read('work-gym-planner/sw.js'),/shared\/v23-core\.js/,
+    'the production offline shell must include the account-isolation helper it executes');
+});
+
+test('local file previews point account users to the secure website',()=>{
+  const account=read('work-gym-planner-v16/accounts-v18.js');
+  assert.match(account,/location\.protocol==='file:'/);
+  assert.match(account,/https:\/\/www\.workandworkout\.com\//);
+  assert.match(account,/This is a local preview/);
+});
+
+test('notification artwork exists at the path used by the app',()=>{
+  const source=read('work-gym-planner-v16/notifications.js');
+  const match=source.match(/icon:'\.\.\/work-gym-planner\/icons\/([^']+)'/);
+  assert.ok(match,'notification icon must use the deployed planner icon directory');
+  assert.ok(fs.existsSync(path.join(root,'work-gym-planner/icons',match[1])),`missing notification icon ${match[1]}`);
+});
+
 test('service-worker installation executes required and optional cache phases',async()=>{
   for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
     const calls=await runWorkerInstall(worker,{failOptional:true});

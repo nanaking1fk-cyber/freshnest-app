@@ -1,8 +1,8 @@
 {
   "name": "work-and-workout",
   "private": true,
-  "version": "30.0.3",
-  "engines": { "node": ">=22" },
+  "version": "30.0.4",
+  "engines": { "node": "24.x" },
   "scripts": {
     "test": "node --test tests/*.test.js",
     "check": "node --check server/v18-lib.js && node --check server/calendar-v25.js && node --check api/v18/*.js && node --check api/v25/*.js && node --check shared/v25-scheduling.js && node --check work-gym-planner-v16/schedule-platform-v25.js && node --test tests/*.test.js"

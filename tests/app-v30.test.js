@@ -26,9 +26,9 @@ test('v30 assets load last and are available offline',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/Loading Work \+ Workout 30\.0\.3/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.0.3');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.3/);
+  assert.match(shell,/Loading Work \+ Workout 30\.0\.4/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.0.4');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.0\.4/);
 });
 
 test('training opens one exercise at a time',()=>{
@@ -64,6 +64,32 @@ test('mobile and desktop get purpose-built navigation',()=>{
   assert.match(css,/\.bottomNavV30::before/);
   assert.match(css,/@media\(max-width:760px\)/);
   assert.match(css,/\.hvStrip\{grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+
+test('calendar intake is mounted by the production schedule module',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const plannerCss=read('work-gym-planner-v16/schedule-platform-v25.css');
+  assert.match(planner,/function captureMarkup\(\)/);
+  assert.match(planner,/id="smartCaptureInput"/);
+  assert.match(planner,/id="smartCaptureBuild"/);
+  assert.match(planner,/ensureCapture\(\)/,
+    'the Add workspace must create its own capture surface instead of depending on an unloaded legacy module');
+  assert.match(plannerCss,/#plannerPane-add>\.smartCaptureV19/);
+});
+
+test('all planner tools remain visible on phones without a floating coach collision',()=>{
+  assert.match(css,/@media\(max-width:760px\)[\s\S]*plannerTabsV25\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
+  assert.match(css,/plannerTabsV25 button:nth-child\(-n\+3\)\{grid-column:span 2\}/);
+  assert.match(css,/plannerTabsV25 button:nth-child\(n\+4\)\{grid-column:span 3\}/);
+  assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
+});
+
+test('planner tabs expose keyboard and panel relationships',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(planner,/aria-controls="plannerPane-calendar"/);
+  assert.match(planner,/aria-labelledby="plannerTab-add" hidden/);
+  assert.match(planner,/event\.key==='ArrowRight'/);
+  assert.match(planner,/pane\.hidden=!active/);
 });
 
 test('guided onboarding owns a complete responsive layout',()=>{

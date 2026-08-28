@@ -273,8 +273,14 @@ body.premiumV30 .coachFab{z-index:81}
   body.premiumV30 .homeDashV27 .hvRow time{font-size:10px;white-space:normal}
   body.premiumV30 .plannerWorkspaceHead{display:block}
   body.premiumV30 .plannerWeekPulse{margin-top:18px;overflow-x:auto}
-  body.premiumV30 .plannerTabsV25{margin-left:-5px;margin-right:-5px}
-  body.premiumV30 .plannerTabsV25 button{flex-basis:118px}
+  body.premiumV30 .plannerTabsV25{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-left:-5px;margin-right:-5px;overflow:visible}
+  body.premiumV30 .plannerTabsV25 button{min-width:0;min-height:50px;flex:none;padding:8px 6px;text-align:center}
+  body.premiumV30 .plannerTabsV25 button:nth-child(-n+3){grid-column:span 2}
+  body.premiumV30 .plannerTabsV25 button:nth-child(n+4){grid-column:span 3}
+  body.premiumV30 .plannerTabsV25 small{display:none}
+  body.premiumV30 .aiCoachFab,
+  body.premiumV30 .coachFab18,
+  body.premiumV30 .coachFab{display:none!important}
   body.premiumV30 .calDay{height:76px}
   body.premiumV30 .dayCard{padding:18px}
   body.premiumV30 .trainNav{grid-template-columns:44px 1fr 44px;padding:15px 8px}
@@ -300,7 +306,7 @@ body.premiumV30 .coachFab{z-index:81}
   body.premiumV30 .homeDashV27 .hvNote{font-size:12px}
   body.premiumV30 .plannerWorkspaceHead h1{font-size:38px}
   body.premiumV30 .plannerTabsV25 span{font-size:12px}
-  body.premiumV30 .plannerTabsV25 small{font-size:9px}
+  body.premiumV30 .plannerTabsV25 small{display:none}
   body.premiumV30 .exerciseHead h3{font-size:16px}
   body.premiumV30 .exerciseToggleV30 span{display:none}
   body.premiumV30 .exerciseToggleV30{padding:8px}

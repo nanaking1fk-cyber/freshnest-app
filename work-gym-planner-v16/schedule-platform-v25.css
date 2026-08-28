@@ -24,7 +24,22 @@ body.premiumV18 .plannerPaneV25{display:none;padding-top:14px}
 body.premiumV18 .plannerPaneV25.active{display:block;animation:v25PaneIn .22s ease both}
 body.premiumV18 .plannerWorkspaceV25 [hidden]{display:none!important}
 @keyframes v25PaneIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-body.premiumV18 #plannerPane-add>.smartCaptureV19{margin:0}
+body.premiumV18 #plannerPane-add>.smartCaptureV19{position:relative;overflow:hidden;margin:0;padding:22px;border:1px solid rgba(184,243,74,.18);border-radius:22px;background:radial-gradient(circle at 100% 0,rgba(184,243,74,.11),transparent 36%),linear-gradient(145deg,#111820,#0c1117);box-shadow:0 28px 70px rgba(0,0,0,.2)}
+body.premiumV18 .smartCaptureIntro{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:start;gap:13px}
+body.premiumV18 .smartCaptureIntro>span{width:44px;height:44px;display:grid;place-items:center;border-radius:13px;color:#11150a;background:var(--premium-accent);font-size:17px}
+body.premiumV18 .smartCaptureIntro small{color:var(--premium-accent);font-size:7px;font-weight:950;letter-spacing:.15em}
+body.premiumV18 .smartCaptureIntro h2{margin:5px 0;font-size:22px;letter-spacing:-.045em}
+body.premiumV18 .smartCaptureIntro p{max-width:590px;margin:0;color:#89938e;font-size:9px;line-height:1.55}
+body.premiumV18 .smartCaptureIntro>button{min-height:36px;padding:0 12px;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#d8ddd9;background:rgba(255,255,255,.035);font-size:8px;font-weight:850}
+body.premiumV18 .smartCaptureComposer{margin-top:17px;padding:12px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:#0a0f14}
+body.premiumV18 .smartCaptureComposer textarea{width:100%;min-height:108px;resize:vertical;padding:8px 9px;border:0;outline:0;color:#eef2ee;background:transparent;font:500 11px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body.premiumV18 .smartCaptureComposer>div{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}
+body.premiumV18 .smartCaptureComposer button{min-height:39px;padding:0 14px;border-radius:10px;font-size:8px;font-weight:900}
+body.premiumV18 #smartCaptureVoice{border:1px solid rgba(255,255,255,.12);color:#d7dcd8;background:#141b22}
+body.premiumV18 .smartCaptureExamples{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+body.premiumV18 .smartCaptureExamples button{min-height:31px;padding:0 11px;border:1px solid rgba(255,255,255,.09);border-radius:99px;color:#9aa59f;background:rgba(255,255,255,.025);font-size:7px}
+body.premiumV18 .smartCaptureExamples button:hover{color:#e7ede9;border-color:rgba(184,243,74,.22)}
+body.premiumV18 .smartCapturePreview:not(:empty){margin-top:17px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
 body.premiumV18 .captureContextV25{display:flex;gap:16px;align-items:end;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(88,166,255,.15);border-radius:14px;background:rgba(88,166,255,.04)}
 body.premiumV18 .captureContextV25 label{min-width:200px;color:#88938d;font-size:7px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
 body.premiumV18 .captureContextV25 select{display:block;width:100%;margin-top:5px}
@@ -140,7 +155,9 @@ body.premiumV18 #syncStatusV25{color:#909b95;font-size:8px}
   body.premiumV18 .plannerWorkspaceHead{display:block;padding-top:0}
   body.premiumV18 .plannerWeekPulse{margin-top:14px;overflow:auto;padding-bottom:2px}
   body.premiumV18 .plannerWeekPulse span{min-width:92px}
-  body.premiumV18 .plannerTabsV25{grid-template-columns:repeat(3,1fr);overflow:visible}
+  body.premiumV18 .plannerTabsV25{grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible}
+  body.premiumV18 .plannerTabsV25 button:nth-child(-n+3){grid-column:span 2}
+  body.premiumV18 .plannerTabsV25 button:nth-child(n+4){grid-column:span 3}
   body.premiumV18 .plannerTabsV25 button{min-height:46px;text-align:center}
   body.premiumV18 .plannerTabsV25 small{display:none}
   body.premiumV18 .trustReviewV25>header{display:block}
@@ -154,6 +171,10 @@ body.premiumV18 #syncStatusV25{color:#909b95;font-size:8px}
   body.premiumV18 .managerFormV25 h3,body.premiumV18 .wideLabelV25{grid-column:1/-1}
   body.premiumV18 .captureContextV25{display:block}
   body.premiumV18 .captureContextV25 p{margin-top:8px}
+  body.premiumV18 .smartCaptureIntro{grid-template-columns:39px 1fr}
+  body.premiumV18 .smartCaptureIntro>span{width:39px;height:39px}
+  body.premiumV18 .smartCaptureIntro>button{grid-column:2;width:max-content}
+  body.premiumV18 .smartCaptureComposer>div{display:grid;grid-template-columns:auto 1fr}
 }
 @media(max-width:460px){
   body.premiumV18 .plannerTabsV25{margin-left:-5px;margin-right:-5px;border-radius:14px}
@@ -175,4 +196,6 @@ body.premiumV18 #syncStatusV25{color:#909b95;font-size:8px}
   body.premiumV18 .sourceActionsV25{grid-column:2}
   body.premiumV18 .syncProvidersV25 article{grid-template-columns:38px 1fr}
   body.premiumV18 .syncProvidersV25 article>button,body.premiumV18 .syncButtonsV25{grid-column:2}
+  body.premiumV18 #plannerPane-add>.smartCaptureV19{padding:16px;border-radius:18px}
+  body.premiumV18 .smartCaptureIntro h2{font-size:19px}
 }

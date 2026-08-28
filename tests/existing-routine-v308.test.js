@@ -45,6 +45,6 @@ test('phone cinema places the plan card below the video instead of covering it',
   const css=read('work-gym-planner-v16/landing-v29.css');
   const phone=css.slice(css.indexOf('@media(max-width:520px)'));
   assert.match(phone,/\.ww29Cinema\{min-height:auto;display:flex;flex-direction:column/);
-  assert.match(phone,/\.ww29LiveCard\{position:relative;width:100%;right:auto;bottom:auto/);
-  assert.doesNotMatch(phone,/\.ww29LiveCard\{position:absolute/);
+  assert.match(phone,/#wwLanding \.ww29LiveCard\{position:relative;width:100%;right:auto;bottom:auto/);
+  assert.doesNotMatch(phone,/#wwLanding \.ww29LiveCard\{position:absolute/);
 });

@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.19/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.19');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.19/);
+  assert.match(shell,/30\.1\.20/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.20');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.20/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -110,6 +110,10 @@ test('work sources are selectable during import and can be deleted completely',(
   const plannerCss=read('work-gym-planner-v16/schedule-platform-v25.css');
   assert.match(planner,/id="captureSourcePickerV25"/);
   assert.match(planner,/New work source…/);
+  assert.match(planner,/sourceOptions\(existing\.dataset\.sourceId\|\|source\?\.id,true\)/,
+    'the Add menu must include every saved work source, including paused sources');
+  assert.match(planner,/if\(name==='add'\)captureSourceControl\(\)/,
+    'opening Add must refresh its work-source selector');
   assert.match(planner,/data-source-delete/);
   assert.match(planner,/saveEvents\(events\(\)\.filter/,
     'deleting a source must remove its own saved shifts');
@@ -158,6 +162,8 @@ test('calendar supports detail labels as well as a compact color-only view',()=>
   assert.match(planner,/data-calendar-display="compact"/);
   assert.match(css,/\.dayDetails/);
   assert.match(css,/#calendarGrid\[data-display="compact"\] \.dayDetails\{display:none/);
+  assert.match(css,/@media\(max-width:760px\)[\s\S]*\.monthbar>\.calendarDisplayToggleV32\{display:flex/,
+    'Details and Compact must stay available on mobile');
 });
 
 test('calendar supports recurring personal events such as payday',()=>{
@@ -167,13 +173,29 @@ test('calendar supports recurring personal events such as payday',()=>{
   assert.match(calendar,/RECURRING_CALENDAR_ITEMS_KEY/);
   assert.match(calendar,/function recurrenceMatches\(/);
   assert.match(calendar,/function addRecurringCalendarItem\(/);
+  assert.match(calendar,/function skipRecurringCalendarItem\(/);
+  assert.match(calendar,/function toggleRecurringCalendarItem\(/);
   assert.match(calendar,/Every month/);
   assert.match(calendar,/Every 2 weeks/);
-  assert.match(calendar,/Remove “\$\{item\.title\}” from this and all future calendar dates/);
+  assert.match(calendar,/Removed from this date; the repeat schedule is unchanged/);
   assert.match(planner,/saveRecurringCalendarItems\(\[\]\)/,
     'Clear calendar must remove repeating personal events too');
   assert.match(premiumCss,/select\[name="repeat"\]/,
     'the repeat picker must remain usable in the compact mobile form');
+});
+
+test('individual calendar items can be completed or removed without erasing rotation patterns',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(calendar,/data-work-toggle/);
+  assert.match(calendar,/data-work-delete/);
+  assert.match(calendar,/data-agenda-toggle/);
+  assert.match(calendar,/data-agenda-delete/);
+  assert.match(planner,/function toggleWorkItemDone\(/);
+  assert.match(planner,/function removeWorkItem\(/);
+  assert.match(planner,/exceptions\[key\]=\{action:'skip'/,
+    'removing one generated shift must create a dated exception');
+  assert.match(css,/dayScheduleRow\.done b/);
 });
 
 test('training and More reveal secondary controls on demand',()=>{

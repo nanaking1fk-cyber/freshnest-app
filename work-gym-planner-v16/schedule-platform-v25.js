@@ -6,7 +6,7 @@
   if(!Core)return;
   var V=window.WWV25=window.WWV25||{};
   var Capture=window.WGC19=window.WGC19||{};
-  var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25',sourcesInitialized:PREFIX+'schedule-sources-initialized-v25',deletedSourceNames:PREFIX+'schedule-deleted-source-names-v25'};
+  var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25',sourcesInitialized:PREFIX+'schedule-sources-initialized-v25',deletedSourceNames:PREFIX+'schedule-deleted-source-names-v25',hiddenWorkItems:PREFIX+'hidden-work-items-v34',completedWorkItems:PREFIX+'completed-work-items-v34'};
   var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
   var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='';
 
@@ -31,8 +31,8 @@
     if(!list.length)list.push({id:'work',name:'Work',color:Core.COLORS[0],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()});
     saveSources(list);jset(KEY.sourcesInitialized,true);
   }
-  function sourceOptions(selected){var list=enabledSources();return list.length?list.map(function(source){return'<option value="'+safe(source.id)+'" '+(source.id===selected?'selected':'')+'>'+safe(source.name)+'</option>'}).join(''):'<option value="">No saved work sources</option>'}
-  function sourceDatalistOptions(){return enabledSources().map(function(source){return'<option value="'+safe(source.name)+'"></option>'}).join('')}
+  function sourceOptions(selected,includeDisabled){var list=includeDisabled?sources():enabledSources();return list.length?list.map(function(source){return'<option value="'+safe(source.id)+'" '+(source.id===selected?'selected':'')+'>'+safe(source.name)+(source.enabled===false?' · paused':'')+'</option>'}).join(''):'<option value="">No saved work sources</option>'}
+  function sourceDatalistOptions(){return sources().map(function(source){return'<option value="'+safe(source.name)+'"></option>'}).join('')}
   function captureSource(){
     var input=document.getElementById('captureSourceNameV25'),id=input?.dataset.sourceId||'',name=String(input?.value||'').trim(),list=sources();
     var matched=list.find(function(source){return source.id===id})||list.find(function(source){return source.name.trim().toLowerCase()===name.toLowerCase()});
@@ -65,10 +65,25 @@
   }
   function workEventsOn(key){return v25WorkEvents(key,key)}
   function originalRowsOn(key){try{return typeof legacyWorkRows==='function'?(legacyWorkRows(key)||[]):[]}catch{return[]}}
+  function storedWorkKeys(storageKey){var value=jget(storageKey,[]);return Array.isArray(value)?value:[]}
+  function workItemKey(row,key){return[key,row.rotationId||row.eventId||row.sourceId||'legacy',row.name||'Work shift',row.time||''].join('|')}
+  function decorateWorkRow(row,key){var itemKey=workItemKey(row,key);return Object.assign({},row,{calendarItemKey:itemKey,done:storedWorkKeys(KEY.completedWorkItems).includes(itemKey)})}
   function workRowsOn(key){
-    var generated=workEventsOn(key).map(function(event){var source=sourceById(event.sourceId)||{};return{name:event.title||source.name||'Work shift',time:timeLabel(event.start,event.end)+(event.overnight?' · overnight':''),start:event.start,end:event.end,color:source.color||event.color||Core.COLORS[0],sourceId:event.sourceId,eventId:event.id,rotationId:event.rotationId,exception:event.exception}});
-    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name))return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time}))generated.push(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',legacy:true}))});
+    var hidden=storedWorkKeys(KEY.hiddenWorkItems),generated=workEventsOn(key).map(function(event){var source=sourceById(event.sourceId)||{};return decorateWorkRow({name:event.title||source.name||'Work shift',time:timeLabel(event.start,event.end)+(event.overnight?' · overnight':''),start:event.start,end:event.end,color:source.color||event.color||Core.COLORS[0],sourceId:event.sourceId,eventId:event.id,rotationId:event.rotationId,exception:event.exception},key)}).filter(function(row){return !hidden.includes(row.calendarItemKey)});
+    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name))return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time})){var decorated=decorateWorkRow(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',legacy:true}),key);if(!hidden.includes(decorated.calendarItemKey))generated.push(decorated)}});
     return generated;
+  }
+  function toggleWorkItemDone(row,key){
+    if(!row||!key)return false;
+    var itemKey=row.calendarItemKey||workItemKey(row,key),list=storedWorkKeys(KEY.completedWorkItems),done=!list.includes(itemKey);
+    jset(KEY.completedWorkItems,done?list.concat(itemKey):list.filter(function(value){return value!==itemKey}));window.WGC18?.queueSync?.();return done;
+  }
+  function removeWorkItem(row,key){
+    if(!row||!key)return false;
+    if(row.rotationId){saveRotations(rotations().map(function(rotation){if(rotation.id!==row.rotationId)return rotation;var exceptions=Object.assign({},rotation.exceptions||{});exceptions[key]={action:'skip',createdAt:new Date().toISOString()};return Object.assign({},rotation,{exceptions:exceptions,updatedAt:new Date().toISOString()})}))}
+    else if(row.eventId){saveEvents(events().filter(function(event){return event.id!==row.eventId}))}
+    else{var hidden=storedWorkKeys(KEY.hiddenWorkItems),itemKey=row.calendarItemKey||workItemKey(row,key);if(!hidden.includes(itemKey))jset(KEY.hiddenWorkItems,hidden.concat(itemKey))}
+    var completed=storedWorkKeys(KEY.completedWorkItems),completedKey=row.calendarItemKey||workItemKey(row,key);if(completed.includes(completedKey))jset(KEY.completedWorkItems,completed.filter(function(value){return value!==completedKey}));window.WGC18?.queueSync?.();return true;
   }
   function personalExisting(start,end){
     var all=typeof dayItems==='function'?dayItems():jget(PREFIX+'calendar-items',{}),values=[];
@@ -85,12 +100,13 @@
     return values;
   }
   function allWorkForRange(start,end){
-    var values=v25WorkEvents(start,end).slice(),fallback=enabledSources()[0]||{id:'work',name:'Work',color:Core.COLORS[0]},cursor=Core.dateFromKey(start),finish=Core.dateFromKey(end);
+    var values=v25WorkEvents(start,end).slice(),hidden=storedWorkKeys(KEY.hiddenWorkItems),fallback=enabledSources()[0]||{id:'work',name:'Work',color:Core.COLORS[0]},cursor=Core.dateFromKey(start),finish=Core.dateFromKey(end);
     while(cursor<=finish){
       var key=Core.keyFromDate(cursor);
       originalRowsOn(key).forEach(function(row,index){
         var matched=sources().find(function(item){return item.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name))return;
         var source=matched||enabledSources()[index]||fallback,event={id:'legacy-summary:'+key+':'+index,kind:'work',date:key,title:row.name||source.name,start:parseDisplayTime(row.time,0),end:parseDisplayTime(row.time,1),sourceId:source.id,sourceName:source.name,color:source.color};
+        if(hidden.includes(workItemKey({name:event.title,time:row.time,sourceId:event.sourceId,legacy:true},key)))return;
         if(event.start&&event.end&&!values.some(function(item){return Core.sameEvent(item,event)&&item.sourceId===event.sourceId}))values.push(event);
       });
       cursor=Core.addDays(cursor,1);
@@ -124,7 +140,7 @@
     root.querySelectorAll('[data-planner-tab]').forEach(function(button){var active=button.dataset.plannerTab===name;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1});
     root.querySelectorAll('.plannerPaneV25').forEach(function(pane){var active=pane.id==='plannerPane-'+name;pane.classList.toggle('active',active);pane.hidden=!active});
     sessionStorage.setItem('ww-planner-tab',name);
-    if(name==='sources')renderSources();if(name==='rotations')renderRotations();if(name==='sync')renderSync();if(name==='calendar')renderWeekPulse(selectedDate||dkey());
+    if(name==='sources')renderSources();if(name==='rotations')renderRotations();if(name==='sync')renderSync();if(name==='add')captureSourceControl();if(name==='calendar')renderWeekPulse(selectedDate||dkey());
     if(focus)root.scrollIntoView({behavior:'smooth',block:'start'});
   }
   function captureMarkup(){
@@ -157,10 +173,10 @@
 
   function captureSourceControl(){
     var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceNameV25');
-    if(existing){var value=existing.value,source=captureSource(),picker=document.getElementById('captureSourcePickerV25'),list=document.getElementById('captureSourceListV25');if(list)list.innerHTML=sourceDatalistOptions();if(picker){picker.innerHTML=sourceOptions(existing.dataset.sourceId||source?.id)+'<option value="new">New work source…</option>';picker.value=existing.dataset.sourceId||'new'}existing.value=value||source?.name||'';return}
+    if(existing){var value=existing.value,source=captureSource(),picker=document.getElementById('captureSourcePickerV25'),list=document.getElementById('captureSourceListV25');if(list)list.innerHTML=sourceDatalistOptions();if(picker){picker.innerHTML=sourceOptions(existing.dataset.sourceId||source?.id,true)+'<option value="new">New work source…</option>';picker.value=existing.dataset.sourceId||'new'}existing.value=value||source?.name||'';return}
     if(!composer)return;
     var source=captureSource()||{},selected=source.id||'';
-    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label for="captureSourcePickerV25">Add work to<select id="captureSourcePickerV25">'+sourceOptions(selected)+'<option value="new">New work source…</option></select></label><label for="captureSourceNameV25">Work source or employer<input id="captureSourceNameV25" list="captureSourceListV25" data-source-id="'+safe(selected)+'" value="'+safe(source.name||'')+'" placeholder="e.g. Bellevue Hospital" autocomplete="organization"></label><datalist id="captureSourceListV25">'+sourceDatalistOptions()+'</datalist><p>Choose the employer for this import. Its color, shifts and hours stay separate from your other jobs.</p></div>');
+    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label for="captureSourcePickerV25">Add work to<select id="captureSourcePickerV25">'+sourceOptions(selected,true)+'<option value="new">New work source…</option></select></label><label for="captureSourceNameV25">Work source or employer<input id="captureSourceNameV25" list="captureSourceListV25" data-source-id="'+safe(selected)+'" value="'+safe(source.name||'')+'" placeholder="e.g. Bellevue Hospital" autocomplete="organization"></label><datalist id="captureSourceListV25">'+sourceDatalistOptions()+'</datalist><p>Choose the employer for this import. Its color, shifts and hours stay separate from your other jobs.</p></div>');
     var input=document.getElementById('captureSourceNameV25'),picker=document.getElementById('captureSourcePickerV25');
     input.oninput=function(){this.dataset.sourceId='';if(picker)picker.value='new'};
     picker.onchange=function(){if(this.value==='new'){input.dataset.sourceId='';input.value='';input.focus();return}var selectedSource=sourceById(this.value);if(selectedSource){input.dataset.sourceId=selectedSource.id;input.value=selectedSource.name}};
@@ -384,7 +400,7 @@
     saveEvents([]);saveRotations([]);
     if(typeof saveDayItems==='function')saveDayItems({});else jset(PREFIX+'calendar-items',{});
     if(typeof saveRecurringCalendarItems==='function')saveRecurringCalendarItems([]);else jset(PREFIX+'recurring-calendar-items',[]);
-    jset(PREFIX+'smart-work-dates',{});
+    jset(PREFIX+'smart-work-dates',{});jset(KEY.hiddenWorkItems,[]);jset(KEY.completedWorkItems,[]);
     if(typeof saveOverrides==='function')saveOverrides({});
     var onboarding=jget(PREFIX+'onboarding-v18',null);
     if(onboarding?.answers?.work){var answers=Object.assign({},onboarding.answers,{work:Object.assign({},onboarding.answers.work,{commitments:[],secondaryDays:[]})});jset(PREFIX+'onboarding-v18',Object.assign({},onboarding,{answers:answers}))}
@@ -437,6 +453,6 @@
   }
   function boot(){mount();handleOAuthReturn();var queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;mount()})}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
 
-  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
+  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

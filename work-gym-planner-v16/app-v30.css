@@ -216,6 +216,12 @@ body.premiumV30 .dayCard .dayScheduleRow,body.premiumV30 .dayCard .dayAgendaRow{
 body.premiumV30 .dayCard .dayScheduleRow>span,body.premiumV30 .dayCard .agendaEvent,body.premiumV30 .dayCard .agendaCheck{width:30px;height:30px;border-radius:9px}
 body.premiumV30 .dayCard .dayScheduleRow b,body.premiumV30 .dayCard .dayAgendaRow b{font-size:10px}
 body.premiumV30 .dayCard .dayScheduleRow small,body.premiumV30 .dayCard .dayAgendaRow small{font-size:8px}
+body.premiumV30 .dayCard .dayScheduleRow.done b,body.premiumV30 .dayCard .dayAgendaRow.done b{text-decoration:line-through;color:var(--v30-faint)}
+body.premiumV30 .dayCard .dayScheduleRow.done>span:first-child{color:#11170a;background:var(--v30-signal)}
+body.premiumV30 .dayItemActionsV34,body.premiumV30 .dayCard .agendaActions{display:flex;align-items:center;gap:3px}
+body.premiumV30 .dayItemActionsV34 button,body.premiumV30 .dayCard .agendaEdit,body.premiumV30 .dayCard .agendaDelete{width:auto;min-height:28px;padding:0 6px;border:0;border-radius:8px;background:transparent;color:var(--v30-faint);font-size:8px;font-weight:750}
+body.premiumV30 .dayItemActionsV34 button:first-child{color:var(--v30-signal)}
+body.premiumV30 .dayItemActionsV34 button:last-child:hover,body.premiumV30 .dayCard .agendaDelete:hover{color:#ff9a9a;background:rgba(255,93,93,.08)}
 body.premiumV30 .dayAddToggleV33{display:flex;align-items:center;gap:8px;width:100%;min-height:38px;margin-top:10px;padding:0;border:0;border-top:1px solid var(--v30-line);background:transparent;color:var(--v30-signal);font-size:10px;font-weight:750;text-align:left}
 body.premiumV30 .dayAddToggleV33 span{font-size:17px;font-weight:400}
 body.premiumV30 .dayAgendaForm{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;padding-top:12px}
@@ -419,9 +425,9 @@ body.premiumV30 .homeDashV27 .hvBrand::before{
   body.premiumV30 .coachFab18,
   body.premiumV30 .coachFab{display:none!important}
   body.premiumV30 #plannerPane-calendar.active{display:block;padding-top:8px}
-  body.premiumV30 #plannerPane-calendar>.monthbar{display:grid;grid-template-columns:minmax(130px,1fr) 36px 36px auto;grid-template-areas:"heading prev next today";gap:5px;padding:10px 10px 8px;border-bottom:0;border-radius:15px 15px 0 0}
+  body.premiumV30 #plannerPane-calendar>.monthbar{display:grid;grid-template-columns:minmax(130px,1fr) 36px 36px auto;grid-template-areas:"heading prev next today" "view view view view";gap:5px;padding:10px 10px 8px;border-bottom:0;border-radius:15px 15px 0 0}
   body.premiumV30 .monthbar h2{font-size:20px}
-  body.premiumV30 .monthbar>.calendarDisplayToggleV32{display:none}
+  body.premiumV30 .monthbar>.calendarDisplayToggleV32{display:flex;grid-area:view;justify-self:end;margin-top:3px}
   body.premiumV30 #calendarTodayV33{min-height:32px;padding:0 9px}
   body.premiumV30 .calendarWeekRailV33{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;padding:0 8px 9px;border-left:1px solid var(--v30-line);border-right:1px solid var(--v30-line);background:rgba(255,255,255,.018)}
   body.premiumV30 .calendarWeekRailV33 button{min-width:0;min-height:53px;padding:6px 2px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--v30-muted)}

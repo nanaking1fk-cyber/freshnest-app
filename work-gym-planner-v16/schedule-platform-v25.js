@@ -204,10 +204,28 @@
       return {id:makeId('proposal'),kind:item.kind,date:item.date,title:item.title,start:item.start||'',end:item.end||'',overnight:!!(item.start&&item.end&&Core.minutes(item.end)<=Core.minutes(item.start)),reminder:item.kind==='todo'?30:0,sourceText:item.sourceText||'',sourceType:'ai',sourceId:item.kind==='work'?source.id:'',seriesId:makeId('series'),series:false,needsReview:!!item.needsReview,confidence:item.confidence||{label:'Low',score:0,reasons:['AI result needs review']}};
     });
   }
+  function markAIConsistency(item,reason){
+    var prior=item.confidence||{},reasons=(prior.reasons||[]).concat(reason).filter(function(value,index,list){return list.indexOf(value)===index}).slice(0,4),score=Math.min(.52,Math.max(.2,Number(prior.score)||.45));
+    return Object.assign({},item,{needsReview:true,confidence:{score:score,label:'Low',reasons:reasons}});
+  }
+  function crossCheckAIProposal(items,localItems){
+    var work=(localItems||[]).filter(function(item){return item.kind==='work'}),flagged=0,checked=(items||[]).map(function(item){
+      if(item.kind!=='work')return item;
+      var sameText=work.filter(function(local){return local.sourceText&&local.sourceText===item.sourceText}),sameDay=sameText.filter(function(local){return local.date===item.date});
+      // A deterministic reader is not allowed to overwrite AI. It is only a
+      // second set of eyes: disagreements become explicit confirmations.
+      if(sameText.length===1&&(sameText[0].date!==item.date||sameText[0].start!==item.start||sameText[0].end!==item.end)){flagged++;return markAIConsistency(item,'AI and local date reader disagree — confirm this shift')}
+      if(sameDay.length&&!(sameDay.some(function(local){return local.start===item.start&&local.end===item.end}))){flagged++;return markAIConsistency(item,'AI and local time reader disagree — confirm this shift')}
+      return item;
+    });
+    return{items:checked,flagged:flagged};
+  }
   async function readTypedScheduleWithAI(text,source,sourceType){
     var account=window.WGC18;
-    if(!account?.session||!account?.config?.aiConfigured||typeof account.accessToken!=='function')return null;
-    var token=await account.accessToken();if(!token)return null;
+    if(!account?.session)return{unavailable:true,reason:'Sign in to use the AI schedule reader.'};
+    if(!account?.config?.aiConfigured)return{unavailable:true,reason:'AI schedule reading is not enabled on this deployment.'};
+    if(typeof account.accessToken!=='function')return{unavailable:true,reason:'Your sign-in session needs to be refreshed before AI can read this schedule.'};
+    var token=await account.accessToken();if(!token)return{unavailable:true,reason:'Your sign-in session needs to be refreshed before AI can read this schedule.'};
     var response=await fetch('/api/v25/schedule',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:text,sourceType:sourceType||'text',referenceDate:Core.keyFromDate(new Date()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})});
     var body=await response.json().catch(function(){return{}});if(!response.ok||body.ok===false)throw Error(body.error||'AI schedule reading is unavailable.');
     return body;
@@ -215,19 +233,19 @@
   async function buildTrustedProposal(){
     var input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureBuild');if(!input)return;
     if(button){button.disabled=true;button.textContent='Reading your schedule…'}
-    var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed,existing=existingForReview();
+    var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed,existing=existingForReview(),localParsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8});
     proposalParseNotice='';
     try{
       // A roster first goes through local identity matching. AI is optional and
       // receives only that matched row plus its date headers, never the upload.
       if(sourceType==='text'||sourceType==='roster'&&input.dataset.aiRoster==='true'){
         var aiText=sourceType==='roster'?rosterTextForAI():input.value,ai=await readTypedScheduleWithAI(aiText,source,sourceType);
-        if(ai?.items?.length){parsed=aiProposalItems(ai.items,source);proposalParseNotice=sourceType==='roster'?'AI double-checked your locally matched roster row. Review the calendar and any marked items before saving.':'AI interpreted your typed schedule. Review the calendar and any marked items before saving.';if(ai.assumptions?.length)proposalParseNotice+=' Assumptions: '+ai.assumptions.join(' · ')}
+        if(ai?.items?.length){var checked=crossCheckAIProposal(aiProposalItems(ai.items,source),localParsed);parsed=checked.items;proposalParseNotice=sourceType==='roster'?'AI double-checked your locally matched roster row. Review the calendar and any marked items before saving.':'AI interpreted your typed schedule. Review the calendar and any marked items before saving.';if(checked.flagged)proposalParseNotice+=' '+checked.flagged+' shift'+(checked.flagged===1?' needs':'s need')+' confirmation because the independent date reader disagreed.';if(ai.assumptions?.length)proposalParseNotice+=' Assumptions: '+ai.assumptions.join(' · ')}else if(ai?.unavailable){proposalParseNotice=ai.reason+' This is a local draft only, so every date should be confirmed before saving.'}
       }
     }catch(error){
-      proposalParseNotice='AI schedule reading was unavailable, so this proposal uses the on-device reader. Review every date before saving.';
+      proposalParseNotice='AI schedule reading could not finish this note, so this is a local draft only. Review every date before saving.';
     }
-    if(!parsed)parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8});
+    if(!parsed){parsed=localParsed;if(proposalParseNotice)parsed=parsed.map(function(item){return markAIConsistency(item,'AI accuracy check was unavailable — confirm this date before saving')})}
     proposals=Core.placeFlexibleEntries(parsed,existing,{now:new Date()});proposalConflicts=Core.detectConflicts(proposals,existing);
     if(sourceType==='roster'&&rosterReview?.analysis?.shifts)proposals=proposals.map(function(item){var matched=rosterReview.analysis.shifts.find(function(shift){return shift.date===item.date&&shift.start===item.start&&shift.end===item.end});return matched?Object.assign({},item,{sourceType:'roster',sourceText:matched.sourceText,confidence:matched.confidence,rosterIdentity:rosterReview.identity}):item});
     renderTrustedReview();

@@ -34,6 +34,20 @@ test('typed schedules use the authenticated AI reader but retain local and roste
   assert.match(platform,/sourceType==='text'\|\|sourceType==='roster'/);
   assert.match(platform,/sourceType==='roster'/);
   assert.match(platform,/Nothing changes until you approve it/);
+  assert.match(platform,/AI schedule reading is not enabled on this deployment/);
+  assert.match(platform,/function crossCheckAIProposal/);
+  assert.match(platform,/AI and local date reader disagree/);
+  assert.match(platform,/local draft only/);
+});
+
+test('schedule API uses a high-accuracy, non-truncated structured response',()=>{
+  const api=read('api/v25/schedule.js');
+  const ai=read('server/v18-lib.js');
+  assert.match(api,/maxOutputTokens:20000,reasoning:'high'/);
+  assert.match(api,/engine:'ai'/);
+  assert.match(api,/explicit numeric or named calendar date always wins/i);
+  assert.match(ai,/result\?\.status==='incomplete'/);
+  assert.match(ai,/maxOutputTokens=1800,reasoning=null/);
 });
 
 test('raw typed shifts keep each explicit date paired with its own time range',()=>{

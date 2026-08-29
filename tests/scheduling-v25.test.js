@@ -152,7 +152,7 @@ test('trusted review renders every item and requires explicit collision resoluti
 test('calendar can be cleared without deleting the account or health history',()=>{
   const ui=read('work-gym-planner-v16/schedule-platform-v25.js');
   assert.match(ui,/id="calendarClearV25"/);
-  assert.match(ui,/id="calendarClearWorkspaceV25"/);
+  assert.match(ui,/id="calendarClearManageV32"/);
   assert.match(ui,/function bindCalendarClearActions\(\)/);
   assert.match(ui,/function clearCalendarContent\(\)/);
   assert.match(ui,/saveEvents\(\[\]\);saveRotations\(\[\]\)/);

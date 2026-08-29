@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.17/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.17');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.17/);
+  assert.match(shell,/30\.1\.18/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.18');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.18/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -100,7 +100,7 @@ test('planner stays calendar-first while secondary tools move behind Manage',()=
   assert.match(planner,/Manage<\/span>/);
   assert.match(planner,/plannerToolsMenuV31/);
   assert.match(planner,/data-planner-open="sources"/);
-  assert.match(css,/plannerTabsV25\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css,/plannerTabsV25\{[\s\S]*?grid-template-columns:repeat\(3,94px\);[\s\S]*?width:max-content/);
   assert.match(css,/plannerToolsMenuV31/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
 });
@@ -121,9 +121,18 @@ test('work sources are selectable during import and can be deleted completely',(
 test('workspace tabs are compact and nutrition has a meal visual',()=>{
   const today=read('work-gym-planner-v16/today.js');
   const homeCss=read('work-gym-planner-v16/home-v27.css');
-  assert.match(css,/plannerTabsV25 button\{min-width:0;min-height:38px/);
+  assert.match(css,/plannerTabsV25 button\{min-width:0;min-height:34px/);
   assert.match(today,/hvMealVisual/);
   assert.match(homeCss,/nutrition-meal-v30\.png/);
+});
+
+test('calendar keeps destructive and setup actions out of the everyday view',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.doesNotMatch(planner,/id="calendarQuickAddV31"/);
+  assert.doesNotMatch(planner,/id="calendarClearWorkspaceV25"/);
+  assert.match(planner,/id="calendarClearManageV32"/);
+  assert.match(planner,/#calendarClearV25,#calendarClearManageV32/);
+  assert.match(planner,/<small>SETTINGS<\/small><h2>Calendar<\/h2>/);
 });
 
 test('calendar supports detail labels as well as a compact color-only view',()=>{

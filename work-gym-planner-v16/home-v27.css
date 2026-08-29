@@ -134,9 +134,10 @@
 
 /* fuel */
 .homeDashV27 .hvHero{
-  display:block;width:100%;text-align:left;background:none;border:0;cursor:pointer;
-  padding:16px 16px 14px;
+  display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:16px;align-items:center;width:100%;text-align:left;background:none;border:0;cursor:pointer;
+  padding:14px 16px;
 }
+.homeDashV27 .hvHeroCopy{display:block;min-width:0}
 .homeDashV27 .hvHeroNum{
   display:block;font-family:var(--hv-mono);font-size:26px;font-weight:500;
   color:var(--hv-ink);font-variant-numeric:tabular-nums;letter-spacing:-.03em;
@@ -150,6 +151,8 @@
 .homeDashV27 .hvBar i{display:block;height:100%;border-radius:2px;background:var(--hv-ink-3)}
 .homeDashV27 .hvBar i.m{background:var(--hv-meal)}
 .homeDashV27 .hvHero .hvCode{display:block;margin-top:9px}
+.homeDashV27 .hvMealVisual{display:block;align-self:stretch;min-height:96px;border:1px solid rgba(255,255,255,.1);border-radius:3px;background:linear-gradient(180deg,rgba(4,8,8,.02),rgba(4,8,8,.42)),url('./assets/nutrition-meal-v30.png') center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(0,0,0,.16)}
+@media(max-width:390px){.homeDashV27 .hvHero{grid-template-columns:minmax(0,1fr) 84px;gap:11px;padding:13px}.homeDashV27 .hvMealVisual{min-height:84px}}
 
 .homeDashV27 .hvMacros{
   display:grid;grid-template-columns:repeat(3,1fr);gap:1px;

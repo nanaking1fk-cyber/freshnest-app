@@ -127,9 +127,12 @@ function renderTodayDashboard(){
     <button class="hvLink" id="homeAddFood">Add food <span aria-hidden="true">+</span></button>
    </div>
    <button class="hvHero" id="homeCaloriesCard">
-    <span class="hvHeroNum">${Math.round(t.cal).toLocaleString()}<i>/ ${n.cal.toLocaleString()} kcal</i></span>
-    <span class="hvBar big"><i class="m" style="width:${calPct}%"></i></span>
-    <span class="hvCode">${left.toLocaleString()} left today</span>
+    <span class="hvHeroCopy">
+     <span class="hvHeroNum">${Math.round(t.cal).toLocaleString()}<i>/ ${n.cal.toLocaleString()} kcal</i></span>
+     <span class="hvBar big"><i class="m" style="width:${calPct}%"></i></span>
+     <span class="hvCode">${left.toLocaleString()} left today</span>
+    </span>
+    <span class="hvMealVisual" aria-hidden="true"></span>
    </button>
    <div class="hvMacros">
     ${macro('homeProteinCard','t','Protein',Math.round(t.p),n.p,'g',proteinPct)}

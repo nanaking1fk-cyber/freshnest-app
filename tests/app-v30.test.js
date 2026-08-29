@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.15/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.15');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.15/);
+  assert.match(shell,/30\.1\.16/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.16');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.16/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -103,6 +103,27 @@ test('planner stays calendar-first while secondary tools move behind Manage',()=
   assert.match(css,/plannerTabsV25\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/plannerToolsMenuV31/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
+});
+
+test('work sources are selectable during import and can be deleted completely',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const plannerCss=read('work-gym-planner-v16/schedule-platform-v25.css');
+  assert.match(planner,/id="captureSourcePickerV25"/);
+  assert.match(planner,/New work source…/);
+  assert.match(planner,/data-source-delete/);
+  assert.match(planner,/saveEvents\(events\(\)\.filter/,
+    'deleting a source must remove its own saved shifts');
+  assert.match(planner,/saveRotations\(rotations\(\)\.filter/,
+    'deleting a source must remove its own rotations');
+  assert.match(plannerCss,/captureContextV25 input,body\.premiumV18 \.captureContextV25 select/);
+});
+
+test('workspace tabs are compact and nutrition has a meal visual',()=>{
+  const today=read('work-gym-planner-v16/today.js');
+  const homeCss=read('work-gym-planner-v16/home-v27.css');
+  assert.match(css,/plannerTabsV25 button\{min-width:0;min-height:38px/);
+  assert.match(today,/hvMealVisual/);
+  assert.match(homeCss,/nutrition-meal-v30\.png/);
 });
 
 test('calendar supports detail labels as well as a compact color-only view',()=>{

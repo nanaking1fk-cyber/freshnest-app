@@ -45,7 +45,7 @@ body.premiumV18 .smartCaptureExamples button:hover{color:#e7ede9;border-color:rg
 body.premiumV18 .smartCapturePreview:not(:empty){margin-top:17px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
 body.premiumV18 .captureContextV25{display:flex;gap:16px;align-items:end;margin:0 0 12px;padding:11px 13px;border:1px solid rgba(88,166,255,.15);border-radius:14px;background:rgba(88,166,255,.04)}
 body.premiumV18 .captureContextV25 label{min-width:200px;color:#88938d;font-size:7px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
-body.premiumV18 .captureContextV25 input{display:block;width:100%;min-height:38px;margin-top:5px;padding:0 10px;border:1px solid rgba(255,255,255,.11);border-radius:9px;color:#eef2ee;background:#0b1218;font-size:10px;text-transform:none;letter-spacing:0}
+body.premiumV18 .captureContextV25 input,body.premiumV18 .captureContextV25 select{display:block;width:100%;min-height:38px;margin-top:5px;padding:0 10px;border:1px solid rgba(255,255,255,.11);border-radius:9px;color:#eef2ee;background:#0b1218;font-size:10px;text-transform:none;letter-spacing:0}
 body.premiumV18 .captureContextV25 p{margin:0;color:#738078;font-size:8px;line-height:1.5}
 
 body.premiumV18 .weekSummaryV25{margin:0 0 12px;padding:17px;border:1px solid var(--v25-line);border-radius:20px;background:linear-gradient(145deg,rgba(18,25,32,.95),rgba(11,16,21,.98))}

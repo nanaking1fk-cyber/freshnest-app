@@ -6,7 +6,7 @@
   if(!Core)return;
   var V=window.WWV25=window.WWV25||{};
   var Capture=window.WGC19=window.WGC19||{};
-  var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25'};
+  var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25',sourcesInitialized:PREFIX+'schedule-sources-initialized-v25',deletedSourceNames:PREFIX+'schedule-deleted-source-names-v25'};
   var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
   var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='';
 
@@ -20,16 +20,19 @@
   function makeId(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
   function sourceById(id){return sources().find(function(source){return source.id===id})||sources()[0]||null}
   function enabledSources(){return sources().filter(function(source){return source.enabled!==false})}
+  function deletedSourceNames(){var value=jget(KEY.deletedSourceNames,[]);return Array.isArray(value)?value:[]}
+  function isDeletedSourceName(name){var value=String(name||'').trim().toLowerCase();return !!value&&deletedSourceNames().some(function(item){return String(item||'').trim().toLowerCase()===value})}
+  function restoreDeletedSourceName(name){var value=String(name||'').trim().toLowerCase();if(value)jset(KEY.deletedSourceNames,deletedSourceNames().filter(function(item){return String(item||'').trim().toLowerCase()!==value}))}
   function ensureSources(){
-    if(sources().length)return;
+    if(sources().length||jget(KEY.sourcesInitialized,false))return;
     var p=typeof profile==='function'?profile():null,list=[];
     if(p?.fixed?.enabled)list.push({id:'primary-work',name:p.fixed.name||'Primary work',color:Core.COLORS[0],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()});
     if(p?.variable?.enabled)list.push({id:'additional-work',name:p.variable.name||'Additional work',color:Core.COLORS[2],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()});
     if(!list.length)list.push({id:'work',name:'Work',color:Core.COLORS[0],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()});
-    saveSources(list);
+    saveSources(list);jset(KEY.sourcesInitialized,true);
   }
-  function sourceOptions(selected){return enabledSources().map(function(source){return'<option value="'+safe(source.id)+'" '+(source.id===selected?'selected':'')+'>'+safe(source.name)+'</option>'}).join('')}
-  function sourceDatalistOptions(){return sources().map(function(source){return'<option value="'+safe(source.name)+'"></option>'}).join('')}
+  function sourceOptions(selected){var list=enabledSources();return list.length?list.map(function(source){return'<option value="'+safe(source.id)+'" '+(source.id===selected?'selected':'')+'>'+safe(source.name)+'</option>'}).join(''):'<option value="">No saved work sources</option>'}
+  function sourceDatalistOptions(){return enabledSources().map(function(source){return'<option value="'+safe(source.name)+'"></option>'}).join('')}
   function captureSource(){
     var input=document.getElementById('captureSourceNameV25'),id=input?.dataset.sourceId||'',name=String(input?.value||'').trim(),list=sources();
     var matched=list.find(function(source){return source.id===id})||list.find(function(source){return source.name.trim().toLowerCase()===name.toLowerCase()});
@@ -41,7 +44,7 @@
     var matched=list.find(function(source){return source.name.trim().toLowerCase()===name.toLowerCase()});
     if(!matched){
       matched={id:makeId('source'),name:name,color:Core.COLORS[list.length%Core.COLORS.length],enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()};
-      list.push(matched);saveSources(list);
+      list.push(matched);saveSources(list);jset(KEY.sourcesInitialized,true);restoreDeletedSourceName(name);
     }else if(matched.enabled===false){
       matched=Object.assign({},matched,{enabled:true,updatedAt:new Date().toISOString()});saveSources(list.map(function(source){return source.id===matched.id?matched:source}));
     }
@@ -64,7 +67,7 @@
   function originalRowsOn(key){try{return typeof legacyWorkRows==='function'?(legacyWorkRows(key)||[]):[]}catch{return[]}}
   function workRowsOn(key){
     var generated=workEventsOn(key).map(function(event){var source=sourceById(event.sourceId)||{};return{name:event.title||source.name||'Work shift',time:timeLabel(event.start,event.end)+(event.overnight?' · overnight':''),start:event.start,end:event.end,color:source.color||event.color||Core.COLORS[0],sourceId:event.sourceId,eventId:event.id,rotationId:event.rotationId,exception:event.exception}});
-    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false)return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time}))generated.push(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',legacy:true}))});
+    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name))return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time}))generated.push(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',legacy:true}))});
     return generated;
   }
   function personalExisting(start,end){
@@ -86,7 +89,7 @@
     while(cursor<=finish){
       var key=Core.keyFromDate(cursor);
       originalRowsOn(key).forEach(function(row,index){
-        var matched=sources().find(function(item){return item.name===row.name});if(matched?.enabled===false)return;
+        var matched=sources().find(function(item){return item.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name))return;
         var source=matched||enabledSources()[index]||fallback,event={id:'legacy-summary:'+key+':'+index,kind:'work',date:key,title:row.name||source.name,start:parseDisplayTime(row.time,0),end:parseDisplayTime(row.time,1),sourceId:source.id,sourceName:source.name,color:source.color};
         if(event.start&&event.end&&!values.some(function(item){return Core.sameEvent(item,event)&&item.sourceId===event.sourceId}))values.push(event);
       });
@@ -150,11 +153,13 @@
 
   function captureSourceControl(){
     var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceNameV25');
-    if(existing){var value=existing.value,source=captureSource();document.getElementById('captureSourceListV25').innerHTML=sourceDatalistOptions();existing.value=value||source.name;return}
+    if(existing){var value=existing.value,source=captureSource(),picker=document.getElementById('captureSourcePickerV25'),list=document.getElementById('captureSourceListV25');if(list)list.innerHTML=sourceDatalistOptions();if(picker){picker.innerHTML=sourceOptions(existing.dataset.sourceId||source?.id)+'<option value="new">New work source…</option>';picker.value=existing.dataset.sourceId||'new'}existing.value=value||source?.name||'';return}
     if(!composer)return;
-    var source=captureSource();
-    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label for="captureSourceNameV25">Work source or employer<input id="captureSourceNameV25" list="captureSourceListV25" data-source-id="'+safe(source.id)+'" value="'+safe(source.name)+'" placeholder="e.g. Bellevue Hospital" autocomplete="organization"></label><datalist id="captureSourceListV25">'+sourceDatalistOptions()+'</datalist><p>Type a new employer or choose a saved one. Work shifts use its color; appointments, tasks and workouts stay personal.</p></div>');
-    document.getElementById('captureSourceNameV25').oninput=function(){this.dataset.sourceId=''};
+    var source=captureSource()||{},selected=source.id||'';
+    composer.insertAdjacentHTML('beforebegin','<div class="captureContextV25"><label for="captureSourcePickerV25">Add work to<select id="captureSourcePickerV25">'+sourceOptions(selected)+'<option value="new">New work source…</option></select></label><label for="captureSourceNameV25">Work source or employer<input id="captureSourceNameV25" list="captureSourceListV25" data-source-id="'+safe(selected)+'" value="'+safe(source.name||'')+'" placeholder="e.g. Bellevue Hospital" autocomplete="organization"></label><datalist id="captureSourceListV25">'+sourceDatalistOptions()+'</datalist><p>Choose the employer for this import. Its color, shifts and hours stay separate from your other jobs.</p></div>');
+    var input=document.getElementById('captureSourceNameV25'),picker=document.getElementById('captureSourcePickerV25');
+    input.oninput=function(){this.dataset.sourceId='';if(picker)picker.value='new'};
+    picker.onchange=function(){if(this.value==='new'){input.dataset.sourceId='';input.value='';input.focus();return}var selectedSource=sourceById(this.value);if(selectedSource){input.dataset.sourceId=selectedSource.id;input.value=selectedSource.name}};
   }
   function bindTrustedCapture(){
     var build=document.getElementById('smartCaptureBuild');if(build)build.onclick=buildTrustedProposal;
@@ -341,10 +346,11 @@
 
   function renderSources(){
     var root=document.getElementById('sourceManagerV25');if(!root)return;var list=sources();
-    root.innerHTML='<div class="managerHeadV25"><div><small>WORK SOURCES</small><h2>Only show the work you actually have.</h2><p>Add one employer or several. Every source gets its own color, hours and overtime threshold.</p></div><span>'+list.filter(function(item){return item.enabled!==false}).length+' active</span></div><div class="sourceGridV25">'+list.map(function(source){var used=events().filter(function(event){return event.sourceId===source.id}).length,ruleCount=rotations().filter(function(rotation){return rotation.sourceId===source.id}).length;return'<article><i style="background:'+safe(source.color)+'"></i><div><b>'+safe(source.name)+'</b><small>'+used+' saved shifts · '+ruleCount+' rotation'+(ruleCount===1?'':'s')+' · overtime after '+(source.overtimeThreshold||40)+'h</small></div><span class="sourceActionsV25"><button data-source-toggle="'+safe(source.id)+'">'+(source.enabled===false?'Enable':'Disable')+'</button><button data-source-edit="'+safe(source.id)+'">Edit</button></span></article>'}).join('')+'</div><form id="sourceFormV25" class="managerFormV25"><h3>'+(sourceEditId?'Edit work source':'Add a work source')+'</h3><label>Name<input id="sourceNameV25" maxlength="60" required placeholder="Hospital, construction crew, school…"></label><label>Color<select id="sourceColorV25">'+Core.COLORS.map(function(color,index){return'<option value="'+color+'">Color '+(index+1)+'</option>'}).join('')+'</select></label><label>Overtime threshold<input id="sourceOvertimeV25" type="number" min="1" max="100" value="40"></label><button class="primary" type="submit">'+(sourceEditId?'Save changes':'Add source')+'</button>'+(sourceEditId?'<button type="button" id="sourceCancelV25">Cancel</button>':'')+'</form>';
+    root.innerHTML='<div class="managerHeadV25"><div><small>WORK SOURCES</small><h2>Only show the work you actually have.</h2><p>Add one employer or several. Every source gets its own color, hours and overtime threshold.</p></div><span>'+list.filter(function(item){return item.enabled!==false}).length+' active</span></div><div class="sourceGridV25">'+list.map(function(source){var used=events().filter(function(event){return event.sourceId===source.id}).length,ruleCount=rotations().filter(function(rotation){return rotation.sourceId===source.id}).length;return'<article><i style="background:'+safe(source.color)+'"></i><div><b>'+safe(source.name)+'</b><small>'+used+' saved shifts · '+ruleCount+' rotation'+(ruleCount===1?'':'s')+' · overtime after '+(source.overtimeThreshold||40)+'h</small></div><span class="sourceActionsV25"><button data-source-toggle="'+safe(source.id)+'">'+(source.enabled===false?'Enable':'Disable')+'</button><button data-source-edit="'+safe(source.id)+'">Edit</button><button class="dangerText" data-source-delete="'+safe(source.id)+'">Delete</button></span></article>'}).join('')+'</div><form id="sourceFormV25" class="managerFormV25"><h3>'+(sourceEditId?'Edit work source':'Add a work source')+'</h3><label>Name<input id="sourceNameV25" maxlength="60" required placeholder="Hospital, construction crew, school…"></label><label>Color<select id="sourceColorV25">'+Core.COLORS.map(function(color,index){return'<option value="'+color+'">Color '+(index+1)+'</option>'}).join('')+'</select></label><label>Overtime threshold<input id="sourceOvertimeV25" type="number" min="1" max="100" value="40"></label><button class="primary" type="submit">'+(sourceEditId?'Save changes':'Add source')+'</button>'+(sourceEditId?'<button type="button" id="sourceCancelV25">Cancel</button>':'')+'</form>';
     root.querySelectorAll('[data-source-toggle]').forEach(function(button){button.onclick=function(){saveSources(sources().map(function(source){return source.id===button.dataset.sourceToggle?Object.assign({},source,{enabled:source.enabled===false,updatedAt:new Date().toISOString()}):source}));renderSources();renderCalendar()}});
     root.querySelectorAll('[data-source-edit]').forEach(function(button){button.onclick=function(){sourceEditId=button.dataset.sourceEdit;renderSources();var source=sourceById(sourceEditId);document.getElementById('sourceNameV25').value=source.name;document.getElementById('sourceColorV25').value=source.color;document.getElementById('sourceOvertimeV25').value=source.overtimeThreshold||40;document.getElementById('sourceNameV25').focus()}});
-    document.getElementById('sourceFormV25').onsubmit=function(event){event.preventDefault();var name=document.getElementById('sourceNameV25').value.trim(),color=document.getElementById('sourceColorV25').value,threshold=Math.max(1,Number(document.getElementById('sourceOvertimeV25').value)||40),list=sources();if(sourceEditId)list=list.map(function(source){return source.id===sourceEditId?Object.assign({},source,{name:name,color:color,overtimeThreshold:threshold,updatedAt:new Date().toISOString()}):source});else list.push({id:makeId('source'),name:name,color:color,overtimeThreshold:threshold,enabled:true,createdAt:new Date().toISOString()});sourceEditId='';saveSources(list);renderSources();captureSourceControl();renderCalendar()};
+    root.querySelectorAll('[data-source-delete]').forEach(function(button){button.onclick=function(){var source=sources().find(function(item){return item.id===button.dataset.sourceDelete});if(!source)return;var shiftCount=events().filter(function(event){return event.sourceId===source.id}).length,rotationCount=rotations().filter(function(rotation){return rotation.sourceId===source.id}).length;if(!confirm('Delete '+source.name+'? This removes '+shiftCount+' saved shift'+(shiftCount===1?'':'s')+' and '+rotationCount+' rotation'+(rotationCount===1?'':'s')+' from this source. This cannot be undone.'))return;var hidden=deletedSourceNames();if(!hidden.some(function(name){return String(name).trim().toLowerCase()===String(source.name).trim().toLowerCase()}))hidden.push(source.name);jset(KEY.deletedSourceNames,hidden);saveSources(sources().filter(function(item){return item.id!==source.id}));saveEvents(events().filter(function(event){return event.sourceId!==source.id}));saveRotations(rotations().filter(function(rotation){return rotation.sourceId!==source.id}));sourceEditId='';renderSources();captureSourceControl();renderCalendar();renderWeekPulse(selectedDate||dkey());toast(source.name+' deleted')}});
+    document.getElementById('sourceFormV25').onsubmit=function(event){event.preventDefault();var name=document.getElementById('sourceNameV25').value.trim(),color=document.getElementById('sourceColorV25').value,threshold=Math.max(1,Number(document.getElementById('sourceOvertimeV25').value)||40),list=sources();if(sourceEditId)list=list.map(function(source){return source.id===sourceEditId?Object.assign({},source,{name:name,color:color,overtimeThreshold:threshold,updatedAt:new Date().toISOString()}):source});else list.push({id:makeId('source'),name:name,color:color,overtimeThreshold:threshold,enabled:true,createdAt:new Date().toISOString()});sourceEditId='';saveSources(list);jset(KEY.sourcesInitialized,true);restoreDeletedSourceName(name);renderSources();captureSourceControl();renderCalendar()};
     document.getElementById('sourceCancelV25')?.addEventListener('click',function(){sourceEditId='';renderSources()});
   }
 

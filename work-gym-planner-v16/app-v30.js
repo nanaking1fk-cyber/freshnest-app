@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.1.10';
+  var VERSION='30.1.13';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}
@@ -32,6 +32,7 @@
     upsertIntro('page-diary','Daily fuel','Eat for the day you actually have.','See today\'s essentials first, then add meals in a few taps.');
     upsertIntro('page-progress','Your progress','The trend matters more than one day.','Check in, follow the direction of travel, and let your plan adapt.');
     upsertIntro('page-more','Your space','Everything else, neatly organized.','Manage your plan, health preferences, account and support from one place.');
+    ['page-training','page-diary','page-more'].forEach(function(id){document.querySelector('#'+id+' > .pageIntroV30')?.classList.add('v31QuietIntro')});
     document.querySelectorAll('.pageIntroV29').forEach(function(node){node.classList.add('v30LegacyIntro')});
   }
 
@@ -48,8 +49,9 @@
   function enhanceTraining(){
     var root=document.getElementById('trainingRoot');
     if(!root)return;
-    var tools=root.querySelector('.trainTools'),nav=root.querySelector('.trainNav');
+    var tools=root.querySelector('.trainTools'),nav=root.querySelector('.trainNav'),coach=root.querySelector('.coachCard');
     if(tools&&nav&&!root.querySelector('#trainingToolsToggleV31')){
+      var utilities=document.createElement('div');utilities.className='trainingQuickV31';nav.insertAdjacentElement('afterend',utilities);
       var toolsToggle=button('Workout options','trainingToolsToggleV31');
       toolsToggle.id='trainingToolsToggleV31';
       toolsToggle.setAttribute('aria-expanded','false');
@@ -58,7 +60,12 @@
         toolsToggle.textContent=open?'Hide workout options':'Workout options';
         toolsToggle.setAttribute('aria-expanded',String(open));
       });
-      nav.insertAdjacentElement('afterend',toolsToggle);
+      utilities.appendChild(toolsToggle);
+      if(coach){
+        var coachToggle=button('Coach note','trainingCoachToggleV31');coachToggle.id='trainingCoachToggleV31';coachToggle.setAttribute('aria-expanded','false');
+        coachToggle.addEventListener('click',function(){var open=root.classList.toggle('v31CoachOpen');coachToggle.textContent=open?'Hide coach note':'Coach note';coachToggle.setAttribute('aria-expanded',String(open))});
+        utilities.appendChild(coachToggle);
+      }
     }
     var cards=Array.from(root.querySelectorAll('#trainingSwipe > .exerciseCard'));
     cards.forEach(function(card,index){
@@ -86,7 +93,7 @@
       if(!card.dataset.v30Open)setExerciseState(card,index===0);
     });
 
-    var coach=root.querySelector('.coachCard');
+    coach=root.querySelector('.coachCard');
     if(coach&&!coach.querySelector('.coachDetailToggleV30')){
       coach.classList.add('v30CoachCompact');
       var coachToggle=button('Why this plan?','coachDetailToggleV30');
@@ -142,6 +149,14 @@
     }
 
     var plan=page.querySelector('#personalNutritionPlan');
+    var emptyPlan=plan&&plan.querySelector('.nutritionPlanEmpty');
+    if(emptyPlan&&!emptyPlan.dataset.v31Compact){
+      emptyPlan.dataset.v31Compact='true';
+      var label=emptyPlan.querySelector('b'),copy=emptyPlan.querySelector('span'),action=emptyPlan.querySelector('button');
+      if(label)label.textContent='Nutrition plan';
+      if(copy)copy.hidden=true;
+      if(action)action.textContent='Build plan';
+    }
     if(plan&&plan.querySelector('.nutritionPlanHead')&&!plan.querySelector('.nutritionPlanToggleV30')){
       if(!plan.dataset.v30PlanState)plan.dataset.v30PlanState='compact';
       plan.classList.toggle('v30PlanCompact',plan.dataset.v30PlanState!=='open');

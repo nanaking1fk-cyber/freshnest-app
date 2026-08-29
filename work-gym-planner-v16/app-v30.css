@@ -52,6 +52,7 @@ body.premiumV30 .pageIntroV30 h1{
 body.premiumV30 .pageIntroV30>span{
   display:block;margin-top:13px;color:var(--v30-muted);font-size:15px;line-height:1.55;
 }
+body.premiumV30 .pageIntroV30.v31QuietIntro{display:none}
 
 body.premiumV30 .card,
 body.premiumV30 .exerciseCard,
@@ -138,8 +139,8 @@ body.premiumV30 .ownRoutineGrid input,body.premiumV30 .ownRoutineGrid textarea{w
 
 /* Calendar: the calendar is the default; setup tools live one layer deeper. */
 body.premiumV30 .plannerWorkspaceHead{padding-bottom:18px}
-body.premiumV30 .plannerWorkspaceHead h1{font-size:clamp(34px,4vw,52px)}
-body.premiumV30 .plannerWorkspaceHead p{font-size:14px;max-width:520px}
+body.premiumV30 .plannerWorkspaceHead h1,
+body.premiumV30 .plannerWorkspaceHead p{display:none}
 body.premiumV30 .plannerWorkspaceToolsV25{grid-template-columns:auto auto;grid-template-areas:"add clear" "pulse pulse";align-items:center}
 body.premiumV30 #calendarQuickAddV31{grid-area:add;min-height:42px;padding:0 14px;border:0;border-radius:12px;font-weight:800}
 body.premiumV30 #calendarQuickAddV31 span{margin-left:10px;font-size:18px}
@@ -191,7 +192,10 @@ body.premiumV30 .trainNav small{font-size:11px}
 body.premiumV30 .trainNav>button{width:44px;height:44px;border-radius:13px;font-size:25px}
 body.premiumV30 .trainTools{display:flex;gap:8px;overflow-x:auto;margin:0;padding:2px 0 3px;scrollbar-width:none}
 body.premiumV30 .trainTools button{flex:0 0 auto;min-height:42px;padding:8px 15px;font-size:12px}
-body.premiumV30 #trainingToolsToggleV31{width:max-content;min-height:40px;padding:8px 13px;border:1px solid var(--v30-line);border-radius:12px;background:transparent;color:var(--v30-muted);font-weight:650}
+body.premiumV30 .trainingQuickV31{display:flex;gap:8px;margin:-2px 0 0}
+body.premiumV30 #trainingToolsToggleV31,
+body.premiumV30 #trainingCoachToggleV31{width:max-content;min-height:38px;padding:7px 12px;border:1px solid var(--v30-line);border-radius:11px;background:transparent;color:var(--v30-muted);font-size:12px;font-weight:650}
+body.premiumV30 #trainingCoachToggleV31{color:var(--v30-signal);border-color:rgba(214,255,63,.22)}
 body.premiumV30 #trainingRoot:not(.v31ToolsOpen)>.trainTools{display:none!important}
 body.premiumV30 #trainingRoot>.coachCard{position:relative;margin:0;padding:20px 22px;border:1px solid rgba(214,255,63,.17);border-radius:18px;background:rgba(214,255,63,.045)}
 body.premiumV30 #trainingRoot>.coachCard h3{margin:0 0 8px;font-size:16px}
@@ -214,6 +218,7 @@ body.premiumV30 #trainingRoot:not(.v30InsightsOpen)>.muscleCard,
 body.premiumV30 #trainingRoot:not(.v30InsightsOpen)>#completedWorkoutHistory,
 body.premiumV30 #trainingRoot:not(.v30InsightsOpen)>.trainingChartWrap,
 body.premiumV30 #trainingRoot:not(.v30InsightsOpen)>.trainStats{display:none!important}
+body.premiumV30 #trainingRoot:not(.v31CoachOpen)>.coachCard{display:none!important}
 body.premiumV30 #trainingSwipe{display:grid;gap:10px}
 body.premiumV30 .exerciseCard{scroll-margin-top:18px;margin:0;padding:20px;transition:border-color .2s,background .2s}
 body.premiumV30 .exerciseCard:not(.v30Collapsed){border-color:rgba(214,255,63,.24);background:linear-gradient(145deg,rgba(24,32,35,.99),rgba(11,16,20,.99))}
@@ -239,6 +244,10 @@ body.premiumV30 #page-diary .dateNav{max-width:430px;margin:0 0 18px}
 body.premiumV30 #page-diary .dateNav input{font-size:17px;text-align:center}
 body.premiumV30 #page-diary .energyCard{border-radius:20px}
 body.premiumV30 #page-diary .energyHero{padding:25px 24px 22px}
+body.premiumV30 #page-diary .energyCard.v30MacroCompact:not(.v30MacroOpen) .macroLine:nth-child(n+2){display:none!important}
+body.premiumV30 #page-diary .energyCard.v30MacroCompact:not(.v30MacroOpen) .macroGrid{grid-template-columns:1fr}
+body.premiumV30 #page-diary .energyCard.v30MacroCompact:not(.v30MacroOpen) .macroLine:first-child{padding:16px 18px}
+body.premiumV30 #page-diary .energyCard.v30MacroCompact:not(.v30MacroOpen) .macroLine:first-child label{display:flex;align-items:center;justify-content:space-between;gap:12px}
 body.premiumV30 #page-diary .energyHero strong{font-size:clamp(54px,8vw,76px)}
 body.premiumV30 #page-diary .energyHero span{font-size:11px}
 body.premiumV30 #page-diary .energyLine{font-size:13px}
@@ -249,6 +258,11 @@ body.premiumV30 #page-diary .macroLine label span:last-child{font-size:12px}
 body.premiumV30 #page-diary .energyCard.v30MacroCompact:not(.v30MacroOpen) .macroLine:nth-child(n+5){display:none}
 body.premiumV30 .macroToggleV30{width:calc(100% - 32px);margin:12px 16px;color:var(--v30-muted)}
 body.premiumV30 #personalNutritionPlan{padding:20px}
+body.premiumV30 #personalNutritionPlan .nutritionPlanEmpty{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:38px}
+body.premiumV30 #personalNutritionPlan .nutritionPlanEmpty b{font-size:15px}
+body.premiumV30 #personalNutritionPlan .nutritionPlanEmpty button{min-height:38px;padding:0 13px;border-radius:10px;font-size:12px}
+body.premiumV30 #personalNutritionPlan .nutritionPlanEmpty span[hidden],
+body.premiumV30 #page-diary #proteinDistribution{display:none!important}
 body.premiumV30 #personalNutritionPlan.v30PlanCompact>:not(.nutritionPlanHead):not(.nutritionPlanToggleV30){display:none!important}
 body.premiumV30 #personalNutritionPlan .nutritionPlanHead{align-items:center}
 body.premiumV30 #personalNutritionPlan .nutritionPlanHead h3{font-size:17px}

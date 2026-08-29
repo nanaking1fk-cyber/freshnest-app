@@ -102,7 +102,7 @@
 
   function workspaceMarkup(){
     return'<section id="plannerWorkspaceV25" class="plannerWorkspaceV25">'+
-      '<header class="plannerWorkspaceHead"><div><small>CALENDAR</small><h1>Your week</h1><p id="plannerWorkspaceStatus">Your commitments, workouts and personal plans in one view.</p></div><div class="plannerWorkspaceToolsV25"><button id="calendarQuickAddV31" class="primary" type="button">Add to calendar <span>+</span></button><button id="calendarClearWorkspaceV25" type="button" aria-label="Clear your Work and Workout calendar">Clear</button><div id="plannerWeekPulse" class="plannerWeekPulse"></div></div></header>'+
+      '<header class="plannerWorkspaceHead"><div><small>YOUR PLAN</small><h1>Calendar</h1><p id="plannerWorkspaceStatus">Your commitments, workouts and personal plans in one view.</p></div><div class="plannerWorkspaceToolsV25"><button id="calendarQuickAddV31" class="primary" type="button">Add <span>+</span></button><button id="calendarClearWorkspaceV25" type="button" aria-label="Clear your Work and Workout calendar">Clear</button><div id="plannerWeekPulse" class="plannerWeekPulse"></div></div></header>'+
       '<div class="plannerTabsV25" role="tablist" aria-label="Calendar views">'+
         '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>Your week</small></button>'+
         '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Schedule or task</small></button>'+

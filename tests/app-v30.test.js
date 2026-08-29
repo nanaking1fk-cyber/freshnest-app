@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.18/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.18');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.18/);
+  assert.match(shell,/30\.1\.19/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.19');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.19/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -94,13 +94,13 @@ test('calendar intake is mounted by the production schedule module',()=>{
   assert.match(plannerCss,/#plannerPane-add>\.smartCaptureV19/);
 });
 
-test('planner stays calendar-first while secondary tools move behind Manage',()=>{
+test('planner stays calendar-first while secondary tools move behind Settings',()=>{
   const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
   assert.match(planner,/plannerTab-tools/);
-  assert.match(planner,/Manage<\/span>/);
+  assert.match(planner,/Settings<\/span>/);
   assert.match(planner,/plannerToolsMenuV31/);
   assert.match(planner,/data-planner-open="sources"/);
-  assert.match(css,/plannerTabsV25\{[\s\S]*?grid-template-columns:repeat\(3,94px\);[\s\S]*?width:max-content/);
+  assert.match(css,/plannerTabsV25\{[\s\S]*?display:flex;justify-content:flex-end;[\s\S]*?background:transparent/);
   assert.match(css,/plannerToolsMenuV31/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
 });
@@ -121,9 +121,22 @@ test('work sources are selectable during import and can be deleted completely',(
 test('workspace tabs are compact and nutrition has a meal visual',()=>{
   const today=read('work-gym-planner-v16/today.js');
   const homeCss=read('work-gym-planner-v16/home-v27.css');
-  assert.match(css,/plannerTabsV25 button\{min-width:0;min-height:34px/);
+  assert.match(css,/plannerTabsV25 button\{width:auto;min-width:0;min-height:38px/);
   assert.match(today,/hvMealVisual/);
   assert.match(homeCss,/nutrition-meal-v30\.png/);
+});
+
+test('premium calendar uses a split day inspector and a focused mobile week rail',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(planner,/id="calendarTodayV33"/);
+  assert.match(planner,/id="calendarWeekRailV33"/);
+  assert.match(calendar,/function renderCalendarWeekRail\(\)/);
+  assert.match(calendar,/dayCardHeadV33/);
+  assert.match(calendar,/dayAddToggleV33/);
+  assert.match(calendar,/data-agenda-form hidden/);
+  assert.match(css,/#plannerPane-calendar\.active\{display:grid;grid-template-columns:minmax\(0,1\.72fr\) minmax\(310px,\.72fr\)/);
+  assert.match(css,/@media\(max-width:760px\)[\s\S]*\.calendarWeekRailV33\{display:grid/);
 });
 
 test('calendar keeps destructive and setup actions out of the everyday view',()=>{

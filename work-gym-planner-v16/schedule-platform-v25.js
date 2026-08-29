@@ -105,11 +105,11 @@
 
   function workspaceMarkup(){
     return'<section id="plannerWorkspaceV25" class="plannerWorkspaceV25">'+
-      '<header class="plannerWorkspaceHead"><div class="plannerWorkspaceToolsV25"><span class="calendarViewLabelV32">View</span><div class="calendarDisplayToggleV32" role="group" aria-label="Calendar display"><button type="button" data-calendar-display="details" aria-pressed="true">Details</button><button type="button" data-calendar-display="compact" aria-pressed="false">Compact</button></div></div></header>'+
+      '<header class="plannerWorkspaceHead calendarHeaderV33"><div><small>SCHEDULE</small><h1>Calendar</h1></div></header>'+
       '<div class="plannerTabsV25" role="tablist" aria-label="Calendar views">'+
         '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>Your week</small></button>'+
-        '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Schedule or task</small></button>'+
-        '<button id="plannerTab-tools" data-planner-tab="tools" role="tab" aria-selected="false" aria-controls="plannerPane-tools" tabindex="-1"><span>Manage</span><small>Sources, rotations &amp; sync</small></button>'+
+        '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span><i aria-hidden="true">+</i> Add</span><small>Schedule or task</small></button>'+
+        '<button id="plannerTab-tools" data-planner-tab="tools" role="tab" aria-selected="false" aria-controls="plannerPane-tools" tabindex="-1"><span>Settings</span><small>Sources, rotations &amp; sync</small></button>'+
       '</div>'+
       '<div id="plannerPane-calendar" class="plannerPaneV25 active" role="tabpanel" aria-labelledby="plannerTab-calendar"></div>'+
       '<div id="plannerPane-add" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-add" hidden></div>'+
@@ -145,6 +145,10 @@
     var calendarPane=document.getElementById('plannerPane-calendar'),addPane=document.getElementById('plannerPane-add');
     var capture=ensureCapture();if(capture&&capture.parentElement!==addPane)addPane.appendChild(capture);
     ['.legend','#calendarActionBarV24','.monthbar','.weekdays','#calendarGrid','#dayCard'].forEach(function(selector){var element=calendar.querySelector(selector);if(element&&element.parentElement!==calendarPane)calendarPane.appendChild(element)});
+    var monthbar=calendarPane.querySelector('.monthbar');
+    if(monthbar&&!document.getElementById('calendarTodayV33'))monthbar.insertAdjacentHTML('beforeend','<button id="calendarTodayV33" type="button">Today</button><div class="calendarDisplayToggleV32" role="group" aria-label="Calendar display"><button type="button" data-calendar-display="details" aria-pressed="true">Details</button><button type="button" data-calendar-display="compact" aria-pressed="false">Compact</button></div>');
+    if(monthbar&&!document.getElementById('calendarWeekRailV33'))monthbar.insertAdjacentHTML('afterend','<div id="calendarWeekRailV33" class="calendarWeekRailV33" aria-label="Selected week"></div>');
+    var today=document.getElementById('calendarTodayV33');if(today&&!today.dataset.v25Bound){today.dataset.v25Bound='true';today.onclick=function(){selectedDate=dkey();calView=new Date();renderCalendar()}};
     var hero=document.getElementById('calendarUtilityV24');if(hero)hero.hidden=true;
     var action=document.getElementById('calendarImportV24');if(action)action.onclick=function(){selectTab('add',true);setTimeout(function(){document.getElementById('smartCaptureInput')?.focus()},250)};
     var todo=document.getElementById('calendarTodoV24');if(todo)todo.onclick=function(){window.openCalendarDate?.(selectedDate||dkey());setTimeout(function(){document.querySelector('[data-agenda-form] input[name="title"]')?.focus()},120)};

@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.14/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.14');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.14/);
+  assert.match(shell,/30\.1\.15/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.15');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.15/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -115,6 +115,22 @@ test('calendar supports detail labels as well as a compact color-only view',()=>
   assert.match(planner,/data-calendar-display="compact"/);
   assert.match(css,/\.dayDetails/);
   assert.match(css,/#calendarGrid\[data-display="compact"\] \.dayDetails\{display:none/);
+});
+
+test('calendar supports recurring personal events such as payday',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const premiumCss=read('work-gym-planner-v16/premium-v18.css');
+  assert.match(calendar,/RECURRING_CALENDAR_ITEMS_KEY/);
+  assert.match(calendar,/function recurrenceMatches\(/);
+  assert.match(calendar,/function addRecurringCalendarItem\(/);
+  assert.match(calendar,/Every month/);
+  assert.match(calendar,/Every 2 weeks/);
+  assert.match(calendar,/Remove “\$\{item\.title\}” from this and all future calendar dates/);
+  assert.match(planner,/saveRecurringCalendarItems\(\[\]\)/,
+    'Clear calendar must remove repeating personal events too');
+  assert.match(premiumCss,/select\[name="repeat"\]/,
+    'the repeat picker must remain usable in the compact mobile form');
 });
 
 test('training and More reveal secondary controls on demand',()=>{

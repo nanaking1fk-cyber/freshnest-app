@@ -373,6 +373,7 @@
     if(!confirm('Clear this calendar? This removes work shifts, rotations, tasks, appointments and recurring commitments from Work + Workout. It keeps your account, saved employer names, workout history, nutrition and any Google or Outlook events.'))return;
     saveEvents([]);saveRotations([]);
     if(typeof saveDayItems==='function')saveDayItems({});else jset(PREFIX+'calendar-items',{});
+    if(typeof saveRecurringCalendarItems==='function')saveRecurringCalendarItems([]);else jset(PREFIX+'recurring-calendar-items',[]);
     jset(PREFIX+'smart-work-dates',{});
     if(typeof saveOverrides==='function')saveOverrides({});
     var onboarding=jget(PREFIX+'onboarding-v18',null);

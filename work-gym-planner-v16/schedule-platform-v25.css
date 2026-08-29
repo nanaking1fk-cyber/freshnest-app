@@ -7,6 +7,9 @@ body.premiumV18 .plannerWorkspaceHead>div:first-child{max-width:620px}
 body.premiumV18 .plannerWorkspaceHead small,.managerHeadV25 small,.trustReviewV25>header small,.weekSummaryV25 header small{color:var(--premium-accent);font-size:8px;font-weight:950;letter-spacing:.17em}
 body.premiumV18 .plannerWorkspaceHead h1{margin:7px 0 7px;font-size:clamp(29px,4vw,46px);font-weight:640;line-height:1;letter-spacing:-.05em}
 body.premiumV18 .plannerWorkspaceHead p{margin:0;color:var(--v25-soft);font-size:10px;line-height:1.55}
+body.premiumV18 .plannerWorkspaceToolsV25{display:grid;justify-items:end;gap:9px}
+body.premiumV18 #calendarClearWorkspaceV25{min-height:34px;padding:0 12px;border:1px solid rgba(255,146,134,.42);border-radius:10px;color:#ffd1cb;background:rgba(255,122,109,.1);font-size:8px;font-weight:950;letter-spacing:.03em}
+body.premiumV18 #calendarClearWorkspaceV25:hover{border-color:rgba(255,146,134,.7);background:rgba(255,122,109,.16)}
 body.premiumV18 .plannerWeekPulse{display:flex;gap:6px}
 body.premiumV18 .plannerWeekPulse span{min-width:84px;padding:10px 12px;border:1px solid var(--v25-line);border-radius:13px;background:rgba(255,255,255,.025)}
 body.premiumV18 .plannerWeekPulse b,body.premiumV18 .plannerWeekPulse small{display:block}
@@ -72,6 +75,7 @@ body.premiumV18 .trustReviewV25{margin-top:14px;border:1px solid rgba(184,243,74
 body.premiumV18 .trustReviewV25>header{display:flex;justify-content:space-between;gap:22px;align-items:center;padding:18px;border-bottom:1px solid var(--v25-line);background:radial-gradient(circle at 100% 0,rgba(184,243,74,.08),transparent 42%)}
 body.premiumV18 .trustReviewV25>header h3{margin:5px 0 5px;font-size:19px;letter-spacing:-.035em}
 body.premiumV18 .trustReviewV25>header p{max-width:570px;margin:0;color:#7f8a84;font-size:8px;line-height:1.5}
+body.premiumV18 .trustReviewV25>header .proposalParseNoticeV25{margin-top:8px;padding:7px 9px;border:1px solid rgba(184,243,74,.18);border-radius:9px;color:#c7d9a3;background:rgba(184,243,74,.055)}
 body.premiumV18 .reviewSignalsV25{display:flex;gap:6px}
 body.premiumV18 .reviewSignalsV25 span{min-width:65px;padding:8px;border:1px solid rgba(255,255,255,.07);border-radius:11px;text-align:center;background:rgba(255,255,255,.022)}
 body.premiumV18 .reviewSignalsV25 b,body.premiumV18 .reviewSignalsV25 span{font-size:8px}
@@ -216,7 +220,9 @@ body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255
   /* iOS Safari enlarges any editable control below 16px, which made the page jump while typing. */
   body.premiumV18 .plannerWorkspaceV25 input:not([type="checkbox"]),body.premiumV18 .plannerWorkspaceV25 select,body.premiumV18 .plannerWorkspaceV25 textarea{font-size:16px!important;touch-action:manipulation}
   body.premiumV18 .plannerWorkspaceHead{display:block;padding-top:0}
-  body.premiumV18 .plannerWeekPulse{margin-top:14px;overflow:auto;padding-bottom:2px}
+  body.premiumV18 .plannerWorkspaceToolsV25{display:block;margin-top:14px}
+  body.premiumV18 #calendarClearWorkspaceV25{width:100%;margin-bottom:10px;min-height:42px;font-size:10px}
+  body.premiumV18 .plannerWeekPulse{margin-top:0;overflow:auto;padding-bottom:2px}
   body.premiumV18 .plannerWeekPulse span{min-width:92px}
   body.premiumV18 .plannerTabsV25{grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible}
   body.premiumV18 .plannerTabsV25 button:nth-child(-n+3){grid-column:span 2}

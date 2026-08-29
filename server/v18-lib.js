@@ -204,11 +204,16 @@ function extractOutputText(result){
   return'';
 }
 
-async function openAI({instructions,text,imageDataUrl,model}){
+async function openAI({instructions,text,imageDataUrl,model,textFormat=null,safetyIdentifier=''}){
   if(!process.env.OPENAI_API_KEY)throw Object.assign(new Error('AI coach is not configured yet.'),{status:503});
   const content=[{type:'input_text',text:String(text||'')}];
   if(imageDataUrl)content.push({type:'input_image',image_url:imageDataUrl,detail:'high'});
-  const body={model:model||process.env.OPENAI_MODEL||'gpt-5.6-terra',instructions,input:[{role:'user',content}],max_output_tokens:1800};
+  const body={model:model||process.env.OPENAI_MODEL||'gpt-5.6-terra',instructions,input:[{role:'user',content}],max_output_tokens:1800,store:false};
+  // Callers that need machine-readable data opt in to a strict schema.  The
+  // default remains plain text for the coach and onboarding refinement.
+  if(textFormat)body.text={format:textFormat};
+  // Never send an email address or account name as a safety identifier.
+  if(safetyIdentifier)body.safety_identifier=String(safetyIdentifier).slice(0,64);
   const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${process.env.OPENAI_API_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
   const result=await response.json();
   if(!response.ok)throw Object.assign(new Error(result?.error?.message||'AI request failed.'),{status:response.status>=400&&response.status<500?response.status:502});

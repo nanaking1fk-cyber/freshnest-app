@@ -8,7 +8,7 @@
   var Capture=window.WGC19=window.WGC19||{};
   var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25'};
   var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
-  var proposals=[],proposalConflicts={},rosterReview=null,mounting=false,sourceEditId='';
+  var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='';
 
   function safe(value){return String(value==null?'':value).replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})}
   function sources(){var value=jget(KEY.sources,[]);return Array.isArray(value)?value:[]}
@@ -102,7 +102,7 @@
 
   function workspaceMarkup(){
     return'<section id="plannerWorkspaceV25" class="plannerWorkspaceV25">'+
-      '<header class="plannerWorkspaceHead"><div><small>YOUR PLANNER</small><h1>Everything in its place.</h1><p id="plannerWorkspaceStatus">Work, health and life—organized without the long scroll.</p></div><div id="plannerWeekPulse" class="plannerWeekPulse"></div></header>'+
+      '<header class="plannerWorkspaceHead"><div><small>YOUR PLANNER</small><h1>Everything in its place.</h1><p id="plannerWorkspaceStatus">Work, health and life—organized without the long scroll.</p></div><div class="plannerWorkspaceToolsV25"><button id="calendarClearWorkspaceV25" type="button" aria-label="Clear your Work and Workout calendar">Clear calendar</button><div id="plannerWeekPulse" class="plannerWeekPulse"></div></div></header>'+
       '<div class="plannerTabsV25" role="tablist" aria-label="Planner tools">'+
         '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>See the plan</small></button>'+
         '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Paste or upload</small></button>'+
@@ -192,10 +192,35 @@
     recognition.onerror=function(){button.disabled=false;button.textContent='Speak';toast('Voice input stopped. You can paste or type instead.')};
     recognition.start();
   }
-  function buildTrustedProposal(){
+  function aiProposalItems(items,source){
+    return (items||[]).map(function(item){
+      return {id:makeId('proposal'),kind:item.kind,date:item.date,title:item.title,start:item.start||'',end:item.end||'',overnight:!!(item.start&&item.end&&Core.minutes(item.end)<=Core.minutes(item.start)),reminder:item.kind==='todo'?30:0,sourceText:item.sourceText||'',sourceType:'ai',sourceId:item.kind==='work'?source.id:'',seriesId:makeId('series'),series:false,needsReview:!!item.needsReview,confidence:item.confidence||{label:'Low',score:0,reasons:['AI result needs review']}};
+    });
+  }
+  async function readTypedScheduleWithAI(text,source){
+    var account=window.WGC18;
+    if(!account?.session||!account?.config?.aiConfigured||typeof account.accessToken!=='function')return null;
+    var token=await account.accessToken();if(!token)return null;
+    var response=await fetch('/api/v25/schedule',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:text,referenceDate:Core.keyFromDate(new Date()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})});
+    var body=await response.json().catch(function(){return{}});if(!response.ok||body.ok===false)throw Error(body.error||'AI schedule reading is unavailable.');
+    return body;
+  }
+  async function buildTrustedProposal(){
     var input=document.getElementById('smartCaptureInput'),button=document.getElementById('smartCaptureBuild');if(!input)return;
-    if(button){button.disabled=true;button.textContent='Finding openings…'}
-    var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8}),existing=existingForReview();
+    if(button){button.disabled=true;button.textContent='Reading your schedule…'}
+    var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed,existing=existingForReview();
+    proposalParseNotice='';
+    try{
+      // Uploaded rosters remain in the privacy-preserving local identity flow.
+      // Only a schedule the user deliberately types is sent to the AI reader.
+      if(sourceType==='text'){
+        var ai=await readTypedScheduleWithAI(input.value,source);
+        if(ai?.items?.length){parsed=aiProposalItems(ai.items,source);proposalParseNotice='AI interpreted your typed schedule. Review the calendar and any marked items before saving.'+(ai.assumptions?.length?' Assumptions: '+ai.assumptions.join(' · '):'')}
+      }
+    }catch(error){
+      proposalParseNotice='AI schedule reading was unavailable, so this proposal uses the on-device reader. Review every date before saving.';
+    }
+    if(!parsed)parsed=Core.parseNaturalLanguage(input.value,{sourceId:sourceId,sourceType:sourceType,weeks:8});
     proposals=Core.placeFlexibleEntries(parsed,existing,{now:new Date()});proposalConflicts=Core.detectConflicts(proposals,existing);
     if(sourceType==='roster'&&rosterReview?.analysis?.shifts)proposals=proposals.map(function(item){var matched=rosterReview.analysis.shifts.find(function(shift){return shift.date===item.date&&shift.start===item.start&&shift.end===item.end});return matched?Object.assign({},item,{sourceType:'roster',sourceText:matched.sourceText,confidence:matched.confidence,rosterIdentity:rosterReview.identity}):item});
     renderTrustedReview();
@@ -217,10 +242,10 @@
     if(!proposals.length){root.innerHTML='<p class="smartCaptureEmpty">Tell us at least one shift, appointment, workout or task.</p>';return}
     var groups={};proposals.forEach(function(item){(groups[item.seriesId]||(groups[item.seriesId]=[])).push(item)});
     var conflictCount=Object.keys(proposalConflicts).length,low=proposals.filter(function(item){return item.confidence?.label==='Low'}).length;
-    root.innerHTML=rosterSummaryMarkup()+'<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>See your proposed week before saving.</h3><p>Nothing changes until you approve it. Every date is individually selectable in the calendar below.</p></div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
+    root.innerHTML=rosterSummaryMarkup()+'<div class="trustReviewV25"><header><div><small>TRUSTED REVIEW</small><h3>See your proposed week before saving.</h3><p>Nothing changes until you approve it. Every date is individually selectable in the calendar below.</p>'+(proposalParseNotice?'<p class="proposalParseNoticeV25">'+safe(proposalParseNotice)+'</p>':'')+'</div><div class="reviewSignalsV25"><span><b>'+proposals.length+'</b> proposed</span><span class="'+(conflictCount?'warn':'')+'"><b>'+conflictCount+'</b> conflicts</span><span class="'+(low?'warn':'')+'"><b>'+low+'</b> low confidence</span></div></header>'+
       '<div class="proposalCalendarIntroV25"><div><b>Calendar preview</b><small>'+Object.values(groups).map(function(group){var first=group[0];return safe(first.title)+(group.length>1?' · '+group.length+' dates':'')}).join(' &nbsp;•&nbsp; ')+'</small></div><span>Tap a card to include or remove it</span></div>'+proposalCalendarMarkup()+proposalAttentionMarkup()+
       '<footer><button id="proposalClearV25">Clear</button><button id="proposalCalendarV25">Export selected</button><button class="primary" id="proposalSaveV25">Approve selected items</button></footer><p id="proposalStatusV25" role="status"></p></div>';
-    document.getElementById('proposalClearV25').onclick=function(){proposals=[];proposalConflicts={};rosterReview=null;root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
+    document.getElementById('proposalClearV25').onclick=function(){proposals=[];proposalConflicts={};rosterReview=null;proposalParseNotice='';root.innerHTML='';document.getElementById('smartCaptureInput').value=''};
     document.getElementById('proposalSaveV25').onclick=saveTrustedProposal;
     document.getElementById('proposalCalendarV25').onclick=function(){exportSelectedCalendar(selectedProposalValues())};
     root.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -333,6 +358,7 @@
     proposals=[];proposalConflicts={};rosterReview=null;window.WGC18?.queueSync?.();renderCalendar();renderWeekSummary(selectedDate||dkey());toast('Calendar cleared. Your account and health history are unchanged.');
   }
   function renderWeekSummary(key){var pane=document.getElementById('plannerPane-calendar');if(!pane)return;var existing=document.getElementById('weekSummaryV25');if(existing)existing.remove();pane.insertAdjacentHTML('afterbegin',weekSummaryMarkup(key||selectedDate||dkey()).replace('class="weekSummaryV25"','id="weekSummaryV25" class="weekSummaryV25"'));document.getElementById('calendarClearV25').onclick=clearCalendarContent;renderWeekPulse(key||selectedDate||dkey())}
+  function bindCalendarClearActions(){document.querySelectorAll('#calendarClearV25,#calendarClearWorkspaceV25').forEach(function(button){button.onclick=clearCalendarContent})}
   function legendMarkup(){return enabledSources().map(function(source){return'<span><i class="dot" style="background:'+safe(source.color)+'"></i>'+safe(source.name)+'</span>'}).join('')+'<span><i class="dot green"></i>Training</span><span><i class="dot purple"></i>Plans</span>'}
   function workDots(rows){return rows.slice(0,3).map(function(row){return'<i class="dot" style="background:'+safe(row.color||Core.COLORS[0])+'"></i>'}).join('')}
 
@@ -369,7 +395,7 @@
       ensureSources();patchCalendarModel();var calendar=document.getElementById('page-calendar');if(!calendar)return;
       var firstMount=!document.getElementById('plannerWorkspaceV25');
       if(firstMount)calendar.insertAdjacentHTML('afterbegin',workspaceMarkup());
-      arrangeWorkspace();bindTabs();bindTrustedCapture();
+      arrangeWorkspace();bindTabs();bindTrustedCapture();bindCalendarClearActions();
       if(firstMount){renderSources();renderRotations();renderWeekSummary(selectedDate||dkey());var saved=sessionStorage.getItem('ww-planner-tab')||'calendar';selectTab(saved,false)}
       document.body.classList.add('schedulePlatformV25');
     }finally{mounting=false}

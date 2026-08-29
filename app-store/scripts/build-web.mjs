@@ -47,11 +47,11 @@ html=rewrite(
 html=rewrite(
   html,
   "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\">');",
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.5\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.6\"></scr'+'ipt>');",
   'load native bridge first'
 );
 html=html.replace("'pwa-patch.js',",'');
-html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.5\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
+html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.6\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
 await writeFile(join(out,'index.html'),html);
 
 // Native WebViews have their own localhost origin. Keep all authenticated API
@@ -73,6 +73,12 @@ platformSchedule=rewrite(
   "return fetch('/api/v25/calendar?action='+encodeURIComponent(action)",
   "return fetch(((window.WGPNative&&window.WGPNative.apiBase)||'')+'/api/v25/calendar?action='+encodeURIComponent(action)",
   'calendar API base'
+);
+platformSchedule=rewrite(
+  platformSchedule,
+  "var response=await fetch('/api/v25/schedule'",
+  "var response=await fetch(((window.WGPNative&&window.WGPNative.apiBase)||'')+'/api/v25/schedule'",
+  'AI schedule API base'
 );
 platformSchedule=rewrite(
   platformSchedule,
@@ -126,4 +132,4 @@ for(const file of required){
   if(!info.size)throw new Error(`Native bundle check failed: ${file}`);
 }
 
-console.log(`Built Work + Workout 30.1.5 native web bundle: ${out}`);
+console.log(`Built Work + Workout 30.1.6 native web bundle: ${out}`);

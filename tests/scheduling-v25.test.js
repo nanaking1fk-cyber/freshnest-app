@@ -27,6 +27,15 @@ test('utility planner understands the full mixed-life example and proposes free 
   assert.ok(conflicts[dentist.id].some(item=>item.type==='proposal-overlap'));
 });
 
+test('typed schedules use the authenticated AI reader but retain local and roster safeguards',()=>{
+  const platform=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(platform,/async function readTypedScheduleWithAI/);
+  assert.match(platform,/fetch\('\/api\/v25\/schedule'/);
+  assert.match(platform,/if\(sourceType==='text'\)/);
+  assert.match(platform,/sourceType==='roster'/);
+  assert.match(platform,/Nothing changes until you approve it/);
+});
+
 test('raw typed shifts keep each explicit date paired with its own time range',()=>{
   const now=new Date(2026,7,26,9);
   const parsed=scheduling.parseNaturalLanguage('My shifts: Mon 8/24 0700-1900, Wed 8/26 7a-7p, Fri 8/28 3p-11p.',{now,sourceId:'hospital'});
@@ -129,6 +138,8 @@ test('trusted review renders every item and requires explicit collision resoluti
 test('calendar can be cleared without deleting the account or health history',()=>{
   const ui=read('work-gym-planner-v16/schedule-platform-v25.js');
   assert.match(ui,/id="calendarClearV25"/);
+  assert.match(ui,/id="calendarClearWorkspaceV25"/);
+  assert.match(ui,/function bindCalendarClearActions\(\)/);
   assert.match(ui,/function clearCalendarContent\(\)/);
   assert.match(ui,/saveEvents\(\[\]\);saveRotations\(\[\]\)/);
   assert.match(ui,/saveDayItems\(\{\}\)/);

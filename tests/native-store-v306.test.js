@@ -22,9 +22,10 @@ test('canonical store package targets iOS and Android with the production identi
 test('native build packages current production and routes authenticated APIs safely',()=>{
   const build=read('app-store/scripts/build-web.mjs');
   const bridge=read('app-store/native/native-bridge.js');
-  assert.match(build,/30\.1\.5/);
+  assert.match(build,/30\.1\.6/);
   assert.match(build,/disable legacy service worker/);
   assert.match(build,/account API base/);
+  assert.match(build,/AI schedule API base/);
   assert.match(build,/calendar OAuth browser/);
   assert.match(bridge,/https:\/\/www\.workandworkout\.com/);
   assert.match(bridge,/workandworkout:\/\/calendar-connected/);

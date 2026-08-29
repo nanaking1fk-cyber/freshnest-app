@@ -33,7 +33,7 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` (server only)
    - `OPENAI_API_KEY` (server only)
-   - `OPENAI_MODEL` / `OPENAI_COACH_MODEL` / `OPENAI_PLAN_MODEL` optional; defaults use `gpt-5.6-terra` in the current source
+   - `OPENAI_MODEL` / `OPENAI_COACH_MODEL` / `OPENAI_PLAN_MODEL` / `OPENAI_SCHEDULE_MODEL` are optional; defaults use `gpt-5.6-terra` in the current source. Schedule text is sent to OpenAI only after the signed-in user submits it, and it is returned as a review-before-save proposal.
    - `AI_DAILY_LIMIT` optional; defaults to 40 requests/user/day
    - `STATE_DAILY_WRITE_LIMIT` optional; defaults to 300 account-sync writes/user/day
    - `STATE_DAILY_BYTE_LIMIT` optional; defaults to 256 MB of account-sync data/user/day

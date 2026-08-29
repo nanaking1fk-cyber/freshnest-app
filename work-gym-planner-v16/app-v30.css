@@ -141,7 +141,10 @@ body.premiumV30 .ownRoutineGrid input,body.premiumV30 .ownRoutineGrid textarea{w
 body.premiumV30 .plannerWorkspaceHead{padding-bottom:18px}
 body.premiumV30 .plannerWorkspaceHead h1,
 body.premiumV30 .plannerWorkspaceHead p{display:none}
-body.premiumV30 .plannerWorkspaceToolsV25{grid-template-columns:auto auto;grid-template-areas:"add clear" "pulse pulse";align-items:center}
+body.premiumV30 .plannerWorkspaceToolsV25{grid-template-columns:auto auto auto;grid-template-areas:"view add clear" "pulse pulse pulse";align-items:center}
+body.premiumV30 .calendarDisplayToggleV32{grid-area:view;display:flex;padding:3px;border:1px solid var(--v30-line);border-radius:11px;background:rgba(255,255,255,.02)}
+body.premiumV30 .calendarDisplayToggleV32 button{min-height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--v30-faint);font-size:11px;font-weight:700}
+body.premiumV30 .calendarDisplayToggleV32 button.active{color:#11170a;background:var(--v30-signal)}
 body.premiumV30 #calendarQuickAddV31{grid-area:add;min-height:42px;padding:0 14px;border:0;border-radius:12px;font-weight:800}
 body.premiumV30 #calendarQuickAddV31 span{margin-left:10px;font-size:18px}
 body.premiumV30 #calendarClearWorkspaceV25{grid-area:clear;min-height:42px;color:var(--v30-faint);border-color:var(--v30-line);background:transparent;font-size:11px}
@@ -180,6 +183,13 @@ body.premiumV30 .legend{font-size:12px;overflow-x:auto;white-space:nowrap;scroll
 body.premiumV30 .monthbar h2{font-size:28px}
 body.premiumV30 .weekdays span{font-size:10px}
 body.premiumV30 .calDay{height:94px;border-radius:14px}
+body.premiumV30 .calDay .dayDetails{display:grid;gap:3px;width:100%;margin-top:6px;padding:0 6px;text-align:left}
+body.premiumV30 .calDay .dayDetail{display:block;min-width:0;overflow:hidden;padding:3px 5px;border-radius:5px;color:#dce2de;background:rgba(255,255,255,.045);font-size:9px;font-weight:650;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 .calDay .dayDetail.work{border-left:2px solid var(--detail-color,#58a6ff);background:color-mix(in srgb,var(--detail-color,#58a6ff) 10%,transparent)}
+body.premiumV30 .calDay .dayDetail.plan{border-left:2px solid #a78bfa;background:rgba(167,139,250,.1)}
+body.premiumV30 .calDay .dayDetail.training{border-left:2px solid #d6ff3f;background:rgba(214,255,63,.08)}
+body.premiumV30 #calendarGrid[data-display="details"] .dayDots{display:none}
+body.premiumV30 #calendarGrid[data-display="compact"] .dayDetails{display:none}
 body.premiumV30 .dayCard{padding:22px}
 
 /* Training: progressive disclosure keeps the session moving. */
@@ -365,7 +375,8 @@ body.premiumV30 .homeDashV27 .hvBrand::before{
   body.premiumV30 .homeDashV27 .hvRow{grid-template-columns:94px 4px 1fr;padding:14px 15px;gap:10px}
   body.premiumV30 .homeDashV27 .hvRow time{font-size:10px;white-space:normal}
   body.premiumV30 .plannerWorkspaceHead{display:block}
-  body.premiumV30 .plannerWorkspaceToolsV25{display:grid;grid-template-columns:1fr auto;grid-template-areas:"add clear";justify-items:stretch;margin-top:17px}
+  body.premiumV30 .plannerWorkspaceToolsV25{display:grid;grid-template-columns:1fr auto;grid-template-areas:"view view" "add clear";justify-items:stretch;margin-top:17px}
+  body.premiumV30 .calendarDisplayToggleV32{justify-self:start}
   body.premiumV30 .plannerTabsV25{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-left:-5px;margin-right:-5px;overflow:visible}
   body.premiumV30 .plannerTabsV25 button{min-width:0;min-height:50px;flex:none;padding:8px 6px;text-align:center}
   body.premiumV30 .plannerTabsV25 small{display:none}
@@ -373,6 +384,9 @@ body.premiumV30 .homeDashV27 .hvBrand::before{
   body.premiumV30 .coachFab18,
   body.premiumV30 .coachFab{display:none!important}
   body.premiumV30 .calDay{height:76px}
+  body.premiumV30 .calDay .dayDetails{gap:2px;margin-top:4px;padding:0 4px}
+  body.premiumV30 .calDay .dayDetail{padding:2px 4px;font-size:7px}
+  body.premiumV30 .calDay .dayDetail:nth-child(n+2){display:none}
   body.premiumV30 .dayCard{padding:18px}
   body.premiumV30 .trainNav{grid-template-columns:44px 1fr 44px;padding:15px 8px}
   body.premiumV30 .trainNav h2{font-size:24px}

@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.13/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.13');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.13/);
+  assert.match(shell,/30\.1\.14/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.14');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.14/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -103,6 +103,18 @@ test('planner stays calendar-first while secondary tools move behind Manage',()=
   assert.match(css,/plannerTabsV25\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   assert.match(css,/plannerToolsMenuV31/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
+});
+
+test('calendar supports detail labels as well as a compact color-only view',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(calendar,/function calendarDisplayMode\(\)/);
+  assert.match(calendar,/function calendarCellDetails\(/);
+  assert.match(calendar,/dataset\.display=display/);
+  assert.match(planner,/data-calendar-display="details"/);
+  assert.match(planner,/data-calendar-display="compact"/);
+  assert.match(css,/\.dayDetails/);
+  assert.match(css,/#calendarGrid\[data-display="compact"\] \.dayDetails\{display:none/);
 });
 
 test('training and More reveal secondary controls on demand',()=>{

@@ -6,6 +6,9 @@ function renderHeader(){let p=profile();$('profileLine').textContent=p?`${p.name
 
 // Calendar ------------------------------------------------------------------
 const DAY_ITEMS_KEY=PREFIX+'calendar-items';
+const CALENDAR_DISPLAY_KEY=PREFIX+'calendar-display';
+function calendarDisplayMode(){return jget(CALENDAR_DISPLAY_KEY,'details')==='compact'?'compact':'details'}
+function setCalendarDisplayMode(mode){jset(CALENDAR_DISPLAY_KEY,mode==='compact'?'compact':'details');renderCalendar()}
 function dayItems(){return jget(DAY_ITEMS_KEY,{})}
 function saveDayItems(items){jset(DAY_ITEMS_KEY,items);window.WGC18?.queueSync?.()}
 function recurringItemsOn(k){
@@ -25,8 +28,16 @@ function workScheduleRows(k){
  if(s.kind==='unknown'&&p?.variable?.enabled)rows.push({name:p.variable.name||'Work schedule',time:'Date needs review',unknown:true});
  return rows
 }
+function calendarCellDetails(workRows,agenda,gym,k){
+ let entries=[];
+ if(workRows.length){let row=workRows.find(item=>!item.unknown)||workRows[0];entries.push(`<span class="dayDetail work" style="--detail-color:${esc(row.color||'#58a6ff')}" title="${esc(row.name)}">${esc(row.name)}</span>`)}
+ if(agenda.length){let item=agenda[0];entries.push(`<span class="dayDetail plan" title="${esc(item.title)}">${esc(item.title)}</span>`)}
+ else if(gym){let label=typeof plannedWorkoutName==='function'?plannedWorkoutName(k):'Training';entries.push(`<span class="dayDetail training" title="${esc(label)}">${esc(label)}</span>`)}
+ return entries.slice(0,2).join('')
+}
 function renderCalendar(){
  let y=calView.getFullYear(),m=calView.getMonth(),ym=`${y}-${String(m+1).padStart(2,'0')}`;
+ let display=calendarDisplayMode();
  let legend=document.querySelector('#page-calendar .legend');if(legend)legend.innerHTML=window.WWV25?.legendMarkup?.()||'<span><i class="dot blue"></i>Work</span><span><i class="dot green"></i>Training</span><span><i class="dot purple"></i>Plans &amp; to-do</span><span><i class="dot gray"></i>Needs review</span>';
  $('calendarHeading').textContent=new Date(y,m,1).toLocaleDateString(undefined,{month:'long',year:'numeric'});
  let days=new Date(y,m+1,0).getDate(),first=(new Date(y,m,1).getDay()+6)%7,h='';
@@ -34,11 +45,13 @@ function renderCalendar(){
  for(let n=1;n<=days;n++){
   let k=`${ym}-${String(n).padStart(2,'0')}`,s=workState(k),comp=completedOn(k),gym=!!comp||isScheduled(k),agenda=agendaItemsOn(k),workRows=workScheduleRows(k),classes=['calDay'];
   if(s.kind==='unknown')classes.push('unknown');if(agenda.length)classes.push('hasAgenda');if(k===selectedDate)classes.push('selected');if(k===dkey())classes.push('today');
-  let workDots=window.WWV25?.workDots?.(workRows)||((workRows.some(row=>!row.unknown)?'<i class="dot blue"></i>':'')),dots='<span class="dayDots">'+workDots+(gym?'<i class="dot green"></i>':'')+(agenda.length?'<i class="dot purple"></i>':'')+(s.kind==='unknown'?'<i class="dot gray"></i>':'')+'</span>';
+  let workDots=window.WWV25?.workDots?.(workRows)||((workRows.some(row=>!row.unknown)?'<i class="dot blue"></i>':'')),dots='<span class="dayDots">'+workDots+(gym?'<i class="dot green"></i>':'')+(agenda.length?'<i class="dot purple"></i>':'')+(s.kind==='unknown'?'<i class="dot gray"></i>':'')+'</span>',details=calendarCellDetails(workRows,agenda,gym,k);
   let tr=gym?(typeof plannedWorkoutName==='function'?plannedWorkoutName(k,comp?.workoutIndex??projectedWorkoutIndex(k)):(comp?WORKOUTS[comp.workoutIndex].name:WORKOUTS[projectedWorkoutIndex(k)].name)):'No training planned',aria=`${fmt(k)}. ${workRows.length?workRows.map(row=>`${row.name} ${row.time}`).join('. '):'No work added'}. Training: ${tr}. ${agenda.length} plan ${agenda.length===1?'item':'items'}.${s.kind==='unknown'?' Work schedule needs review.':''}`;
-  h+=`<button class="${classes.join(' ')}" data-date="${k}" role="gridcell" aria-label="${esc(aria)}"><span class="dayNum">${n}</span>${dots}${agenda.length?`<span class="agendaCount">${agenda.length}</span>`:''}${s.kind==='unknown'?'<span class="unknownMark">?</span>':''}</button>`
+  h+=`<button class="${classes.join(' ')}" data-date="${k}" role="gridcell" aria-label="${esc(aria)}"><span class="dayNum">${n}</span>${dots}${details?`<span class="dayDetails">${details}</span>`:''}${agenda.length?`<span class="agendaCount">${agenda.length}</span>`:''}${s.kind==='unknown'?'<span class="unknownMark">?</span>':''}</button>`
  }
  $('calendarGrid').innerHTML=h;
+ $('calendarGrid').dataset.display=display;
+ $$('[data-calendar-display]').forEach(button=>{let active=button.dataset.calendarDisplay===display;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
  $$('.calDay[data-date]').forEach(b=>b.onclick=()=>{selectedDate=b.dataset.date;renderCalendar()});
  renderDayCard();window.WWV25?.renderWeekSummary?.(selectedDate)
 }
@@ -64,3 +77,4 @@ window.openCalendarDate=function(k=dkey()){
  if(button)button.click();else window.page?.('calendar');
  renderCalendar()
 };
+window.setCalendarDisplayMode=setCalendarDisplayMode;

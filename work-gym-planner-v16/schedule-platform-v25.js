@@ -174,8 +174,23 @@
     if(!Roster)return false;
     selectTab('add',true);var identity=String(meta?.identity||currentRosterIdentity()).trim(),analysis=Roster.analyze(text,rosterOptions(identity));
     rosterReview={rawText:String(text||''),meta:meta||{},analysis:analysis,identity:identity};
-    if(analysis.status!=='matched'){renderRosterIdentityPrompt();return true}
-    rememberRosterIdentity(identity);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=analysis.normalizedText;input.dataset.sourceType='roster';buildTrustedProposal();return true;
+    if(analysis.status!=='matched'&&analysis.status!=='no_shifts'){renderRosterIdentityPrompt();return true}
+    rememberRosterIdentity(identity);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=analysis.normalizedText||analysis.personalText||'';input.dataset.sourceType='roster';input.dataset.aiRoster='';renderRosterAIChoice();return true;
+  }
+  function escapeRegex(value){return String(value||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+  function rosterTextForAI(){
+    var analysis=rosterReview?.analysis||{},personal=String(analysis.personalText||'');
+    [analysis.identity?.matched,rosterReview?.identity].filter(Boolean).forEach(function(identity){personal=personal.replace(new RegExp(escapeRegex(identity),'gi'),'[account holder]')});
+    var headers=(analysis.headers||[]).map(function(header){return header.date||''}).filter(Boolean).join(', '),local=String(analysis.normalizedText||'');
+    return('MATCHED ROSTER EXCERPT — contains only the account holder\'s row; no other employee should be inferred.\n'+personal+'\n\nDATE HEADERS: '+headers+'\n\nLOCAL EXTRACTION TO VERIFY:\n'+local).slice(0,12000);
+  }
+  function renderRosterAIChoice(){
+    var root=document.getElementById('smartCapturePreview'),analysis=rosterReview?.analysis||{},input=document.getElementById('smartCaptureInput');if(!root||!input)return;
+    var recovered=analysis.status==='no_shifts';
+    root.innerHTML='<section class="rosterIdentityReviewV31 rosterAIChoiceV31"><small>PRIVATE ROSTER REVIEW</small><h3>'+safe(recovered?'Let AI take a second look.':'Your shifts were matched locally.')+'</h3><p>'+safe(recovered?'The local reader found your row but could not safely map every shift.':'Choose whether to add an AI accuracy check before seeing your calendar proposal.')+'</p><div><b>What AI receives</b><span>Only your locally matched roster row and date headers—never the full image/PDF or coworkers\' rows. You will still review every shift before it is saved.</span></div><footer><button id="rosterReviewLocalV31" type="button">Review locally</button><button id="rosterReviewAIV31" class="primary" type="button">Use AI accuracy check</button></footer></section>';
+    document.getElementById('rosterReviewLocalV31').onclick=function(){input.dataset.aiRoster='';buildTrustedProposal()};
+    document.getElementById('rosterReviewAIV31').onclick=function(){input.dataset.aiRoster='true';buildTrustedProposal()};
+    root.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   function renderRosterIdentityPrompt(){
     var root=document.getElementById('smartCapturePreview');if(!root||!rosterReview)return;var analysis=rosterReview.analysis||{},identity=rosterReview.identity||currentRosterIdentity();
@@ -197,11 +212,11 @@
       return {id:makeId('proposal'),kind:item.kind,date:item.date,title:item.title,start:item.start||'',end:item.end||'',overnight:!!(item.start&&item.end&&Core.minutes(item.end)<=Core.minutes(item.start)),reminder:item.kind==='todo'?30:0,sourceText:item.sourceText||'',sourceType:'ai',sourceId:item.kind==='work'?source.id:'',seriesId:makeId('series'),series:false,needsReview:!!item.needsReview,confidence:item.confidence||{label:'Low',score:0,reasons:['AI result needs review']}};
     });
   }
-  async function readTypedScheduleWithAI(text,source){
+  async function readTypedScheduleWithAI(text,source,sourceType){
     var account=window.WGC18;
     if(!account?.session||!account?.config?.aiConfigured||typeof account.accessToken!=='function')return null;
     var token=await account.accessToken();if(!token)return null;
-    var response=await fetch('/api/v25/schedule',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:text,referenceDate:Core.keyFromDate(new Date()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})});
+    var response=await fetch('/api/v25/schedule',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:text,sourceType:sourceType||'text',referenceDate:Core.keyFromDate(new Date()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})});
     var body=await response.json().catch(function(){return{}});if(!response.ok||body.ok===false)throw Error(body.error||'AI schedule reading is unavailable.');
     return body;
   }
@@ -211,11 +226,11 @@
     var source=resolveCaptureSource(),sourceId=source.id||enabledSources()[0]?.id||'work',sourceType=input.dataset.sourceType||'text',parsed,existing=existingForReview();
     proposalParseNotice='';
     try{
-      // Uploaded rosters remain in the privacy-preserving local identity flow.
-      // Only a schedule the user deliberately types is sent to the AI reader.
-      if(sourceType==='text'){
-        var ai=await readTypedScheduleWithAI(input.value,source);
-        if(ai?.items?.length){parsed=aiProposalItems(ai.items,source);proposalParseNotice='AI interpreted your typed schedule. Review the calendar and any marked items before saving.'+(ai.assumptions?.length?' Assumptions: '+ai.assumptions.join(' · '):'')}
+      // A roster first goes through local identity matching. AI is optional and
+      // receives only that matched row plus its date headers, never the upload.
+      if(sourceType==='text'||sourceType==='roster'&&input.dataset.aiRoster==='true'){
+        var aiText=sourceType==='roster'?rosterTextForAI():input.value,ai=await readTypedScheduleWithAI(aiText,source,sourceType);
+        if(ai?.items?.length){parsed=aiProposalItems(ai.items,source);proposalParseNotice=sourceType==='roster'?'AI double-checked your locally matched roster row. Review the calendar and any marked items before saving.':'AI interpreted your typed schedule. Review the calendar and any marked items before saving.';if(ai.assumptions?.length)proposalParseNotice+=' Assumptions: '+ai.assumptions.join(' · ')}
       }
     }catch(error){
       proposalParseNotice='AI schedule reading was unavailable, so this proposal uses the on-device reader. Review every date before saving.';

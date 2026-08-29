@@ -189,9 +189,9 @@
     const match=bestIdentityLine(lines,identities);
     if(match.score<.64)return{status:'identity_not_found',message:'We could not confidently find that name in this roster. Check the spelling or enter the employee ID shown on it.',identity:{requested:identities[0],matched:'',confidence:match.score},shifts:[],rotation:null};
     const extracted=extractPersonalShifts(lines,match,{now:options.now||new Date(),title:options.title||'Work shift',dayStart:options.dayStart,dayEnd:options.dayEnd,nightStart:options.nightStart,nightEnd:options.nightEnd});
-    if(!extracted.shifts.length)return{status:'no_shifts',message:'Your name was found, but no dated shift times could be read confidently. Use a clearer image or correct the extracted text.',identity:{requested:match.identity,matched:clean(match.line),confidence:match.score},shifts:[],rotation:null,personalText:extracted.block.join('\n')};
+    if(!extracted.shifts.length)return{status:'no_shifts',message:'Your name was found, but no dated shift times could be read confidently. Use a clearer image or correct the extracted text.',identity:{requested:match.identity,matched:clean(match.line),confidence:match.score},shifts:[],rotation:null,headers:extracted.headers,personalText:extracted.block.join('\n')};
     const headerDates=extracted.headers.map(item=>item.date).sort(),rotation=inferRotation(extracted.shifts,{start:headerDates[0],end:headerDates[headerDates.length-1]});
-    return{status:'matched',message:extracted.shifts.length+' shifts found for '+match.identity+'.',identity:{requested:match.identity,matched:clean(match.line),confidence:match.score},shifts:extracted.shifts,rotation,personalText:extracted.block.join('\n'),normalizedText:toNaturalLanguage(extracted.shifts,options.title||'Work'),ignoredOtherRows:true};
+    return{status:'matched',message:extracted.shifts.length+' shifts found for '+match.identity+'.',identity:{requested:match.identity,matched:clean(match.line),confidence:match.score},shifts:extracted.shifts,rotation,headers:extracted.headers,personalText:extracted.block.join('\n'),normalizedText:toNaturalLanguage(extracted.shifts,options.title||'Work'),ignoredOtherRows:true};
   }
 
   return{clean,normalized,identityScore,parseDateToken,datesIn,parseTimeRange,shiftTokens,inferRotation,toNaturalLanguage,analyze};

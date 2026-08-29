@@ -105,6 +105,9 @@ test('scanned PDFs use local OCR and uncertain identities stop before proposals'
   assert.match(platform,/Which row belongs to you\?/);
   assert.match(platform,/window\.WGC19=window\.WGC19\|\|\{\}/);
   assert.match(platform,/Other employees’ rows are not added/);
+  assert.match(platform,/Use AI accuracy check/);
+  assert.match(platform,/never the full image\/PDF or coworkers/);
+  assert.match(platform,/sourceType:sourceType\|\|'text'/);
   assert.match(platform,/Continue the detected pattern/);
   assert.match(platform,/Work rotation added to your calendar/);
   assert.match(read('work-gym-planner-v16/schedule.js'),/langPath:'\/work-gym-planner-v16\/vendor\/tessdata'/);

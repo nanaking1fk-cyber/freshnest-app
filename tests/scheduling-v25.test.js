@@ -31,7 +31,7 @@ test('typed schedules use the authenticated AI reader but retain local and roste
   const platform=read('work-gym-planner-v16/schedule-platform-v25.js');
   assert.match(platform,/async function readTypedScheduleWithAI/);
   assert.match(platform,/fetch\('\/api\/v25\/schedule'/);
-  assert.match(platform,/if\(sourceType==='text'\)/);
+  assert.match(platform,/sourceType==='text'\|\|sourceType==='roster'/);
   assert.match(platform,/sourceType==='roster'/);
   assert.match(platform,/Nothing changes until you approve it/);
 });

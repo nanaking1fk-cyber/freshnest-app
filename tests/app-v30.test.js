@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.9/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.9');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.9/);
+  assert.match(shell,/30\.1\.10/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.10');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.10/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -94,11 +94,22 @@ test('calendar intake is mounted by the production schedule module',()=>{
   assert.match(plannerCss,/#plannerPane-add>\.smartCaptureV19/);
 });
 
-test('all planner tools remain visible on phones without a floating coach collision',()=>{
-  assert.match(css,/@media\(max-width:760px\)[\s\S]*plannerTabsV25\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
-  assert.match(css,/plannerTabsV25 button:nth-child\(-n\+3\)\{grid-column:span 2\}/);
-  assert.match(css,/plannerTabsV25 button:nth-child\(n\+4\)\{grid-column:span 3\}/);
+test('planner stays calendar-first while secondary tools move behind Manage',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(planner,/plannerTab-tools/);
+  assert.match(planner,/Manage<\/span>/);
+  assert.match(planner,/plannerToolsMenuV31/);
+  assert.match(planner,/data-planner-open="sources"/);
+  assert.match(css,/plannerTabsV25\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css,/plannerToolsMenuV31/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.aiCoachFab,[\s\S]*\.coachFab\{display:none!important\}/);
+});
+
+test('training and More reveal secondary controls on demand',()=>{
+  assert.match(script,/trainingToolsToggleV31/);
+  assert.match(script,/menuGroupToggleV31/);
+  assert.match(css,/#trainingRoot:not\(\.v31ToolsOpen\)>\.trainTools\{display:none!important\}/);
+  assert.match(script,/menuGroupItemsV30\" hidden/);
 });
 
 test('planner tabs expose keyboard and panel relationships',()=>{

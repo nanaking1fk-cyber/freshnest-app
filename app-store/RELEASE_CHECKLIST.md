@@ -4,7 +4,7 @@
 
 - [ ] Root `npm test` passes.
 - [ ] `npm run build:web` passes in `app-store/`.
-- [ ] Native bundle audit reports v30.1.9 and no secrets/remote executable scripts.
+- [ ] Native bundle audit reports v30.1.10 and no secrets/remote executable scripts.
 - [ ] iOS and Android projects are synced from the same `www/` bundle.
 
 ## iPhone/iPad device test

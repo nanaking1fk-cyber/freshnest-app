@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.1.9';
+  var VERSION='30.1.10';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}
@@ -48,6 +48,18 @@
   function enhanceTraining(){
     var root=document.getElementById('trainingRoot');
     if(!root)return;
+    var tools=root.querySelector('.trainTools'),nav=root.querySelector('.trainNav');
+    if(tools&&nav&&!root.querySelector('#trainingToolsToggleV31')){
+      var toolsToggle=button('Workout options','trainingToolsToggleV31');
+      toolsToggle.id='trainingToolsToggleV31';
+      toolsToggle.setAttribute('aria-expanded','false');
+      toolsToggle.addEventListener('click',function(){
+        var open=root.classList.toggle('v31ToolsOpen');
+        toolsToggle.textContent=open?'Hide workout options':'Workout options';
+        toolsToggle.setAttribute('aria-expanded',String(open));
+      });
+      nav.insertAdjacentElement('afterend',toolsToggle);
+    }
     var cards=Array.from(root.querySelectorAll('#trainingSwipe > .exerciseCard'));
     cards.forEach(function(card,index){
       var head=card.querySelector('.exerciseHead');
@@ -159,7 +171,9 @@
     section=document.createElement('section');
     section.className='menuGroupV30';
     section.dataset.v30Group=group.key;
-    section.innerHTML='<header><div><h2>'+group.title+'</h2><p>'+group.hint+'</p></div><span aria-hidden="true">'+String(groups.indexOf(group)+1).padStart(2,'0')+'</span></header><div class="menuGroupItemsV30"></div>';
+    section.innerHTML='<header><button class="menuGroupToggleV31" type="button" aria-expanded="false"><span><small>'+String(groups.indexOf(group)+1).padStart(2,'0')+'</small><b>'+group.title+'</b><em>'+group.hint+'</em></span><i aria-hidden="true">+</i></button></header><div class="menuGroupItemsV30" hidden></div>';
+    var toggle=section.querySelector('.menuGroupToggleV31'),items=section.querySelector('.menuGroupItemsV30');
+    toggle.onclick=function(){var open=section.classList.toggle('v31Open');items.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.querySelector('i').textContent=open?'−':'+'};
     cards.appendChild(section);
     return section;
   }
@@ -168,7 +182,7 @@
     var cards=document.querySelector('#page-more .menuCards');
     if(!cards)return;
     cards.classList.add('menuCardsV30');
-    var buttons=Array.from(cards.querySelectorAll('button')).filter(function(node){return !node.closest('.menuGroupV30')||node.parentElement.classList.contains('menuGroupItemsV30')});
+    var buttons=Array.from(cards.querySelectorAll('button')).filter(function(node){return !node.classList.contains('menuGroupToggleV31')&&(!node.closest('.menuGroupV30')||node.parentElement.classList.contains('menuGroupItemsV30'))});
     var sections={};
     groups.forEach(function(group){sections[group.key]=menuGroup(cards,group).querySelector('.menuGroupItemsV30')});
     buttons.forEach(function(node){

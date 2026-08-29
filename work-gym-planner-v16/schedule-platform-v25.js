@@ -102,19 +102,18 @@
 
   function workspaceMarkup(){
     return'<section id="plannerWorkspaceV25" class="plannerWorkspaceV25">'+
-      '<header class="plannerWorkspaceHead"><div><small>YOUR PLANNER</small><h1>Everything in its place.</h1><p id="plannerWorkspaceStatus">Work, health and life—organized without the long scroll.</p></div><div class="plannerWorkspaceToolsV25"><button id="calendarClearWorkspaceV25" type="button" aria-label="Clear your Work and Workout calendar">Clear calendar</button><div id="plannerWeekPulse" class="plannerWeekPulse"></div></div></header>'+
-      '<div class="plannerTabsV25" role="tablist" aria-label="Planner tools">'+
-        '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>See the plan</small></button>'+
-        '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Paste or upload</small></button>'+
-        '<button id="plannerTab-rotations" data-planner-tab="rotations" role="tab" aria-selected="false" aria-controls="plannerPane-rotations" tabindex="-1"><span>Rotations</span><small>Set it once</small></button>'+
-        '<button id="plannerTab-sources" data-planner-tab="sources" role="tab" aria-selected="false" aria-controls="plannerPane-sources" tabindex="-1"><span>Work sources</span><small>Jobs &amp; colors</small></button>'+
-        '<button id="plannerTab-sync" data-planner-tab="sync" role="tab" aria-selected="false" aria-controls="plannerPane-sync" tabindex="-1"><span>Sync</span><small>Google &amp; Outlook</small></button>'+
+      '<header class="plannerWorkspaceHead"><div><small>CALENDAR</small><h1>Your week</h1><p id="plannerWorkspaceStatus">Your commitments, workouts and personal plans in one view.</p></div><div class="plannerWorkspaceToolsV25"><button id="calendarQuickAddV31" class="primary" type="button">Add to calendar <span>+</span></button><button id="calendarClearWorkspaceV25" type="button" aria-label="Clear your Work and Workout calendar">Clear</button><div id="plannerWeekPulse" class="plannerWeekPulse"></div></div></header>'+
+      '<div class="plannerTabsV25" role="tablist" aria-label="Calendar views">'+
+        '<button id="plannerTab-calendar" class="active" data-planner-tab="calendar" role="tab" aria-selected="true" aria-controls="plannerPane-calendar" tabindex="0"><span>Calendar</span><small>Your week</small></button>'+
+        '<button id="plannerTab-add" data-planner-tab="add" role="tab" aria-selected="false" aria-controls="plannerPane-add" tabindex="-1"><span>Add</span><small>Schedule or task</small></button>'+
+        '<button id="plannerTab-tools" data-planner-tab="tools" role="tab" aria-selected="false" aria-controls="plannerPane-tools" tabindex="-1"><span>Manage</span><small>Sources, rotations &amp; sync</small></button>'+
       '</div>'+
       '<div id="plannerPane-calendar" class="plannerPaneV25 active" role="tabpanel" aria-labelledby="plannerTab-calendar"></div>'+
       '<div id="plannerPane-add" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-add" hidden></div>'+
-      '<div id="plannerPane-rotations" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-rotations" hidden><div id="rotationManagerV25"></div></div>'+
-      '<div id="plannerPane-sources" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-sources" hidden><div id="sourceManagerV25"></div></div>'+
-      '<div id="plannerPane-sync" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-sync" hidden><div id="calendarSyncV25"></div></div>'+
+      '<div id="plannerPane-tools" class="plannerPaneV25" role="tabpanel" aria-labelledby="plannerTab-tools" hidden><section class="plannerToolsMenuV31"><small>CALENDAR SETTINGS</small><h2>Manage your calendar</h2><p>Only open the tools you need. Your calendar stays the calm, everyday view.</p><button data-planner-open="sources"><span>◉</span><div><b>Work sources</b><small>Add or edit an employer, color and overtime limit.</small></div><i>›</i></button><button data-planner-open="rotations"><span>↻</span><div><b>Recurring rotations</b><small>Set a work pattern and keep exceptions separate.</small></div><i>›</i></button><button data-planner-open="sync"><span>↗</span><div><b>Calendar connections</b><small>Connect Google Calendar or Outlook when you are ready.</small></div><i>›</i></button></section></div>'+
+      '<div id="plannerPane-rotations" class="plannerPaneV25" role="region" aria-label="Recurring rotations" hidden><div id="rotationManagerV25"></div></div>'+
+      '<div id="plannerPane-sources" class="plannerPaneV25" role="region" aria-label="Work sources" hidden><div id="sourceManagerV25"></div></div>'+
+      '<div id="plannerPane-sync" class="plannerPaneV25" role="region" aria-label="Calendar connections" hidden><div id="calendarSyncV25"></div></div>'+
     '</section>';
   }
   function selectTab(name,focus){
@@ -147,7 +146,7 @@
     var action=document.getElementById('calendarImportV24');if(action)action.onclick=function(){selectTab('add',true);setTimeout(function(){document.getElementById('smartCaptureInput')?.focus()},250)};
     var todo=document.getElementById('calendarTodoV24');if(todo)todo.onclick=function(){window.openCalendarDate?.(selectedDate||dkey());setTimeout(function(){document.querySelector('[data-agenda-form] input[name="title"]')?.focus()},120)};
   }
-  function bindTabs(){document.querySelectorAll('[data-planner-tab]').forEach(function(button){if(button.dataset.v25Bound)return;button.dataset.v25Bound='true';button.onclick=function(){selectTab(button.dataset.plannerTab,false)};button.onkeydown=function(event){var tabs=[...button.parentElement.querySelectorAll('[data-planner-tab]')],index=tabs.indexOf(button),next=null;if(event.key==='ArrowRight')next=tabs[(index+1)%tabs.length];if(event.key==='ArrowLeft')next=tabs[(index-1+tabs.length)%tabs.length];if(event.key==='Home')next=tabs[0];if(event.key==='End')next=tabs[tabs.length-1];if(next){event.preventDefault();next.click();next.focus()}}})}
+  function bindTabs(){document.querySelectorAll('[data-planner-tab]').forEach(function(button){if(button.dataset.v25Bound)return;button.dataset.v25Bound='true';button.onclick=function(){selectTab(button.dataset.plannerTab,false)};button.onkeydown=function(event){var tabs=[...button.parentElement.querySelectorAll('[data-planner-tab]')],index=tabs.indexOf(button),next=null;if(event.key==='ArrowRight')next=tabs[(index+1)%tabs.length];if(event.key==='ArrowLeft')next=tabs[(index-1+tabs.length)%tabs.length];if(event.key==='Home')next=tabs[0];if(event.key==='End')next=tabs[tabs.length-1];if(next){event.preventDefault();next.click();next.focus()}}});document.querySelectorAll('[data-planner-open]').forEach(function(button){if(button.dataset.v25Bound)return;button.dataset.v25Bound='true';button.onclick=function(){selectTab(button.dataset.plannerOpen,true)}});var quick=document.getElementById('calendarQuickAddV31');if(quick&&!quick.dataset.v25Bound){quick.dataset.v25Bound='true';quick.onclick=function(){selectTab('add',true);setTimeout(function(){document.getElementById('smartCaptureInput')?.focus()},250)}}}
 
   function captureSourceControl(){
     var composer=document.querySelector('#smartCaptureV19 .smartCaptureComposer'),existing=document.getElementById('captureSourceNameV25');

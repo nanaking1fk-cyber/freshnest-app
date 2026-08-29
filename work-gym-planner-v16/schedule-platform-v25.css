@@ -205,8 +205,6 @@ body.premiumV18 .rosterIdentityReviewV31 input{min-height:42px;padding:0 12px;bo
 body.premiumV18 .rosterIdentityReviewV31>button{min-height:42px;margin-top:9px;padding:0 14px;border-radius:10px}
 body.premiumV18 .rosterIdentityReviewV31>div{display:grid;gap:3px;margin-top:14px;padding:11px;border:1px solid rgba(184,243,74,.13);border-radius:11px;background:rgba(184,243,74,.035)}
 body.premiumV18 .rosterIdentityReviewV31>div b{font-size:8px}body.premiumV18 .rosterIdentityReviewV31>div span{color:#7e8a83;font-size:7px;line-height:1.5}
-body.premiumV18 .rosterAIChoiceV31 footer{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
-body.premiumV18 .rosterAIChoiceV31 footer button{min-height:40px;padding:0 12px;border-radius:10px;font-size:8px;font-weight:900}
 body.premiumV18 .rosterSummaryV31 header{display:grid;grid-template-columns:38px 1fr;gap:11px;align-items:center}
 body.premiumV18 .rosterSummaryV31 header>span{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;color:#11150a;background:var(--premium-accent);font-size:15px;font-weight:950}
 body.premiumV18 .rosterSummaryV31 header h3{margin:3px 0 1px;font-size:16px;letter-spacing:-.03em}
@@ -250,7 +248,6 @@ body.premiumV18 .rosterPrivacyV31{padding-top:10px;border-top:1px solid rgba(255
   body.premiumV18 .proposalAttentionV25{margin-left:10px;margin-right:10px}
   body.premiumV18 .proposalUnknownDateV25{grid-template-columns:auto 1fr}
   body.premiumV18 .proposalUnknownDateV25>input[type="date"]{grid-column:2}
-  body.premiumV18 .rosterAIChoiceV31 footer{display:grid;grid-template-columns:1fr 1fr}
   body.premiumV18 .smartCaptureIntro{grid-template-columns:39px 1fr}
   body.premiumV18 .smartCaptureIntro>span{width:39px;height:39px}
   body.premiumV18 .smartCaptureIntro>button{grid-column:2;width:max-content}

@@ -175,7 +175,7 @@
     selectTab('add',true);var identity=String(meta?.identity||currentRosterIdentity()).trim(),analysis=Roster.analyze(text,rosterOptions(identity));
     rosterReview={rawText:String(text||''),meta:meta||{},analysis:analysis,identity:identity};
     if(analysis.status!=='matched'&&analysis.status!=='no_shifts'){renderRosterIdentityPrompt();return true}
-    rememberRosterIdentity(identity);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=analysis.normalizedText||analysis.personalText||'';input.dataset.sourceType='roster';input.dataset.aiRoster='';renderRosterAIChoice();return true;
+    rememberRosterIdentity(identity);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=analysis.normalizedText||analysis.personalText||'';input.dataset.sourceType='roster';input.dataset.aiRoster='true';buildTrustedProposal();return true;
   }
   function escapeRegex(value){return String(value||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
   function rosterTextForAI(){
@@ -183,14 +183,6 @@
     [analysis.identity?.matched,rosterReview?.identity].filter(Boolean).forEach(function(identity){personal=personal.replace(new RegExp(escapeRegex(identity),'gi'),'[account holder]')});
     var headers=(analysis.headers||[]).map(function(header){return header.date||''}).filter(Boolean).join(', '),local=String(analysis.normalizedText||'');
     return('MATCHED ROSTER EXCERPT — contains only the account holder\'s row; no other employee should be inferred.\n'+personal+'\n\nDATE HEADERS: '+headers+'\n\nLOCAL EXTRACTION TO VERIFY:\n'+local).slice(0,12000);
-  }
-  function renderRosterAIChoice(){
-    var root=document.getElementById('smartCapturePreview'),analysis=rosterReview?.analysis||{},input=document.getElementById('smartCaptureInput');if(!root||!input)return;
-    var recovered=analysis.status==='no_shifts';
-    root.innerHTML='<section class="rosterIdentityReviewV31 rosterAIChoiceV31"><small>PRIVATE ROSTER REVIEW</small><h3>'+safe(recovered?'Let AI take a second look.':'Your shifts were matched locally.')+'</h3><p>'+safe(recovered?'The local reader found your row but could not safely map every shift.':'Choose whether to add an AI accuracy check before seeing your calendar proposal.')+'</p><div><b>What AI receives</b><span>Only your locally matched roster row and date headers—never the full image/PDF or coworkers\' rows. You will still review every shift before it is saved.</span></div><footer><button id="rosterReviewLocalV31" type="button">Review locally</button><button id="rosterReviewAIV31" class="primary" type="button">Use AI accuracy check</button></footer></section>';
-    document.getElementById('rosterReviewLocalV31').onclick=function(){input.dataset.aiRoster='';buildTrustedProposal()};
-    document.getElementById('rosterReviewAIV31').onclick=function(){input.dataset.aiRoster='true';buildTrustedProposal()};
-    root.scrollIntoView({behavior:'smooth',block:'nearest'});
   }
   function renderRosterIdentityPrompt(){
     var root=document.getElementById('smartCapturePreview');if(!root||!rosterReview)return;var analysis=rosterReview.analysis||{},identity=rosterReview.identity||currentRosterIdentity();

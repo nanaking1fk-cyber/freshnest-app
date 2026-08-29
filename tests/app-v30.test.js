@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.16/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.16');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.16/);
+  assert.match(shell,/30\.1\.17/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.17');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.17/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -157,8 +157,13 @@ test('calendar supports recurring personal events such as payday',()=>{
 test('training and More reveal secondary controls on demand',()=>{
   assert.match(script,/trainingToolsToggleV31/);
   assert.match(script,/menuGroupToggleV31/);
+  assert.match(script,/function setMenuGroupOpen\(/);
+  assert.match(script,/other===section&&open/,
+    'opening one More category must collapse every other category');
   assert.match(css,/#trainingRoot:not\(\.v31ToolsOpen\)>\.trainTools\{display:none!important\}/);
   assert.match(script,/menuGroupItemsV30\" hidden/);
+  assert.match(css,/\.menuGroupItemsV30\[hidden\]\{display:none!important\}/,
+    'collapsed menu content must not be forced visible by the grid rule');
 });
 
 test('planner tabs expose keyboard and panel relationships',()=>{

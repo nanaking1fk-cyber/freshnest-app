@@ -2,7 +2,7 @@
 (function workWorkoutAppV30(window){
   'use strict';
 
-  var VERSION='30.1.16';
+  var VERSION='30.1.17';
   var scheduled=false;
 
   function text(node){return (node&&node.textContent||'').trim().toLowerCase()}
@@ -180,15 +180,26 @@
     {key:'help',title:'Help & legal',hint:'Support, policies and system status',matches:['privacy policy','privacy & terms','terms','support','system check']}
   ];
 
+  function setMenuGroupOpen(cards,section,open){
+    cards.querySelectorAll('.menuGroupV30').forEach(function(other){
+      var active=other===section&&open,items=other.querySelector('.menuGroupItemsV30'),toggle=other.querySelector('.menuGroupToggleV31'),icon=toggle?.querySelector('i');
+      other.classList.toggle('v31Open',active);
+      if(items)items.hidden=!active;
+      if(toggle)toggle.setAttribute('aria-expanded',String(active));
+      if(icon)icon.textContent=active?'−':'+';
+    });
+  }
+
   function menuGroup(cards,group){
     var section=cards.querySelector('[data-v30-group="'+group.key+'"]');
-    if(section)return section;
+    if(section){if(!section.classList.contains('v31Open')){var existingItems=section.querySelector('.menuGroupItemsV30');if(existingItems)existingItems.hidden=true}return section}
     section=document.createElement('section');
     section.className='menuGroupV30';
     section.dataset.v30Group=group.key;
-    section.innerHTML='<header><button class="menuGroupToggleV31" type="button" aria-expanded="false"><span><small>'+String(groups.indexOf(group)+1).padStart(2,'0')+'</small><b>'+group.title+'</b><em>'+group.hint+'</em></span><i aria-hidden="true">+</i></button></header><div class="menuGroupItemsV30" hidden></div>';
+    var itemsId='menuGroupItems-'+group.key;
+    section.innerHTML='<header><button class="menuGroupToggleV31" type="button" aria-expanded="false" aria-controls="'+itemsId+'"><span><small>'+String(groups.indexOf(group)+1).padStart(2,'0')+'</small><b>'+group.title+'</b><em>'+group.hint+'</em></span><i aria-hidden="true">+</i></button></header><div id="'+itemsId+'" class="menuGroupItemsV30" hidden></div>';
     var toggle=section.querySelector('.menuGroupToggleV31'),items=section.querySelector('.menuGroupItemsV30');
-    toggle.onclick=function(){var open=section.classList.toggle('v31Open');items.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.querySelector('i').textContent=open?'−':'+'};
+    toggle.onclick=function(){setMenuGroupOpen(cards,section,!section.classList.contains('v31Open'))};
     cards.appendChild(section);
     return section;
   }

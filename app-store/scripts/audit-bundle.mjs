@@ -36,7 +36,7 @@ const bridge=await readFile(join(root,'native','native-bridge.js'),'utf8');
 const runtime=[index,account,calendar,schedule,diary,adaptive,bridge].join('\n');
 
 if(!/Work \+ Workout/.test(index))errors.push('Current product name missing from native index');
-if(!/30\.1\.22/.test(index))errors.push('Current production version missing from native index');
+if(!/30\.1\.23/.test(index))errors.push('Current production version missing from native index');
 if(!index.includes('native/native-bridge.js'))errors.push('Native bridge is not loaded');
 if(index.includes("'pwa-patch.js'"))errors.push('Service-worker patch is loaded in the native app');
 if(!index.includes("'pwa.js'"))errors.push('Legacy PWA script is not explicitly removed');
@@ -51,4 +51,4 @@ if(errors.length){
   console.error('Native bundle audit FAILED\n- '+errors.join('\n- '));
   process.exit(1);
 }
-console.log('Native bundle audit passed: v30.1.22 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');
+console.log('Native bundle audit passed: v30.1.23 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');

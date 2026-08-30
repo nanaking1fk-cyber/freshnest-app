@@ -122,6 +122,11 @@ test('weekend rotations only populate the selected weekend interval',()=>{
   assert.deepEqual(scheduling.projectRotation(everyThird,'2026-09-01','2026-10-18',{}).map(item=>item.date),[
     '2026-09-05','2026-09-06','2026-09-26','2026-09-27','2026-10-17','2026-10-18'
   ]);
+  const legacy=scheduling.normalizeRotation({id:'old-weekend',sourceId:'hospital',anchor:'2026-09-06',preset:'alternating_weekends',pattern:['D','D','D','D','D','D','D','D','D','D','O','O','O','O']});
+  assert.equal(legacy.anchor,'2026-09-05');
+  assert.deepEqual(scheduling.projectRotation(legacy,'2026-09-01','2026-09-20',{}).map(item=>item.date),[
+    '2026-09-05','2026-09-06','2026-09-19','2026-09-20'
+  ]);
 });
 
 test('a midnight-to-midnight shift remains attached to its stated calendar date',()=>{

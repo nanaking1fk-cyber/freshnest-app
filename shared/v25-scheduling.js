@@ -307,8 +307,15 @@
     return source.map(token=>String(token||'').trim().toUpperCase()).filter(Boolean).map(token=>token.startsWith('N')?'N':token.startsWith('O')||token==='-'?'O':'D').slice(0,42);
   }
   function normalizeRotation(rotation){
-    const pattern=parsePattern(rotation?.pattern?.length?rotation.pattern:patternFromPreset(rotation?.preset||'four_two',rotation||{}));
-    return Object.assign({id:'rotation-'+Math.abs(hashString(JSON.stringify(rotation||{})+Date.now())),name:'Work rotation',sourceId:'work',anchor:keyFromDate(new Date()),active:true,dayStart:'07:00',dayEnd:'19:00',nightStart:'19:00',nightEnd:'07:00',exceptions:{}},rotation,{pattern:pattern.length?pattern:['D','D','D','D','O','O']});
+    const preset=rotation?.preset||'four_two',legacyAlternating='DDDDDDDDDDOOOO';
+    let pattern=parsePattern(rotation?.pattern?.length?rotation.pattern:patternFromPreset(preset,rotation||{})),anchor=rotation?.anchor||keyFromDate(new Date());
+    if(preset==='alternating_weekends'&&pattern.join('')===legacyAlternating)pattern=patternFromPreset(preset);
+    if(preset==='alternating_weekends'||preset==='third_weekend'){
+      let day=dateFromKey(anchor),weekday=day.getDay();
+      if(weekday===0)day=addDays(day,-1);else if(weekday!==6)day=addDays(day,(6-weekday+7)%7);
+      anchor=keyFromDate(day);
+    }
+    return Object.assign({id:'rotation-'+Math.abs(hashString(JSON.stringify(rotation||{})+Date.now())),name:'Work rotation',sourceId:'work',anchor:keyFromDate(new Date()),active:true,dayStart:'07:00',dayEnd:'19:00',nightStart:'19:00',nightEnd:'07:00',exceptions:{}},rotation,{anchor,pattern:pattern.length?pattern:['D','D','D','D','O','O']});
   }
   function rotationEventOn(rotation,dateKey,source){
     const rule=normalizeRotation(rotation);

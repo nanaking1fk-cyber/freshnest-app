@@ -1,4 +1,4 @@
-// Regression coverage for the two mobile blank states fixed in v30.1.21.
+// Regression coverage for the two mobile blank states fixed in v30.1.22.
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');

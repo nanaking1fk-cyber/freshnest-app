@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.21/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.21');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.21/);
+  assert.match(shell,/30\.1\.22/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.22');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.22/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -175,8 +175,14 @@ test('work schedules can be added by selecting calendar dates or uploading an ex
   assert.match(planner,/id="typeWorkScheduleV35"/);
   assert.match(planner,/function handleCalendarDateTap\(key\)/);
   assert.match(planner,/function reviewPickedShifts\(\)/);
+  assert.match(planner,/value="off"[^>]*>Off work/);
+  assert.match(planner,/kind:off\?'off':'work'/);
+  assert.match(planner,/existing\.kind==='off'/,
+    'manual off days must be stored as reversible overrides instead of deleting a rotation');
   assert.match(planner,/renderTrustedReview\(\)/,
     'calendar-picked shifts must use the same review-before-save trust layer');
+  assert.match(planner,/var day=index\+1,date=/,
+    'the proposal calendar must convert zero-based array indexes to one-based calendar days');
   assert.match(calendar,/handleCalendarDateTap/);
   assert.match(calendar,/shiftPickV35/);
   assert.match(adaptive,/id="scheduleFileV24" type="file" accept="image\/\*,application\/pdf,\.pdf"/);
@@ -186,6 +192,20 @@ test('work schedules can be added by selecting calendar dates or uploading an ex
     'photo and PDF extraction must enter the roster identity and review flow');
   assert.match(css,/\.scheduleAddWaysV35/);
   assert.match(css,/\.calDay\.shiftPickV35/);
+  const scheduleCss=read('work-gym-planner-v16/schedule-platform-v25.css');
+  assert.match(scheduleCss,/input\[type="checkbox"\]:not\(:checked\)/,
+    'hidden date and source fields must not make selected proposals look cancelled');
+});
+
+test('rotation settings support correctly anchored second and third weekends',()=>{
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const scheduling=read('shared/v25-scheduling.js');
+  assert.match(planner,/value="alternating_weekends">Every other weekend/);
+  assert.match(planner,/value="third_weekend">Every third weekend/);
+  assert.match(planner,/function weekendRotationAnchor\(value\)/);
+  assert.match(planner,/First worked weekend/);
+  assert.match(scheduling,/preset==='alternating_weekends'/);
+  assert.match(scheduling,/preset==='third_weekend'/);
 });
 
 test('calendar supports recurring personal events such as payday',()=>{

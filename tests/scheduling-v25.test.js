@@ -113,6 +113,25 @@ test('rotation engine projects 4-on/2-off indefinitely and preserves exceptions'
   assert.ok(projected.some(item=>item.date>'2027-08-24'));
 });
 
+test('weekend rotations only populate the selected weekend interval',()=>{
+  const everyOther=scheduling.normalizeRotation({id:'weekend-2',sourceId:'hospital',anchor:'2026-09-05',preset:'alternating_weekends',pattern:scheduling.patternFromPreset('alternating_weekends')});
+  const everyThird=scheduling.normalizeRotation({id:'weekend-3',sourceId:'hospital',anchor:'2026-09-05',preset:'third_weekend',pattern:scheduling.patternFromPreset('third_weekend')});
+  assert.deepEqual(scheduling.projectRotation(everyOther,'2026-09-01','2026-10-04',{}).map(item=>item.date),[
+    '2026-09-05','2026-09-06','2026-09-19','2026-09-20','2026-10-03','2026-10-04'
+  ]);
+  assert.deepEqual(scheduling.projectRotation(everyThird,'2026-09-01','2026-10-18',{}).map(item=>item.date),[
+    '2026-09-05','2026-09-06','2026-09-26','2026-09-27','2026-10-17','2026-10-18'
+  ]);
+});
+
+test('a midnight-to-midnight shift remains attached to its stated calendar date',()=>{
+  const times=scheduling.parseTimes('12am-12am');
+  assert.deepEqual(times,{start:'00:00',end:'00:00',overnight:true,ambiguous:false});
+  const entry=scheduling.parseNaturalLanguage('Work September 5, 2026 12am-12am.',{now:new Date(2026,7,30),sourceId:'hospital'})[0];
+  assert.equal(entry.date,'2026-09-05');
+  assert.equal(scheduling.durationHours(entry),24);
+});
+
 test('rotating night shifts cross midnight and conflict with early appointments',()=>{
   const rotation=scheduling.normalizeRotation({id:'night',sourceId:'road',anchor:'2026-08-24',pattern:['N','O'],nightStart:'19:00',nightEnd:'07:00'});
   const shift=scheduling.rotationEventOn(rotation,'2026-08-24',{name:'Night crew',color:'#a78bfa'});

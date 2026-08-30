@@ -294,7 +294,11 @@
 
   function patternFromPreset(preset,{onDays=4,offDays=2}={}){
     if(preset==='four_two')return Array.from({length:onDays+offDays},(_,index)=>index<onDays?'D':'O');
-    if(preset==='alternating_weekends')return['D','D','D','D','D','D','D','D','D','D','O','O','O','O'];
+    // Weekend rotations are anchored to the Saturday of the first worked
+    // weekend. Only that Saturday/Sunday pair is on; the intervening days are
+    // explicitly off so "every other" can never become "every weekend".
+    if(preset==='alternating_weekends')return['D','D',...Array(12).fill('O')];
+    if(preset==='third_weekend')return['D','D',...Array(19).fill('O')];
     if(preset==='rotating_nights')return['D','D','O','O','N','N','O','O'];
     return['D','D','D','D','O','O'];
   }

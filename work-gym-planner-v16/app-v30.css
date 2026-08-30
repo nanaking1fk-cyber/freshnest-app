@@ -198,11 +198,14 @@ body.premiumV30 .shiftPickerBarV35 header small,body.premiumV30 .shiftPickerBarV
 body.premiumV30 .shiftPickerBarV35 header small{color:var(--v30-signal);font:650 7px/1 "IBM Plex Mono",monospace;letter-spacing:.12em}
 body.premiumV30 .shiftPickerBarV35 header b{margin-top:5px;overflow:hidden;color:var(--v30-ink);font-size:11px;text-overflow:ellipsis;white-space:nowrap}
 body.premiumV30 .shiftPickerBarV35 header button{width:auto;min-height:32px;padding:0 10px;border:1px solid var(--v30-line);border-radius:9px;background:transparent;color:var(--v30-muted);font-size:9px}
-body.premiumV30 .shiftPickerFieldsV35{display:grid;grid-template-columns:minmax(150px,1fr) 110px 110px auto;gap:7px;align-items:end}
+body.premiumV30 .shiftPickerFieldsV35{display:grid;grid-template-columns:130px minmax(150px,1fr) 105px 105px auto;gap:7px;align-items:end}
 body.premiumV30 .shiftPickerFieldsV35 label{color:var(--v30-faint);font-size:8px;font-weight:700}
 body.premiumV30 .shiftPickerFieldsV35 select,body.premiumV30 .shiftPickerFieldsV35 input{display:block;width:100%;min-height:39px;margin-top:5px;padding:0 9px;border:1px solid var(--v30-line);border-radius:10px;background:#0a1014;color:var(--v30-ink);font-size:16px}
 body.premiumV30 .shiftPickerFieldsV35 button{width:auto;min-height:39px;padding:0 15px;border-radius:10px;font-size:10px;white-space:nowrap}
 body.premiumV30 .shiftPickerBarV35>p{margin:9px 0 0;color:var(--v30-faint);font-size:8px}
+body.premiumV30 .shiftPickerBarV35.offModeV35 .shiftTimeV35{opacity:.42}
+body.premiumV30 .dayDetail.off{--detail-color:#7d8982;color:#abb4af}
+body.premiumV30 .dayScheduleRow.off{opacity:.8}
 body.premiumV30.calendarShiftPickingV35 #plannerPane-calendar>.monthbar{grid-row:2}
 body.premiumV30.calendarShiftPickingV35 #plannerPane-calendar>.weekdays{grid-row:3}
 body.premiumV30.calendarShiftPickingV35 #plannerPane-calendar>#calendarGrid{grid-row:4}
@@ -462,7 +465,7 @@ body.premiumV30 .homeDashV27 .hvBrand::before{
   body.premiumV30 #plannerPane-calendar.active{display:block;padding-top:8px}
   body.premiumV30 .shiftPickerBarV35{margin-bottom:8px;padding:12px;border-radius:14px}
   body.premiumV30 .shiftPickerFieldsV35{grid-template-columns:1fr 1fr}
-  body.premiumV30 .shiftPickerFieldsV35 label:first-child,body.premiumV30 .shiftPickerFieldsV35 button{grid-column:1/-1}
+  body.premiumV30 .shiftPickerFieldsV35 label:nth-child(-n+2),body.premiumV30 .shiftPickerFieldsV35 button{grid-column:1/-1}
   body.premiumV30 .shiftPickerFieldsV35 button{width:100%}
   body.premiumV30 .shiftPickerBarV35>p{line-height:1.45}
   body.premiumV30 #plannerPane-calendar>.monthbar{display:grid;grid-template-columns:minmax(130px,1fr) 36px 36px auto;grid-template-areas:"heading prev next today" "view view view view";gap:5px;padding:10px 10px 8px;border-bottom:0;border-radius:15px 15px 0 0}

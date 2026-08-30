@@ -1,6 +1,6 @@
 # Work + Workout — iOS and Android release package
 
-This is the canonical native release source for the current Work + Workout product. It bundles the reviewed v30.1.21 web application inside Capacitor and adds native status-bar handling, splash behavior, haptics, local notifications, Android back navigation, OAuth browser presentation, and native file sharing.
+This is the canonical native release source for the current Work + Workout product. It bundles the reviewed v30.1.22 web application inside Capacitor and adds native status-bar handling, splash behavior, haptics, local notifications, Android back navigation, OAuth browser presentation, and native file sharing.
 
 The older sibling `appstore/` directory is a legacy Work + Gym Coach prototype. Do not submit or sync that directory.
 
@@ -15,7 +15,7 @@ The identifier becomes difficult to change after the first store record or uploa
 
 ## What is packaged
 
-- The same v30.1.21 landing page, account lifecycle and adaptive onboarding as production.
+- The same v30.1.22 landing page, account lifecycle and adaptive onboarding as production.
 - Schedule photo/PDF/text ingestion with review-before-save, recurring rotations, multi-source calendars, conflicts and overtime indicators.
 - Training planning/logging, exercise guidance and history.
 - Nutrition planning/logging, food search, barcode capture and recovery/body metrics.

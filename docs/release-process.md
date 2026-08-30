@@ -70,7 +70,7 @@ not store a second long-lived Vercel deployment token.
 The scheduled `production-e2e` job uses two dedicated, empty test accounts and
 restores their prior state after isolation and cross-session checks. Configure
 the repository variable `E2E_ENABLED=true` and the four secrets documented in
-`e2e/authenticated.spec.mjs`; never use a real customer account.
+`app-store/e2e/authenticated.spec.mjs`; never use a real customer account.
 
 The production shell loads Vercel Speed Insights and sends sanitized
 `client_error` events to a same-origin endpoint for Vercel Runtime Logs. Client

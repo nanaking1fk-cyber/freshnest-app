@@ -248,21 +248,28 @@ body.premiumV30 .dayCard .daySectionHead{margin-bottom:8px}
 body.premiumV30 .dayCard .daySectionHead small{font-size:7px}
 body.premiumV30 .dayCard .daySectionHead h3{font-size:14px}
 body.premiumV30 .dayCard .dayScheduleRow,body.premiumV30 .dayCard .dayAgendaRow{grid-template-columns:32px 1fr auto;gap:9px;padding:9px 0}
-body.premiumV30 .dayCard .dayScheduleRow>span,body.premiumV30 .dayCard .agendaEvent,body.premiumV30 .dayCard .agendaCheck{width:30px;height:30px;border-radius:9px}
+body.premiumV30 .dayCard .dayAgendaRow{grid-template-columns:32px minmax(0,1fr)}
+body.premiumV30 .dayCard .dayAgendaRow .agendaActions{grid-column:2;justify-self:start;flex-wrap:wrap}
+body.premiumV30 .dayCard .dayScheduleRow>span:first-child,body.premiumV30 .dayCard .agendaEvent,body.premiumV30 .dayCard .agendaCheck{width:30px;height:30px;border-radius:9px}
 body.premiumV30 .dayCard .dayScheduleRow b,body.premiumV30 .dayCard .dayAgendaRow b{font-size:10px}
 body.premiumV30 .dayCard .dayScheduleRow small,body.premiumV30 .dayCard .dayAgendaRow small{font-size:8px}
 body.premiumV30 .dayCard .dayScheduleRow.done b,body.premiumV30 .dayCard .dayAgendaRow.done b{text-decoration:line-through;color:var(--v30-faint)}
 body.premiumV30 .dayCard .dayScheduleRow.done>span:first-child{color:#11170a;background:var(--v30-signal)}
-body.premiumV30 .dayItemActionsV34,body.premiumV30 .dayCard .agendaActions{display:flex;align-items:center;gap:3px}
+body.premiumV30 .dayItemActionsV34,body.premiumV30 .dayCard .agendaActions{display:flex;align-items:center;justify-content:flex-end;gap:3px;min-width:max-content}
 body.premiumV30 .dayItemActionsV34 button,body.premiumV30 .dayCard .agendaEdit,body.premiumV30 .dayCard .agendaDelete{width:auto;min-height:28px;padding:0 6px;border:0;border-radius:8px;background:transparent;color:var(--v30-faint);font-size:8px;font-weight:750}
 body.premiumV30 .dayItemActionsV34 button:first-child{color:var(--v30-signal)}
 body.premiumV30 .dayItemActionsV34 button:last-child:hover,body.premiumV30 .dayCard .agendaDelete:hover{color:#ff9a9a;background:rgba(255,93,93,.08)}
+body.premiumV30 .dayCard .agendaDone{color:var(--v30-signal)!important}
+body.premiumV30 .dayCard .dayScheduleRow.nutrition>span:first-child{color:#11170a;background:#f6bd60}
 body.premiumV30 .dayAddToggleV33{display:flex;align-items:center;gap:8px;width:100%;min-height:38px;margin-top:10px;padding:0;border:0;border-top:1px solid var(--v30-line);background:transparent;color:var(--v30-signal);font-size:10px;font-weight:750;text-align:left}
 body.premiumV30 .dayAddToggleV33 span{font-size:17px;font-weight:400}
 body.premiumV30 .dayAgendaForm{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;padding-top:12px}
 body.premiumV30 .dayAgendaPrimaryV33{display:grid;grid-template-columns:82px minmax(0,1fr);gap:7px}
 body.premiumV30 .dayAgendaMetaV33{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 body.premiumV30 .dayAgendaMetaV33 select:last-child{grid-column:1/-1}
+body.premiumV30 .dayAgendaSourceV37{display:none}
+body.premiumV30 .dayAgendaForm[data-kind="off"] .dayAgendaSourceV37{display:block}
+body.premiumV30 .dayAgendaForm[data-kind="off"] input[name="title"],body.premiumV30 .dayAgendaForm[data-kind="off"] .dayAgendaMetaV33{display:none}
 body.premiumV30 .dayAgendaSubmitV33{display:flex;justify-content:flex-end;gap:7px}
 body.premiumV30 .dayAgendaForm input,body.premiumV30 .dayAgendaForm select,body.premiumV30 .dayAgendaForm button{min-height:38px;font-size:10px}
 body.premiumV30 .dayAgendaSubmitV33 button{width:auto;min-width:72px}

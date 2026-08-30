@@ -64,6 +64,7 @@
     return Core.eventsForRange({events:all.filter(function(event){return event.kind==='work'&&activeIds.has(event.sourceId)}),rotations:rotations().filter(function(rotation){return activeIds.has(rotation.sourceId)}),sources:active},range.start,range.end).filter(function(event){return !off.some(function(day){return day.date===event.date&&day.sourceId===event.sourceId})})
   }
   function offEventsOn(key){return events().filter(function(event){return event.kind==='off'&&event.date===key&&sourceById(event.sourceId)?.enabled!==false})}
+  function addOffDay(key,sourceId){var source=sourceById(sourceId)||enabledSources()[0]||sources()[0];if(!source||!key)return false;var list=events();if(list.some(function(event){return event.kind==='off'&&event.date===key&&event.sourceId===source.id}))return true;var now=new Date().toISOString();saveEvents(list.concat({id:makeId('off'),kind:'off',date:key,title:(source.name||'Work')+' · Off',sourceId:source.id,sourceName:source.name||'Work',confidence:{label:'High',score:1,reasons:['Off day selected directly by you']},provenance:{type:'calendar',raw:'Added from selected day'},createdAt:now,updatedAt:now}));return true}
   function workEventsOn(key){return v25WorkEvents(key,key)}
   function originalRowsOn(key){try{return typeof legacyWorkRows==='function'?(legacyWorkRows(key)||[]):[]}catch{return[]}}
   function storedWorkKeys(storageKey){var value=jget(storageKey,[]);return Array.isArray(value)?value:[]}
@@ -490,6 +491,6 @@
   }
   function boot(){mount();handleOAuthReturn();var queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;mount()})}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
 
-  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
+  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.addOffDay=addOffDay;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

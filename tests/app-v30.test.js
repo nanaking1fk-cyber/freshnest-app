@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.24/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.24');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.24/);
+  assert.match(shell,/30\.1\.25/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.25');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.25/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -138,7 +138,7 @@ test('premium calendar uses a split day inspector and a focused mobile week rail
   assert.match(calendar,/function renderCalendarWeekRail\(\)/);
   assert.match(calendar,/dayCardHeadV33/);
   assert.match(calendar,/dayAddToggleV33/);
-  assert.match(calendar,/data-agenda-form hidden/);
+  assert.match(calendar,/data-agenda-form[^>]*hidden/);
   assert.match(css,/#plannerPane-calendar\.active\{display:grid;grid-template-columns:minmax\(0,1\.72fr\) minmax\(310px,\.72fr\)/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.calendarWeekRailV33\{display:grid/);
 });
@@ -238,6 +238,35 @@ test('individual calendar items can be completed or removed without erasing rota
   assert.match(planner,/exceptions\[key\]=\{action:'skip'/,
     'removing one generated shift must create a dated exception');
   assert.match(css,/dayScheduleRow\.done b/);
+});
+
+test('selected-day timeline includes nutrition and keeps actions inside their rows',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const premium=read('work-gym-planner-v16/premium-v18.css');
+  assert.match(calendar,/dayScheduleRow nutrition/);
+  assert.match(calendar,/Nutrition target/);
+  assert.match(calendar,/agendaDone/);
+  assert.match(calendar,/data-agenda-toggle/);
+  assert.match(premium,/\.dayScheduleRow>span:first-child/,
+    'only the timeline icon may receive the fixed square sizing, not the action group');
+  assert.doesNotMatch(premium,/\.dayScheduleRow>span,/,
+    'action buttons must not be forced into the icon box at the row corner');
+  assert.match(css,/\.dayAgendaRow \.agendaActions\{grid-column:2/,
+    'personal Done, Edit and Remove actions must wrap inside the inspector');
+});
+
+test('selected calendar days can add recurring payday and reversible off work entries',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  assert.match(calendar,/<option value="payday">Payday<\/option>/);
+  assert.match(calendar,/<option value="off">Off work<\/option>/);
+  assert.match(calendar,/kind==='payday'&&form\.elements\.repeat\.value==='none'/,
+    'payday cannot be saved as a non-recurring item');
+  assert.match(calendar,/form\.elements\.repeat\.value='biweekly'/,
+    'payday starts with a useful every-two-weeks recurrence default');
+  assert.match(calendar,/WWV25\?\.addOffDay/);
+  assert.match(planner,/function addOffDay\(key,sourceId\)/);
+  assert.match(planner,/V\.addOffDay=addOffDay/);
 });
 
 test('training and More reveal secondary controls on demand',()=>{

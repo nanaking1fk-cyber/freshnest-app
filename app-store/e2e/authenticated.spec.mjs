@@ -40,13 +40,13 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
   const markerA=`account-a-${Date.now()}`;
   const markerB=`account-b-${Date.now()}`;
   try{
-    await putState(request,a.access_token,{appVersion:'30.1.25',storage:{'wgp-e2e-marker':JSON.stringify(markerA)}});
-    await putState(request,b.access_token,{appVersion:'30.1.25',storage:{'wgp-e2e-marker':JSON.stringify(markerB)}});
+    await putState(request,a.access_token,{appVersion:'30.1.25',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerA)}});
+    await putState(request,b.access_token,{appVersion:'30.1.25',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerB)}});
     const readA=await state(request,a.access_token);
     const readB=await state(request,b.access_token);
-    expect(readA.state.storage['wgp-e2e-marker']).toBe(JSON.stringify(markerA));
-    expect(readB.state.storage['wgp-e2e-marker']).toBe(JSON.stringify(markerB));
-    expect(readA.state.storage['wgp-e2e-marker']).not.toBe(readB.state.storage['wgp-e2e-marker']);
+    expect(readA.state.storage['wgp-v15-e2e-marker']).toBe(JSON.stringify(markerA));
+    expect(readB.state.storage['wgp-v15-e2e-marker']).toBe(JSON.stringify(markerB));
+    expect(readA.state.storage['wgp-v15-e2e-marker']).not.toBe(readB.state.storage['wgp-v15-e2e-marker']);
 
     const context=await browser.newContext();
     const page=await context.newPage();

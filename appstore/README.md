@@ -1,4 +1,8 @@
-# Work + Gym Coach — iOS / App Store build
+# Archived Work + Workout iOS shell
+
+> Do not use this directory for a release. The supported iOS and Android
+> package is `../app-store/`. This directory is retained only for historical
+> reference.
 
 This folder converts the generalized Work + Gym Coach web code into a **self-contained Capacitor iOS application**. The shipping iOS bundle does not use the GitHub loader and does not download application JavaScript after installation.
 

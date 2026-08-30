@@ -7,6 +7,7 @@ const SERVICE=()=>process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_
 
 function requestMeta(req,res){
   if(!req.requestId)req.requestId=crypto.randomUUID();
+  if(!req.requestStartedAt)req.requestStartedAt=Date.now();
   res._wgcRequest=req;
   res.setHeader('X-Request-Id',req.requestId);
 }
@@ -16,7 +17,7 @@ function json(res,status,body,{cacheControl='no-store'}={}){
   res.setHeader('Content-Type','application/json');
   res.setHeader('Cache-Control',cacheControl);
   const req=res._wgcRequest;
-  console.log(JSON.stringify({event:'api_response',requestId:req?.requestId||null,method:req?.method||null,path:req?.url?.split('?')[0]||null,status}));
+  console.log(JSON.stringify({event:'api_response',requestId:req?.requestId||null,method:req?.method||null,path:req?.url?.split('?')[0]||null,status,durationMs:req?.requestStartedAt?Date.now()-req.requestStartedAt:null}));
   res.end(JSON.stringify(body));
 }
 
@@ -236,7 +237,8 @@ function cleanJsonText(text){
 function parseAIJson(text,fallback=null){try{return JSON.parse(cleanJsonText(text))}catch{return fallback}}
 
 function errorResponse(res,error){
-  console.error(JSON.stringify({event:'api_error',requestId:res._wgcRequest?.requestId||null,path:res._wgcRequest?.url?.split('?')[0]||null,status:error.status||500,message:error.message||'Unexpected server error'}));
+  const req=res._wgcRequest;
+  console.error(JSON.stringify({event:'api_error',requestId:req?.requestId||null,path:req?.url?.split('?')[0]||null,status:error.status||500,durationMs:req?.requestStartedAt?Date.now()-req.requestStartedAt:null,message:error.message||'Unexpected server error'}));
   if(error.retryAfter)res.setHeader('Retry-After',String(error.retryAfter));
   json(res,error.status||500,{ok:false,error:error.message||'Unexpected server error'});
 }

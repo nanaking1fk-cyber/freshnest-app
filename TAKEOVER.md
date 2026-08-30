@@ -2,13 +2,14 @@
 
 ## Current release
 
-Version 25.1 is the audit-hardening release. It retains the Working Lives story and trusted adaptive scheduling while hardening account isolation, PKCE email flows, same-origin browser dependencies, API rate limits and upstream error handling.
+Version 30.1.25 is live from `main`. It includes the premium public landing experience, responsive six-question onboarding, the signed-in workspace, trusted text/photo/PDF schedule review, rotations and multi-source calendars, adaptive or user-owned training plans, nutrition planning/logging, Progressive Coach, and the canonical Capacitor package in `app-store/`.
 
 ## Current architecture
 
 - Frontend and API: one Vercel origin at `https://www.workandworkout.com/`
 - Database and Auth: Supabase project `work-gym-coach`
 - AI: OpenAI Responses API through the Vercel backend
+- Native release source: `app-store/` (`appstore/` is historical only)
 
 ## Production contract
 
@@ -18,16 +19,18 @@ The API permits only the canonical production origins plus explicit native origi
 
 ## Release sequence
 
-1. Validate the pull-request preview deployment.
-2. Run config, CORS, unauthenticated, authenticated, persistence, and AI quota checks.
-3. Merge the hardening pull request after preview verification.
-4. Confirm the production deployment and keep GitHub Pages disabled.
+1. Use Node 24 and run `npm ci --prefix app-store` followed by `npm run ci`.
+2. Validate the Vercel pull-request preview and wait for `Quality / app`.
+3. Run config, CORS, unauthenticated, authenticated, persistence, schedule-review and AI quota checks.
+4. Merge through protected `main` after preview verification.
+5. Confirm the production commit and aliases; keep GitHub Pages disabled.
 
-## Post-hardening review (branch `claude/audit-hardening-v26-continuation`)
+The release gate performs syntax and regression tests, a locked dependency audit, native bundle verification, release-version checks and a Supabase migration-policy audit. Every new table migration must enable RLS and explicitly grant or revoke Data API roles. Dependabot monitors `app-store/` weekly. See `docs/release-process.md`.
 
-A follow-up review of the v26 hardening work found and fixed two regressions it
-introduced. Both were local only: production still runs v25 at `086108b`, which
-does not contain the affected code.
+## Historical v26 post-hardening review (branch `claude/audit-hardening-v26-continuation`)
+
+A follow-up review of the v26 hardening work found and fixed regressions it
+introduced. These fixes have since been incorporated into the current release.
 
 1. **Every URL fragment was treated as a retired auth link.**
    `LEGACY_AUTH_FRAGMENT` was `!!location.hash`, so the landing page's own
@@ -91,7 +94,8 @@ reverting any one of them fails the suite.
    `rel=canonical` still points at production. Covered by
    `tests/root-entrypoint-v26.test.js`.
 
-The suite has 51 tests.
+The v26 suite had 51 tests. The full suite now has 151 passing tests, including
+release-engineering regression coverage.
 
 The same file also carries a guard test asserting the shell's script-strip
 regexes still match the v15 markup they target — the same silent-no-op failure
@@ -106,6 +110,17 @@ mode as defect 2, in the boot path.
   editor. The local filenames now match the live migration versions, and the
   least-privilege migration records the final intended grants. Details and the
   verified result table are in `docs/supabase-grants-v26.md`.
+- The v25 calendar schema was reconciled on 2026-08-30. Production migration
+  `20260830221615_calendar_sync_v25_reconcile` added the missing
+  `calendar_connections_touch` trigger without replacing tables or data. The
+  pre-existing `20260826120000_calendar_sync_v25` schema was then recorded in
+  the migration ledger. Both calendar update triggers are present, RLS remains
+  enabled, and `anon`/`authenticated` retain no privileges on the OAuth tables.
+- Production deployment `dpl_i7z6MYLRzJkCAUuzwzJRph57Z7gB` is live at
+  `https://www.workandworkout.com`. Its app shell uses external scripts under a
+  `script-src 'self'` CSP, Speed Insights is active, client errors are reduced
+  to category/source/release and accepted by `/api/v18/client-error`, and API
+  logs include request IDs, status, routes and duration.
 
 ## Codex review after the Claude continuation
 
@@ -124,21 +139,18 @@ mode as defect 2, in the boot path.
 
 ## Known follow-up
 
-- Complete a real-account onboarding and persistence test.
-- Add automated API smoke tests and deployment checks.
-- Add product analytics and error monitoring before wider launch.
-- End-to-end browser testing of signup, PKCE confirmation, recovery, sign-out
-  and schedule review-before-save has NOT been run; only unit-level checks.
-  This is the largest remaining gap and should happen before deploying.
-- The Supabase redirect allowlist is still wrong. As of 2026-08-27 it contains
-  exactly one entry — `https://nanaking1fk-cyber.github.io/freshnest-app/work-gym-planner/`
-  — and does NOT contain `https://www.workandworkout.com/`, which is what
-  `authRedirectUrl()` sends. Confirmation currently survives only because
-  Supabase falls back to the Site URL, which is set correctly. Add the canonical
-  URL and remove the Pages entry.
-- `authRedirectUrl()` is hardcoded to `https://www.workandworkout.com/`, but
-  `capacitor://localhost` and `ionic://localhost` are in the API CORS
-  allowlist. A native build using the PKCE flow would send users to the website,
-  where the PKCE verifier is not in storage. The current native bundle uses the
-  older `account-v18.js` stack and excludes `accounts-v18.js`, so this is latent
-  rather than broken today.
+- Enable Supabase leaked-password protection.
+- Configure two dedicated GitHub test accounts and set `E2E_ENABLED=true` so
+  the scheduled authenticated Playwright journeys run. The suite restores each
+  test account's previous state in `finally` and never uses customer accounts.
+- Prove Google and Outlook synchronization with real connected test accounts.
+- Vercel Speed Insights, categorized client-error logging, and structured API
+  duration logs are active. Web Analytics remains off because Vercel identifies
+  it as billable and requires an interactive account-holder confirmation.
+- Finish the remaining style-policy phase. Production no longer permits inline
+  scripts; inline styles remain temporarily allowed because legacy modules
+  still inject component CSS at runtime.
+- Complete physical iPhone and Android release testing and store signing.
+
+Do not test cloud accounts through a `file://` URL. That copy has no Vercel API
+functions and will correctly report that cloud accounts are unavailable.

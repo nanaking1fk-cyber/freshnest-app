@@ -2,7 +2,7 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## v22 Working Lives Edition
+## Current release — v30.1.25
 
 - **Worker-first story:** a premium, auto-advancing carousel gives healthcare, construction, transit, hospitality, education and logistics equal prominence, with job-specific planning benefits and manual/swipe controls.
 - **Autoplay product demonstration:** the hero continuously follows a demanding day from pre-shift planning through a late-shift adjustment, gym logging, meal logging and Progressive Coach guidance. Real footage and the Work + Workout interface stay visible together; there is no separate film modal.
@@ -10,6 +10,10 @@ A schedule-aware fitness, nutrition and recovery coach designed for people whose
 - **Adaptive calendar:** newly captured work shifts block unavailable time and immediately influence workout placement; personal calendar items remain in the agenda.
 - **Useful reminders:** each captured item can include an alert, with an `.ics` calendar export for device-level reminders.
 - **Occupational visuals:** the landing page and app feature people in scrubs, road-safety gear, transit uniform, chef whites, education and logistics settings so the experience visibly reflects working people.
+- **Premium signed-in workspace:** Home, Calendar, Training, Nutrition and More use the same responsive product system, with compact navigation and mobile-safe sheets.
+- **Trusted schedule review:** typed schedules and roster images/PDFs produce a calendar preview with confidence and conflict handling before anything is saved.
+- **Flexible calendar:** detailed and compact views, multiple optional work sources, direct date selection, off days, recurring payday/events, completion controls and full-calendar clearing are supported.
+- **Bring-your-own training:** users can build an adaptive program or enter the routine and training schedule they already follow.
 
 Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 
@@ -26,7 +30,7 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 
 ## Cloud setup
 
-1. Create a Supabase project, run `cloud-v18/schema.sql`, then apply the ordered files in `supabase/migrations/`.
+1. Create a Supabase project, run `cloud-v18/schema.sql`, then apply the ordered files in `supabase/migrations/`. Every new table migration must enable RLS and explicitly declare its Data API grants or revokes; `npm run audit:release` enforces this policy.
 2. In Supabase Auth, enable Email/Password, leaked-password protection, and a minimum password policy. Set the Site URL and exact web redirect to `https://www.workandworkout.com/`; add only explicit native deep links that are actually shipped. Confirmation and recovery use PKCE and must finish in the browser where they started.
 3. Deploy this repository to Vercel and set server environment variables:
    - `SUPABASE_URL`
@@ -51,3 +55,14 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 ## Apple App Store and Google Play readiness
 
 The canonical native package is in `app-store/`, including checked-in Xcode and Android Studio projects, native capabilities, store metadata and a release checklist. Privacy, support, terms and public account-deletion instructions are in `work-gym-planner/`. Before submission, test account creation/confirmation/password reset, migration/restore, account deletion, schedule import review, AI image analysis, offline launch, notifications, file sharing and all camera permission flows on physical iPhone and Android devices.
+
+## Release quality
+
+Node 24 is the supported runtime. Install the canonical native dependency tree and run the full local release gate with:
+
+```sh
+npm ci --prefix app-store
+npm run ci
+```
+
+GitHub Actions runs the same parse, regression, release-policy, dependency-vulnerability and native-bundle checks for pull requests and `main`. See [`docs/release-process.md`](docs/release-process.md) for branch protection, signed-commit and Vercel promotion requirements.

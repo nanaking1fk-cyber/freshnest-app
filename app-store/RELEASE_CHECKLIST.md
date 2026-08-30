@@ -2,10 +2,13 @@
 
 ## Automated package checks
 
-- [ ] Root `npm test` passes.
+- [ ] Node 24 is active and `npm ci --prefix app-store` succeeds from the repository root.
+- [ ] Root `npm run ci` passes, including release policy and dependency vulnerability audits.
+- [ ] GitHub `Quality / app` and dependency review checks pass.
 - [ ] `npm run build:web` passes in `app-store/`.
 - [ ] Native bundle audit reports v30.1.25 and no secrets/remote executable scripts.
 - [ ] iOS and Android projects are synced from the same `www/` bundle.
+- [ ] Any new Supabase table migration enables RLS and explicitly grants or revokes Data API roles.
 
 ## iPhone/iPad device test
 
@@ -37,3 +40,4 @@
 - [ ] Upload phone screenshots and optional preview video captured from the final build.
 - [ ] Use closed/internal testing first, then submit the proven build for review.
 - [ ] Keep certificates, provisioning profiles, upload keys and credentials out of Git.
+- [ ] Protect `main` with required `Quality / app`, pull requests and signed commits.

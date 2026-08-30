@@ -8,12 +8,19 @@ function redirect(res,location){
   res.end();
 }
 
+function requestSearchParams(req){
+  // Parse the raw request URL with the WHATWG API instead of Vercel's legacy
+  // query object, which can invoke Node's deprecated parser.
+  return new URL(String(req.url||'/api/v25/calendar'),'https://www.workandworkout.com').searchParams;
+}
+
 module.exports=async(req,res)=>{
   if(cors(req,res))return;
-  const action=String(req.query?.action||'status');
+  const query=requestSearchParams(req);
+  const action=String(query.get('action')||'status');
   try{
     if(action==='callback'){
-      const result=await finishOAuth({provider:req.query?.provider,state:req.query?.state,code:req.query?.code,error:req.query?.error,error_description:req.query?.error_description});
+      const result=await finishOAuth({provider:query.get('provider'),state:query.get('state'),code:query.get('code'),error:query.get('error'),error_description:query.get('error_description')});
       const target=new URL(result.returnTo);
       target.searchParams.set('calendar','connected');
       target.searchParams.set('provider',result.provider);

@@ -61,6 +61,13 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
     await page.locator('#loginPassword').fill(process.env.E2E_USER_A_PASSWORD);
     await page.locator('#loginBtn').click();
     await expect(page.locator('#accountChip')).toHaveClass(/signed/);
+    // Writing the marker above replaced the account state, so this account now
+    // looks brand new and the app opens its six-question setup wizard. That
+    // wizard is modal: it makes the rest of the page inert, and the account
+    // chip cannot be clicked until it is dismissed.
+    const setupWizard=page.locator('#guidedClose');
+    await setupWizard.waitFor({state:'visible'});
+    await setupWizard.click();
     await page.locator('#accountChip').click();
     await expect(page.locator('#signOutAccount')).toBeVisible();
     await page.locator('#signOutAccount').click();

@@ -67,3 +67,11 @@ jobs:
           E2E_USER_A_PASSWORD: ${{ secrets.E2E_USER_A_PASSWORD }}
           E2E_USER_B_EMAIL: ${{ secrets.E2E_USER_B_EMAIL }}
           E2E_USER_B_PASSWORD: ${{ secrets.E2E_USER_B_PASSWORD }}
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-artifacts
+          path: app-store/test-results
+          retention-days: 7
+          if-no-files-found: ignore

@@ -32,6 +32,10 @@ async function putState(request,token,value){
 }
 
 test('dedicated accounts remain isolated and restore across sessions',async({request,browser})=>{
+  // The signed-in journey does a cold production load plus Supabase auth.
+  // Playwright leaves actions and navigations unbounded, so the 60s default
+  // budget is the only ceiling and a slow cold load consumes all of it.
+  test.setTimeout(120_000);
   const cloud=await config(request);
   const a=await signIn(request,cloud,process.env.E2E_USER_A_EMAIL,process.env.E2E_USER_A_PASSWORD);
   const b=await signIn(request,cloud,process.env.E2E_USER_B_EMAIL,process.env.E2E_USER_B_PASSWORD);
@@ -50,7 +54,8 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
 
     const context=await browser.newContext();
     const page=await context.newPage();
-    await page.goto('/work-gym-planner/');
+    // Match the public spec: the landing page carries video that 'load' waits on.
+    await page.goto('/work-gym-planner/',{waitUntil:'domcontentloaded'});
     await page.getByRole('button',{name:'Sign in'}).first().click();
     await page.locator('#loginEmail').fill(process.env.E2E_USER_A_EMAIL);
     await page.locator('#loginPassword').fill(process.env.E2E_USER_A_PASSWORD);

@@ -15,7 +15,7 @@
     "android:open": "npx cap open android",
     "native:add": "npm run ios:add && npm run android:add",
     "native:sync": "npm run ios:sync && npm run android:sync",
-    "test:e2e": "playwright test --config ../playwright.config.mjs"
+    "test:e2e": "playwright test --config ./playwright.config.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

@@ -36,8 +36,13 @@ test('client telemetry is categorical and excludes personal planner data',()=>{
 test('dedicated authenticated E2E is scheduled but cannot run without explicit secrets',()=>{
   const workflow=read('.github/workflows/quality.yml');
   const spec=read('e2e/authenticated.spec.mjs');
+  const appPackage=JSON.parse(read('app-store/package.json'));
+  const appConfig=read('app-store/playwright.config.mjs');
   assert.match(workflow,/vars\.E2E_ENABLED == 'true'/);
   assert.match(workflow,/E2E_USER_A_EMAIL/);
+  assert.equal(appPackage.scripts['test:e2e'],'playwright test --config ./playwright.config.mjs');
+  assert.match(appConfig,/from '@playwright\/test'/);
+  assert.match(appConfig,/testDir:'\.\.\/e2e'/);
   assert.match(spec,/remain isolated/);
   assert.match(spec,/finally\s*\{/);
   assert.match(spec,/signOutAccount/);

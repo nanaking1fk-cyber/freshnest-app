@@ -162,6 +162,12 @@ test('trusted review renders every item and requires explicit collision resoluti
   assert.doesNotMatch(ui,/slice\(0,10\)|index>=10/);
   assert.match(ui,/function proposalCalendarMarkup\(\)/);
   assert.match(ui,/Calendar preview/);
+  assert.match(ui,/proposals\.filter\(function\(item\)\{return item\.date\}\)/,
+    'dated AI items that need confirmation must remain in the calendar grid');
+  assert.match(ui,/data-proposal-calendar-date/,
+    'date confirmation must be editable directly on the calendar card');
+  assert.match(ui,/item\.needsReview&&!item\.date/,
+    'the long fallback row is reserved for entries without a usable date');
   assert.match(ui,/data-proposal-check/);
   assert.match(ui,/Work source or employer/);
   assert.match(ui,/function resolveCaptureSource\(\)/);

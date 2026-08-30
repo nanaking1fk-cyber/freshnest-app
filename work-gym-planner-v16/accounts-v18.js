@@ -1,5 +1,5 @@
 // v18 accounts, cloud migration, restore and account lifecycle ----------------
-APP_VERSION='30.1.23';
+APP_VERSION='30.1.24';
 window.WGC18=window.WGC18||{};
 (function(A){
  const SESSION_KEY='wgc-v18-session',LAST_SYNC_KEY='wgc-v18-last-sync',OWNER_KEY='wgc-v18-local-owner',UNCLAIMED_KEY='wgc-v18-unclaimed-device-state',USER_CACHE_PREFIX='wgc-v18-user-cache:',PKCE_VERIFIER_KEY='wgc-v25-pkce-verifier',PKCE_PURPOSE_KEY='wgc-v25-pkce-purpose',RECOVERY_KEY='wgc-v25-password-recovery',LEGACY_AUTH_FRAGMENT=legacyAuthFragment(location.hash);

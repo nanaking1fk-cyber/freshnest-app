@@ -134,12 +134,17 @@ body.premiumV18 .proposalDayV25.blank{background:transparent;opacity:.45}
 body.premiumV18 .proposalDayV25 time{display:block;margin:0 1px 4px;color:#77827c;font-size:7px;font-weight:800;text-align:right}
 body.premiumV18 .proposalCalendarChipV25{display:block;position:relative;margin:3px 0;padding:5px;border-left:3px solid var(--proposal-color);border-radius:5px;color:#dbe1dc;background:rgba(255,255,255,.055);cursor:pointer}
 body.premiumV18 .proposalCalendarChipV25.hasConflict{border-left-color:#ffad63;background:rgba(255,173,99,.09)}
+body.premiumV18 .proposalCalendarChipV25.needsReview{border-left-color:#ffc17e;background:rgba(255,193,126,.08)}
+body.premiumV18 .proposalCalendarSelectV36{display:block;cursor:pointer}
 body.premiumV18 .proposalCalendarChipV25 input[type="checkbox"]{position:absolute;opacity:0;pointer-events:none}
 body.premiumV18 .proposalCalendarChipV25:has(input[type="checkbox"]:not(:checked)){opacity:.35;text-decoration:line-through}
 body.premiumV18 .proposalCalendarChipV25.off{border-left-color:#8d9892;background:rgba(141,152,146,.09)}
 body.premiumV18 .proposalCalendarChipV25 b,body.premiumV18 .proposalCalendarChipV25 small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 body.premiumV18 .proposalCalendarChipV25 b{font-size:7px}
 body.premiumV18 .proposalCalendarChipV25 small{margin-top:2px;color:#98a29c;font-size:6px}
+body.premiumV18 .proposalCalendarDateV36{display:block;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.08);cursor:default}
+body.premiumV18 .proposalCalendarDateV36 span{display:block;margin-bottom:3px;color:#ffc17e;font-size:5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+body.premiumV18 .proposalCalendarDateV36 input{width:100%;min-width:0;min-height:28px;padding:2px 3px;border:1px solid rgba(255,193,126,.24);border-radius:5px;background:#11181b;color:#edf1ee;font-size:16px}
 body.premiumV18 .proposalAttentionV25{margin:0 18px 16px;padding:13px;border:1px solid rgba(255,173,99,.18);border-radius:14px;background:rgba(255,173,99,.035)}
 body.premiumV18 .proposalAttentionV25>h4{margin:0 0 9px;color:#ffc17e;font-size:9px}
 body.premiumV18 .proposalUnknownDatesV25{display:grid;gap:7px}

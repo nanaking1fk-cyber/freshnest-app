@@ -74,7 +74,7 @@ function renderCalendar(){
  for(let i=0;i<first;i++)h+='<button class="calDay empty" aria-hidden="true"></button>';
  for(let n=1;n<=days;n++){
   let k=`${ym}-${String(n).padStart(2,'0')}`,s=workState(k),comp=completedOn(k),gym=!!comp||isScheduled(k),agenda=agendaItemsOn(k),workRows=workScheduleRows(k),classes=['calDay'];
-  if(s.kind==='unknown')classes.push('unknown');if(agenda.length)classes.push('hasAgenda');if(k===selectedDate)classes.push('selected');if(k===dkey())classes.push('today');
+  if(s.kind==='unknown')classes.push('unknown');if(agenda.length)classes.push('hasAgenda');if(k===selectedDate)classes.push('selected');if(k===dkey())classes.push('today');if(window.WWV25?.isShiftPickerDate?.(k))classes.push('shiftPickV35');
   let workDots=window.WWV25?.workDots?.(workRows)||((workRows.some(row=>!row.unknown)?'<i class="dot blue"></i>':'')),dots='<span class="dayDots">'+workDots+(gym?'<i class="dot green"></i>':'')+(agenda.length?'<i class="dot purple"></i>':'')+(s.kind==='unknown'?'<i class="dot gray"></i>':'')+'</span>',details=calendarCellDetails(workRows,agenda,gym,k);
   let tr=gym?(typeof plannedWorkoutName==='function'?plannedWorkoutName(k,comp?.workoutIndex??projectedWorkoutIndex(k)):(comp?WORKOUTS[comp.workoutIndex].name:WORKOUTS[projectedWorkoutIndex(k)].name)):'No training planned',aria=`${fmt(k)}. ${workRows.length?workRows.map(row=>`${row.name} ${row.time}`).join('. '):'No work added'}. Training: ${tr}. ${agenda.length} plan ${agenda.length===1?'item':'items'}.${s.kind==='unknown'?' Work schedule needs review.':''}`;
   h+=`<button class="${classes.join(' ')}" data-date="${k}" role="gridcell" aria-label="${esc(aria)}"><span class="dayNum">${n}</span>${dots}${details?`<span class="dayDetails">${details}</span>`:''}${agenda.length?`<span class="agendaCount">${agenda.length}</span>`:''}${s.kind==='unknown'?'<span class="unknownMark">?</span>':''}</button>`
@@ -82,8 +82,8 @@ function renderCalendar(){
  $('calendarGrid').innerHTML=h;
  $('calendarGrid').dataset.display=display;
  $$('[data-calendar-display]').forEach(button=>{let active=button.dataset.calendarDisplay===display;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))});
- $$('.calDay[data-date]').forEach(b=>b.onclick=()=>{selectedDate=b.dataset.date;renderCalendar()});
- renderCalendarWeekRail();renderDayCard();window.WWV25?.renderWeekSummary?.(selectedDate)
+ $$('.calDay[data-date]').forEach(b=>b.onclick=()=>{if(window.WWV25?.handleCalendarDateTap?.(b.dataset.date))return;selectedDate=b.dataset.date;renderCalendar()});
+ renderCalendarWeekRail();renderDayCard();window.WWV25?.renderWeekSummary?.(selectedDate);window.WWV25?.renderShiftPicker?.()
 }
 function renderDayCard(){
  let k=selectedDate,s=workState(k),comp=completedOn(k),scheduled=isScheduled(k),wi=comp?comp.workoutIndex:(scheduled?projectedWorkoutIndex(k):null),t=target(k),unknown=s.kind==='unknown',agenda=agendaItemsOn(k),workRows=workScheduleRows(k);

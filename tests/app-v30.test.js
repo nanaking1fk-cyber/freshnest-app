@@ -42,9 +42,9 @@ test('the premium brand uses one scalable mark instead of text initials',()=>{
 });
 
 test('the release version is consistent',()=>{
-  assert.match(shell,/30\.1\.20/);
-  assert.equal(JSON.parse(read('package.json')).version,'30.1.20');
-  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.20/);
+  assert.match(shell,/30\.1\.21/);
+  assert.equal(JSON.parse(read('package.json')).version,'30.1.21');
+  assert.match(read('work-gym-planner/manifest.webmanifest'),/\?v=30\.1\.21/);
   assert.match(script,/Work \+ Workout \| Health planned around work/);
 });
 
@@ -164,6 +164,28 @@ test('calendar supports detail labels as well as a compact color-only view',()=>
   assert.match(css,/#calendarGrid\[data-display="compact"\] \.dayDetails\{display:none/);
   assert.match(css,/@media\(max-width:760px\)[\s\S]*\.monthbar>\.calendarDisplayToggleV32\{display:flex/,
     'Details and Compact must stay available on mobile');
+});
+
+test('work schedules can be added by selecting calendar dates or uploading an existing roster',()=>{
+  const calendar=read('work-gym-planner-v16/calendar.js');
+  const planner=read('work-gym-planner-v16/schedule-platform-v25.js');
+  const adaptive=read('work-gym-planner-v16/adaptive-planner-v24.js');
+  assert.match(planner,/id="chooseWorkDatesV35"/);
+  assert.match(planner,/id="uploadWorkRosterV35"/);
+  assert.match(planner,/id="typeWorkScheduleV35"/);
+  assert.match(planner,/function handleCalendarDateTap\(key\)/);
+  assert.match(planner,/function reviewPickedShifts\(\)/);
+  assert.match(planner,/renderTrustedReview\(\)/,
+    'calendar-picked shifts must use the same review-before-save trust layer');
+  assert.match(calendar,/handleCalendarDateTap/);
+  assert.match(calendar,/shiftPickV35/);
+  assert.match(adaptive,/id="scheduleFileV24" type="file" accept="image\/\*,application\/pdf,\.pdf"/);
+  assert.match(adaptive,/async function extractImage\(file\)/);
+  assert.match(adaptive,/async function extractPdf\(file\)/);
+  assert.match(adaptive,/reviewRosterText/,
+    'photo and PDF extraction must enter the roster identity and review flow');
+  assert.match(css,/\.scheduleAddWaysV35/);
+  assert.match(css,/\.calDay\.shiftPickV35/);
 });
 
 test('calendar supports recurring personal events such as payday',()=>{

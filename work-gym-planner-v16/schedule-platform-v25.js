@@ -8,7 +8,7 @@
   var Capture=window.WGC19=window.WGC19||{};
   var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25',sourcesInitialized:PREFIX+'schedule-sources-initialized-v25',deletedSourceNames:PREFIX+'schedule-deleted-source-names-v25',hiddenWorkItems:PREFIX+'hidden-work-items-v34',completedWorkItems:PREFIX+'completed-work-items-v34'};
   var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
-  var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='';
+  var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='',shiftPickerActive=false,shiftPickerDates=new Set();
 
   function safe(value){return String(value==null?'':value).replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})}
   function sources(){var value=jget(KEY.sources,[]);return Array.isArray(value)?value:[]}
@@ -135,12 +135,14 @@
       '<div id="plannerPane-sync" class="plannerPaneV25" role="region" aria-label="Calendar connections" hidden><div id="calendarSyncV25"></div></div>'+
     '</section>';
   }
+  function addWaysMarkup(){return'<section id="scheduleAddWaysV35" class="scheduleAddWaysV35" aria-label="Ways to add a schedule"><header><small>ADD TO CALENDAR</small><h2>How would you like to add your work?</h2><p>Choose dates yourself, upload the roster you already have, or paste the schedule in your own words.</p></header><div><button id="chooseWorkDatesV35" type="button"><i aria-hidden="true">✓</i><span><b>Choose dates</b><small>Tap days on your calendar</small></span><em>→</em></button><button id="uploadWorkRosterV35" type="button"><i aria-hidden="true">↑</i><span><b>Photo or PDF</b><small>Upload an existing roster</small></span><em>→</em></button><button id="typeWorkScheduleV35" type="button"><i aria-hidden="true">T</i><span><b>Type or paste</b><small>Use everyday language</small></span><em>→</em></button></div></section>'}
+  function ensureAddWays(){var pane=document.getElementById('plannerPane-add'),capture=document.getElementById('smartCaptureV19');if(!pane||!capture||document.getElementById('scheduleAddWaysV35'))return;if(capture.parentElement===pane)capture.insertAdjacentHTML('beforebegin',addWaysMarkup())}
   function selectTab(name,focus){
     var root=document.getElementById('plannerWorkspaceV25');if(!root)return;
     root.querySelectorAll('[data-planner-tab]').forEach(function(button){var active=button.dataset.plannerTab===name;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));button.tabIndex=active?0:-1});
     root.querySelectorAll('.plannerPaneV25').forEach(function(pane){var active=pane.id==='plannerPane-'+name;pane.classList.toggle('active',active);pane.hidden=!active});
     sessionStorage.setItem('ww-planner-tab',name);
-    if(name==='sources')renderSources();if(name==='rotations')renderRotations();if(name==='sync')renderSync();if(name==='add')captureSourceControl();if(name==='calendar')renderWeekPulse(selectedDate||dkey());
+    if(name==='sources')renderSources();if(name==='rotations')renderRotations();if(name==='sync')renderSync();if(name==='add')captureSourceControl();if(name==='calendar'){renderWeekPulse(selectedDate||dkey());renderShiftPicker()}
     if(focus)root.scrollIntoView({behavior:'smooth',block:'start'});
   }
   function captureMarkup(){
@@ -154,6 +156,7 @@
   function ensureCapture(){
     var capture=document.getElementById('smartCaptureV19'),addPane=document.getElementById('plannerPane-add');
     if(!capture&&addPane){addPane.insertAdjacentHTML('beforeend',captureMarkup());capture=document.getElementById('smartCaptureV19');window.WGC24?.mount?.()}
+    ensureAddWays();
     return capture;
   }
   function arrangeWorkspace(){
@@ -186,9 +189,35 @@
     var film=document.getElementById('smartCaptureFilm');if(film)film.onclick=function(){var input=document.getElementById('smartCaptureInput');if(input){input.value='Work Monday–Thursday 7 AM–7 PM. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week.';input.focus()}};
     var voice=document.getElementById('smartCaptureVoice');if(voice)voice.onclick=startVoiceCapture;
     document.querySelectorAll('[data-capture-example]').forEach(function(button){button.onclick=function(){var input=document.getElementById('smartCaptureInput');if(!input)return;input.value+=(input.value?'\n':'')+button.dataset.captureExample;input.focus()}});
+    var choose=document.getElementById('chooseWorkDatesV35');if(choose)choose.onclick=beginShiftPicker;
+    var upload=document.getElementById('uploadWorkRosterV35');if(upload)upload.onclick=function(){var identity=document.getElementById('rosterIdentityV31'),file=document.getElementById('scheduleFileV24');if(!identity?.value.trim()){document.getElementById('scheduleImportV24')?.scrollIntoView({behavior:'smooth',block:'center'});identity?.focus();toast('Enter the name shown on your roster, then choose the photo or PDF');return}file?.click()};
+    var typed=document.getElementById('typeWorkScheduleV35');if(typed)typed.onclick=function(){document.querySelector('.smartCaptureComposer')?.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){document.getElementById('smartCaptureInput')?.focus()},250)};
     captureSourceControl();
     Capture.reviewRawText=function(text,meta){rosterReview=null;selectTab('add',true);var input=document.getElementById('smartCaptureInput');if(!input)return false;input.value=String(text||'').trim();input.dataset.sourceType=meta?.sourceType||'ocr';buildTrustedProposal();return true};
     Capture.reviewRosterText=reviewRosterText;
+  }
+
+  function beginShiftPicker(){shiftPickerActive=true;shiftPickerDates=new Set();selectTab('calendar',true);if(typeof renderCalendar==='function')renderCalendar();renderShiftPicker()}
+  function stopShiftPicker(){shiftPickerActive=false;shiftPickerDates=new Set();document.body.classList.remove('calendarShiftPickingV35');document.getElementById('shiftPickerBarV35')?.remove();if(typeof renderCalendar==='function')renderCalendar()}
+  function handleCalendarDateTap(key){if(!shiftPickerActive)return false;if(shiftPickerDates.has(key))shiftPickerDates.delete(key);else shiftPickerDates.add(key);selectedDate=key;if(typeof renderCalendar==='function')renderCalendar();return true}
+  function isShiftPickerDate(key){return shiftPickerActive&&shiftPickerDates.has(key)}
+  function selectedDatesLabel(){var list=[...shiftPickerDates].sort();if(!list.length)return'Tap one or more dates below';if(list.length<=3)return list.map(friendlyDate).join(' · ');return list.slice(0,2).map(friendlyDate).join(' · ')+' · +'+(list.length-2)+' more'}
+  function renderShiftPicker(){
+    var pane=document.getElementById('plannerPane-calendar'),monthbar=pane?.querySelector('.monthbar');if(!pane||!monthbar)return;
+    var existing=document.getElementById('shiftPickerBarV35');if(!shiftPickerActive){existing?.remove();document.body.classList.remove('calendarShiftPickingV35');return}
+    document.body.classList.add('calendarShiftPickingV35');
+    var source=sourceById(document.getElementById('shiftPickerSourceV35')?.value)||enabledSources()[0]||sources()[0],start=document.getElementById('shiftPickerStartV35')?.value||'07:00',end=document.getElementById('shiftPickerEndV35')?.value||'19:00';
+    var markup='<section id="shiftPickerBarV35" class="shiftPickerBarV35"><header><span aria-hidden="true">✓</span><div><small>SELECT WORK DATES</small><b>'+safe(selectedDatesLabel())+'</b></div><button id="cancelShiftPickerV35" type="button">Cancel</button></header><div class="shiftPickerFieldsV35"><label>Work source<select id="shiftPickerSourceV35">'+sourceOptions(source?.id,true)+'</select></label><label>Starts<input id="shiftPickerStartV35" type="time" value="'+safe(start)+'"></label><label>Ends<input id="shiftPickerEndV35" type="time" value="'+safe(end)+'"></label><button id="reviewPickedShiftsV35" class="primary" type="button" '+(shiftPickerDates.size?'':'disabled')+'>Review '+(shiftPickerDates.size||'')+' shift'+(shiftPickerDates.size===1?'':'s')+'</button></div><p>Tap dates to select or deselect them. Use the month arrows to add dates from another month.</p></section>';
+    if(existing)existing.outerHTML=markup;else monthbar.insertAdjacentHTML('beforebegin',markup);
+    document.getElementById('cancelShiftPickerV35').onclick=stopShiftPicker;document.getElementById('reviewPickedShiftsV35').onclick=reviewPickedShifts;
+  }
+  function reviewPickedShifts(){
+    if(!shiftPickerDates.size){toast('Choose at least one work date');return}
+    var sourceId=document.getElementById('shiftPickerSourceV35')?.value,source=sourceById(sourceId)||sources()[0];if(!source){toast('Add a work source first');return}
+    if(source.enabled===false){source=Object.assign({},source,{enabled:true,updatedAt:new Date().toISOString()});saveSources(sources().map(function(item){return item.id===source.id?source:item}))}
+    var start=document.getElementById('shiftPickerStartV35')?.value||'07:00',end=document.getElementById('shiftPickerEndV35')?.value||'19:00',seriesId=makeId('series'),existing=existingForReview();
+    proposals=[...shiftPickerDates].sort().map(function(key){return{id:makeId('proposal'),kind:'work',date:key,title:source.name||'Work shift',start:start,end:end,overnight:Core.minutes(end)<=Core.minutes(start),sourceText:'Selected directly on calendar',sourceType:'calendar',sourceId:source.id,seriesId:seriesId,series:true,needsReview:false,confidence:{label:'High',score:1,reasons:['Date and time selected directly by you']}}});proposalConflicts=Core.detectConflicts(proposals,existing);proposalParseNotice='You selected these dates directly. Check the calendar preview and approve them when everything looks right.';
+    shiftPickerActive=false;shiftPickerDates=new Set();document.body.classList.remove('calendarShiftPickingV35');document.getElementById('shiftPickerBarV35')?.remove();selectTab('add',true);renderTrustedReview();
   }
 
   function currentRosterIdentity(){var p=typeof profile==='function'?profile():null;return String(document.getElementById('rosterIdentityV31')?.value||p?.rosterIdentity||p?.name||'').trim()}
@@ -453,6 +482,6 @@
   }
   function boot(){mount();handleOAuthReturn();var queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;mount()})}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
 
-  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
+  V.sources=sources;V.events=events;V.rotations=rotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

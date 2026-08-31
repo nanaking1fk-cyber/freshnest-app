@@ -364,9 +364,77 @@ body.premiumV30 .nutritionPlanToggleV30{width:100%;margin-top:14px;color:var(--v
 body.premiumV30 #page-diary .miniCoach{font-size:13px;padding:13px 4px 2px}
 body.premiumV30 #page-diary .meal{border-radius:18px;margin-top:12px}
 body.premiumV30 #page-diary .mealHead{padding:17px 19px}
-body.premiumV30 #page-diary .mealHead h3{font-size:16px}
+body.premiumV30 #page-diary .mealHead h3{display:grid;gap:5px;font-size:16px;line-height:1.15}
+body.premiumV30 #page-diary .mealHead h3 small{color:var(--v30-muted);font:600 10px/1.25 "IBM Plex Mono",monospace;letter-spacing:.01em}
+body.premiumV30 #page-diary .mealActions{align-items:center;flex-wrap:wrap;justify-content:flex-end}
+body.premiumV30 #page-diary .mealActions button{min-height:34px;padding:0 11px;border-radius:10px}
 body.premiumV30 #page-diary .foodRow{padding:15px 19px}
 body.premiumV30 #page-diary .foodName{font-size:14px}
+body.premiumV30 #page-diary .foodCal{display:grid;justify-items:end;align-content:center;font-size:14px}
+body.premiumV30 #page-diary .foodCal small{color:var(--v30-faint);font-size:8px;font-weight:650;letter-spacing:.08em;text-transform:uppercase}
+body.premiumV30 #page-diary .emptyMeal{padding:22px 18px;color:var(--v30-muted);font-size:11px;line-height:1.45}
+
+/* Multi-food logging is isolated to the food diary sheet. */
+body.premiumV30 #foodDialog{padding:clamp(10px,3vw,24px);align-items:center}
+body.premiumV30 #foodDialog .sheet{display:flex;flex-direction:column;width:min(calc(100vw - 24px),780px);max-height:min(920px,calc(100dvh - 24px));padding:10px clamp(16px,3vw,28px) max(12px,env(safe-area-inset-bottom));overflow-x:hidden;overscroll-behavior:contain;border:1px solid var(--v30-line-strong);border-radius:24px;background:linear-gradient(180deg,#151c21,#0a0f12);box-shadow:0 38px 110px rgba(0,0,0,.62)}
+body.premiumV30 #foodDialog .sheetHead{top:-10px;z-index:12;flex:0 0 auto;padding:13px 0 11px;border-bottom:1px solid var(--v30-line);background:linear-gradient(#151c21 82%,rgba(21,28,33,.94))}
+body.premiumV30 #foodDialog .sheetHead h2{margin:0;font-size:23px}
+body.premiumV30 #foodDialog .sheetHead small{display:block;margin-top:4px;color:var(--v30-muted);font:600 9px/1.3 "IBM Plex Mono",monospace;letter-spacing:.04em}
+body.premiumV30 #foodDialog .sheetHead button{min-height:38px;padding:0 6px;color:var(--v30-signal)}
+body.premiumV30 #foodDialog .tabs{position:relative;z-index:2;flex:0 0 auto;margin:12px 0 10px}
+body.premiumV30 #foodDialog .tabs button{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 #foodDialog .foodBatchTray{flex:0 0 auto;margin:3px 0 12px;padding:13px;border:1px solid rgba(214,255,63,.26);border-radius:16px;background:linear-gradient(145deg,rgba(214,255,63,.09),rgba(214,255,63,.025));box-shadow:inset 0 1px rgba(255,255,255,.035)}
+body.premiumV30 #foodDialog .foodBatchTray[hidden]{display:none}
+body.premiumV30 #foodDialog .foodBatchHead{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:10px}
+body.premiumV30 #foodDialog .foodBatchHead span,body.premiumV30 #foodDialog .foodBatchHead b,body.premiumV30 #foodDialog .foodBatchHead small{display:block}
+body.premiumV30 #foodDialog .foodBatchHead b{color:var(--v30-ink);font-size:13px}
+body.premiumV30 #foodDialog .foodBatchHead small{margin-top:3px;color:#bdc7be;font-size:10px}
+body.premiumV30 #foodDialog .foodBatchHead button{min-height:32px;padding:0 10px;border:1px solid rgba(255,118,92,.25);border-radius:9px;background:rgba(255,118,92,.07);color:#ffb0a2;font-size:10px;font-weight:750}
+body.premiumV30 #foodDialog .foodBatchItems{display:grid;gap:6px;max-height:190px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+body.premiumV30 #foodDialog .foodBatchItems>div{display:grid;grid-template-columns:minmax(0,1fr) 34px;align-items:center;gap:10px;min-height:50px;padding:8px 8px 8px 11px;border:1px solid var(--v30-line);border-radius:12px;background:rgba(5,9,11,.45)}
+body.premiumV30 #foodDialog .foodBatchItems span,body.premiumV30 #foodDialog .foodBatchItems b,body.premiumV30 #foodDialog .foodBatchItems small{display:block;min-width:0}
+body.premiumV30 #foodDialog .foodBatchItems b{overflow:hidden;color:var(--v30-ink);font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 #foodDialog .foodBatchItems small{margin-top:4px;color:var(--v30-muted);font-size:9px}
+body.premiumV30 #foodDialog .foodBatchItems button{width:32px;height:32px;border:1px solid var(--v30-line);border-radius:9px;background:rgba(255,255,255,.025);color:#ff9e8f;font-size:17px;line-height:1}
+body.premiumV30 #foodDialog .foodResultRow{display:grid;grid-template-columns:minmax(0,1fr) 48px;align-items:stretch;border-bottom:1px solid var(--v30-line)}
+body.premiumV30 #foodDialog .foodResultSelect{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:10px;min-width:0;min-height:66px;padding:8px 10px 8px 0;border:0;background:transparent;color:var(--v30-ink);text-align:left}
+body.premiumV30 #foodDialog .foodResultSelect:hover,body.premiumV30 #foodDialog .foodResultSelect:focus-visible{background:rgba(255,255,255,.035)}
+body.premiumV30 #foodDialog .foodResultSelect img,body.premiumV30 #foodDialog .foodResultSelect .ph{width:42px;height:42px;border-radius:11px}
+body.premiumV30 #foodDialog .foodResultSelect span,body.premiumV30 #foodDialog .foodResultSelect b,body.premiumV30 #foodDialog .foodResultSelect small{display:block;min-width:0}
+body.premiumV30 #foodDialog .foodResultSelect b{overflow:hidden;font-size:12px;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 #foodDialog .foodResultSelect small{margin-top:4px;overflow:hidden;color:var(--v30-muted);font-size:9px;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 #foodDialog .foodResultSelect strong{padding-left:8px;font-size:11px;white-space:nowrap}
+body.premiumV30 #foodDialog .foodQuickAdd{align-self:center;width:40px;height:40px;border:1px solid rgba(214,255,63,.32);border-radius:12px;background:rgba(214,255,63,.09);color:var(--v30-signal);font-size:24px;font-weight:550;line-height:1}
+body.premiumV30 #foodDialog .foodQuickAdd:hover,body.premiumV30 #foodDialog .foodQuickAdd:focus-visible{border-color:var(--v30-signal);background:var(--v30-signal);color:#0b1108}
+body.premiumV30 #foodDialog .sheetActions{position:sticky;z-index:14;bottom:calc(-1 * max(12px,env(safe-area-inset-bottom)));display:grid;grid-template-columns:auto minmax(160px,.8fr) minmax(210px,1.2fr);gap:8px;margin:16px clamp(-28px,-3vw,-16px) calc(-1 * max(12px,env(safe-area-inset-bottom)));padding:12px clamp(16px,3vw,28px) max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--v30-line-strong);background:rgba(10,15,18,.96);box-shadow:0 -18px 45px rgba(0,0,0,.3);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+body.premiumV30 #foodDialog .sheetActions button{width:100%;min-height:50px;padding:0 14px;border-radius:12px;font-size:12px}
+body.premiumV30 #foodDialog #saveFoodEntry{background:var(--v30-signal)!important;color:#0b1108!important;border-color:var(--v30-signal)!important}
+body.premiumV30 #foodDialog #queueFoodEntry{border-color:rgba(214,255,63,.22)!important;background:rgba(214,255,63,.06)!important;color:var(--v30-signal)!important}
+
+@media(max-width:620px){
+  body.premiumV30 #page-diary .mealHead{align-items:flex-start;gap:10px;padding:15px}
+  body.premiumV30 #page-diary .mealActions{gap:4px}
+  body.premiumV30 #page-diary .mealActions button{min-height:32px;padding:0 8px;font-size:8px}
+  body.premiumV30 #foodDialog{align-items:flex-end;padding:0}
+  body.premiumV30 #foodDialog .sheet{width:100%;max-height:100dvh;padding-left:14px;padding-right:14px;border-left:0;border-right:0;border-bottom:0;border-radius:20px 20px 0 0}
+  body.premiumV30 #foodDialog .tabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+  body.premiumV30 #foodDialog .tabs button{padding-inline:1px;font-size:8px}
+  body.premiumV30 #foodDialog .foodBatchItems{max-height:148px}
+  body.premiumV30 #foodDialog .foodResultSelect{grid-template-columns:42px minmax(0,1fr);min-height:62px;padding-right:5px}
+  body.premiumV30 #foodDialog .foodResultSelect strong{grid-column:2;padding:0;color:var(--v30-muted);font-size:9px}
+  body.premiumV30 #foodDialog .foodQuickAdd{width:40px;height:40px}
+  body.premiumV30 #foodDialog .formGrid{grid-template-columns:1fr 1fr}
+  body.premiumV30 #foodDialog .formGrid .span2{grid-column:1/-1}
+  body.premiumV30 #foodDialog .sheetActions{grid-template-columns:1fr 1.25fr;margin-right:-14px;margin-left:-14px;padding-right:14px;padding-left:14px}
+  body.premiumV30 #foodDialog #deleteFoodEntry{grid-column:1/-1}
+}
+
+@media(max-width:390px){
+  body.premiumV30 #foodDialog .sheetHead h2{font-size:20px}
+  body.premiumV30 #foodDialog .foodBatchTray{padding:10px}
+  body.premiumV30 #foodDialog .sheetActions{grid-template-columns:1fr}
+  body.premiumV30 #foodDialog .sheetActions button{min-height:46px}
+}
 
 /* Progress gets the same measured visual rhythm. */
 body.premiumV30 #page-progress{max-width:940px}

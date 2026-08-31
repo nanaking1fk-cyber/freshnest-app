@@ -3,12 +3,15 @@
   const A=window.WGC18=window.WGC18||{};
   const DRAFT_KEY=PREFIX+'guided-onboarding-draft-v30';
   const LEGACY_DRAFT_KEY='wgc-guided-onboarding-v18';
+  const PAUSED_SESSION_PREFIX='wgp-v18-guided-paused-';
   const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const safe=window.esc||function(value){return String(value??'').replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})};
   let step=0;
   let busy=false;
   let previewReady=false;
   let draft=loadDraft();
+
+  function pausedSessionKey(){return PAUSED_SESSION_PREFIX+(A.session?.user?.id||'local')}
 
   function loadDraft(){
     try{
@@ -465,12 +468,16 @@
   }
   function closeGuided(){
     const paused=!previewReady&&!(typeof profile==='function'&&profile());
+    if(paused)try{sessionStorage.setItem(pausedSessionKey(),'1')}catch{}
     if(previewReady){try{localStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(LEGACY_DRAFT_KEY)}catch{};previewReady=false}
     else{syncVisible();A.queueSync?.()}
     window.closeModal?.('guidedOnboarding');
     if(paused){window.page?.('home');window.renderTodayDashboard?.();window.toast?.('Setup saved. Resume whenever you are ready.')}
   }
-  function openGuided(){
+  function openGuided(options){
+    const automatic=!!(options&&options.auto);
+    if(automatic){try{if(sessionStorage.getItem(pausedSessionKey())==='1')return}catch{}}
+    else try{sessionStorage.removeItem(pausedSessionKey())}catch{}
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}
     document.querySelectorAll('.modal.open').forEach(function(open){window.closeModal?.(open.id)});
     previewReady=false;

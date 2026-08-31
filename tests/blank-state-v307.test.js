@@ -10,6 +10,10 @@ const shell=read('work-gym-planner/index.html');
 const landing=read('work-gym-planner-v16/landing-v29.js');
 const today=read('work-gym-planner-v16/today.js');
 const guided=read('work-gym-planner-v16/guided-onboarding-v18.js');
+const accounts=read('work-gym-planner-v16/accounts-v18.js');
+const legacyOnboarding=read('work-gym-planner-v16/onboarding-v18.js');
+const integration=read('work-gym-planner-v16/v18-integration.js');
+const authenticatedE2E=read('app-store/e2e/authenticated.spec.mjs');
 const css=read('work-gym-planner-v16/app-v30.css');
 
 test('a branded boot screen stays visible through the asynchronous document swap',()=>{
@@ -41,5 +45,11 @@ test('Finish later persists the account-owned draft and resumes at the same ques
   assert.match(guided,/step=Math\.max\(0,\+draft\.step\|\|0\)/);
   assert.match(guided,/window\.renderTodayDashboard\?\.\(\)/);
   assert.match(guided,/Setup saved\. Resume whenever you are ready/);
+  assert.match(guided,/PAUSED_SESSION_PREFIX/);
+  assert.match(guided,/if\(automatic\)[\s\S]*pausedSessionKey/);
+  assert.match(accounts,/openOnboarding\?\.\(\{auto:true\}\)/);
+  assert.match(legacyOnboarding,/openOnboarding\(\{auto:true\}\)/);
+  assert.match(integration,/openOnboarding\?\.\(\{auto:true\}\)/);
+  assert.match(authenticatedE2E,/guidedOnboarding[\s\S]*not\.toHaveClass\(\/open\//);
   assert.doesNotMatch(guided,/sessionStorage\.setItem\(DRAFT_KEY/);
 });

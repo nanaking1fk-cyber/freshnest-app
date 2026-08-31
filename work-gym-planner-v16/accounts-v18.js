@@ -89,7 +89,7 @@ window.WGC18=window.WGC18||{};
   if(cached?.storage){restoreCloudState(cached,{snapshot:false});location.reload();return}
   if(!profile()){
    status('Signed in. Build a private plan for this account.');
-   setTimeout(()=>window.WGC18?.openOnboarding?.(),150)
+   setTimeout(()=>window.WGC18?.openOnboarding?.({auto:true}),150)
   }else status(`Signed in. ${localDataCount()} records belong to this account.`)
  }
  async function consumeAuthRedirect(){

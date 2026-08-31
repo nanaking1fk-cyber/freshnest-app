@@ -68,6 +68,7 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
     const setupWizard=page.locator('#guidedClose');
     await setupWizard.waitFor({state:'visible'});
     await setupWizard.click();
+    await expect(page.locator('#guidedOnboarding')).not.toHaveClass(/open/);
     // #accountChip is a legacy control: premium-v18.css hides it outright with
     // `body.premiumV18 .accountChip{display:none!important}`, so it can be
     // asserted on but never clicked. The live entry point is the dashboard

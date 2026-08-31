@@ -37,6 +37,14 @@
   </section>
 
   <section id="page-diary" class="page" aria-labelledby="diaryHeading">
+    <nav id="nutritionWorkspaceTabs" class="nutritionWorkspaceTabs" role="tablist" aria-label="Nutrition sections">
+      <button id="nutritionTab-diary" type="button" role="tab" aria-selected="true" aria-controls="nutritionPane-diary" data-nutrition-view="diary" class="active">Diary</button>
+      <button id="nutritionTab-history" type="button" role="tab" aria-selected="false" aria-controls="nutritionPane-history" data-nutrition-view="history" tabindex="-1">History</button>
+      <button id="nutritionTab-meals" type="button" role="tab" aria-selected="false" aria-controls="nutritionPane-meals" data-nutrition-view="meals" tabindex="-1">My Meals</button>
+      <button id="nutritionTab-recipes" type="button" role="tab" aria-selected="false" aria-controls="nutritionPane-recipes" data-nutrition-view="recipes" tabindex="-1">My Recipes</button>
+      <button id="nutritionTab-foods" type="button" role="tab" aria-selected="false" aria-controls="nutritionPane-foods" data-nutrition-view="foods" tabindex="-1">My Foods</button>
+    </nav>
+    <div id="nutritionPane-diary" class="nutritionPane active" role="tabpanel" aria-labelledby="nutritionTab-diary">
     <div class="dateNav"><button id="diaryPrev" aria-label="Previous day">‹</button><input id="diaryDate" type="date" aria-label="Diary date"><button id="diaryNext" aria-label="Next day">›</button></div>
     <h2 id="diaryHeading" class="srOnly">Food diary</h2>
     <div class="energyCard">
@@ -46,6 +54,11 @@
     <div id="proteinDistribution" class="miniCoach"></div>
     <div id="mealList"></div>
     <div class="card waterRow"><div><b>Water</b><small id="waterText">0 / 96 oz</small></div><div><button id="waterMinus">−8</button><button id="waterPlus" class="primary">+8 oz</button></div></div>
+    </div>
+    <section id="nutritionPane-history" class="nutritionPane" role="tabpanel" aria-labelledby="nutritionTab-history" hidden><header class="nutritionLibraryHead"><div><small>YOUR LOG</small><h2>Nutrition history</h2><p>Review past days and jump back to any diary.</p></div></header><div id="nutritionHistoryList" class="nutritionLibraryList"></div></section>
+    <section id="nutritionPane-meals" class="nutritionPane" role="tabpanel" aria-labelledby="nutritionTab-meals" hidden><header class="nutritionLibraryHead"><div><small>QUICK REPEAT</small><h2>My Meals</h2><p>Reuse a breakfast, lunch, dinner, or snack you logged before.</p></div></header><div id="nutritionMealsList" class="nutritionLibraryList"></div></section>
+    <section id="nutritionPane-recipes" class="nutritionPane" role="tabpanel" aria-labelledby="nutritionTab-recipes" hidden><header class="nutritionLibraryHead"><div><small>SAVED TEMPLATES</small><h2>My Recipes</h2><p>Log a named recipe to any day and meal.</p></div></header><div id="nutritionRecipesList" class="nutritionLibraryList"></div></section>
+    <section id="nutritionPane-foods" class="nutritionPane" role="tabpanel" aria-labelledby="nutritionTab-foods" hidden><header class="nutritionLibraryHead"><div><small>PERSONAL LIBRARY</small><h2>My Foods</h2><p>Add your saved foods without searching again.</p></div></header><div id="nutritionFoodsList" class="nutritionLibraryList"></div></section>
   </section>
 
   <section id="page-training" class="page" aria-labelledby="trainingHeading"><div id="trainingRoot"></div></section>
@@ -86,6 +99,13 @@
     <label class="span2">Food name<input id="foodName"></label><label>Meal<select id="foodMeal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></label><label>Serving grams<input id="foodGrams" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="e.g. 170"></label>
     <label>Calories<input id="foodCal" type="number" min="0" step="0.1"></label><label>Protein (g)<input id="foodProtein" type="number" min="0" step="0.1"></label><label>Carbs (g)<input id="foodCarbs" type="number" min="0" step="0.1"></label><label>Fat (g)<input id="foodFat" type="number" min="0" step="0.1"></label><label>Fiber (g)<input id="foodFiber" type="number" min="0" step="0.1"></label><label>Saturated fat (g)<input id="foodSatFat" type="number" min="0" step="0.1"></label><label>Sodium (mg)<input id="foodSodium" type="number" min="0" step="1"></label>
   </div><label class="check"><input id="saveToMyFoods" type="checkbox"> Save/update in My Foods</label><div class="sheetActions"><button id="deleteFoodEntry" class="danger hidden">Delete entry</button><button id="queueFoodEntry" class="secondary">Add &amp; keep adding</button><button id="saveFoodEntry" class="primary">Add to Breakfast</button></div>
+</div></div>
+
+<div id="repeatMealDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="repeatMealTitle"><div class="sheet repeatMealSheet">
+  <div class="sheetHandle"></div><div class="sheetHead"><div><h2 id="repeatMealTitle">Repeat meal</h2><small id="repeatMealContext">Copy foods without entering them again</small></div><button data-close="repeatMealDialog">Cancel</button></div>
+  <div id="repeatMealPreview" class="repeatMealPreview"></div>
+  <div class="formGrid repeatMealFields"><label>Date<input id="repeatMealDate" type="date"></label><label>Meal<select id="repeatMealMeal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></label></div>
+  <div class="sheetActions"><button id="confirmRepeatMeal" class="primary">Add meal</button></div>
 </div></div>
 
 <div id="profileDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle"><div class="sheet largeSheet">

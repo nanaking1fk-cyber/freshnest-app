@@ -62,14 +62,14 @@ test('meal changes move all staged foods and summaries report count, calories, a
   for(const meal of ['Breakfast','Lunch','Dinner','Snacks'])assert.ok(diaryA.includes(`'${meal}'`));
 });
 
-test('new diary and food-modal CSS stays strictly scoped',()=>{
+test('new diary and nutrition-modal CSS stays strictly scoped',()=>{
   const added=css.slice(css.indexOf('/* Multi-food logging is isolated'));
   const beforeProgress=added.slice(0,added.indexOf('/* Progress gets'));
   const selectors=beforeProgress.split('}').map(rule=>rule.split('{')[0].trim())
     .filter(Boolean).filter(selector=>!selector.startsWith('@')&&!selector.startsWith('/*'));
   const leaks=selectors.filter(selector=>selector.split(',').some(part=>{
     const value=part.trim();
-    return value&&!value.startsWith('body.premiumV30 #foodDialog')&&!value.startsWith('body.premiumV30 #page-diary');
+    return value&&!value.startsWith('body.premiumV30 #foodDialog')&&!value.startsWith('body.premiumV30 #repeatMealDialog')&&!value.startsWith('body.premiumV30 #page-diary');
   }));
   assert.deepEqual(leaks,[]);
   assert.match(css,/body\.premiumV30 #foodDialog \.foodBatchTray/);

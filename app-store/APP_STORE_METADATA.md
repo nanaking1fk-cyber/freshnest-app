@@ -57,9 +57,48 @@ Work + Workout provides planning and general fitness education. It is not a medi
 ## URLs
 
 - Privacy Policy: https://www.workandworkout.com/work-gym-planner/privacy.html
+- User Privacy Choices: https://www.workandworkout.com/work-gym-planner/privacy.html#rights
 - Support: https://www.workandworkout.com/work-gym-planner/support.html
 - Terms: https://www.workandworkout.com/work-gym-planner/terms.html
 - Account deletion: https://www.workandworkout.com/work-gym-planner/delete-account.html
+
+## App Privacy questionnaire
+
+Use these answers for version 1.0.0. They intentionally cover the optional account sync, personalized AI, calendar connection, food search and diagnostic paths even though the planner can remain local-only. Recheck this list whenever a provider or feature changes.
+
+**Does this app or its third-party partners collect data?** Yes.
+
+**Tracking:** No. The app does not combine data with third-party data for targeted advertising or advertising measurement, share data with a data broker, display third-party ads, or request App Tracking Transparency permission.
+
+| App Store data type | Linked to the user | Tracking | Purposes | What the answer covers |
+| --- | --- | --- | --- | --- |
+| Contact Info — Name | Yes | No | App Functionality; Product Personalization | Optional display/profile name and roster identity. |
+| Contact Info — Email Address | Yes | No | App Functionality | Account authentication and optional Google/Microsoft calendar identity. |
+| Health & Fitness — Health | Yes when cloud or AI consent is enabled | No | App Functionality; Product Personalization | Nutrition, meals, body measurements, weight, sleep, heart rate, recovery and wellness inferences. |
+| Health & Fitness — Fitness | Yes when cloud or AI consent is enabled | No | App Functionality; Product Personalization | Workouts, sets, reps, activity, steps, training history and exercise goals. |
+| Location — Coarse Location | No | No | App Functionality | Approximate location that infrastructure may infer from an IP address for delivery, security and abuse prevention; the app does not request device location. |
+| User Content — Photos or Videos | Yes when the user sends an optional AI equipment image | No | App Functionality; Product Personalization | Optional AI equipment image. Schedule/photo OCR and barcode images otherwise remain on-device in the normal flow. |
+| User Content — Audio Data | No | No | App Functionality | Voice input is handled by the browser/operating-system speech service; Work + Workout does not intentionally store the recording. Select this data type if Apple treats the enabled OS speech provider as collection for the submitted build. |
+| User Content — Other User Content | Yes when cloud, calendar or AI features are enabled | No | App Functionality; Product Personalization | Schedule entries, tasks, goals, profile answers, calendar events, notes, AI prompts/replies and other planner content. |
+| Search History | No | No | App Functionality | Food-search terms and barcode numbers sent directly to Open Food Facts for lookup. |
+| Identifiers — User ID | Yes | No | App Functionality | Supabase account ID and account-scoped record identifiers. |
+| Usage Data — Product Interaction | Yes | No | App Functionality | Account-scoped AI trial/usage limits and feature-operation records. This is not used for advertising. |
+| Diagnostics — Performance Data | No | No | Analytics; App Functionality | Request duration and page/app performance measurements. |
+| Diagnostics — Other Diagnostic Data | No | No | Analytics; App Functionality | Error source, broad category and release number; no error message, account ID or planner contents. |
+
+Do **not** select Payment Info: any future App Store payment details are handled by Apple and are not available to Work + Workout. Do **not** select Precise Location, Contacts, Browsing History, Device ID, Advertising Data or Crash Data for this build because the app does not request or collect them. If in-app purchases are added, reassess Purchase History before the update is submitted.
+
+The health-data rows should be marked as linked to identity because optional private account sync and personalized AI can associate those records with an authenticated account after separate consent. Product-page disclosure should reflect the most data-intensive optional path, not only the default local-only state.
+
+## Required declarations
+
+- **Regulated Medical Devices:** No. Work + Workout is a consumer wellness planner, not a regulated medical device, healthcare provider, diagnostic service or treatment service.
+- **Age rating:** Answer the content questions truthfully (no violence, sexual content, gambling, loot boxes, unrestricted web access or public user-generated content), then choose **Override to Higher Age Rating: 18+** because Section 2 of the Terms requires users to be at least 18.
+- **Made for Kids:** No.
+- **Advertising:** No advertising and no health-data advertising.
+- **Content rights:** Yes, the app accesses third-party food and calendar content. Confirm the right to display it under the applicable Open Food Facts, Google and Microsoft terms before submission and keep required attributions visible.
+- **Encryption/export compliance:** The app uses standard HTTPS and declares `ITSAppUsesNonExemptEncryption` as false. Answer the export-compliance questions consistently with that build setting.
+- **Distribution:** Public App Store distribution. Use automatic release after approval only when the production build and reviewer account have completed the device checklist.
 
 ## App Review notes
 

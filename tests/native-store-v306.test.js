@@ -78,3 +78,14 @@ test('both stores have truthful metadata and a public account deletion path',()=
   assert.match(deletion,/Delete account permanently/);
   assert.match(deletion,/cloud records associated with it/);
 });
+
+test('Apple submission metadata declares sensitive-data practices and required ratings',()=>{
+  const apple=read('app-store/APP_STORE_METADATA.md');
+  assert.match(apple,/User Privacy Choices: https:\/\/www\.workandworkout\.com\/work-gym-planner\/privacy\.html#rights/);
+  for(const disclosure of ['Health & Fitness — Health','Health & Fitness — Fitness','User Content — Photos or Videos','Identifiers — User ID','Diagnostics — Performance Data'])assert.match(apple,new RegExp(disclosure));
+  assert.match(apple,/\*\*Tracking:\*\* No/);
+  assert.match(apple,/\*\*Regulated Medical Devices:\*\* No/);
+  assert.match(apple,/Override to Higher Age Rating: 18\+/);
+  assert.match(apple,/\*\*Made for Kids:\*\* No/);
+  assert.match(apple,/ITSAppUsesNonExemptEncryption/);
+});

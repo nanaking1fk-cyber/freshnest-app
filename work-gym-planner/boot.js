@@ -15,7 +15,9 @@
   const p='../work-gym-planner-v16/';
   const platformScripts='<scr'+'ipt defer src="../shared/v23-core.js?v=30.1.25"></scr'+'ipt><scr'+'ipt defer src="../shared/v25-scheduling.js?v=30.1.25"></scr'+'ipt><scr'+'ipt defer src="../shared/v31-roster.js?v=30.1.25"></scr'+'ipt>';
   const appScripts=['base-patch.js','workout-plan.js','nutrition-core.js','health.js','coach.js','today.js','calendar.js','training-a.js','training-b.js','alternatives.js','diary-a.js','diary-b.js','progress.js','schedule.js','data.js','cloud.js','notifications.js','pwa-patch.js','shell.js','audit-v169.js','singlejob-ui-v169.js','body-bmr-v169.js','training-history-v1610.js','commercial-v17.js','commercial-legal-v17.js','commercial-polish-v17.js','commercial-cyclefix-v17.js','accounts-v18.js','account-security-v18.js','sync-v18.js','onboarding-v18.js','onboarding-accountfix-v18.js','exercise-library-v18.js','ai-coach-v18.js','nutrition-plan-v18.js','training-guides-v18.js','v18-integration.js','init.js','premium-ui-v18.js','guided-onboarding-v18.js','landing-v29.js','adaptive-planner-v24.js','schedule-platform-v25.js','app-v29.js','app-v30.js'].map(x=>'<scr'+'ipt defer src="'+p+x+'?v=30.1.25"></scr'+'ipt>').join('');
-  h=h.replace('</body>',platformScripts+appScripts+'</body>');
+  const consentScript='<scr'+'ipt defer src="'+p+'health-consent-v35.js?v=30.1.25"></scr'+'ipt>';
+  const orderedScripts=appScripts.replace('<scr'+'ipt defer src="'+p+'sync-v18.js?v=30.1.25"></scr'+'ipt>',consentScript+'<scr'+'ipt defer src="'+p+'sync-v18.js?v=30.1.25"></scr'+'ipt>');
+  h=h.replace('</body>',platformScripts+orderedScripts+'</body>');
   document.open();document.write(h);document.close();
 }catch(e){
   window.WWObservability?.capture?.('boot_load',e?.name);

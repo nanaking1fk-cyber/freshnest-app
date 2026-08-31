@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.25-offline1';
+const CACHE='wgp-stable-v30.1.25-offline2';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',
@@ -7,6 +7,7 @@ const SHELL=[
  '../work-gym-planner-v16/vendor/fonts/instrument-sans-latin-400-normal.woff2','../work-gym-planner-v16/vendor/fonts/instrument-sans-latin-500-normal.woff2','../work-gym-planner-v16/vendor/fonts/instrument-sans-latin-600-normal.woff2','../work-gym-planner-v16/vendor/fonts/instrument-sans-latin-700-normal.woff2','../work-gym-planner-v16/vendor/fonts/instrument-serif-latin-400-normal.woff2','../work-gym-planner-v16/vendor/fonts/instrument-serif-latin-400-italic.woff2','../work-gym-planner-v16/vendor/fonts/ibm-plex-mono-latin-400-normal.woff2','../work-gym-planner-v16/vendor/fonts/ibm-plex-mono-latin-500-normal.woff2','../work-gym-planner-v16/icons/icon-180.png','../work-gym-planner-v16/icons/icon.svg','../work-gym-planner-v16/icons/brand-mark.svg','../work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs','../work-gym-planner-v16/vendor/pdfjs/pdf.worker.min.mjs','../work-gym-planner-v16/vendor/tesseract/tesseract.min.js','../work-gym-planner-v16/vendor/tesseract/worker.min.js','../work-gym-planner-v16/vendor/tesseract-core/tesseract-core-lstm.js','../work-gym-planner-v16/vendor/tesseract-core/tesseract-core-lstm.wasm','../work-gym-planner-v16/vendor/tesseract-core/tesseract-core-simd-lstm.js','../work-gym-planner-v16/vendor/tesseract-core/tesseract-core-simd-lstm.wasm','../work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js',
  '../work-gym-planner-v15/index.html','../work-gym-planner-v15/base.css','../work-gym-planner-v15/training.css','../work-gym-planner-v15/responsive.css','../work-gym-planner-v15/base.js','../work-gym-planner-v15/work-model.js','../work-gym-planner-v15/profile.js','../work-gym-planner-v15/nutrition-ui.js','../work-gym-planner-v15/ui.js','../work-gym-planner-v15/pwa.js'
 ];
+SHELL.push('../work-gym-planner-v16/health-consent-v35.js');
 const OPTIONAL_SHELL=SHELL.filter(url=>url.includes('/vendor/'));
 const REQUIRED_SHELL=SHELL.filter(url=>!OPTIONAL_SHELL.includes(url));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(async c=>{

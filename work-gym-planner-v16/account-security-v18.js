@@ -16,6 +16,7 @@ window.WGC18=window.WGC18||{};
  window.exportState18=secureCapture;
  A.pushState=async function({quiet=false}={}){
    if(!A.session)return false;
+   if(typeof A.ensureHealthConsent!=='function'||!await A.ensureHealthConsent({interactive:!quiet,purpose:'account_cloud_sync'}))return false;
    let state=secureCapture();
    let result=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state})});
    localStorage.setItem('wgc-v18-last-sync',result.updatedAt||new Date().toISOString());

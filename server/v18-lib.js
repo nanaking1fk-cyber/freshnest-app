@@ -4,6 +4,11 @@ const {sanitizePlannerState}=require('../shared/v23-core');
 const SUPABASE_URL=()=>process.env.SUPABASE_URL;
 const ANON=()=>process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY;
 const SERVICE=()=>process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
+const HEALTH_CONSENT_VERSION='2026-08-31-v1';
+const HEALTH_POLICY_VERSION='1.2';
+const HEALTH_CONSENT_PURPOSES=Object.freeze(['account_cloud_sync','encrypted_webdav_sync','personalized_ai']);
+const HEALTH_CONSENT_STATEMENT='I explicitly consent to each selected use of my health and wellness data. I understand that I can withdraw consent at any time without affecting processing that was lawful before withdrawal.';
+const HEALTH_WITHDRAWAL_STATEMENT='I withdraw my consent for future account cloud sync, encrypted WebDAV sync, and personalized AI processing of my health and wellness data.';
 
 function requestMeta(req,res){
   if(!req.requestId)req.requestId=crypto.randomUUID();
@@ -118,6 +123,65 @@ async function userFetch(authorization,path,{method='GET',body,prefer='return=re
     throw error;
   }
   return data;
+}
+
+function normalizeConsentRow(row){
+  if(!row)return null;
+  return{
+    action:row.action,
+    consentVersion:row.consent_version,
+    policyVersion:row.policy_version,
+    purposes:Array.isArray(row.purposes)?row.purposes:[],
+    statement:row.explicit_statement,
+    locale:row.locale||null,
+    region:row.region||'global',
+    createdAt:row.created_at
+  };
+}
+
+async function getHealthConsent(userId,authorization){
+  if(!userId)throw Object.assign(new Error('Sign in required.'),{status:401});
+  const path=`health_data_consent_events?select=action,consent_version,policy_version,purposes,explicit_statement,locale,region,created_at&user_id=eq.${encodeURIComponent(userId)}&order=created_at.desc,id.desc&limit=1`;
+  const rows=await userFetch(authorization,path);
+  return normalizeConsentRow(rows?.[0]);
+}
+
+function healthConsentActive(receipt,purpose){
+  return !!receipt&&receipt.action==='granted'&&receipt.consentVersion===HEALTH_CONSENT_VERSION&&HEALTH_CONSENT_PURPOSES.includes(purpose)&&receipt.purposes.includes(purpose);
+}
+
+async function recordHealthConsent(userId,authorization,{action,purposes=[],locale=null}={}){
+  if(!userId)throw Object.assign(new Error('Sign in required.'),{status:401});
+  const normalizedAction=action==='withdrawn'?'withdrawn':'granted';
+  const normalizedPurposes=normalizedAction==='granted'?[...new Set(purposes.filter(value=>HEALTH_CONSENT_PURPOSES.includes(value)))]:[];
+  if(normalizedAction==='granted'&&!normalizedPurposes.length)throw Object.assign(new Error('Select at least one health-data use.'),{status:400});
+  const rows=await userFetch(authorization,'health_data_consent_events',{
+    method:'POST',
+    body:{
+      user_id:userId,
+      action:normalizedAction,
+      consent_version:HEALTH_CONSENT_VERSION,
+      policy_version:HEALTH_POLICY_VERSION,
+      purposes:normalizedPurposes,
+      explicit_statement:normalizedAction==='granted'?HEALTH_CONSENT_STATEMENT:HEALTH_WITHDRAWAL_STATEMENT,
+      locale:String(locale||'').slice(0,35)||null,
+      region:'global',
+      source:'work-and-workout-app'
+    }
+  });
+  return normalizeConsentRow(rows?.[0]);
+}
+
+async function requireHealthConsent(user,purpose){
+  const receipt=await getHealthConsent(user?.id,user?.authorization);
+  if(!healthConsentActive(receipt,purpose)){
+    throw Object.assign(new Error('Choose whether to allow this health-data feature before continuing.'),{
+      status:428,
+      code:'HEALTH_CONSENT_REQUIRED',
+      purpose
+    });
+  }
+  return receipt;
 }
 
 async function getState(userIdOrAuthorization,authorization=userIdOrAuthorization){
@@ -289,4 +353,4 @@ function errorResponse(res,error){
   json(res,error.status||500,body);
 }
 
-module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};
+module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

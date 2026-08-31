@@ -175,6 +175,45 @@ async function countAI(userId){
   return{used:+row.user_requests,limit,globalUsed:+row.global_requests,globalLimit};
 }
 
+function paidAccount(user){
+  const metadata=user?.app_metadata||{};
+  const planValue=metadata.plan&&typeof metadata.plan==='object'?(metadata.plan.id||metadata.plan.name):metadata.plan;
+  const tier=String(planValue||metadata.tier||metadata.subscription_tier||'').toLowerCase();
+  const entitlement=metadata.ai_coach===true||metadata.entitlements?.ai_coach===true;
+  const paidTier=['paid','pro','premium'].includes(tier);
+  const status=String(metadata.subscription_status||'').toLowerCase();
+  const inactive=['canceled','cancelled','expired','inactive','unpaid'].includes(status);
+  return !inactive&&(entitlement||paidTier);
+}
+
+async function reserveAICoach(user){
+  if(!user?.id)throw Object.assign(new Error('Sign in required.'),{status:401});
+  const userLimit=Math.max(1,Math.min(1000,+(process.env.AI_DAILY_LIMIT||40)||40));
+  const globalLimit=Math.max(1,Math.min(1_000_000,+(process.env.AI_GLOBAL_DAILY_LIMIT||100)||100));
+  const paid=paidAccount(user);
+  const result=await serviceFetch('rpc/reserve_ai_coach_request',{
+    method:'POST',
+    body:{target_user_id:user.id,paid_access:paid,user_daily_limit:userLimit,global_daily_limit:globalLimit},
+    prefer:'return=representation'
+  });
+  const row=Array.isArray(result)?result[0]:result;
+  if(!row?.allowed){
+    if(row?.blocked_reason==='trial_used'){
+      throw Object.assign(new Error('Your free AI Coach question has been used. Continued coaching requires a paid plan.'),{
+        status:402,code:'AI_COACH_PAID_REQUIRED'
+      });
+    }
+    const globalBlocked=row?.blocked_reason==='global';
+    throw Object.assign(new Error(globalBlocked?'AI planning capacity has been reached for today. Try again tomorrow.':'Daily AI Coach limit reached. Try again tomorrow.'),{status:429,retryAfter:3600});
+  }
+  return{
+    access:row.access_type||(paid?'paid':'trial'),
+    trialQuestions:+row.trial_questions||0,
+    used:+row.user_requests,
+    globalUsed:+row.global_requests
+  };
+}
+
 async function countStateWrite(userId,payloadBytes){
   const dailyLimit=Math.max(10,Math.min(5000,+(process.env.STATE_DAILY_WRITE_LIMIT||300)||300));
   const byteLimit=Math.max(8_000_000,Math.min(2_000_000_000,+(process.env.STATE_DAILY_BYTE_LIMIT||256_000_000)||256_000_000));
@@ -245,7 +284,9 @@ function errorResponse(res,error){
   const req=res._wgcRequest;
   console.error(JSON.stringify({event:'api_error',requestId:req?.requestId||null,path:req?.url?.split('?')[0]||null,status:error.status||500,durationMs:req?.requestStartedAt?Date.now()-req.requestStartedAt:null,message:error.message||'Unexpected server error'}));
   if(error.retryAfter)res.setHeader('Retry-After',String(error.retryAfter));
-  json(res,error.status||500,{ok:false,error:error.message||'Unexpected server error'});
+  const body={ok:false,error:error.message||'Unexpected server error'};
+  if(error.code)body.code=error.code;
+  json(res,error.status||500,body);
 }
 
-module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};
+module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

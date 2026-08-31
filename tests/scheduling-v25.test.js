@@ -44,8 +44,9 @@ test('schedule API bounds output and reserves high reasoning for paid accounts',
   const api=read('api/v25/schedule.js');
   const ai=read('server/v18-lib.js');
   assert.match(api,/maxOutputTokens:4000,reasoning/);
-  assert.match(api,/user\.app_metadata\?\.plan/);
-  assert.match(api,/\['paid','pro','premium'\]\.includes/);
+  assert.match(api,/paidAccount\(user\)\?'high':'medium'/);
+  assert.match(ai,/metadata\.plan/);
+  assert.match(ai,/\['paid','pro','premium'\]\.includes/);
   assert.match(api,/engine:'ai'/);
   assert.match(api,/explicit numeric or named calendar date always wins/i);
   assert.match(ai,/result\?\.status==='incomplete'/);

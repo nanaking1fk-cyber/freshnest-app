@@ -1,1 +1,233 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Privacy Policy · Work + Workout</title><style>body{max-width:760px;margin:0 auto;padding:28px 20px 60px;background:#07111f;color:#e5edf7;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}h1,h2{color:#fff}a{color:#73a7ff}.card{background:#0d1726;border:1px solid #223047;border-radius:16px;padding:18px;margin:16px 0}.muted{color:#a8b3c7}</style></head><body><h1>Privacy Policy</h1><p class="muted">Work + Workout · Effective August 23, 2026</p><div class="card"><b>Local-first with optional account sync</b><p>Work + Workout stores planner information on your device while you use the app. When account services are enabled and you choose to migrate or sync a device, eligible planner data is also stored in your Work + Workout account so it can be restored on your other devices.</p></div><h2>Account information</h2><p>If you create an account, the authentication provider processes information such as your email address, password credentials in protected form, authentication/session information, and optional display name. Work + Workout uses Supabase for account authentication and cloud database services in the current architecture.</p><h2>Planner and fitness information</h2><p>The app may process information you choose to enter or import, including your name, height, age/calorie-estimation setting, goals, work schedules, shift times, commute times, recurring commitments, sleep target, training preferences, equipment access, workout history, weights/repetitions/RIR, food preferences, nutrition entries, weight, waist and other body measurements, and recovery information. When you use account migration or sync, eligible locally stored planner records can be uploaded to your account. Old WebDAV passwords, passphrases and private sync credentials are intentionally excluded from account migration.</p><h2>AI Coach and onboarding</h2><p>When you use AI Coach or request AI-assisted onboarding, relevant information from your profile, plan, schedule, recent training or nutrition context and the text you submit may be sent through the Work + Workout server to OpenAI to generate a response. AI chat text may be stored with your account so the service can support continuity and troubleshooting. AI-generated guidance is not medical care.</p><h2>Equipment photos</h2><p>If you explicitly attach or take a gym-equipment photo for AI Coach, a resized copy is transmitted through the Work + Workout server to the AI provider so the equipment can be analyzed. Work + Workout does not intentionally write the image itself into its chat-message database; the database records that an equipment photo was used and stores the resulting text conversation. The AI provider may process request data under its applicable service and privacy terms.</p><h2>Camera and schedule photos</h2><p>Camera access is also used when you choose barcode scanning or schedule-photo scanning. Schedule OCR is designed to run in the app/browser and the schedule image is not intentionally uploaded to the Work + Workout account. Barcode numbers and food search terms may be sent to Open Food Facts to retrieve product information.</p><h2>Food preferences and familiar foods</h2><p>Onboarding may ask which foods and cuisines you already eat, along with restrictions, cooking preferences and budget preference. These are used to generate nutrition suggestions that are more familiar and practical for you. Packaged-food search and barcode lookup may use Open Food Facts, which is governed by its own privacy practices.</p><h2>Health and recovery files</h2><p>If you import an Apple Health export or CSV file, the app processes the file to extract supported values such as weight, sleep, steps and resting heart rate. The original imported file is not intentionally uploaded through the normal import flow. Extracted values stored in the planner may become part of account sync if you explicitly migrate or sync your app data.</p><h2>Backups and private sync</h2><p>Manual backup files can be exported by you. If you separately configure a WebDAV/Nextcloud-style private sync server, encrypted backup data is sent to the server address you provide. Those WebDAV credentials remain device-local and are excluded from Work + Workout account migration.</p><h2>Service providers</h2><p>The current architecture may use Supabase for authentication/database services, OpenAI for AI-generated responses and image understanding, Open Food Facts for packaged-food/barcode information, Vercel or another server hosting provider for secured application APIs, and infrastructure providers required to deliver the app. These providers process information only as necessary for the features you choose to use and under their applicable terms.</p><h2>Analytics, advertising and sale of data</h2><p>The current product design does not include behavioral advertising or developer-operated cross-app tracking, and the developer does not sell personal data. If analytics or advertising practices change, this policy and the applicable App Store privacy disclosures must be updated before those changes are released.</p><h2>Data retention and deletion</h2><p>Local data remains on a device until you delete it, clear app/site data, or uninstall/reset the app where applicable. Signed-in cloud data remains associated with the account until it is deleted under the product's retention practices. The app includes a permanent account-deletion action; deleting the cloud account does not automatically erase backup files you previously exported to your own storage.</p><h2>Security</h2><p>Account access uses authenticated sessions and database row-level access controls. Server secrets are not embedded in the client application. The app also offers encrypted manual backups. No storage or transmission method can be guaranteed completely secure, so you should protect your devices and exported files.</p><h2>Children</h2><p>Work + Workout is not designed for children under 13. Commercial distribution may apply a higher minimum age depending on region and product positioning.</p><h2>Changes</h2><p>This policy may be updated as the product changes. Material changes will be reflected by updating the effective date and, where required, by updating in-app or store disclosures.</p><h2>Contact and support</h2><p>For support or privacy questions, use the <a href="./support.html">Work + Workout support page</a>.</p><p><a href="./?v=29.0">← Back to Work + Workout</a></p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <meta name="description" content="How Work + Workout collects, uses, shares, protects and deletes personal and consumer health data.">
+  <title>Privacy &amp; Consumer Health Data Policy · Work + Workout</title>
+  <style>
+    :root{color-scheme:dark;--bg:#070a0d;--panel:#111713;--panel2:#151c17;--ink:#f5f7f1;--muted:#aeb5ac;--line:#2b342d;--lime:#c8ff31;--warn:#ffd68a}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 12% 0,#172414 0,transparent 34%),var(--bg);color:var(--ink);font:16px/1.67 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--lime);text-underline-offset:3px}a:hover{color:#e2ff91}.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:5;padding:10px 14px;border-radius:10px;background:var(--lime);color:#071006}
+    header{max-width:1180px;margin:auto;padding:64px 24px 34px}.eyebrow{margin:0;color:var(--lime);font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}h1{max-width:900px;margin:12px 0 18px;font-size:clamp(40px,7vw,72px);line-height:.98;letter-spacing:-.055em}.lead{max-width:760px;margin:0;color:var(--muted);font-size:19px}.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;color:var(--muted);font-size:14px}.meta strong{color:var(--ink)}
+    .layout{display:grid;grid-template-columns:260px minmax(0,760px);gap:48px;max-width:1180px;margin:auto;padding:0 24px 80px}.toc{position:sticky;top:24px;align-self:start;padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(17,23,19,.9)}.toc b{display:block;margin-bottom:10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase}.toc a{display:block;padding:5px 0;color:var(--muted);font-size:13px;text-decoration:none}.toc a:hover{color:var(--lime)}
+    main{min-width:0}.summary{margin:0 0 34px;padding:24px;border:1px solid rgba(200,255,49,.25);border-radius:22px;background:linear-gradient(145deg,rgba(200,255,49,.08),rgba(255,255,255,.025))}.summary h2{margin-top:0}.summary ul{margin-bottom:0}.summary strong{color:var(--lime)}section{scroll-margin-top:24px;padding:8px 0 22px;border-bottom:1px solid var(--line)}section:last-of-type{border:0}h2{margin:28px 0 10px;font-size:27px;line-height:1.18;letter-spacing:-.025em}h3{margin:22px 0 6px;font-size:18px}p,ul{margin:8px 0 14px}li+li{margin-top:8px}.notice{padding:16px 18px;border-left:3px solid var(--warn);border-radius:0 14px 14px 0;background:rgba(255,214,138,.07)}
+    .tableWrap{overflow-x:auto;margin:16px 0}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:13px 12px;border:1px solid var(--line);text-align:left;vertical-align:top}th{background:var(--panel2);color:var(--ink)}td{color:#d5dbd4}.contact{padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--panel)}.contact address{font-style:normal}.fine{color:var(--muted);font-size:13px}.back{display:inline-flex;margin-top:28px;font-weight:800;text-decoration:none}
+    @media(max-width:850px){header{padding-top:42px}.layout{grid-template-columns:1fr;gap:22px}.toc{position:static;columns:2}.toc b{column-span:all}.toc a{break-inside:avoid}h1{font-size:clamp(38px,12vw,58px)}}
+    @media(max-width:520px){header,.layout{padding-left:18px;padding-right:18px}.toc{columns:1}.summary{padding:19px}th,td{min-width:150px}body{font-size:15px}}
+    @media print{body{background:#fff;color:#111}.toc{display:none}.layout{display:block}.lead,.meta,.fine,td{color:#333}a{color:#111}.summary,.contact{border-color:#999;background:#fff}section{border-color:#ccc}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#policy">Skip to policy</a>
+  <header>
+    <p class="eyebrow">Privacy &amp; health data</p>
+    <h1>Privacy &amp; Consumer Health Data Policy</h1>
+    <p class="lead">This policy explains what Work + Workout collects, why we use it, where it goes, how long it remains, and the choices you have—especially for nutrition, fitness, recovery and other health-related information.</p>
+    <div class="meta"><span><strong>Effective:</strong> August 31, 2026</span><span><strong>Version:</strong> 1.1</span><span><strong>Operator:</strong> Bibinii Farms Company Ltd</span></div>
+  </header>
+  <div class="layout">
+    <nav class="toc" aria-label="Policy contents">
+      <b>Contents</b>
+      <a href="#scope">1. Scope and operator</a><a href="#collection">2. Data we collect</a><a href="#sources">3. Sources</a><a href="#uses">4. How we use data</a><a href="#health">5. Consumer health data</a><a href="#features">6. Feature-specific details</a><a href="#sharing">7. Disclosures</a><a href="#sale">8. No sale or ads</a><a href="#retention">9. Retention and deletion</a><a href="#rights">10. Your rights</a><a href="#security">11. Security</a><a href="#international">12. Global and regional notices</a><a href="#children">13. Children</a><a href="#changes">14. Changes</a><a href="#contact">15. Contact</a>
+    </nav>
+    <main id="policy">
+      <div class="summary">
+        <h2>The short version</h2>
+        <ul>
+          <li>The planner is <strong>local-first</strong>. Account sync, AI, calendar connections, barcode lookup and private WebDAV sync send only the information needed for the feature you choose.</li>
+          <li>We do <strong>not sell personal or consumer health data</strong>, use it for targeted advertising, or use health-location geofencing.</li>
+          <li>You can delete local data, individual AI conversations, connected-calendar access, or your entire cloud account. You may also email a privacy request without creating a new account.</li>
+          <li>Work + Workout is a consumer wellness product. It is <strong>not a healthcare provider or HIPAA-covered medical record system</strong>.</li>
+          <li>We apply the baseline commitments in this policy globally. Additional rights for the EEA, United Kingdom, Switzerland and other regions are set out in Section 12.</li>
+        </ul>
+      </div>
+
+      <section id="scope">
+        <h2>1. Scope and operator</h2>
+        <p>This policy applies to the Work + Workout website, progressive web app, iOS and Android applications, account services, AI Coach, calendar sync and related support services (together, the “Service”).</p>
+        <p>Bibinii Farms Company Ltd, Accra, Ghana (“Work + Workout,” “we,” “us” or “our”), is the operator and data controller responsible for the Service except where a provider acts as its own controller under its terms.</p>
+        <div class="notice"><strong>Not a HIPAA service.</strong> Work + Workout is offered directly to consumers for planning and wellness. Unless we expressly enter a written business associate agreement with a covered healthcare organization, we are not acting as a HIPAA covered entity or business associate. Do not use the Service as a clinical record system or submit protected health information on behalf of a healthcare provider.</div>
+      </section>
+
+      <section id="collection">
+        <h2>2. Personal data we collect</h2>
+        <div class="tableWrap"><table><thead><tr><th>Category</th><th>Examples</th><th>When collected</th></tr></thead><tbody>
+          <tr><td>Account and identity</td><td>Name or display name, email address, account ID, encrypted/hashed authentication credentials, session and account status</td><td>When you create, access or recover an account</td></tr>
+          <tr><td>Schedule and work life</td><td>Jobs, shifts, work location labels you enter, commute time, availability, recurring commitments, calendar events, reminders and tasks</td><td>When you plan, import or connect a calendar</td></tr>
+          <tr><td>Fitness and activity</td><td>Training goals, experience, equipment, exercises, sets, repetitions, load, RIR, completed workouts, estimated strength and exercise preferences</td><td>When you build or log training</td></tr>
+          <tr><td>Nutrition and food</td><td>Meals, individual foods, recipes, saved foods, serving sizes, calories and macros, food preferences, restrictions, cuisines, budget and barcode/search terms</td><td>When you set preferences or use the nutrition diary</td></tr>
+          <tr><td>Body and recovery</td><td>Age or age range, height, weight, waist, body-fat estimate, sleep target and duration, steps, resting heart rate, recovery/readiness, calorie targets and body-composition goals</td><td>When you enter or import health/recovery information</td></tr>
+          <tr><td>AI and submitted content</td><td>Questions, chat messages, selected planner context, AI onboarding answers, AI responses and equipment photos you intentionally submit</td><td>When you request an AI feature</td></tr>
+          <tr><td>Connected services</td><td>Google or Microsoft account email/ID, calendar permission scopes, encrypted OAuth tokens, provider event IDs and sync status; WebDAV server URL and username stored on your device</td><td>When you connect an optional service</td></tr>
+          <tr><td>Device and operations</td><td>IP address and request metadata received by hosting providers, browser/app version, operating system, performance timing, coarse error category, release version and security logs</td><td>Automatically when the Service or an online feature is used</td></tr>
+          <tr><td>Support</td><td>Your email, message, screenshots and diagnostic export you choose to send</td><td>When you contact us</td></tr>
+        </tbody></table></div>
+        <p>Passwords are handled by our authentication provider and are not stored by us in readable form. We do not intentionally collect government identifiers, precise GPS location, payment-card numbers, genetic data, diagnoses or medical records through the ordinary planner flow.</p>
+      </section>
+
+      <section id="sources">
+        <h2>3. Sources of data</h2>
+        <p>We receive information:</p>
+        <ul>
+          <li><strong>Directly from you</strong>, including entries, account details, files, photos, chats, support messages and permissions you choose to provide.</li>
+          <li><strong>From your device</strong>, including locally stored planner records, camera/photo selections, notification permission and supported health-export files you select.</li>
+          <li><strong>From services you connect</strong>, such as Google Calendar, Microsoft Outlook Calendar, your chosen WebDAV server and app-store billing where paid features are offered.</li>
+          <li><strong>From service providers</strong>, including authentication/account status, AI responses, food/product data, performance measurements and limited operational logs.</li>
+          <li><strong>From calculations and inferences</strong>, such as estimated calories, TDEE, BMI, strength, recovery readiness, trends and suggested training or nutrition plans based on your entries.</li>
+        </ul>
+      </section>
+
+      <section id="uses">
+        <h2>4. How and why we use data</h2>
+        <p>We process data to:</p>
+        <ul>
+          <li>provide the planner, diary, training history, recovery trends, reminders, backups and account sync you request;</li>
+          <li>personalize schedules, fitness and nutrition suggestions around your stated goals, work pattern, availability and recovery;</li>
+          <li>authenticate accounts, restore data across devices and protect each user’s records;</li>
+          <li>run optional AI, food lookup, calendar sync, file import and private WebDAV features;</li>
+          <li>maintain service reliability, enforce rate limits, diagnose broad error categories, prevent abuse and secure the Service;</li>
+          <li>respond to support and privacy requests and comply with legal obligations; and</li>
+          <li>create aggregated or de-identified information that cannot reasonably identify you.</li>
+        </ul>
+        <p>Depending on the law that applies, we process ordinary personal data to perform the service or contract you request, with your consent, for our legitimate interests in securing and reliably operating the Service where those interests are not overridden by your rights, and to comply with law. You may withdraw consent at any time, without affecting processing that was lawful before withdrawal, but the affected feature may stop working.</p>
+        <p><strong>EEA and United Kingdom legal bases.</strong> Where the EU GDPR or UK GDPR applies, the corresponding bases are Article 6(1)(b) for account and requested-service performance, Article 6(1)(f) for proportionate security, fraud prevention and service reliability, Article 6(1)(c) for legal obligations, and Article 6(1)(a) for optional processing based on consent. We do not rely on legitimate interests as the Article 9 condition for health data.</p>
+        <div class="notice"><strong>Health-data consent in the EEA and UK.</strong> Our intended condition for processing health or other special-category data is your explicit consent under Article 9(2)(a), unless another lawful Article 9 condition is specifically documented and applies. The policy itself is not consent. Explicit consent must be separate, specific, informed, affirmative and withdrawable. Before we process special-category data through a feature that legally requires this consent, the Service must present a separate consent request. If no such request is presented, do not upload, sync or submit health data to an AI feature; contact us at the address in Section 15.</div>
+      </section>
+
+      <section id="health">
+        <h2>5. Consumer health data notice</h2>
+        <p>Nutrition, exercise, body, sleep, heart-rate, recovery, schedule and wellness information—and inferences drawn from it—may be “consumer health data,” “special personal data” or “sensitive personal information” under applicable law.</p>
+        <h3>Categories and purposes</h3>
+        <p>We collect the fitness, nutrition, body/recovery, schedule and AI categories listed in Section 2 to provide requested logging, planning, trend, sync and coaching features; keep your records available; and protect the Service. We do not collect additional health categories or use health data for a materially different purpose without giving the required notice and obtaining consent where required.</p>
+        <h3>Health-data sources</h3>
+        <p>Sources are you, files and photos you select, services you intentionally connect, and estimates the app derives from those inputs. We do not buy health data from data brokers.</p>
+        <h3>Health-data disclosures</h3>
+        <p>Depending on the feature you select, health data may be disclosed to Supabase (account storage/authentication), Vercel (API hosting), OpenAI (AI Coach/onboarding and image understanding), Google or Microsoft (calendar sync), Open Food Facts (food/barcode lookup), your chosen WebDAV provider, and app stores for subscription status where applicable. We have no affiliate that receives consumer health data for its own independent use.</p>
+        <h3>Your health-data rights</h3>
+        <p>Where applicable, you may confirm whether we collect, share or sell consumer health data; access it; obtain a list of third parties and affiliates that received it; withdraw consent; and request deletion from us and the processors we control. You may exercise these rights through the controls described in Section 10 or by email. If we deny a request, reply with “Appeal” and the reason you disagree. We will provide a written appeal decision and, where required, information about contacting the relevant regulator.</p>
+        <p>We will not discriminate against you for exercising a privacy right. We will obtain separate valid authorization before any sale of consumer health data. We do not use geofencing around healthcare facilities to identify, track, collect from or send health-related messages to people.</p>
+      </section>
+
+      <section id="features">
+        <h2>6. Feature-specific details</h2>
+        <h3>Local-first planner and account sync</h3>
+        <p>Planner records are stored in browser/app storage. When you create an account and choose sync or migration, eligible schedule, training, nutrition, body, recovery, profile and settings records are uploaded to your private account. Authentication sessions are also stored on the device so you can remain signed in. WebDAV credentials, backup passphrases and private sync passwords are excluded from account migration.</p>
+        <h3>AI Coach and AI onboarding</h3>
+        <p>When you submit an AI request, the Work + Workout server sends OpenAI your message and the relevant planner context needed to answer it. This can include work schedule, goals, training, nutrition, body or recovery information. Requests are sent with API storage disabled by Work + Workout, but OpenAI may retain limited request data under its API privacy and abuse-monitoring practices. Work + Workout stores the text conversation in your account for continuity until you delete the conversation or account.</p>
+        <p>If you attach an equipment photo, a resized image is transmitted for that answer. Work + Workout does not intentionally save the image in its chat database; it saves the text “[equipment photo]” and the resulting conversation. Do not include faces, name badges, medical documents or other sensitive background information.</p>
+        <h3>Schedule photos, PDFs and voice</h3>
+        <p>Schedule OCR and PDF reading run in the app/browser. The original roster is not intentionally uploaded or saved to your account. If you choose the AI accuracy check, the app sends only the matched row believed to be yours and relevant date headers, not the full roster, for a review-before-save proposal. Voice input uses the speech-recognition service supplied by your browser or operating system and is subject to that provider’s privacy practices.</p>
+        <h3>Health and CSV imports</h3>
+        <p>Selected Apple Health export or CSV files are parsed on your device to extract supported values such as weight, sleep, steps and resting heart rate. The original file is not intentionally uploaded through the normal import flow. Extracted values become local planner records and may later be included in account or WebDAV sync you enable.</p>
+        <h3>Food search and barcodes</h3>
+        <p>Barcode images are processed on your device where supported. Barcode numbers and food-search terms are sent to Open Food Facts to return product information. Food database values can be incomplete or wrong; verify labels when accuracy matters.</p>
+        <h3>Google and Outlook Calendar</h3>
+        <p>If you connect a calendar, we request access to read and write calendar events. We store the connected email/ID, permission scopes, event-link identifiers and encrypted access/refresh tokens. Sync compares a limited date range, creates or updates approved events, and returns external changes for review. You can disconnect either provider in the app; we delete our stored connection and event links and attempt provider-token revocation where supported. Events already written to the provider may remain until you delete them there.</p>
+        <h3>Backups and WebDAV</h3>
+        <p>You can export plain or AES-GCM encrypted backup files. If you configure WebDAV, encrypted backup content is sent directly to the HTTPS server you specify. The server address and username remain in local device storage; the WebDAV password and encryption passphrase are kept for the browser session. Your chosen storage provider controls copies held there.</p>
+        <h3>Performance and error monitoring</h3>
+        <p>Vercel Speed Insights may measure page performance. Our client-error endpoint sends only an error source, broad category and app release—not the error message, planner contents, account ID or health data. Hosting systems still receive ordinary request data such as IP address, time and user agent. Local diagnostics can contain error messages and remain on your device unless you export and send them.</p>
+      </section>
+
+      <section id="sharing">
+        <h2>7. When we disclose data</h2>
+        <p>We do not disclose personal data except:</p>
+        <ul>
+          <li><strong>At your direction</strong>, to run a feature, export/share a file, connect a calendar or send a backup to your chosen provider.</li>
+          <li><strong>To processors and infrastructure providers</strong> that help operate the Service, subject to their contracts and applicable law. Current providers include <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase</a>, <a href="https://vercel.com/legal/privacy-policy" rel="noopener noreferrer">Vercel</a>, <a href="https://openai.com/policies/privacy-policy/" rel="noopener noreferrer">OpenAI</a>, <a href="https://world.openfoodfacts.org/privacy" rel="noopener noreferrer">Open Food Facts</a>, Google and Microsoft.</li>
+          <li><strong>For legal and safety reasons</strong>, if reasonably necessary to comply with law, respond to lawful process, protect rights or safety, investigate fraud, or secure the Service. We will limit disclosure where legally permitted.</li>
+          <li><strong>In a business transaction</strong>, such as financing, merger, acquisition or asset transfer, subject to confidentiality and notice/consent obligations that apply to sensitive health data.</li>
+        </ul>
+        <p>Providers may process data in other countries and may act as independent controllers for their own account, security or legal obligations. Their policies govern those independent uses.</p>
+      </section>
+
+      <section id="sale">
+        <h2>8. No sale, targeted advertising or unrelated profiling</h2>
+        <p>We do not sell or rent personal data or consumer health data. We do not share personal data for cross-context behavioral advertising, serve targeted advertisements based on health information, or use health data to determine eligibility for employment, insurance, credit, housing or similar decisions. We do not currently use third-party advertising cookies or SDKs.</p>
+      </section>
+
+      <section id="retention">
+        <h2>9. Retention and deletion</h2>
+        <ul>
+          <li><strong>Device data:</strong> remains until you delete it in the app, clear site/app storage, or uninstall/reset the app. Recovery snapshots are limited in the app, but device or system backups may retain copies.</li>
+          <li><strong>Account data:</strong> planner state, profile/onboarding data, generated plans, AI conversations, calendar connections and per-account usage records remain while your account is active unless you delete the relevant record or disconnect a service. Permanent account deletion removes the authentication user and associated cloud rows through database cascade.</li>
+          <li><strong>Calendar authorization state:</strong> expires after approximately ten minutes and is cleared during later connection attempts. Encrypted tokens remain until disconnection, account deletion or provider revocation.</li>
+          <li><strong>Operational logs:</strong> are retained only as long as reasonably necessary for security, fraud prevention, troubleshooting and legal compliance, according to our hosting configuration and provider retention schedules.</li>
+          <li><strong>Your exports and third-party copies:</strong> backups, calendar events, screenshots or files you saved or shared are outside our control and must be deleted where you stored them.</li>
+        </ul>
+        <p>Deletion may not remove de-identified data that cannot reasonably be linked to you or records we must keep to establish, exercise or defend legal claims. When an applicable consumer-health law requires deletion through our processors, we will transmit the request to processors we control.</p>
+      </section>
+
+      <section id="rights">
+        <h2>10. Your choices and privacy rights</h2>
+        <h3>Controls available now</h3>
+        <ul>
+          <li>Edit or delete individual meals, foods, workouts, measurements, schedule items and AI conversations in the app.</li>
+          <li>Export a planner backup or diagnostics file from <strong>More → Data &amp; Backup</strong>.</li>
+          <li>Disconnect Google or Outlook Calendar from calendar settings.</li>
+          <li>Delete device data from <strong>More → Data &amp; Backup</strong>.</li>
+          <li>Permanently delete your account and associated cloud data from the account menu.</li>
+        </ul>
+        <h3>Requests</h3>
+        <p>Depending on where you live, you may request access, confirmation, correction, deletion, restriction, objection, portability, withdrawal of consent, a description of recipients, or review of a significant automated decision. You may also opt out of sale/sharing and limit certain uses of sensitive data; because we do not sell/share for advertising, no opt-out is needed for those practices.</p>
+        <p>Email <a href="mailto:info@bibiniifarms.com?subject=Work%20%2B%20Workout%20Privacy%20Request">info@bibiniifarms.com</a> with the subject “Work + Workout Privacy Request.” Describe the right you want to exercise and the email on the account, if any. Do not email passwords, full health exports or unnecessary medical details. We may verify your identity or authority to protect the account. You do not need to create a new account to make a request.</p>
+        <p>We make this request channel available to users worldwide, even when a local law grants fewer rights. Some rights may be limited by lawful exceptions, and we will explain any refusal. We will respond within the period required by applicable law. If you are dissatisfied, reply with “Appeal.” You may also complain to the <a href="https://dataprotection.org.gh/file-a-complaint/" rel="noopener noreferrer">Ghana Data Protection Commission</a> or your local privacy regulator. Region-specific deadlines and complaint options appear in Section 12.</p>
+      </section>
+
+      <section id="security">
+        <h2>11. Security</h2>
+        <p>We use HTTPS, authenticated sessions, database row-level access controls, restricted server credentials, encryption for stored calendar tokens, encrypted-backup options, rate limits and data-minimizing request design. Access is limited to people and systems that need it to operate the Service. No system is perfectly secure. Protect your device, account password, exported files and backup passphrases, and contact us promptly if you suspect unauthorized access.</p>
+        <p>If a breach affects covered health information, we will investigate and provide notices to affected people and regulators as required by applicable breach-notification laws.</p>
+      </section>
+
+      <section id="international">
+        <h2>12. Global and regional privacy notices</h2>
+        <h3>Global baseline and international transfers</h3>
+        <p>We are based in Ghana and offer the request process, no-sale commitment, data-minimization practices and health-data protections in this policy to users worldwide. Local law may provide additional or stronger rights, which are not limited by this policy.</p>
+        <p>Our providers may process data in Ghana, the United States, the European Economic Area, the United Kingdom and other countries whose privacy laws may differ from yours. Where a restricted transfer requires a mechanism, we use an applicable adequacy decision or approved contractual safeguard, such as the European Commission’s Standard Contractual Clauses, the UK International Data Transfer Agreement or UK Addendum, together with a transfer-risk assessment and supplementary measures where required. Vercel’s <a href="https://vercel.com/legal/dpa" rel="noopener noreferrer">Data Processing Addendum</a> and OpenAI’s <a href="https://openai.com/policies/data-processing-addendum/" rel="noopener noreferrer">Data Processing Addendum</a> publish their transfer terms. We must ensure a valid mechanism covers each restricted transfer; policy text alone is not a transfer mechanism. If you direct data to a calendar, app store, Open Food Facts or WebDAV provider, that provider’s locations and transfer terms also apply.</p>
+
+        <h3>European Economic Area (EEA)</h3>
+        <p>For people in the EEA, Bibinii Farms Company Ltd is the controller for the processing described in this policy. The Article 6 and Article 9 bases are stated in Section 4. Subject to exceptions in the EU GDPR, you may be informed about processing; access and receive a copy of your data; correct it; erase it; restrict processing; receive portable data; object to processing based on legitimate interests; withdraw consent; and not be subject to a decision based solely on automated processing that produces legal or similarly significant effects. Work + Workout’s coaching, recovery, nutrition and training suggestions do not make such decisions.</p>
+        <p>We generally respond to a valid request within one month. A lawful extension of up to two further months may apply for a complex or numerous request, and we will explain it within the first month. You may complain to the data-protection authority where you live, work or believe an infringement occurred; the <a href="https://www.edpb.europa.eu/about-edpb/about-edpb/members_en" rel="noopener noreferrer">European Data Protection Board lists EEA supervisory authorities</a>. You also retain the right to a judicial remedy.</p>
+
+        <h3>United Kingdom</h3>
+        <p>For people in the UK, the UK GDPR and Data Protection Act 2018 may provide the rights and one-month response period described above. You may complain to the <a href="https://ico.org.uk/make-a-complaint/data-protection-complaints/" rel="noopener noreferrer">Information Commissioner’s Office (ICO)</a> and seek a judicial remedy. Restricted transfers from the UK will use an applicable UK adequacy regulation, the UK International Data Transfer Agreement, the UK Addendum to the EU Standard Contractual Clauses, or another permitted safeguard.</p>
+
+        <h3>EEA and UK representative status</h3>
+        <p>We are established in Ghana and have not named a separate EU or UK representative in this policy. You can contact the controller directly using Section 15. Before we actively target people in the EEA or UK, or conduct monitoring that triggers Article 27 of the EU or UK GDPR, we must appoint the required representative or establish that a documented exception applies, then publish the representative’s details here. Direct contact with us does not remove that legal requirement.</p>
+
+        <h3>Switzerland</h3>
+        <p>Swiss residents may request access, correction, deletion, restriction or portability where provided by the Federal Act on Data Protection and may complain to the Federal Data Protection and Information Commissioner. Transfers from Switzerland will use an adequacy decision, recognized contractual clauses or another lawful safeguard where required.</p>
+
+        <h3>United States</h3>
+        <p>Depending on your state, you may have rights to know, access, correct, delete and port personal data; opt out of sale, targeted advertising or certain profiling; limit or consent to sensitive-data processing; obtain a list of certain recipients; and appeal a refusal. We do not sell personal data or use it for targeted advertising. Residents covered by Washington’s My Health My Data Act, Nevada’s consumer-health law or similar laws also have the health-data rights in Section 5. Washington residents may contact the Washington Attorney General after completing our appeal process. California and other state residents may use the same private request channel in Section 10, and an authorized agent may submit a request where law permits.</p>
+
+        <h3>Canada</h3>
+        <p>Where the Personal Information Protection and Electronic Documents Act (PIPEDA) or a provincial privacy law applies, you may request access to and correction of personal information and challenge our compliance. Consent will be meaningful and appropriate to the sensitivity of the information. You may complain to the <a href="https://www.priv.gc.ca/en/report-a-concern/" rel="noopener noreferrer">Office of the Privacy Commissioner of Canada</a> or the applicable provincial regulator.</p>
+
+        <h3>Brazil</h3>
+        <p>Where Brazil’s Lei Geral de Proteção de Dados (LGPD) applies, you may request confirmation of processing, access, correction, anonymization, blocking or deletion of unlawful or unnecessary data, portability where regulated, information about recipients and consent choices, withdrawal of consent, and review of qualifying automated decisions. You may petition Brazil’s <a href="https://www.gov.br/anpd/pt-br/canais_atendimento/cidadao-titular-de-dados/denuncia-peticao-de-titular-referente-lgpd" rel="noopener noreferrer">National Data Protection Authority (ANPD)</a>.</p>
+
+        <h3>Australia and New Zealand</h3>
+        <p>Australian users may request access and correction and complain under the Privacy Act 1988 and Australian Privacy Principles where they apply; unresolved complaints may be made to the <a href="https://www.oaic.gov.au/privacy/privacy-complaints" rel="noopener noreferrer">Office of the Australian Information Commissioner (OAIC)</a>. New Zealand users may request access and correction under the Privacy Act 2020 and complain to the <a href="https://www.privacy.org.nz/your-rights/making-a-complaint-to-the-privacy-commissioner/" rel="noopener noreferrer">Office of the Privacy Commissioner</a>. We will take the steps required by applicable law before disclosing personal information overseas.</p>
+
+        <h3>South Africa, Singapore and Japan</h3>
+        <p>Where applicable, South African users may exercise access, correction, deletion and objection rights under the Protection of Personal Information Act (POPIA) and complain to the <a href="https://inforegulator.org.za/" rel="noopener noreferrer">Information Regulator</a>. Singapore users may request access and correction and withdraw consent under the Personal Data Protection Act (PDPA), subject to exceptions, and contact the <a href="https://www.pdpc.gov.sg/complaints-and-reviews" rel="noopener noreferrer">Personal Data Protection Commission</a>. Japanese users may exercise rights available under the Act on the Protection of Personal Information (APPI) and contact Japan’s <a href="https://www.ppc.go.jp/en/" rel="noopener noreferrer">Personal Information Protection Commission</a>.</p>
+
+        <h3>Other locations</h3>
+        <p>If your country or region is not listed, the baseline commitments and request channel in this policy still apply. We will also honor non-waivable local privacy, data-protection, consumer-health and breach-notification rights. Contact us if you need the name of a local regulator or an accessible copy of this policy.</p>
+      </section>
+      <section id="children"><h2>13. Children</h2><p>The Service is intended for adults aged 18 and older. We do not knowingly collect personal or health data from anyone under 18. If you believe a minor has provided data, contact us so we can investigate and delete it. This age limit does not replace parental-consent requirements that may apply in a particular country.</p></section>
+      <section id="changes"><h2>14. Changes to this policy</h2><p>We may update this policy to reflect new features, providers or legal requirements. We will change the effective date and provide additional notice or obtain consent when required. We will not use previously collected consumer health data for a materially different purpose without the notice and consent required by law.</p></section>
+
+      <section id="contact">
+        <h2>15. Contact us</h2>
+        <div class="contact"><address><strong>Bibinii Farms Company Ltd</strong><br>Work + Workout Privacy<br>Accra, Ghana<br>Email: <a href="mailto:info@bibiniifarms.com?subject=Work%20%2B%20Workout%20Privacy">info@bibiniifarms.com</a><br>Phone: <a href="tel:+233540722133">+233 54 072 2133</a></address><p class="fine">For ordinary product help, visit the <a href="./support.html">support page</a>. Never post health information, account details or diagnostics in a public issue.</p></div>
+        <a class="back" href="./?v=30.1.25">← Back to Work + Workout</a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

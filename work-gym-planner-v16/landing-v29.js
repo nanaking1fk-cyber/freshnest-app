@@ -122,7 +122,7 @@
 
         '<section class="ww29Close"><div><p class="ww29Kicker">Start with the schedule you already have</p><h2>Put in your work hours. Get back a healthier week.</h2><p>Work + Workout finds realistic times for training, meals, recovery, tasks and reminders—then keeps the plan updated when life changes.</p>'+cta('Create my free plan')+'<button class="ww29SignIn closeSign" data-ww29="signin">Already have an account? Sign in</button></div></section>'+
 
-        '<footer class="ww29Footer"><div class="ww29Brand">'+brandMark()+'<b>Work + Workout</b></div><p>Your work, workouts, meals, tasks and recovery—in one plan.</p><nav><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a><a href="./support.html">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
+        '<footer class="ww29Footer"><div class="ww29Brand">'+brandMark()+'<b>Work + Workout</b></div><p>Your work, workouts, meals, tasks and recovery—in one plan.</p><nav><a href="./privacy.html">Privacy &amp; health data</a><a href="./terms.html">Terms</a><a href="./support.html">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
       '</main>'+
     '</div>';
   }

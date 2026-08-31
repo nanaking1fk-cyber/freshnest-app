@@ -19,6 +19,8 @@ test('health-data choice is separate, granular, affirmative and local-first',()=
   assert.match(source,/disabled>Agree to selected uses/);
   assert.match(source,/selected&&confirmed/);
   assert.match(source,/Optional and separate from account terms/);
+  assert.match(source,/legalPage\('privacy\.html','#health'\)/);
+  assert.doesNotMatch(source,/\.\.\/work-gym-planner\/privacy\.html/);
 });
 
 test('consent can be withdrawn without deleting local planner data',()=>{

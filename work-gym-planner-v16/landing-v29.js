@@ -7,6 +7,7 @@
   var BRAND_MARK='../work-gym-planner-v16/icons/brand-mark.svg';
 
   function brandMark(){return '<span class="ww29BrandMark" aria-hidden="true"><img src="'+BRAND_MARK+'" alt=""></span>'}
+  function pageUrl(file){try{return typeof window.productPage==='function'?window.productPage(file):new URL('./'+file,location.href).href}catch{return'./'+file}}
 
   function cta(label,extra){
     return '<button class="ww29Button'+(extra?' '+extra:'')+'" data-ww29="signup">'+(label||'Build my week')+'<span aria-hidden="true">↗</span></button>';
@@ -122,7 +123,7 @@
 
         '<section class="ww29Close"><div><p class="ww29Kicker">Start with the schedule you already have</p><h2>Put in your work hours. Get back a healthier week.</h2><p>Work + Workout finds realistic times for training, meals, recovery, tasks and reminders—then keeps the plan updated when life changes.</p>'+cta('Create my free plan')+'<button class="ww29SignIn closeSign" data-ww29="signin">Already have an account? Sign in</button></div></section>'+
 
-        '<footer class="ww29Footer"><div class="ww29Brand">'+brandMark()+'<b>Work + Workout</b></div><p>Your work, workouts, meals, tasks and recovery—in one plan.</p><nav><a href="./privacy.html">Privacy &amp; health data</a><a href="./terms.html">Terms</a><a href="./support.html">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
+        '<footer class="ww29Footer"><div class="ww29Brand">'+brandMark()+'<b>Work + Workout</b></div><p>Your work, workouts, meals, tasks and recovery—in one plan.</p><nav><a href="'+pageUrl('privacy.html')+'">Privacy &amp; health data</a><a href="'+pageUrl('terms.html')+'">Terms</a><a href="'+pageUrl('support.html')+'">Support</a></nav><small>© 2026 Work + Workout</small></footer>'+
       '</main>'+
     '</div>';
   }

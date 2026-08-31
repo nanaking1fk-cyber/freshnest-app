@@ -105,11 +105,22 @@ test('support keeps health requests private while preserving public bug reportin
 test('health privacy is prominent and legal pages remain in production and native bundles',()=>{
   const landing=read('work-gym-planner-v16/landing-v29.js');
   const menu=read('work-gym-planner-v16/commercial-legal-v17.js');
+  const commercial=read('work-gym-planner-v16/commercial-v17.js');
+  const workspace=read('work-gym-planner-v16/app-v30.js');
   const build=read('app-store/scripts/build-web.mjs');
   const sw=read('work-gym-planner/sw.js');
   assert.match(landing,/Privacy &amp; health data/);
-  assert.match(menu,/Privacy & health data/);
+  assert.match(landing,/pageUrl\('privacy\.html'\)/);
+  assert.match(landing,/pageUrl\('terms\.html'\)/);
+  assert.doesNotMatch(landing,/href="\.\/privacy\.html"/);
   assert.match(menu,/Health data, account sync, providers, rights and deletion/);
+  assert.match(menu,/Privacy & Consumer Health Data Policy/);
+  assert.match(menu,/new URL\(`\.\/\$\{file\}`,location\.href\)/);
+  assert.doesNotMatch(menu,/\/freshnest-app\/work-gym-planner/);
+  assert.doesNotMatch(commercial,/location\.href='\/freshnest-app\/work-gym-planner/);
+  assert.match(workspace,/title:'Legal & privacy'/);
+  assert.match(workspace,/privacy & consumer health data policy/);
+  assert.match(workspace,/v30LegalShown/);
   assert.match(build,/const legal=\['privacy\.html','support\.html','terms\.html','delete-account\.html'\]/);
   assert.match(sw,/\.\/shell\.html/);
   assert.match(sw,/\.\.\/shared\/observability\.js/);

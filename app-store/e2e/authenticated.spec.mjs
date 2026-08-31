@@ -63,12 +63,16 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
     await expect(page.locator('#accountChip')).toHaveClass(/signed/);
     // Writing the marker above replaced the account state, so this account now
     // looks brand new and the app opens its six-question setup wizard. That
-    // wizard is modal: it makes the rest of the page inert, and the account
-    // chip cannot be clicked until it is dismissed.
+    // wizard is modal: it makes the rest of the page inert, so nothing on the
+    // dashboard can be clicked until it is dismissed.
     const setupWizard=page.locator('#guidedClose');
     await setupWizard.waitFor({state:'visible'});
     await setupWizard.click();
-    await page.locator('#accountChip').click();
+    // #accountChip is a legacy control: premium-v18.css hides it outright with
+    // `body.premiumV18 .accountChip{display:none!important}`, so it can be
+    // asserted on but never clicked. The live entry point is the dashboard
+    // avatar, which opens the same account dialog.
+    await page.locator('#pausedAccountBtn').click();
     await expect(page.locator('#signOutAccount')).toBeVisible();
     await page.locator('#signOutAccount').click();
     await expect(page.locator('#accountChip')).not.toHaveClass(/signed/);

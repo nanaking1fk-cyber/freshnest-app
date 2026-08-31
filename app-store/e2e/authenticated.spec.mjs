@@ -79,8 +79,13 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
     await expect(page.locator('#accountChip')).not.toHaveClass(/signed/);
     await context.close();
   }finally{
-    await putState(request,a.access_token,beforeA.state||{appVersion:'30.1.25',storage:{}});
-    await putState(request,b.access_token,beforeB.state||{appVersion:'30.1.25',storage:{}});
+    // The browser journey signs account A out globally. Supabase invalidates
+    // the password-grant session created above as part of that sign-out, so
+    // cleanup must authenticate again instead of reusing a revoked token.
+    const restoreA=await signIn(request,cloud,process.env.E2E_USER_A_EMAIL,process.env.E2E_USER_A_PASSWORD);
+    const restoreB=await signIn(request,cloud,process.env.E2E_USER_B_EMAIL,process.env.E2E_USER_B_PASSWORD);
+    await putState(request,restoreA.access_token,beforeA.state||{appVersion:'30.1.25',storage:{}});
+    await putState(request,restoreB.access_token,beforeB.state||{appVersion:'30.1.25',storage:{}});
   }
 });
 

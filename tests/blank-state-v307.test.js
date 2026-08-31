@@ -51,5 +51,6 @@ test('Finish later persists the account-owned draft and resumes at the same ques
   assert.match(legacyOnboarding,/openOnboarding\(\{auto:true\}\)/);
   assert.match(integration,/openOnboarding\?\.\(\{auto:true\}\)/);
   assert.match(authenticatedE2E,/guidedOnboarding[\s\S]*not\.toHaveClass\(\/open\//);
+  assert.match(authenticatedE2E,/finally\{[\s\S]*restoreA=await signIn[\s\S]*restoreA\.access_token/);
   assert.doesNotMatch(guided,/sessionStorage\.setItem\(DRAFT_KEY/);
 });

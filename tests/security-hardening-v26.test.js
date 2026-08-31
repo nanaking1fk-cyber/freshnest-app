@@ -86,3 +86,17 @@ test('state writes reserve a budget and config is edge-cacheable',()=>{
   assert.match(config,/s-maxage=3600/);
   assert.match(config,/stale-while-revalidate=86400/);
 });
+
+test('AI requests have an atomic deployment-wide hard stop',()=>{
+  const migration=read('supabase/migrations/20260831100000_global_ai_budget_v31.sql');
+  const server=read('server/v18-lib.js');
+  assert.match(migration,/ai_global_usage_daily enable row level security/i);
+  assert.match(migration,/revoke all on public\.ai_global_usage_daily from public,anon,authenticated/i);
+  assert.match(migration,/for update/i);
+  assert.match(migration,/current_global_requests >= global_daily_limit/i);
+  assert.match(migration,/current_user_requests >= user_daily_limit/i);
+  assert.match(migration,/revoke all on function public\.reserve_ai_request\(uuid,integer,integer\) from anon,authenticated/i);
+  assert.match(server,/AI_GLOBAL_DAILY_LIMIT\|\|100/);
+  assert.match(server,/rpc\/reserve_ai_request/);
+  assert.match(server,/blocked_reason==='global'/);
+});

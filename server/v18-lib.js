@@ -165,9 +165,14 @@ async function deleteChat(userId,threadId=null,authorization){
 
 async function countAI(userId){
   const limit=Math.max(1,Math.min(1000,+(process.env.AI_DAILY_LIMIT||40)||40));
-  const used=await serviceFetch('rpc/count_ai_request',{method:'POST',body:{target_user_id:userId,daily_limit:limit},prefer:'return=representation'});
-  if(used==null)throw Object.assign(new Error('Daily AI coach limit reached. Try again tomorrow.'),{status:429});
-  return{used:+used,limit};
+  const globalLimit=Math.max(1,Math.min(1_000_000,+(process.env.AI_GLOBAL_DAILY_LIMIT||100)||100));
+  const result=await serviceFetch('rpc/reserve_ai_request',{method:'POST',body:{target_user_id:userId,user_daily_limit:limit,global_daily_limit:globalLimit},prefer:'return=representation'});
+  const row=Array.isArray(result)?result[0]:result;
+  if(!row?.allowed){
+    const globalBlocked=row?.blocked_reason==='global';
+    throw Object.assign(new Error(globalBlocked?'AI planning capacity has been reached for today. Try again tomorrow.':'Daily AI coach limit reached. Try again tomorrow.'),{status:429,retryAfter:3600});
+  }
+  return{used:+row.user_requests,limit,globalUsed:+row.global_requests,globalLimit};
 }
 
 async function countStateWrite(userId,payloadBytes){

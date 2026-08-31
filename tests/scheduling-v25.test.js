@@ -40,14 +40,27 @@ test('typed schedules use the authenticated AI reader but retain local and roste
   assert.match(platform,/local draft only/);
 });
 
-test('schedule API uses a high-accuracy, non-truncated structured response',()=>{
+test('schedule API bounds output and reserves high reasoning for paid accounts',()=>{
   const api=read('api/v25/schedule.js');
   const ai=read('server/v18-lib.js');
-  assert.match(api,/maxOutputTokens:20000,reasoning:'high'/);
+  assert.match(api,/maxOutputTokens:4000,reasoning/);
+  assert.match(api,/user\.app_metadata\?\.plan/);
+  assert.match(api,/\['paid','pro','premium'\]\.includes/);
   assert.match(api,/engine:'ai'/);
   assert.match(api,/explicit numeric or named calendar date always wins/i);
   assert.match(ai,/result\?\.status==='incomplete'/);
   assert.match(ai,/maxOutputTokens=1800,reasoning=null/);
+});
+
+test('a full month proposal fits comfortably inside the 4,000-token schedule budget',()=>{
+  const month=scheduling.parseNaturalLanguage('In September 2026 I work Monday through Friday, 7am-3pm.',{
+    now:new Date(2026,7,26,9),sourceId:'hospital'
+  });
+  const structured=JSON.stringify({items:month,assumptions:[]});
+  // A conservative four-characters-per-token estimate still leaves room for
+  // model formatting overhead and confidence notes.
+  assert.equal(month.length,22);
+  assert.ok(Math.ceil(structured.length/4)<3000,`month proposal unexpectedly large: ${structured.length} characters`);
 });
 
 test('raw typed shifts keep each explicit date paired with its own time range',()=>{

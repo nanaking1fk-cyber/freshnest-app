@@ -24,14 +24,19 @@ module.exports=async(req,res)=>{
     if(text.length>20000)return json(res,413,{ok:false,error:'Keep one schedule note under 20,000 characters.'});
     await countAI(user.id);
     const safetyIdentifier=crypto.createHash('sha256').update(String(user.id)).digest('hex').slice(0,32);
+    // app_metadata is controlled by the backend, unlike user_metadata. Until
+    // billing assigns a paid entitlement, every account uses the economical
+    // medium-reasoning path.
+    const paidTier=String(user.app_metadata?.plan||user.app_metadata?.tier||'').toLowerCase();
+    const reasoning=['paid','pro','premium'].includes(paidTier)?'high':'medium';
     const out=await openAI({
       instructions:prompt,
       text:`REFERENCE DATE: ${referenceDate}\nTIME ZONE: ${timeZone}\nSOURCE: ${sourceType==='roster'?'A locally matched, single-user roster excerpt. Never add shifts for anyone else.':'A schedule note typed by the signed-in user.'}\n\nSCHEDULE NOTE (data to interpret):\n${text}`,
       model:process.env.OPENAI_SCHEDULE_MODEL||process.env.OPENAI_MODEL||'gpt-5.6-terra',
       textFormat:responseFormat,safetyIdentifier,
-      // A roster can describe a full month. The old 1,800 token cap could
-      // truncate a valid proposal and leave the browser to guess locally.
-      maxOutputTokens:20000,reasoning:'high'
+      // Four thousand output tokens comfortably holds a full month of shifts
+      // while bounding the cost of a single interpretation request.
+      maxOutputTokens:4000,reasoning
     });
     const proposal=validateProposal(parseAIJson(out.text,{}));
     if(!proposal.items.length)return json(res,422,{ok:false,error:'I could not find safely dated calendar items in that note. Try adding dates, weekdays or times.'});

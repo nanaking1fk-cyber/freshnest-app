@@ -39,6 +39,7 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
    - `OPENAI_API_KEY` (server only)
    - `OPENAI_MODEL` / `OPENAI_COACH_MODEL` / `OPENAI_PLAN_MODEL` / `OPENAI_SCHEDULE_MODEL` are optional; defaults use `gpt-5.6-terra` in the current source. Typed schedule text is sent to OpenAI only after the signed-in user submits it. For a roster photo/PDF, the app locally identifies the account holder first, then sends only their matched text row and date headers when they choose the AI accuracy check. Every result is a review-before-save proposal.
    - `AI_DAILY_LIMIT` optional; defaults to 40 requests/user/day
+   - `AI_GLOBAL_DAILY_LIMIT` optional; defaults to 100 requests across the deployment/day
    - `STATE_DAILY_WRITE_LIMIT` optional; defaults to 300 account-sync writes/user/day
    - `STATE_DAILY_BYTE_LIMIT` optional; defaults to 256 MB of account-sync data/user/day
 4. Serve the web product only from Vercel at `https://www.workandworkout.com/`. GitHub Pages is intentionally unsupported and should remain disabled; the client will not send bearer tokens to a configurable API origin.

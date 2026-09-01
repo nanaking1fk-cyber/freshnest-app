@@ -17,7 +17,7 @@ test('food modal exposes a staged basket and multi-add controls',()=>{
   assert.match(shell,/id="foodBatchTray"/);
   assert.match(shell,/id="queueFoodEntry"[^>]*>Add &amp; keep adding</);
   assert.match(shell,/id="saveFoodEntry"/);
-  assert.match(shell,/data-close="foodDialog">Cancel</);
+  assert.match(shell,/data-close="foodDialog"[^>]*aria-label="Cancel food logging"/);
   assert.match(init,/#queueFoodEntry'\)\.onclick=queueFoodEntry/);
 });
 
@@ -40,8 +40,9 @@ test('search results separate selection from quick add',()=>{
 });
 
 test('recipes stage every recipe item and wait for final confirmation',()=>{
-  assert.match(diaryB,/items=r\.items\.map/);
-  assert.match(diaryB,/foodState\.batch=\[\.\.\.\(foodState\.batch\|\|\[\]\),\.\.\.items\]/);
+  assert.match(diaryB,/data-recipe="\$\{i\}"/);
+  assert.match(diaryB,/stageFoodItems\(r\.items,r\.name\)/);
+  assert.match(diaryA,/function stageFoodItems\(items,label='Foods'\)[\s\S]*foodState\.batch=\[\.\.\.\(foodState\.batch\|\|\[\]\),\.\.\.copies\]/);
   assert.doesNotMatch(diaryB,/data-recipe[\s\S]{0,900}saveDiary\(/,
     'choosing a recipe must not write directly to the diary');
 });

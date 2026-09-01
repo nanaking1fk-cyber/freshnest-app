@@ -15,7 +15,7 @@ test('health-data choice is separate, granular, affirmative and local-first',()=
   assert.match(source,/Agree to selected uses/);
   assert.match(source,/id="healthConsentConfirm" type="checkbox"/);
   assert.doesNotMatch(source,/id="healthConsentConfirm" type="checkbox"[^>]*checked/);
-  for(const purpose of ['account_cloud_sync','encrypted_webdav_sync','personalized_ai'])assert.match(source,new RegExp(purpose));
+  for(const purpose of ['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai'])assert.match(source,new RegExp(purpose));
   assert.match(source,/disabled>Agree to selected uses/);
   assert.match(source,/selected&&confirmed/);
   assert.match(source,/Optional and separate from account terms/);
@@ -95,7 +95,7 @@ test('consent module is ordered before autosync and remains in offline/native re
 
 test('published policy describes the implemented global consent controls',()=>{
   const privacy=read('work-gym-planner/privacy.html');
-  assert.match(privacy,/Version:<\/strong> 1\.3/);
+  assert.match(privacy,/Version:<\/strong> 1\.4/);
   assert.match(privacy,/Each purpose is optional and unchecked by default/);
   assert.match(privacy,/Choosing “Keep data on this device”/);
   assert.match(privacy,/consent version, policy version, selected purposes, statement, locale and time/);

@@ -2,13 +2,14 @@
 window.WGC18=window.WGC18||{};
 (function(A){
  const CONSENT_VERSION='2026-08-31-v1';
- const POLICY_VERSION='1.2';
+ const POLICY_VERSION='1.4';
  const LOCAL_PREFIX='wgc-health-consent-v35:';
  const STATEMENT='I explicitly consent to each selected use of my health and wellness data. I understand that I can withdraw consent at any time without affecting processing that was lawful before withdrawal.';
  const PURPOSES={
   account_cloud_sync:{title:'Private account cloud sync',detail:'Send planner, schedule, training, nutrition, body and recovery records through Vercel to your private Supabase account.'},
   encrypted_webdav_sync:{title:'Encrypted WebDAV sync',detail:'Send an AES-GCM encrypted planner backup directly to the HTTPS WebDAV provider you choose.'},
-  personalized_ai:{title:'Personalized AI',detail:'Send your request and relevant schedule, training, nutrition, body and recovery context through Vercel to OpenAI for AI Coach or onboarding.'}
+  personalized_ai:{title:'Personalized AI',detail:'Send your request and relevant schedule, training, nutrition, body and recovery context through Vercel to OpenAI for AI Coach or onboarding.'},
+  meal_scan_ai:{title:'Meal Scan',detail:'Send a meal photo you select through Vercel to OpenAI for one-time food and portion estimates. Work + Workout does not intentionally store the photo.'}
  };
  let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null;
  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -86,7 +87,7 @@ window.WGC18=window.WGC18||{};
  }
  async function withdraw(){
   if(!activePurposes().length)return true;
-  if(!confirm('Withdraw health-data consent? Future account sync, encrypted WebDAV sync and personalized AI will stop. Existing cloud records are not automatically deleted.'))return false;
+  if(!confirm('Withdraw health-data consent? Future account sync, encrypted WebDAV sync, personalized AI and Meal Scan will stop. Existing cloud records are not automatically deleted.'))return false;
   try{
    await record('withdrawn',[]);
    toast('Health-data consent withdrawn. Local planning still works.');
@@ -99,7 +100,7 @@ window.WGC18=window.WGC18||{};
  function panelHTML(){
   const activeNow=activePurposes(),on=activeNow.length>0;
   const labels=activeNow.map(id=>PURPOSES[id].title.replace('Private ','')).join(' · ');
-  return`<div id="healthConsentPanel" class="healthConsentPanel ${on?'on':'local'}"><div><b>${on?'Health-data choices':'Local-only privacy mode'}</b><small>${on?esc(labels):'Account sync, encrypted WebDAV and personalized AI stay off until you choose them.'}</small></div><button id="manageHealthConsent">${on?'Manage':'Review choices'}</button>${on?'<button id="withdrawHealthConsent" class="danger">Withdraw all</button>':''}<a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; Consumer Health Data Policy</a></div>`
+  return`<div id="healthConsentPanel" class="healthConsentPanel ${on?'on':'local'}"><div><b>${on?'Health-data choices':'Local-only privacy mode'}</b><small>${on?esc(labels):'Account sync, encrypted WebDAV, personalized AI and Meal Scan stay off until you choose them.'}</small></div><button id="manageHealthConsent">${on?'Manage':'Review choices'}</button>${on?'<button id="withdrawHealthConsent" class="danger">Withdraw all</button>':''}<a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; Consumer Health Data Policy</a></div>`
  }
  function bindPanel(){
   $('#manageHealthConsent')?.addEventListener('click',()=>ensure({interactive:true,purpose:'account_cloud_sync',force:true}));

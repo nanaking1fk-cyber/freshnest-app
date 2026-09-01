@@ -5,10 +5,10 @@ const SUPABASE_URL=()=>process.env.SUPABASE_URL;
 const ANON=()=>process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY;
 const SERVICE=()=>process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const HEALTH_CONSENT_VERSION='2026-08-31-v1';
-const HEALTH_POLICY_VERSION='1.3';
-const HEALTH_CONSENT_PURPOSES=Object.freeze(['account_cloud_sync','encrypted_webdav_sync','personalized_ai']);
+const HEALTH_POLICY_VERSION='1.4';
+const HEALTH_CONSENT_PURPOSES=Object.freeze(['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai']);
 const HEALTH_CONSENT_STATEMENT='I explicitly consent to each selected use of my health and wellness data. I understand that I can withdraw consent at any time without affecting processing that was lawful before withdrawal.';
-const HEALTH_WITHDRAWAL_STATEMENT='I withdraw my consent for future account cloud sync, encrypted WebDAV sync, and personalized AI processing of my health and wellness data.';
+const HEALTH_WITHDRAWAL_STATEMENT='I withdraw my consent for future account cloud sync, encrypted WebDAV sync, personalized AI, and Meal Scan processing of my health and wellness data.';
 
 function requestMeta(req,res){
   if(!req.requestId)req.requestId=crypto.randomUUID();

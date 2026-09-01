@@ -2,7 +2,7 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## Current release — v30.1.28
+## Current release — v30.1.29
 
 - **Worker-first story:** a premium, auto-advancing carousel gives healthcare, construction, transit, hospitality, education and logistics equal prominence, with job-specific planning benefits and manual/swipe controls.
 - **Autoplay product demonstration:** the hero continuously follows a demanding day from pre-shift planning through a late-shift adjustment, gym logging, meal logging and Progressive Coach guidance. Real footage and the Work + Workout interface stay visible together; there is no separate film modal.

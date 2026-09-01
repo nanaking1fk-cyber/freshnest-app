@@ -6,7 +6,7 @@
 - [ ] Root `npm run ci` passes, including release policy and dependency vulnerability audits.
 - [ ] GitHub `Quality / app` and dependency review checks pass.
 - [ ] `npm run build:web` passes in `app-store/`.
-- [ ] Native bundle audit reports v30.1.28 and no secrets/remote executable scripts.
+- [ ] Native bundle audit reports v30.1.29 and no secrets/remote executable scripts.
 - [ ] iOS and Android projects are synced from the same `www/` bundle.
 - [ ] Any new Supabase table migration enables RLS and explicitly grants or revokes Data API roles.
 

@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.27-offline3';
+const CACHE='wgp-stable-v30.1.28-offline3';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',

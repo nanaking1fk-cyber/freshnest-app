@@ -23,7 +23,19 @@ function shiftText(on,start,end){return on&&start&&end?`${homeTime(start)} – $
 function readinessColor(score){return score>=80?'#34d058':score>=65?'#5bd66f':score>=50?'#f6b73c':'#ff6b6b'}
 function workLoadLabel(s){return s.kind==='both'?'High Load':s.kind==='one'?'Work Day':s.kind==='unknown'?'Needs Review':'Recovery Opportunity'}
 function todayTrainingInfo(k){let comp=completedOn(k),scheduled=isScheduled(k),wi=comp?.workoutIndex??(scheduled?projectedWorkoutIndex(k):null),next=nextPlannedWorkout(addDays(k,wi!=null?1:0)),own=profile()?.trainingMode==='existing';if(wi!=null)return{title:typeof plannedWorkoutName==='function'?plannedWorkoutName(k,wi):WORKOUTS[wi].name,sub:comp?'Completed':own?`${plannedWorkoutTime(k)||'Time flexible'} · your routine`:`Week ${phaseInfo(k).week} · ${phaseInfo(k).name}`,date:k,wi,completed:!!comp};if(next)return{title:'Recovery Day',sub:`Next: ${typeof plannedWorkoutName==='function'?plannedWorkoutName(next.k,next.wi):WORKOUTS[next.wi].name}`,date:next.k,wi:next.wi,next:true};return{title:'Recovery Day',sub:'No workout scheduled',date:null,wi:null}}
-function dashboardWorkRows(k,s){let p=profile(),rows=[],smart=typeof smartWork==='function'?smartWork(k):null;if(smart){rows.push({name:smart.label||p?.variable?.name||'Work shift',value:smart.start&&smart.end?`${homeTime(smart.start)} – ${homeTime(smart.end)}`:'Working',state:'work'})}else if(p?.variable?.enabled){let code=variableCode(k),on=code==='X';rows.push({name:p.variable.name||'Variable job',value:code==='?'?'Schedule unknown':shiftText(on,p.variable.start,p.variable.end),state:code==='?'?'unknown':on?'work':'off'})}if(p?.fixed?.enabled){let on=fixedWork(k);rows.push({name:p.fixed.name||'Fixed job',value:shiftText(on,p.fixed.start,p.fixed.end),state:on?'work':'off'})}return rows}
+function dashboardWorkRows(k,s){
+ let canonical=window.WWV25?.workRowsOn?.(k);
+ if(Array.isArray(canonical))return canonical.map(row=>({
+  name:row.name||'Work shift',
+  value:row.time||(row.start&&row.end?`${homeTime(row.start)} – ${homeTime(row.end)}`:row.off?'Off work':'Working'),
+  state:row.unknown?'unknown':row.off?'off':'work'
+ }));
+ let p=profile(),rows=[],smart=typeof smartWork==='function'?smartWork(k):null;
+ if(smart){rows.push({name:smart.label||p?.variable?.name||'Work shift',value:smart.start&&smart.end?`${homeTime(smart.start)} – ${homeTime(smart.end)}`:'Working',state:'work'})}
+ else if(p?.variable?.enabled){let code=variableCode(k),on=code==='X';rows.push({name:p.variable.name||'Variable job',value:code==='?'?'Schedule unknown':shiftText(on,p.variable.start,p.variable.end),state:code==='?'?'unknown':on?'work':'off'})}
+ if(p?.fixed?.enabled){let on=fixedWork(k);rows.push({name:p.fixed.name||'Fixed job',value:shiftText(on,p.fixed.start,p.fixed.end),state:on?'work':'off'})}
+ return rows
+}
 function renderPausedSetupDashboard(root){
  let account=window.WGC18||{},user=account.session?.user||{},name=String(user.user_metadata?.display_name||user.email?.split('@')[0]||'there').trim(),hasDraft=!!localStorage.getItem(PREFIX+'guided-onboarding-draft-v30');
  root.innerHTML=`<div class="homeDash homeDashV27 onboardingPausedHome">

@@ -46,12 +46,12 @@ html=rewrite(
 );
 html=rewrite(
   html,
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\">');",
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.26\"></scr'+'ipt><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.26\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.27\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.27\"></scr'+'ipt><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.27\"></scr'+'ipt>');",
   'load native bridge first'
 );
 html=html.replace("'pwa-patch.js',",'');
-html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.26\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
+html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.27\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
 await writeFile(join(out,'index.html'),html);
 
 // Native WebViews have their own localhost origin. Keep all authenticated API
@@ -132,4 +132,4 @@ for(const file of required){
   if(!info.size)throw new Error(`Native bundle check failed: ${file}`);
 }
 
-console.log(`Built Work + Workout 30.1.26 native web bundle: ${out}`);
+console.log(`Built Work + Workout 30.1.27 native web bundle: ${out}`);

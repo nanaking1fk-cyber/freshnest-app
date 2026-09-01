@@ -16,6 +16,13 @@ test('browser reporter covers runtime, resource, promise, network and server fai
   assert.doesNotMatch(source,/localStorage|sessionStorage|document\.cookie|accountId|healthData|plannerState/);
 });
 
+test('browser reporter survives the boot document handoff',()=>{
+  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
+    const source=read(file);
+    assert.match(source,/h=h\.replace\('<head>','<head><base[\s\S]{0,240}shared\/observability\.js/);
+  }
+});
+
 test('server sanitizes diagnostics and accepts only trusted web or native callers',()=>{
   const endpoint=require(path.join(root,'api/v18/client-error.js'));
   const tools=endpoint._test;
@@ -42,7 +49,7 @@ test('diagnostic endpoint persists only sanitized, fingerprinted reports',async(
     return{ok:true,status:200,text:async()=>JSON.stringify([{report_id:'00000000-0000-0000-0000-000000000001',occurrence_count:1,accepted:true}])};
   };
   const headers={origin:'https://www.workandworkout.com','sec-fetch-site':'same-origin','x-forwarded-for':'203.0.113.42'};
-  const req={method:'POST',url:'/api/v18/client-error',headers,socket:{},body:{source:'window_error',category:'client',release:'30.1.26',surface:'web',route:'/work-gym-planner/?email=john@example.com',errorName:'TypeError',message:'Failed for john@example.com token=secret',stack:'at run (https://www.workandworkout.com/app.js?token=secret:1:2)'}};
+  const req={method:'POST',url:'/api/v18/client-error',headers,socket:{},body:{source:'window_error',category:'client',release:'30.1.27',surface:'web',route:'/work-gym-planner/?email=john@example.com',errorName:'TypeError',message:'Failed for john@example.com token=secret',stack:'at run (https://www.workandworkout.com/app.js?token=secret:1:2)'}};
   let responseBody='';
   const res={setHeader(){},end(value=''){responseBody=value}};
   try{

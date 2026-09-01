@@ -2,7 +2,7 @@
   'use strict';
   if(window.WWObservability)return;
 
-  const RELEASE='30.1.26';
+  const RELEASE='30.1.27';
   const MAX_REPORTS=10;
   const recent=new Map();
   const originalFetch=typeof window.fetch==='function'?window.fetch.bind(window):null;

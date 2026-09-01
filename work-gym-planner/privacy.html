@@ -25,7 +25,7 @@
     <p class="eyebrow">Privacy &amp; health data</p>
     <h1>Privacy &amp; Consumer Health Data Policy</h1>
     <p class="lead">This policy explains what Work + Workout collects, why we use it, where it goes, how long it remains, and the choices you have—especially for nutrition, fitness, recovery and other health-related information.</p>
-    <div class="meta"><span><strong>Effective:</strong> August 31, 2026</span><span><strong>Version:</strong> 1.2</span><span><strong>Operator:</strong> Bibinii Farms Company Ltd</span></div>
+    <div class="meta"><span><strong>Effective:</strong> August 31, 2026</span><span><strong>Version:</strong> 1.3</span><span><strong>Operator:</strong> Bibinii Farms Company Ltd</span></div>
   </header>
   <div class="layout">
     <nav class="toc" aria-label="Policy contents">
@@ -61,7 +61,7 @@
           <tr><td>Body and recovery</td><td>Age or age range, height, weight, waist, body-fat estimate, sleep target and duration, steps, resting heart rate, recovery/readiness, calorie targets and body-composition goals</td><td>When you enter or import health/recovery information</td></tr>
           <tr><td>AI and submitted content</td><td>Questions, chat messages, selected planner context, AI onboarding answers, AI responses and equipment photos you intentionally submit</td><td>When you request an AI feature</td></tr>
           <tr><td>Connected services</td><td>Google or Microsoft account email/ID, calendar permission scopes, encrypted OAuth tokens, provider event IDs and sync status; WebDAV server URL and username stored on your device</td><td>When you connect an optional service</td></tr>
-          <tr><td>Device and operations</td><td>IP address and request metadata received by hosting providers, browser/app version, operating system, performance timing, coarse error category, release version and security logs</td><td>Automatically when the Service or an online feature is used</td></tr>
+          <tr><td>Device, crash and operations</td><td>IP address and request metadata received by hosting providers; browser/app version, operating system, performance timing, error type and privacy-filtered message pattern, app-relative route and stack frames, crash/hang details, release version, timestamps, occurrence count and security logs</td><td>Automatically when the Service or an online feature is used, including after a native app reopens</td></tr>
           <tr><td>Support</td><td>Your email, message, screenshots and diagnostic export you choose to send</td><td>When you contact us</td></tr>
         </tbody></table></div>
         <p>Passwords are handled by our authentication provider and are not stored by us in readable form. We do not intentionally collect government identifiers, precise GPS location, payment-card numbers, genetic data, diagnoses or medical records through the ordinary planner flow.</p>
@@ -128,7 +128,8 @@
         <h3>Backups and WebDAV</h3>
         <p>You can export plain or AES-GCM encrypted backup files. After you separately consent to encrypted WebDAV sync and configure it, encrypted backup content is sent directly to the HTTPS server you specify. The server address and username remain in local device storage; the WebDAV password and encryption passphrase are kept for the browser session. Your chosen storage provider controls copies held there.</p>
         <h3>Performance and error monitoring</h3>
-        <p>Vercel Speed Insights may measure page performance. Our client-error endpoint sends only an error source, broad category and app release—not the error message, planner contents, account ID or health data. Hosting systems still receive ordinary request data such as IP address, time and user agent. Local diagnostics can contain error messages and remain on your device unless you export and send them.</p>
+        <p>Vercel Speed Insights may measure page performance. Our first-party error reporter sends the error type, a privacy-filtered message pattern and stack, app-relative route path, platform, release and time. Repeated incidents are grouped with an occurrence count. It does not send an account ID, name, email, cookies, authorization tokens, request bodies, URL queries, planner contents or health data. The server removes common credentials, identifiers, email addresses, quoted values, long numbers and query strings before storage. To prevent abuse, we derive a rotating daily HMAC from the network address and retain that pseudonymous rate-limit value for about seven days; we do not store the raw address in the incident table, although hosting systems receive ordinary request data such as IP address, time and user agent.</p>
+        <p>On iOS, Apple MetricKit may deliver crash and hang diagnostics to the app after the incident; on Android, a small private crash report is sent after the next launch. These native reports include the app version, error class and app call-stack information, not the exception’s user-entered message. A reporting failure never blocks normal app use.</p>
       </section>
 
       <section id="sharing">
@@ -155,7 +156,7 @@
           <li><strong>Account data:</strong> planner state, profile/onboarding data, generated plans, AI conversations, calendar connections and per-account usage records remain while your account is active unless you delete the relevant record or disconnect a service. Permanent account deletion removes the authentication user and associated cloud rows through database cascade.</li>
           <li><strong>Consent receipts:</strong> versioned grants and withdrawals remain with the account as an accountability record. They are append-only so a later withdrawal does not rewrite the earlier grant. Permanent account deletion removes them through database cascade; limited legal-claim records may be retained where law permits.</li>
           <li><strong>Calendar authorization state:</strong> expires after approximately ten minutes and is cleared during later connection attempts. Encrypted tokens remain until disconnection, account deletion or provider revocation.</li>
-          <li><strong>Operational logs:</strong> are retained only as long as reasonably necessary for security, fraud prevention, troubleshooting and legal compliance, according to our hosting configuration and provider retention schedules.</li>
+          <li><strong>Error reports and operational logs:</strong> privacy-filtered incident rows are configured for deletion after approximately 90 days as new reports are processed, and rotating diagnostic rate-limit hashes after approximately seven days. Other hosting logs are retained only as long as reasonably necessary for security, fraud prevention, troubleshooting and legal compliance, according to our hosting configuration and provider retention schedules.</li>
           <li><strong>Your exports and third-party copies:</strong> backups, calendar events, screenshots or files you saved or shared are outside our control and must be deleted where you stored them.</li>
         </ul>
         <p>Deletion may not remove de-identified data that cannot reasonably be linked to you or records we must keep to establish, exercise or defend legal claims. When an applicable consumer-health law requires deletion through our processors, we will transmit the request to processors we control.</p>
@@ -227,7 +228,7 @@
       <section id="contact">
         <h2>15. Contact us</h2>
         <div class="contact"><address><strong>Bibinii Farms Company Ltd</strong><br>Work + Workout Privacy<br>Accra, Ghana<br>Email: <a href="mailto:info@bibiniifarms.com?subject=Work%20%2B%20Workout%20Privacy">info@bibiniifarms.com</a><br>Phone: <a href="tel:+233540722133">+233 54 072 2133</a></address><p class="fine">For ordinary product help, visit the <a href="./support.html">support page</a>. Never post health information, account details or diagnostics in a public issue.</p></div>
-        <a class="back" href="./?v=30.1.25">← Back to Work + Workout</a>
+        <a class="back" href="./?v=30.1.26">← Back to Work + Workout</a>
       </section>
     </main>
   </div>

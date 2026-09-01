@@ -7,7 +7,10 @@
   var isNative=platform==='ios'||platform==='android';
   var apiBase='https://www.workandworkout.com';
 
-  function report(label,error){console.warn('[native] '+label,error&&error.message?error.message:error)}
+  function report(label,error){
+    console.warn('[native] '+label,error&&error.message?error.message:error);
+    window.WWObservability?.capture?.('native_bridge',error||label,{name:'NativeBridgeError',message:String(label||'native capability')});
+  }
   function plugin(name){return Plugins[name]||null}
   async function openExternal(url){
     if(!/^https:\/\//i.test(String(url||'')))return false;

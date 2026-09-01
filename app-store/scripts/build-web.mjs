@@ -47,11 +47,11 @@ html=rewrite(
 html=rewrite(
   html,
   "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\">');",
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.25\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.26\"></scr'+'ipt><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.26\"></scr'+'ipt>');",
   'load native bridge first'
 );
 html=html.replace("'pwa-patch.js',",'');
-html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.25\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
+html=html.replace("h=h.replace('<link rel=\"manifest\" href=\"./manifest.webmanifest\">','<link rel=\"manifest\" href=\"../work-gym-planner/manifest.webmanifest?v=30.1.26\">');","h=h.replace(/<link rel=\"manifest\"[^>]*>/g,'');");
 await writeFile(join(out,'index.html'),html);
 
 // Native WebViews have their own localhost origin. Keep all authenticated API
@@ -117,7 +117,7 @@ await writeFile(adaptivePath,adaptive);
 
 const required=[
   'index.html','privacy.html','support.html','terms.html','delete-account.html',
-  'native/native-bridge.js','work-gym-planner-v15/index.html',
+  'native/native-bridge.js','shared/observability.js','work-gym-planner-v15/index.html',
   'work-gym-planner-v16/app-v30.js','work-gym-planner-v16/app-v30.css',
   'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/health-consent-v35.js','work-gym-planner-v16/schedule-platform-v25.js',
   'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',
@@ -132,4 +132,4 @@ for(const file of required){
   if(!info.size)throw new Error(`Native bundle check failed: ${file}`);
 }
 
-console.log(`Built Work + Workout 30.1.25 native web bundle: ${out}`);
+console.log(`Built Work + Workout 30.1.26 native web bundle: ${out}`);

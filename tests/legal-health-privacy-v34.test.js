@@ -45,7 +45,9 @@ test('privacy policy accurately describes optional sensitive-data features and d
   assert.match(privacy,/matched row believed to be yours and relevant date headers, not the full roster/);
   assert.match(privacy,/Apple Health export or CSV files are parsed on your device/);
   assert.match(privacy,/encrypted access\/refresh tokens/);
-  assert.match(privacy,/client-error endpoint sends only an error source, broad category and app release/);
+  assert.match(privacy,/first-party error reporter sends the error type, a privacy-filtered message pattern and stack/);
+  assert.match(privacy,/does not send an account ID, name, email, cookies, authorization tokens, request bodies, URL queries, planner contents or health data/);
+  assert.match(privacy,/Apple MetricKit may deliver crash and hang diagnostics/);
   assert.match(privacy,/Permanent account deletion removes the authentication user and associated cloud rows through database cascade/);
   assert.match(privacy,/backups, calendar events, screenshots or files you saved or shared are outside our control/i);
 });

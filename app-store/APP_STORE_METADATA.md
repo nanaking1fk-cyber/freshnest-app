@@ -84,9 +84,10 @@ Use these answers for version 1.0.0. They intentionally cover the optional accou
 | Identifiers — User ID | Yes | No | App Functionality | Supabase account ID and account-scoped record identifiers. |
 | Usage Data — Product Interaction | Yes | No | App Functionality | Account-scoped AI trial/usage limits and feature-operation records. This is not used for advertising. |
 | Diagnostics — Performance Data | No | No | Analytics; App Functionality | Request duration and page/app performance measurements. |
-| Diagnostics — Other Diagnostic Data | No | No | Analytics; App Functionality | Error source, broad category and release number; no error message, account ID or planner contents. |
+| Diagnostics — Crash Data | No | No | Analytics; App Functionality | Privacy-filtered iOS MetricKit crash/hang diagnostics and Android native exception class/app stack, delivered after the incident. |
+| Diagnostics — Other Diagnostic Data | No | No | Analytics; App Functionality | Error type, filtered message pattern and stack, app-relative route, platform, release, timestamps and occurrence count; no account ID, URL query, request body, planner contents or health data. |
 
-Do **not** select Payment Info: any future App Store payment details are handled by Apple and are not available to Work + Workout. Do **not** select Precise Location, Contacts, Browsing History, Device ID, Advertising Data or Crash Data for this build because the app does not request or collect them. If in-app purchases are added, reassess Purchase History before the update is submitted.
+Do **not** select Payment Info: any future App Store payment details are handled by Apple and are not available to Work + Workout. Do **not** select Precise Location, Contacts, Browsing History, Device ID or Advertising Data for this build because the app does not request or collect them. Select Crash Data and Other Diagnostic Data as shown above. If in-app purchases are added, reassess Purchase History before the update is submitted.
 
 The health-data rows should be marked as linked to identity because optional private account sync and personalized AI can associate those records with an authenticated account after separate consent. Product-page disclosure should reflect the most data-intensive optional path, not only the default local-only state.
 

@@ -22,7 +22,7 @@ test('canonical store package targets iOS and Android with the production identi
 test('native build packages current production and routes authenticated APIs safely',()=>{
   const build=read('app-store/scripts/build-web.mjs');
   const bridge=read('app-store/native/native-bridge.js');
-  assert.match(build,/30\.1\.25/);
+  assert.match(build,/30\.1\.26/);
   assert.match(build,/disable legacy service worker/);
   assert.match(build,/account API base/);
   assert.match(build,/AI schedule API base/);
@@ -45,6 +45,11 @@ test('iOS package includes requested-use descriptions and a valid opaque App Sto
   assert.match(plist,/<string>workandworkout<\/string>/);
   assert.match(project,/PRODUCT_BUNDLE_IDENTIFIER = com\.bibiniifarms\.workandworkout/);
   assert.match(project,/MARKETING_VERSION = 1\.0\.0/);
+  assert.match(project,/AppDiagnosticsReporter\.swift in Sources/);
+  const reporter=read('app-store/ios/App/App/AppDiagnosticsReporter.swift');
+  assert.match(reporter,/MXMetricManagerSubscriber/);
+  assert.match(reporter,/native_crash/);
+  assert.match(reporter,/native_hang/);
   const png=fs.readFileSync(path.join(root,'app-store/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png'));
   assert.equal(png.readUInt8(25),2,'iOS icon must be RGB without an alpha channel');
 });
@@ -62,6 +67,12 @@ test('Android package targets API 36 and avoids unnecessary device-data exposure
   assert.match(manifest,/android:usesCleartextTraffic="false"/);
   assert.match(manifest,/android:scheme="workandworkout" android:host="calendar-connected"/);
   assert.match(gradle,/versionName "1\.0\.0"/);
+  const activity=read('app-store/android/app/src/main/java/com/bibiniifarms/workandworkout/MainActivity.java');
+  const reporter=read('app-store/android/app/src/main/java/com/bibiniifarms/workandworkout/AppCrashReporter.java');
+  assert.match(activity,/AppCrashReporter\.install\(this\)/);
+  assert.match(reporter,/Thread\.setDefaultUncaughtExceptionHandler/);
+  assert.match(reporter,/X-Work-Workout-Native/);
+  assert.doesNotMatch(reporter,/getMessage\(\)/);
   assert.ok(fs.existsSync(path.join(root,'app-store/android/app/src/main/res/drawable/ic_stat_work_and_workout.xml')));
 });
 
@@ -82,7 +93,7 @@ test('both stores have truthful metadata and a public account deletion path',()=
 test('Apple submission metadata declares sensitive-data practices and required ratings',()=>{
   const apple=read('app-store/APP_STORE_METADATA.md');
   assert.match(apple,/User Privacy Choices: https:\/\/www\.workandworkout\.com\/work-gym-planner\/privacy\.html#rights/);
-  for(const disclosure of ['Health & Fitness — Health','Health & Fitness — Fitness','User Content — Photos or Videos','Identifiers — User ID','Diagnostics — Performance Data'])assert.match(apple,new RegExp(disclosure));
+  for(const disclosure of ['Health & Fitness — Health','Health & Fitness — Fitness','User Content — Photos or Videos','Identifiers — User ID','Diagnostics — Performance Data','Diagnostics — Crash Data','Diagnostics — Other Diagnostic Data'])assert.match(apple,new RegExp(disclosure));
   assert.match(apple,/\*\*Tracking:\*\* No/);
   assert.match(apple,/\*\*Regulated Medical Devices:\*\* No/);
   assert.match(apple,/Override to Higher Age Rating: 18\+/);

@@ -8,9 +8,9 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 
 test('release metadata, CI and dependency auditing target the current canonical package',()=>{
   const pkg=JSON.parse(read('package.json'));
-  assert.equal(pkg.version,'30.1.25');
-  assert.match(read('README.md'),/Current release — v30\.1\.25/);
-  assert.match(read('TAKEOVER.md'),/Version 30\.1\.25 is live/);
+  assert.equal(pkg.version,'30.1.26');
+  assert.match(read('README.md'),/Current release — v30\.1\.26/);
+  assert.match(read('TAKEOVER.md'),/Version 30\.1\.26 is live/);
   assert.match(pkg.scripts.ci,/audit:dependencies/);
   assert.match(pkg.scripts.ci,/native:verify/);
   assert.ok(fs.existsSync(path.join(root,'app-store/package-lock.json')));

@@ -22,15 +22,20 @@ test('production routes use an external-script shell under strict script CSP',()
   assert.match(shell,/\/_vercel\/speed-insights\/script\.js/);
 });
 
-test('client telemetry is categorical and excludes personal planner data',()=>{
+test('client diagnostics capture actionable failures without planner or account state',()=>{
   const source=read('shared/observability.js');
   assert.match(source,/client-error/);
   assert.match(source,/release:RELEASE/);
   assert.match(source,/api\/v18\/client-error/);
-  for(const forbidden of ['email','userId','schedule','stack'])assert.doesNotMatch(source,new RegExp(forbidden,'i'));
+  assert.match(source,/resource_error/);
+  assert.match(source,/unhandledrejection/);
+  assert.match(source,/response\.status>=500/);
+  for(const forbidden of ['localStorage','sessionStorage','document.cookie','userId','plannerState','diary'])assert.doesNotMatch(source,new RegExp(forbidden,'i'));
   const endpoint=read('api/v18/client-error.js');
-  assert.match(endpoint,/Same-origin browser request required/);
-  assert.doesNotMatch(endpoint,/req\.body\?\.(message|stack|email|user)/);
+  assert.match(endpoint,/record_app_error/);
+  assert.match(endpoint,/Trusted app request required/);
+  assert.match(endpoint,/createHmac\('sha256'/);
+  assert.doesNotMatch(endpoint,/authorization.*report_|report_.*authorization/i);
 });
 
 test('dedicated authenticated E2E is scheduled but cannot run without explicit secrets',()=>{

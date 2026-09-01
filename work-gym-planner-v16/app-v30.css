@@ -25,13 +25,19 @@ body.premiumV30 #healthConsentDialog .healthConsentPurposes{display:grid;gap:9px
 body.premiumV30 #healthConsentDialog .healthPurpose{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.025);cursor:pointer}
 body.premiumV30 #healthConsentDialog .healthPurpose.requested{border-color:rgba(214,255,63,.45);box-shadow:inset 3px 0 0 var(--lime)}
 body.premiumV30 #healthConsentDialog .healthPurpose.active{background:rgba(214,255,63,.06)}
-body.premiumV30 #healthConsentDialog .healthPurpose input,body.premiumV30 #healthConsentDialog .healthConsentConfirm input{flex:0 0 auto;width:20px;height:20px;margin:1px 0 0;accent-color:var(--lime)}
+body.premiumV30 #healthConsentDialog .healthPurpose input,body.premiumV30 #healthConsentDialog .healthConsentConfirm input{flex:0 0 auto;box-sizing:border-box;width:20px;min-width:20px;height:20px;min-height:20px;margin:1px 0 0;padding:0;border:0;border-radius:3px;background:transparent;box-shadow:none;accent-color:var(--lime)}
 body.premiumV30 #healthConsentDialog .healthPurpose b,body.premiumV30 #healthConsentDialog .healthPurpose small{display:block}
 body.premiumV30 #healthConsentDialog .healthPurpose small{margin-top:4px;color:var(--muted);font-size:10px;line-height:1.45}
 body.premiumV30 #healthConsentDialog .healthConsentConfirm{display:flex;gap:12px;margin:10px 24px 0;padding:14px;border:1px solid rgba(214,255,63,.28);border-radius:14px;background:rgba(214,255,63,.045);font-size:11px;line-height:1.5;cursor:pointer}
 body.premiumV30 #healthConsentDialog .healthConsentLegal,body.premiumV30 #healthConsentDialog #healthConsentStatus{margin:10px 24px}
 body.premiumV30 #healthConsentDialog .healthConsentActions{position:sticky;bottom:0;z-index:2;display:flex;gap:10px;margin-top:auto;padding:14px 24px max(18px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(12,17,23,.92),#0c1117 24%)}
 body.premiumV30 #healthConsentDialog .healthConsentActions button{flex:1;min-height:48px}
+body.premiumV30 #healthConsentDialog .healthConsentSheet.compactConsent{width:min(560px,calc(100vw - 28px))}
+body.premiumV30 #healthConsentDialog .compactConsent .healthConsentIntro{padding-top:20px}
+body.premiumV30 #healthConsentDialog .compactConsent .healthConsentPurposes{padding-top:8px}
+body.premiumV30 #healthConsentDialog .compactConsent .healthPurpose{cursor:default}
+body.premiumV30 #healthConsentDialog .compactConsent .healthConsentConfirm{font-size:13px}
+body.premiumV30 #healthConsentDialog .compactConsent .healthConsentLegal{margin-top:13px}
 body.premiumV30 .healthConsentPanel{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.025)}
 body.premiumV30 .healthConsentPanel.on{border-color:rgba(214,255,63,.25);background:rgba(214,255,63,.045)}
 body.premiumV30 .healthConsentPanel>div{min-width:0}
@@ -907,4 +913,56 @@ body.premiumV30 .guidedPreviewGrid{display:grid;grid-template-columns:repeat(2,m
   body.premiumV30 .guidedAnswer{margin-top:17px}
   body.premiumV30 .guidedChoice{min-height:66px}
   body.premiumV30 .guidedActions{padding-top:9px}
+}
+
+/* Phone step tracking ------------------------------------------------------ */
+body.premiumV30 #page-home .hvStepsPanel{overflow:hidden}
+body.premiumV30 #page-home .hvStepHero{display:grid;grid-template-columns:90px minmax(0,1fr) auto;align-items:center;gap:18px;padding:20px}
+body.premiumV30 #page-home .hvStepRing{--step-progress:0deg;position:relative;width:84px;height:84px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--v30-signal) var(--step-progress),rgba(255,255,255,.075) 0)}
+body.premiumV30 #page-home .hvStepRing::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#10161b}
+body.premiumV30 #page-home .hvStepRing i{position:relative;z-index:1;width:29px;height:29px;display:grid;color:var(--v30-signal)}
+body.premiumV30 #page-home .hvStepRing svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV30 #page-home .hvStepCopy{display:grid;gap:5px}
+body.premiumV30 #page-home .hvStepCopy strong{color:var(--v30-ink);font-size:36px;line-height:1;letter-spacing:-.045em}
+body.premiumV30 #page-home .hvStepCopy>span:not(.hvBar){color:var(--v30-muted);font-size:12px}
+body.premiumV30 #page-home .hvStepCopy .hvBar{width:min(100%,360px);margin:6px 0 2px}
+body.premiumV30 #page-home .hvStepCopy .hvBar i.s{background:var(--v30-signal)}
+body.premiumV30 #page-home .hvStepCopy small{color:#79837d;font-size:10px}
+body.premiumV30 #page-home .hvStepHero>.hvBtn{min-width:104px}
+
+body.premiumV30 #healthDialog .healthStepSheet{width:min(680px,calc(100vw - 24px));max-height:min(900px,calc(100dvh - 24px));padding-bottom:max(22px,env(safe-area-inset-bottom));overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain}
+body.premiumV30 #healthDialog .nativeStepCard{padding:20px;border-color:rgba(214,255,63,.2);background:linear-gradient(145deg,rgba(214,255,63,.08),rgba(17,23,29,.98))}
+body.premiumV30 #healthDialog .nativeStepHead{display:grid;grid-template-columns:46px minmax(0,1fr) auto;align-items:center;gap:12px}
+body.premiumV30 #healthDialog .nativeStepIcon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;color:var(--v30-signal);background:rgba(214,255,63,.1)}
+body.premiumV30 #healthDialog .nativeStepIcon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+body.premiumV30 #healthDialog .nativeStepHead small{display:block;color:var(--v30-signal);font:600 9px/1.3 "IBM Plex Mono",monospace;letter-spacing:.12em}
+body.premiumV30 #healthDialog .nativeStepHead h3{margin:4px 0 0;font-size:17px}
+body.premiumV30 #healthDialog .stepConnectionDot{padding:6px 9px;border-radius:99px;color:#9aa39d;background:rgba(255,255,255,.06);font-size:9px;font-weight:800}
+body.premiumV30 #healthDialog .nativeStepCard.connected .stepConnectionDot{color:#152007;background:var(--v30-signal)}
+body.premiumV30 #healthDialog .nativeStepCard>p{color:var(--v30-muted);font-size:12px;line-height:1.55}
+body.premiumV30 #healthDialog .nativeStepToday{display:grid;gap:5px;margin-top:17px}
+body.premiumV30 #healthDialog .nativeStepToday>b{font-size:43px;line-height:1;letter-spacing:-.05em}
+body.premiumV30 #healthDialog .nativeStepToday>span,body.premiumV30 #healthDialog .nativeStepToday>small{color:var(--v30-muted);font-size:11px}
+body.premiumV30 #healthDialog .nativeStepToday>i{height:5px;margin:7px 0 2px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.09)}
+body.premiumV30 #healthDialog .nativeStepToday>i em{display:block;height:100%;border-radius:inherit;background:var(--v30-signal)}
+body.premiumV30 #healthDialog .nativeStepActions{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+body.premiumV30 #healthDialog .nativeStepActions button{min-height:40px}
+body.premiumV30 #healthDialog .nativeStepActions .danger{margin-left:auto}
+body.premiumV30 #healthDialog .stepGoalRow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--v30-line)}
+body.premiumV30 #healthDialog .stepGoalRow label{color:var(--v30-muted);font-size:10px;font-weight:750}
+body.premiumV30 #healthDialog .stepGoalRow input{width:100%;margin-top:6px}
+body.premiumV30 #healthDialog .stepGoalRow button{min-height:42px}
+body.premiumV30 #healthDialog #nativeStepStatus{min-height:0;margin:9px 0 0}
+body.premiumV30 #healthDialog #nativeStepStatus.error{color:#ff9e95}
+
+@media(max-width:600px){
+  body.premiumV30 #page-home .hvStepHero{grid-template-columns:74px minmax(0,1fr);gap:14px;padding:16px}
+  body.premiumV30 #page-home .hvStepRing{width:70px;height:70px}
+  body.premiumV30 #page-home .hvStepCopy strong{font-size:31px}
+  body.premiumV30 #page-home .hvStepHero>.hvBtn{grid-column:1/-1;width:100%}
+  body.premiumV30 #healthDialog{align-items:stretch;padding:0}
+  body.premiumV30 #healthDialog .healthStepSheet{width:100%;height:100dvh;max-height:100dvh;margin:0;padding:12px 14px max(16px,env(safe-area-inset-bottom));border:0;border-radius:0}
+  body.premiumV30 #healthDialog .nativeStepCard{padding:17px}
+  body.premiumV30 #healthDialog .nativeStepActions{display:grid;grid-template-columns:1fr 1fr}
+  body.premiumV30 #healthDialog .nativeStepActions .danger{grid-column:1/-1;margin:0}
 }

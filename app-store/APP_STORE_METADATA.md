@@ -46,6 +46,7 @@ NUTRITION THAT FITS THE WEEK
 • Get calorie, macro and meal guidance aligned with your goal and schedule
 • Log food, water and familiar meals
 • Search foods or scan supported barcodes
+• See automatic daily step progress from Apple Health after you connect it
 • Track weight, measurements and recovery context
 
 PRIVATE AND IN YOUR CONTROL
@@ -91,6 +92,8 @@ Do **not** select Payment Info: any future App Store payment details are handled
 
 The health-data rows should be marked as linked to identity because optional private account sync and personalized AI can associate those records with an authenticated account after separate consent. Product-page disclosure should reflect the most data-intensive optional path, not only the default local-only state.
 
+The HealthKit integration requests read-only access to Step Count only, and only after the user chooses **Connect Apple Health** in Health & steps. The app does not write HealthKit data, request location for step tracking, or use HealthKit data for advertising. It stores the daily aggregate in the existing local health diary; that value leaves the device only if the user separately enables an account sync or personalized AI feature that includes health context.
+
 ## Required declarations
 
 - **Regulated Medical Devices:** No. Work + Workout is a consumer wellness planner, not a regulated medical device, healthcare provider, diagnostic service or treatment service.
@@ -112,8 +115,9 @@ To test:
 3. Open Planner and paste: “Work Monday–Thursday 7 AM–7 PM. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week.”
 4. Review the proposals, confidence and conflict warnings before saving.
 5. Open Training and Nutrition to inspect/log the generated plan.
-6. Open the profile/account menu to test Sign out and Delete account permanently.
+6. Open More → Health & steps, choose Connect Apple Health, and allow Step Count. The permission sheet appears only after this action. Return to Home to see the daily step total; use Refresh to read it again. Denying access leaves manual step entry and file import available.
+7. Open the profile/account menu to test Sign out and Delete account permanently.
 
-Camera access is requested only after the reviewer chooses a photo/barcode/schedule capture action. Manual input remains available if access is denied. Work + Workout is not a medical device.
+Camera access is requested only after the reviewer chooses a photo/barcode/schedule capture action. HealthKit access is read-only and requested only after the reviewer chooses to connect it. Manual input remains available if either access is denied. Work + Workout is not a medical device.
 
 **Required before review:** add a dedicated reviewer email/password in App Store Connect. Do not use the owner’s personal account and do not commit credentials.

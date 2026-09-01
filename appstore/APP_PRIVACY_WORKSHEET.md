@@ -6,7 +6,7 @@ Use this as a preparation worksheet only. The final App Store Connect answers mu
 
 Current intended shipping model:
 
-- no account required
+- account sign-in is available and account-scoped cloud features are optional
 - no developer-operated analytics SDK
 - no advertising SDK
 - no sale of personal information
@@ -27,10 +27,10 @@ If the user voluntarily opens the external support issue tracker, information th
 Camera or photo access occurs only after an explicit scan/import action. The shipping purpose strings must clearly explain barcode and work-schedule use.
 
 ## Health information
-The current product can import health/recovery data from a user-selected file. Processing is intended to occur locally. If direct HealthKit integration is added later, update the privacy policy, App Store privacy answers, permissions and review notes before shipping that update.
+The iOS app can request read-only access to Apple Health Step Count after the user explicitly connects it. It reads an aggregated daily step total when the app opens, refreshes or returns to the foreground. It does not write HealthKit data, request location for this feature or use HealthKit data for advertising. The daily total is stored locally in the existing health diary and is transmitted only if the user separately enables an account sync or personalized AI path that includes health context. User-selected Apple Health export and CSV files continue to be processed locally.
 
 ## Account deletion
-The current version has no product account creation. If a future version adds user accounts, add in-app account deletion before submission and update this worksheet.
+The app includes in-app permanent account deletion and public deletion instructions. Account deletion removes the authentication user and associated account-scoped cloud records; local device records can be removed separately through the app’s data controls.
 
 ## Checklist before answering App Store Connect
 
@@ -42,4 +42,5 @@ The current version has no product account creation. If a future version adds us
 - confirm optional private-sync semantics
 - verify support provider behavior
 - verify camera/photo purpose strings
+- verify the HealthKit entitlement, Step Count read-only purpose string and connect/disconnect flow
 - update the hosted privacy policy if the shipping build differs from this worksheet

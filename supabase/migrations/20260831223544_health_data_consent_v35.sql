@@ -15,7 +15,7 @@ create table if not exists public.health_data_consent_events (
   source text not null default 'work-and-workout-app',
   created_at timestamptz not null default now(),
   constraint health_data_consent_grant_has_purpose check (action <> 'granted' or cardinality(purposes) > 0),
-  constraint health_data_consent_allowed_purposes check (purposes <@ array['account_cloud_sync','encrypted_webdav_sync','personalized_ai']::text[])
+  constraint health_data_consent_allowed_purposes check (purposes <@ array['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai']::text[])
 );
 
 create index if not exists health_data_consent_events_user_created_idx

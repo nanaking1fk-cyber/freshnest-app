@@ -6,6 +6,7 @@
   var platform=typeof Capacitor.getPlatform==='function'?Capacitor.getPlatform():'web';
   var isNative=platform==='ios'||platform==='android';
   var apiBase='https://www.workandworkout.com';
+  var STEP_ACCESS_KEY='wgp-native-step-access-v1';
 
   function report(label,error){
     console.warn('[native] '+label,error&&error.message?error.message:error);
@@ -70,6 +71,62 @@
     return true;
   }
 
+  function stepProvider(){return platform==='ios'?'Apple Health':platform==='android'?'Health Connect':'Phone health data'}
+  function stepAccessEnabled(){try{return localStorage.getItem(STEP_ACCESS_KEY)==='1'}catch{return false}}
+  function setStepAccess(enabled){try{if(enabled)localStorage.setItem(STEP_ACCESS_KEY,'1');else localStorage.removeItem(STEP_ACCESS_KEY)}catch{}}
+  function healthPermissionOptions(){
+    var inactive=JSON.stringify({IsActive:false,AccessType:'READ'});
+    return{
+      customPermissions:JSON.stringify([{Variable:'STEPS',AccessType:'READ'}]),
+      allVariables:inactive,
+      fitnessVariables:inactive,
+      healthVariables:inactive,
+      profileVariables:inactive,
+      workoutVariables:inactive
+    };
+  }
+  function healthQueryDate(date){return date.toISOString().split('.')[0]+'Z'}
+  function stepBlocks(result){
+    var parsed={};
+    try{parsed=JSON.parse(result&&result.results||'{}')}catch(error){throw Error('The phone returned an unreadable step total.')}
+    return Array.isArray(parsed)?parsed:Array.isArray(parsed.results)?parsed.results:[];
+  }
+  async function readPhoneSteps(){
+    var HealthFitness=plugin('HealthFitness');
+    if(!isNative||!HealthFitness||!HealthFitness.getData)throw Error('Automatic step tracking is unavailable on this device.');
+    var start=new Date(),end;
+    start.setHours(0,0,0,0);end=new Date(start);end.setDate(end.getDate()+1);
+    var result=await HealthFitness.getData({parameters:JSON.stringify({
+      Variable:'STEPS',StartDate:healthQueryDate(start),EndDate:healthQueryDate(end),
+      TimeUnit:'DAY',OperationType:'SUM',TimeUnitLength:1,
+      AdvancedQueryReturnType:'ALL_DATA',AdvancedQueryResultType:'RAW_DATA'
+    })});
+    var steps=stepBlocks(result).reduce(function(total,block){
+      return total+(Array.isArray(block&&block.values)?block.values.reduce(function(sum,value){value=Number(value);return sum+(Number.isFinite(value)?value:0)},0):0);
+    },0);
+    return{steps:Math.max(0,Math.round(steps)),provider:stepProvider(),platform:platform,syncedAt:new Date().toISOString()};
+  }
+  async function connectPhoneSteps(){
+    var HealthFitness=plugin('HealthFitness');
+    if(!isNative||!HealthFitness||!HealthFitness.requestHealthPermissions)throw Error('Automatic step tracking is unavailable on this device.');
+    await HealthFitness.requestHealthPermissions(healthPermissionOptions());
+    setStepAccess(true);
+    try{return await readPhoneSteps()}catch(error){setStepAccess(false);throw error}
+  }
+  async function disconnectPhoneSteps(){
+    setStepAccess(false);
+    var HealthFitness=plugin('HealthFitness');
+    if(platform==='android'&&HealthFitness&&HealthFitness.disconnectFromHealthConnect){
+      try{await HealthFitness.disconnectFromHealthConnect()}catch(error){report('health disconnect',error)}
+    }
+    return true;
+  }
+  async function openPhoneHealthSettings(){
+    var HealthFitness=plugin('HealthFitness');
+    if(platform==='android'&&HealthFitness&&HealthFitness.openHealthConnect){await HealthFitness.openHealthConnect();return true}
+    return false;
+  }
+
   async function configureNativeChrome(){
     if(!isNative)return;
     try{var StatusBar=plugin('StatusBar');if(StatusBar){await StatusBar.setOverlaysWebView({overlay:false});await StatusBar.setStyle({style:'LIGHT'});if(platform==='android')await StatusBar.setBackgroundColor({color:'#070a0d'})}}catch(error){report('status bar',error)}
@@ -96,6 +153,9 @@
       if(event&&event.canGoBack){history.back();return}
       if(platform==='android'&&App.minimizeApp)App.minimizeApp();
     });
+    App.addListener('appStateChange',function(event){
+      if(event&&event.isActive)window.dispatchEvent(new CustomEvent('wgp-native-resume'));
+    });
   }
   function installExternalLinks(){
     document.addEventListener('click',function(event){
@@ -118,6 +178,16 @@
     window.showPlannerNotification=showLocalNotification;
     window.downloadBlob=function(blob,name){shareBlob(blob,name).catch(function(error){report('share',error);if(typeof window.toast==='function')window.toast('Could not open the share sheet')})};
   }
+
+  window.WGPNative.steps={
+    available:isNative&&!!plugin('HealthFitness'),
+    provider:stepProvider(),
+    enabled:stepAccessEnabled,
+    connect:connectPhoneSteps,
+    read:readPhoneSteps,
+    disconnect:disconnectPhoneSteps,
+    openSettings:openPhoneHealthSettings
+  };
 
   configureNativeChrome();
   installBackButton();

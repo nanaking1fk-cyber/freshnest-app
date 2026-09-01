@@ -14,7 +14,7 @@ test('canonical store package targets iOS and Android with the production identi
   assert.equal(config.appName,'Work + Workout');
   assert.equal(config.webDir,'www');
   assert.equal(Object.hasOwn(config,'server'),false,'store app must not be a remote website wrapper');
-  for(const dependency of ['@capacitor/android','@capacitor/ios','@capacitor/app','@capacitor/browser','@capacitor/filesystem','@capacitor/haptics','@capacitor/local-notifications','@capacitor/share','@capacitor/splash-screen','@capacitor/status-bar'])assert.ok(pkg.dependencies[dependency],dependency);
+  for(const dependency of ['@capacitor/android','@capacitor/ios','@capacitor/app','@capacitor/browser','@capacitor/filesystem','@capacitor/haptics','@capacitor/health-fitness','@capacitor/local-notifications','@capacitor/share','@capacitor/splash-screen','@capacitor/status-bar'])assert.ok(pkg.dependencies[dependency],dependency);
   assert.ok(fs.existsSync(path.join(root,'app-store/ios/App/App.xcodeproj/project.pbxproj')));
   assert.ok(fs.existsSync(path.join(root,'app-store/android/app/build.gradle')));
 });
@@ -22,7 +22,7 @@ test('canonical store package targets iOS and Android with the production identi
 test('native build packages current production and routes authenticated APIs safely',()=>{
   const build=read('app-store/scripts/build-web.mjs');
   const bridge=read('app-store/native/native-bridge.js');
-  assert.match(build,/30\.1\.29/);
+  assert.match(build,/30\.1\.30/);
   assert.match(build,/disable legacy service worker/);
   assert.match(build,/account API base/);
   assert.match(build,/AI schedule API base/);

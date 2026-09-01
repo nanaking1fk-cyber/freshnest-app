@@ -36,7 +36,7 @@ const bridge=await readFile(join(root,'native','native-bridge.js'),'utf8');
 const runtime=[index,account,calendar,schedule,diary,adaptive,bridge].join('\n');
 
 if(!/Work \+ Workout/.test(index))errors.push('Current product name missing from native index');
-if(!/30\.1\.29/.test(index))errors.push('Current production version missing from native index');
+if(!/30\.1\.30/.test(index))errors.push('Current production version missing from native index');
 if(!index.includes('native/native-bridge.js'))errors.push('Native bridge is not loaded');
 if(!index.includes('shared/observability.js'))errors.push('Native web error reporter is not loaded');
 if(index.includes("'pwa-patch.js'"))errors.push('Service-worker patch is loaded in the native app');
@@ -46,11 +46,11 @@ if(!calendar.includes('WGPNative.apiBase')||!calendar.includes('WGPNative.openEx
 if(/<script[^>]+src=["']https?:\/\//i.test(runtime))errors.push('Remote executable script tag found in native runtime');
 if(/["'(]\/work-gym-planner-v1[56]\//.test(runtime))errors.push('Web-only absolute asset path leaked into native runtime');
 if(/SUPABASE_(?:SERVICE_ROLE|SECRET)_KEY\s*=\s*["'][^"']+/i.test(runtime)||/OPENAI_API_KEY\s*=\s*["'][^"']+/i.test(runtime))errors.push('Possible server secret embedded in native runtime');
-for(const capability of ['LocalNotifications','Filesystem','Share','Haptics','StatusBar','SplashScreen','Browser'])if(!bridge.includes(capability))errors.push(`Native ${capability} integration is missing`);
+for(const capability of ['LocalNotifications','Filesystem','Share','Haptics','StatusBar','SplashScreen','Browser','HealthFitness'])if(!bridge.includes(capability))errors.push(`Native ${capability} integration is missing`);
 if(!bridge.includes("capture?.('native_bridge'"))errors.push('Native bridge failures are not forwarded to diagnostics');
 
 if(errors.length){
   console.error('Native bundle audit FAILED\n- '+errors.join('\n- '));
   process.exit(1);
 }
-console.log('Native bundle audit passed: v30.1.29 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');
+console.log('Native bundle audit passed: v30.1.30 is self-contained, the stale PWA runtime is disabled, production APIs are explicit, native capabilities are present, and no server secrets were detected.');

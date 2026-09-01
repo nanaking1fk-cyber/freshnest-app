@@ -41,6 +41,10 @@
 	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Work + Workout uses the camera only when you choose to scan a work schedule, gym equipment, or a food barcode.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Work + Workout reads your daily step total so it can show step progress and improve your recovery plan. Your health data stays on this device unless you separately enable sync.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Work + Workout requests read-only step access and does not write to Apple Health.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Work + Workout lets you choose a schedule or equipment image when you request an import or analysis.</string>
 	<key>UIApplicationSceneManifest</key>

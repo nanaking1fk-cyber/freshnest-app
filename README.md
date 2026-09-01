@@ -2,8 +2,9 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## Current release — v30.1.29
+## Current release — v30.1.30
 
+- **Automatic phone steps:** the native apps can read the user-approved daily Step Count from Apple Health or Health Connect, refresh it on foreground, and show goal progress on Home without location, write, or background-history access.
 - **Worker-first story:** a premium, auto-advancing carousel gives healthcare, construction, transit, hospitality, education and logistics equal prominence, with job-specific planning benefits and manual/swipe controls.
 - **Autoplay product demonstration:** the hero continuously follows a demanding day from pre-shift planning through a late-shift adjustment, gym logging, meal logging and Progressive Coach guidance. Real footage and the Work + Workout interface stay visible together; there is no separate film modal.
 - **Quick Plan:** users can type or dictate ordinary language such as “work Tuesday 7–7, meal prep Sunday at 4, dentist tomorrow at 3.” The app previews and adds shifts, workouts, meals, appointments and tasks in one pass.

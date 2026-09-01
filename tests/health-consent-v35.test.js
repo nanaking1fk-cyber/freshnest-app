@@ -9,27 +9,38 @@ const lib=require('../server/v18-lib');
 
 test('health-data choice is separate, granular, affirmative and local-first',()=>{
   const source=read('work-gym-planner-v16/health-consent-v35.js');
-  assert.match(source,/Choose how health data is used/);
-  assert.match(source,/Your planner works on this device without consent/);
-  assert.match(source,/Keep data on this device/);
-  assert.match(source,/Agree to selected uses/);
+  assert.match(source,/Your privacy choices/);
+  assert.match(source,/Your planner still works if you leave everything off/);
+  assert.match(source,/Not now/);
+  assert.match(source,/Save my choices/);
   assert.match(source,/id="healthConsentConfirm" type="checkbox"/);
   assert.doesNotMatch(source,/id="healthConsentConfirm" type="checkbox"[^>]*checked/);
   for(const purpose of ['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai'])assert.match(source,new RegExp(purpose));
-  assert.match(source,/disabled>Agree to selected uses/);
+  assert.match(source,/disabled>Continue/);
   assert.match(source,/selected&&confirmed/);
-  assert.match(source,/Optional and separate from account terms/);
   assert.match(source,/legalPage\('privacy\.html','#health'\)/);
   assert.doesNotMatch(source,/\.\.\/work-gym-planner\/privacy\.html/);
+});
+
+test('feature consent uses one friendly purpose and hides technical jargon',()=>{
+  const source=read('work-gym-planner-v16/health-consent-v35.js');
+  assert.match(source,/entries=showAll\?Object\.entries\(PURPOSES\):\[\[purpose,PURPOSES\[purpose\]\]\]/);
+  assert.match(source,/Use Meal Scan\?/);
+  assert.match(source,/Allow Meal Scan/);
+  assert.match(source,/We do not keep the photo/);
+  assert.match(source,/I can turn it off later/);
+  assert.match(source,/We could not save your choice\. Please try again\./);
+  assert.doesNotMatch(source,/Optional and separate from account terms|explicit-consent standards|AES-GCM encrypted|through Vercel to OpenAI|private Supabase account/);
 });
 
 test('consent can be withdrawn without deleting local planner data',()=>{
   const source=read('work-gym-planner-v16/health-consent-v35.js');
   const account=read('work-gym-planner-v16/accounts-v18.js');
-  assert.match(source,/Withdraw all/);
+  assert.match(source,/Turn off all/);
   assert.match(source,/interactive:true,purpose:'account_cloud_sync',force:true/);
   assert.match(source,/action==='granted'\?'grant':'withdraw'/);
-  assert.match(source,/Existing cloud records are not automatically deleted/);
+  assert.match(source,/This does not delete anything already saved online/);
+  assert.match(source,/We could not update your choices\. Please try again\./);
   assert.match(source,/Local planning still works/);
   assert.match(account,/healthConsentPanelHTML/);
   assert.match(account,/bindHealthConsentPanel/);
@@ -62,6 +73,13 @@ test('server enforces consent before health state writes and personalized AI',()
 });
 
 test('server recognizes only the current version and selected purpose',()=>{
+  const browser=read('work-gym-planner-v16/health-consent-v35.js');
+  const server=read('server/v18-lib.js');
+  const statement='I agree to the selected uses of my health and wellness data. I can change my mind at any time.';
+  assert.match(browser,/POLICY_VERSION='1\.5'/);
+  assert.match(server,/HEALTH_POLICY_VERSION='1\.5'/);
+  assert.match(browser,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  assert.match(server,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   const receipt={action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync']};
   assert.equal(lib.healthConsentActive(receipt,'account_cloud_sync'),true);
   assert.equal(lib.healthConsentActive(receipt,'personalized_ai'),false);
@@ -80,6 +98,13 @@ test('consent receipts are append-only, owner-scoped and cascade with account de
   assert.match(sql,/for insert[\s\S]*to authenticated[\s\S]*with check/i);
   assert.doesNotMatch(sql,/create policy[\s\S]*for (?:update|delete)/i);
   assert.match(sql,/health_data_consent_events_user_created_idx/i);
+  assert.match(sql,/meal_scan_ai/);
+  const fix=read('supabase/migrations/20260901235058_allow_meal_scan_health_consent.sql');
+  assert.match(fix,/drop constraint if exists health_data_consent_allowed_purposes/i);
+  assert.match(fix,/add constraint health_data_consent_allowed_purposes/i);
+  assert.match(fix,/meal_scan_ai/);
+  assert.match(fix,/validate constraint health_data_consent_allowed_purposes/i);
+  assert.doesNotMatch(fix,/delete from|update public\.health_data_consent_events/i);
 });
 
 test('consent module is ordered before autosync and remains in offline/native releases',()=>{
@@ -95,9 +120,9 @@ test('consent module is ordered before autosync and remains in offline/native re
 
 test('published policy describes the implemented global consent controls',()=>{
   const privacy=read('work-gym-planner/privacy.html');
-  assert.match(privacy,/Version:<\/strong> 1\.4/);
-  assert.match(privacy,/Each purpose is optional and unchecked by default/);
-  assert.match(privacy,/Choosing “Keep data on this device”/);
+  assert.match(privacy,/Version:<\/strong> 1\.5/);
+  assert.match(privacy,/explains the requested use in plain language/);
+  assert.match(privacy,/Selecting “Not now”/);
   assert.match(privacy,/consent version, policy version, selected purposes, statement, locale and time/);
   assert.match(privacy,/Account &amp; sync/);
   assert.match(privacy,/Consent receipts/);

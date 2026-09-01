@@ -73,7 +73,8 @@ function renderTodayDashboard(){
   workingRows=rows.filter(x=>x.state==='work'),
   workSummary=workingRows.length?workingRows.map(x=>x.name).join(' + '):(s.kind==='unknown'?'Needs review':'No work added'),
   initial=(p.name||'U').trim().charAt(0).toUpperCase(),
-  loadLabel=workingRows.length>1?'High load':s.kind==='unknown'?'Needs review':workingRows.length?'Work day':'Open day';
+  loadLabel=workingRows.length>1?'High load':s.kind==='unknown'?'Needs review':workingRows.length?'Work day':'Open day',
+  stepDay=healthDay(k),steps=hasStepValue(stepDay)?Math.max(0,Math.round(+stepDay.steps)):0,stepsLogged=hasStepValue(stepDay),dailyStepGoal=stepGoal(),stepPct=clamp(Math.round(steps/dailyStepGoal*100),0,100),stepBridge=nativeSteps(),stepConnected=nativeStepEnabled(),stepUpdated=relativeStepSync(stepDay.stepsSyncedAt);
 
  // One line, not a paragraph. The panel it sits in already says "readiness".
  let recoveryMsg=r.score>=80?'Train as prescribed.':r.score>=65?'Train as planned, respect the RIR.':r.score>=50?'Keep it controlled. Avoid failure work.':'Move heavy work or use the fatigue-adjusted set.';
@@ -133,6 +134,23 @@ function renderTodayDashboard(){
    </div>
   </section>
 
+  <section class="hvPanel hvStepsPanel">
+   <div class="hvPanelHead">
+    <h2>Steps</h2>
+    <button class="hvLink" id="homeStepSettings">Manage <span aria-hidden="true">→</span></button>
+   </div>
+   <div class="hvStepHero">
+    <span class="hvStepRing" style="--step-progress:${stepPct*3.6}deg"><i>${HOME_ICONS.steps}</i></span>
+    <div class="hvStepCopy">
+     <strong>${stepsLogged?steps.toLocaleString():'—'}</strong>
+     <span>of ${dailyStepGoal.toLocaleString()} daily steps</span>
+     <span class="hvBar big"><i class="s" style="width:${stepPct}%"></i></span>
+     <small>${stepsLogged?`${esc(stepSourceLabel(stepDay))}${stepUpdated?' · updated '+esc(stepUpdated):''}`:stepBridge?.available?'Connect your phone to start syncing':'Log steps manually or use the mobile app'}</small>
+    </div>
+    <button id="homeStepAction" class="hvBtn">${stepConnected?'Refresh':stepBridge?.available?'Connect':'Log steps'}</button>
+   </div>
+  </section>
+
   <section class="hvPanel">
    <div class="hvPanelHead">
     <h2>Fuel</h2>
@@ -174,6 +192,8 @@ function renderTodayDashboard(){
  on('homeWorkCard',()=>page('calendar'));
  on('homeTrainingCard',()=>training.date?openTrainingDate(training.date):page('training'));
  on('homeRecoveryCard',()=>{fillHealthForm?.();openModal('healthDialog')});
+ on('homeStepSettings',()=>{fillHealthForm?.();openModal('healthDialog')});
+ on('homeStepAction',()=>{if(stepConnected)syncNativeSteps({announce:true});else{fillHealthForm?.();openModal('healthDialog');if(!stepBridge?.available)setTimeout(()=>$('#healthSteps')?.focus(),120)}});
  on('homeFullPlan',()=>page('calendar'));
  on('homeNextWorkout',()=>training.date?openTrainingDate(training.date):page('training'));
  on('homeCaloriesCard',()=>page('diary'));

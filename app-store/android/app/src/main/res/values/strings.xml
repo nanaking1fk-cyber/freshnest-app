@@ -4,4 +4,5 @@
     <string name="title_activity_main">Work + Workout</string>
     <string name="package_name">com.bibiniifarms.workandworkout</string>
     <string name="custom_url_scheme">com.bibiniifarms.workandworkout</string>
+    <string name="background_notification_title">Measuring your health and fitness data.</string>    <string name="background_notification_description">The app is running in the background.</string>    <string name="privacy_policy_url">https://www.workandworkout.com/work-gym-planner/privacy.html#phone-steps</string>
 </resources>

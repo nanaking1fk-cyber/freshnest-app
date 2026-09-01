@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "STEPS": "Read"
+  },
+  "groupPermissions": {},
+  "disableBackgroundJobs": true,
+  "disableReadHealthDataHistory": true,
+  "privacyPolicyUrl": "https://www.workandworkout.com/work-gym-planner/privacy.html#phone-steps"
+}

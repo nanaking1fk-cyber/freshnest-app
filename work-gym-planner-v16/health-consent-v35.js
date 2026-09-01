@@ -2,16 +2,16 @@
 window.WGC18=window.WGC18||{};
 (function(A){
  const CONSENT_VERSION='2026-08-31-v1';
- const POLICY_VERSION='1.4';
+ const POLICY_VERSION='1.5';
  const LOCAL_PREFIX='wgc-health-consent-v35:';
- const STATEMENT='I explicitly consent to each selected use of my health and wellness data. I understand that I can withdraw consent at any time without affecting processing that was lawful before withdrawal.';
+ const STATEMENT='I agree to the selected uses of my health and wellness data. I can change my mind at any time.';
  const PURPOSES={
-  account_cloud_sync:{title:'Private account cloud sync',detail:'Send planner, schedule, training, nutrition, body and recovery records through Vercel to your private Supabase account.'},
-  encrypted_webdav_sync:{title:'Encrypted WebDAV sync',detail:'Send an AES-GCM encrypted planner backup directly to the HTTPS WebDAV provider you choose.'},
-  personalized_ai:{title:'Personalized AI',detail:'Send your request and relevant schedule, training, nutrition, body and recovery context through Vercel to OpenAI for AI Coach or onboarding.'},
-  meal_scan_ai:{title:'Meal Scan',detail:'Send a meal photo you select through Vercel to OpenAI for one-time food and portion estimates. Work + Workout does not intentionally store the photo.'}
+  account_cloud_sync:{title:'Sync across devices',question:'Turn on account backup?',allow:'Turn on backup',detail:'Save your planner privately to your Work + Workout account so you can restore it or use another device.'},
+  encrypted_webdav_sync:{title:'Private backup service',question:'Use your private backup service?',allow:'Allow private backup',detail:'Send an encrypted planner backup to the private storage service you set up.'},
+  personalized_ai:{title:'Personalized AI help',question:'Use personalized AI help?',allow:'Allow AI help',detail:'Share only the parts of your plan needed to answer your question when you use an AI feature.'},
+  meal_scan_ai:{title:'Meal Scan',question:'Use Meal Scan?',allow:'Allow Meal Scan',detail:'Send only the meal photo you choose to our AI service to estimate foods and portions. We do not keep the photo.'}
  };
- let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null;
+ let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null,showAllChoices=false;
  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function owner(){return A.session?.user?.id||'device'}
  function key(){return LOCAL_PREFIX+owner()}
@@ -42,33 +42,44 @@ window.WGC18=window.WGC18||{};
  function closeChoice(result=false){
   closeModal('healthConsentDialog');
   requestedPurpose=null;
+  showAllChoices=false;
   const resolve=pending?.resolve;
   pending=null;
   resolve?.(result)
  }
  function updateAgree(){
-  const selected=[...document.querySelectorAll('#healthConsentPurposes input[type="checkbox"]:checked')].length;
+  const selected=showAllChoices?[...document.querySelectorAll('#healthConsentPurposes input[type="checkbox"]:checked')].length:1;
   const confirmed=$('#healthConsentConfirm')?.checked;
   const button=$('#healthConsentAgree');
   if(button)button.disabled=!(selected&&confirmed)
  }
- function renderDialog(purpose){
+ function renderDialog(purpose,{showAll=false}={}){
+  showAllChoices=showAll;
   const activeNow=activePurposes();
-  $('#healthConsentPurposes').innerHTML=Object.entries(PURPOSES).map(([id,item])=>{
+  const entries=showAll?Object.entries(PURPOSES):[[purpose,PURPOSES[purpose]]];
+  $('#healthConsentDialog .healthConsentSheet').classList.toggle('compactConsent',!showAll);
+  $('#healthConsentTitle').textContent=showAll?'Your privacy choices':PURPOSES[purpose].question;
+  $('#healthConsentEyebrow').textContent=showAll?'Optional features':'Your choice';
+  $('#healthConsentIntroTitle').textContent=showAll?'Choose only what you want.':purpose==='meal_scan_ai'?'Your photo is used only for this scan.':'You are in control.';
+  $('#healthConsentIntroCopy').textContent=showAll?'Your planner still works if you leave everything off. You can change these choices later.':'This is optional. Choose Not now to keep using the planner without it.';
+  $('#healthConsentConfirmText').textContent=showAll?STATEMENT:`I agree to use ${PURPOSES[purpose].title}. I can turn it off later.`;
+  $('#healthConsentAgree').textContent=showAll?'Save my choices':PURPOSES[purpose].allow;
+  $('#healthConsentPurposes').innerHTML=entries.map(([id,item])=>{
    const already=activeNow.includes(id),requested=id===purpose;
+   if(!showAll)return`<div class="healthPurpose requested"><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></div>`;
    return`<label class="healthPurpose ${requested?'requested':''} ${already?'active':''}"><input type="checkbox" value="${id}" ${already?'checked disabled':''}><span><b>${esc(item.title)}${already?' · On':''}</b><small>${esc(item.detail)}</small></span></label>`
   }).join('');
   $('#healthConsentConfirm').checked=false;
-  $('#healthConsentStatus').textContent=activeNow.length?'Your existing choices stay on. Select any additional use you want to allow.':'Nothing is uploaded or sent to AI unless you opt in below.';
+  $('#healthConsentStatus').textContent=showAll&&activeNow.length?'Your current choices stay on. Select anything else you want to allow.':'';
   $('#healthConsentStatus').classList.remove('bad');
   $('#healthConsentPurposes').querySelectorAll('input').forEach(input=>input.onchange=updateAgree);
   $('#healthConsentConfirm').onchange=updateAgree;
   updateAgree()
  }
- function openChoice(purpose){
+ function openChoice(purpose,{showAll=false}={}){
   inject();
   requestedPurpose=PURPOSES[purpose]?purpose:'account_cloud_sync';
-  renderDialog(requestedPurpose);
+  renderDialog(requestedPurpose,{showAll});
   openModal('healthConsentDialog');
   const promise=new Promise(resolve=>{pending={resolve}});
   pending.promise=promise;
@@ -83,24 +94,25 @@ window.WGC18=window.WGC18||{};
   if(active(purpose)&&!force)return true;
   if(!interactive)return false;
   if(pending)return pending.promise;
-  return openChoice(purpose)
+  return openChoice(purpose,{showAll:force})
  }
  async function withdraw(){
   if(!activePurposes().length)return true;
-  if(!confirm('Withdraw health-data consent? Future account sync, encrypted WebDAV sync, personalized AI and Meal Scan will stop. Existing cloud records are not automatically deleted.'))return false;
+  if(!confirm('Turn off these optional features? Cloud backup, private backup, AI help and Meal Scan will stop. Your on-device planner will keep working. This does not delete anything already saved online.'))return false;
   try{
    await record('withdrawn',[]);
-   toast('Health-data consent withdrawn. Local planning still works.');
+   toast('Optional features turned off. Local planning still works.');
    return true
   }catch(error){
-   const status=$('#accountStatus');if(status){status.textContent=error.message;status.classList.add('bad')}
+   const status=$('#accountStatus');if(status){status.textContent='We could not update your choices. Please try again.';status.classList.add('bad')}
+   window.WWObservability?.capture?.('health_consent_withdraw',error,{name:'HealthConsentWithdrawError',message:'Consent choices could not be withdrawn'});
    return false
   }
  }
  function panelHTML(){
   const activeNow=activePurposes(),on=activeNow.length>0;
   const labels=activeNow.map(id=>PURPOSES[id].title.replace('Private ','')).join(' · ');
-  return`<div id="healthConsentPanel" class="healthConsentPanel ${on?'on':'local'}"><div><b>${on?'Health-data choices':'Local-only privacy mode'}</b><small>${on?esc(labels):'Account sync, encrypted WebDAV, personalized AI and Meal Scan stay off until you choose them.'}</small></div><button id="manageHealthConsent">${on?'Manage':'Review choices'}</button>${on?'<button id="withdrawHealthConsent" class="danger">Withdraw all</button>':''}<a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; Consumer Health Data Policy</a></div>`
+  return`<div id="healthConsentPanel" class="healthConsentPanel ${on?'on':'local'}"><div><b>${on?'Privacy choices':'On-device only'}</b><small>${on?esc(labels):'Cloud backup and AI features stay off until you choose them.'}</small></div><button id="manageHealthConsent">${on?'Manage':'Review choices'}</button>${on?'<button id="withdrawHealthConsent" class="danger">Turn off all</button>':''}<a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; health data</a></div>`
  }
  function bindPanel(){
   $('#manageHealthConsent')?.addEventListener('click',()=>ensure({interactive:true,purpose:'account_cloud_sync',force:true}));
@@ -108,14 +120,14 @@ window.WGC18=window.WGC18||{};
  }
  function inject(){
   if($('#healthConsentDialog'))return;
-  document.body.insertAdjacentHTML('beforeend',`<div id="healthConsentDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="healthConsentTitle"><div class="sheet largeSheet healthConsentSheet"><div class="sheetHandle"></div><div class="sheetHead"><div><small>Optional and separate from account terms</small><h2 id="healthConsentTitle">Choose how health data is used</h2></div></div><div class="healthConsentIntro"><b>Your planner works on this device without consent.</b><p>Health and wellness data can include nutrition and meals, workouts and activity, height, weight and body composition, sleep, steps, heart rate, recovery, schedule information and wellness inferences.</p></div><div id="healthConsentPurposes" class="healthConsentPurposes"></div><label class="healthConsentConfirm"><input id="healthConsentConfirm" type="checkbox"><span>${esc(STATEMENT)}</span></label><p class="healthConsentLegal">These choices are available globally and are designed to meet explicit-consent standards in the EEA and UK. See the <a href="${esc(legalPage('privacy.html','#international'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; Consumer Health Data Policy</a> for providers, transfers, retention and rights.</p><p id="healthConsentStatus" class="statusText" aria-live="polite"></p><div class="sheetActions healthConsentActions"><button id="healthConsentLocal">Keep data on this device</button><button id="healthConsentAgree" class="primary" disabled>Agree to selected uses</button></div></div></div>`);
+  document.body.insertAdjacentHTML('beforeend',`<div id="healthConsentDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="healthConsentTitle"><div class="sheet largeSheet healthConsentSheet"><div class="sheetHandle"></div><div class="sheetHead"><div><small id="healthConsentEyebrow">Your choice</small><h2 id="healthConsentTitle">Privacy choice</h2></div></div><div class="healthConsentIntro"><b id="healthConsentIntroTitle">You are in control.</b><p id="healthConsentIntroCopy">Choose only what you want to use.</p></div><div id="healthConsentPurposes" class="healthConsentPurposes"></div><label class="healthConsentConfirm"><input id="healthConsentConfirm" type="checkbox"><span id="healthConsentConfirmText">${esc(STATEMENT)}</span></label><p class="healthConsentLegal">You can change this anytime in Account &amp; sync. <a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; health data</a></p><p id="healthConsentStatus" class="statusText" aria-live="polite"></p><div class="sheetActions healthConsentActions"><button id="healthConsentLocal">Not now</button><button id="healthConsentAgree" class="primary" disabled>Continue</button></div></div></div>`);
   $('#healthConsentLocal').onclick=()=>closeChoice(false);
   $('#healthConsentAgree').onclick=async()=>{
-   const selected=[...document.querySelectorAll('#healthConsentPurposes input[type="checkbox"]:checked')].map(input=>input.value);
+   const selected=showAllChoices?[...document.querySelectorAll('#healthConsentPurposes input[type="checkbox"]:checked')].map(input=>input.value):[...new Set([...activePurposes(),requestedPurpose])];
    if(!selected.length||!$('#healthConsentConfirm').checked)return;
    const button=$('#healthConsentAgree');button.disabled=true;
    $('#healthConsentStatus').textContent='Saving your choices…';
-   try{await record('granted',selected);const requestedWasGranted=selected.includes(requestedPurpose);closeChoice(requestedWasGranted);toast('Health-data choices saved.')}catch(error){$('#healthConsentStatus').textContent=error.message;$('#healthConsentStatus').classList.add('bad');updateAgree()}
+   try{await record('granted',selected);const requestedWasGranted=selected.includes(requestedPurpose);closeChoice(requestedWasGranted);toast('Your choice was saved.')}catch(error){$('#healthConsentStatus').textContent='We could not save your choice. Please try again.';$('#healthConsentStatus').classList.add('bad');window.WWObservability?.capture?.('health_consent_save',error,{name:'HealthConsentSaveError',message:'Consent choice could not be saved'});updateAgree()}
   };
   $('#healthConsentDialog').addEventListener('click',event=>{if(event.target.id==='healthConsentDialog')closeChoice(false)})
  }

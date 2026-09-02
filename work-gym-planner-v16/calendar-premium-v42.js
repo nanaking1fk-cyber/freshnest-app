@@ -247,8 +247,20 @@
 
   function keyHandler(event){if(event.key!=='Escape')return;if(document.querySelector('.calendarOverlayV42'))closeOverlay();else closeDaySheet()}
   function outsideDayHandler(event){if(!document.body.classList.contains('calendarDaySheetOpenV42'))return;if(event.target.closest('#dayCard,.calDay[data-date],[data-week-date]'))return;closeDaySheet()}
+  function watchCalendarRenders(){
+    var calendar=document.getElementById('page-calendar');if(!calendar)return;
+    new MutationObserver(function(records){
+      var needsDecorate=records.some(function(record){
+        var target=record.target.nodeType===1?record.target:record.target.parentElement;
+        if(!target?.closest?.('#calendarGrid,#dayCard,#calendarWeekRailV33'))return false;
+        var nodes=Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).filter(function(node){return node.nodeType===1});
+        return nodes.some(function(node){return !node.matches?.('.calendarMarkersV42,.calendarDayBriefV42,.calendarDayCloseV42')});
+      });
+      if(needsDecorate)queueDecorate();
+    }).observe(calendar,{subtree:true,childList:true});
+  }
   function boot(){
-    decorate();new MutationObserver(queueDecorate).observe(document.documentElement,{subtree:true,childList:true});document.addEventListener('keydown',keyHandler);document.addEventListener('click',outsideDayHandler);window.addEventListener('wgc:authchange',function(){setTimeout(decorate,80)});window.addEventListener('wgc:profile-ready',function(){setTimeout(decorate,80)})
+    decorate();watchCalendarRenders();document.addEventListener('keydown',keyHandler);document.addEventListener('click',outsideDayHandler);window.addEventListener('wgc:authchange',function(){setTimeout(decorate,80)});window.addEventListener('wgc:profile-ready',function(){setTimeout(decorate,80)})
   }
   API.openAdd=openAdd;API.openShare=openShare;API.openFilters=openFilters;API.openHolidaySettings=openHolidaySettings;API.holidaysForYear=holidaysForYear;API.buildPdf=buildPdf;API.shareRows=shareRows;API.refresh=refreshCalendar;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

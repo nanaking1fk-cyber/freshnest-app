@@ -52,6 +52,13 @@ test('a stale or concurrently created account is never silently overwritten',asy
   await assert.rejects(lib.saveState('user-a',{storage:{}},'Bearer user-jwt',null),error=>error.status===409&&error.code==='STATE_CONFLICT');
 });
 
+test('successful writes always advance the revision even within the same millisecond',async()=>{
+  const future='2099-01-01T00:00:00.123456Z';let body;
+  global.fetch=async(url,options)=>{body=JSON.parse(options.body);return new Response(JSON.stringify([{updated_at:body.updated_at}]),{status:200})};
+  await lib.saveState('user-a',{storage:{}},'Bearer user-jwt',future);
+  assert.ok(Date.parse(body.updated_at)>Date.parse(future));
+});
+
 test('plan save uses atomic replacement RPC',async()=>{
   let request;
   global.fetch=async(url,options)=>{request={url,options};return new Response('"plan-id"',{status:200})};

@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.31-calendar42';
+const CACHE='wgp-stable-v30.1.31-account44';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',
@@ -12,7 +12,6 @@ const OPTIONAL_SHELL=SHELL.filter(url=>url.includes('/vendor/'));
 const REQUIRED_SHELL=SHELL.filter(url=>!OPTIONAL_SHELL.includes(url));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(async c=>{
  await c.addAll(REQUIRED_SHELL);
- await Promise.allSettled(OPTIONAL_SHELL.map(url=>c.add(url)));
 }).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('message',e=>{if(e.data?.type==='SKIP_WAITING')self.skipWaiting()});
@@ -23,10 +22,16 @@ self.addEventListener('fetch',e=>{
  if(e.request.method!=='GET')return;
  const u=new URL(e.request.url);
  if(u.origin!==location.origin||u.pathname.startsWith('/api/')||e.request.headers.has('Authorization'))return;
- e.respondWith(fetch(e.request).then(r=>{if(r.ok){let q=r.clone();caches.open(CACHE).then(c=>c.put(e.request,q)).catch(()=>{})}return r}).catch(async()=>{
+ e.respondWith((async()=>{
   const cached=await cacheMatch(e.request);
   if(cached)return cached;
-  if(e.request.mode==='navigate')return cacheMatch('./shell.html');
-  return undefined;
- }));
+  try{
+   const r=await fetch(e.request);
+   if(r.ok){const copy=r.clone();await caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{})}
+   return r;
+  }catch(error){
+   if(e.request.mode==='navigate'){const shell=await cacheMatch('./shell.html');if(shell)return shell}
+   throw error;
+  }
+ })());
 });

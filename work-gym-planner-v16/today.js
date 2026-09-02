@@ -38,6 +38,7 @@ function dashboardWorkRows(k,s){
 }
 function renderPausedSetupDashboard(root){
  let account=window.WGC18||{},user=account.session?.user||{},name=String(user.user_metadata?.display_name||user.email?.split('@')[0]||'there').trim(),hasDraft=!!localStorage.getItem(PREFIX+'guided-onboarding-draft-v30');
+ const needsAccount=!!account.session&&account.canStartOnboarding?.()===false;
  root.innerHTML=`<div class="homeDash homeDashV27 onboardingPausedHome">
   <header class="hvHead pausedHead">
    <button class="hvBrand" id="pausedMenuBtn" aria-label="Open menu"><b>Work + Workout</b><span class="hvCode">Menu</span></button>
@@ -45,10 +46,10 @@ function renderPausedSetupDashboard(root){
    <div class="hvHello"><p class="hvCode">YOUR PRIVATE PLAN</p><h1>Welcome, ${esc(name)}.</h1></div>
   </header>
   <section class="pausedSetupHero">
-   <p class="hvCode">${hasDraft?'SETUP SAVED':'READY WHEN YOU ARE'}</p>
-   <h2>${hasDraft?'Pick up where you left off.':'Build a week that fits your real life.'}</h2>
-   <p>${hasDraft?'Your answers are safely saved on this account. Finish when you have a few minutes.':'Tell us about your work, training and food preferences when you are ready. You can leave and return at any time.'}</p>
-   <button id="resumeOnboarding" class="pausedPrimary">${hasDraft?'Resume setup':'Start setup'} <span aria-hidden="true">→</span></button>
+   <p class="hvCode">${needsAccount?'YOUR SAVED ACCOUNT':hasDraft?'SETUP SAVED':'READY WHEN YOU ARE'}</p>
+   <h2>${needsAccount?'Let’s bring back your plan.':hasDraft?'Pick up where you left off.':'Build a week that fits your real life.'}</h2>
+   <p>${needsAccount?'Load your saved account before starting a new plan. Your online data stays unchanged until it has been checked.':hasDraft?'Your answers are safely saved on this account. Finish when you have a few minutes.':'Tell us about your work, training and food preferences when you are ready. You can leave and return at any time.'}</p>
+   <button id="resumeOnboarding" class="pausedPrimary">${needsAccount?'Load saved account':hasDraft?'Resume setup':'Start setup'} <span aria-hidden="true">→</span></button>
   </section>
   <section class="pausedPreview" aria-label="What your plan will include">
    <article><span>01</span><b>Work schedule</b><small>Photo, PDF, pasted shifts or a repeating rotation</small></article>
@@ -57,7 +58,7 @@ function renderPausedSetupDashboard(root){
   </section>
   <p class="pausedNote">Nothing is added to your calendar until you review and approve it.</p>
  </div>`;
- document.getElementById('resumeOnboarding').onclick=()=>account.openOnboarding?.();
+ document.getElementById('resumeOnboarding').onclick=()=>needsAccount?account.openAccount?.('signin'):account.openOnboarding?.();
  document.getElementById('pausedMenuBtn').onclick=()=>page('more');
  document.getElementById('pausedAccountBtn').onclick=()=>account.openAccount?.('account');
 }

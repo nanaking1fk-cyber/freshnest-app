@@ -197,10 +197,11 @@ async function saveState(userId,state,authorization,baseUpdatedAt){
   const sanitized=sanitizePlannerState(state,{appVersion:'23.0.0'});
   const conflict=()=>Object.assign(new Error('Your saved account changed. Load the latest copy before syncing; no data was overwritten.'),{status:409,code:'STATE_CONFLICT'});
   const creating=baseUpdatedAt===null;
+  const updatedAt=new Date(Math.max(Date.now(),creating?0:Date.parse(baseUpdatedAt)+1)).toISOString();
   let rows;
   try{rows=await userFetch(authorization,creating?'user_state':`user_state?user_id=eq.${encodeURIComponent(userId)}&updated_at=eq.${encodeURIComponent(baseUpdatedAt)}`,{
     method:creating?'POST':'PATCH',
-    body:{...(creating?{user_id:userId}:{}),state:sanitized,schema_version:23,updated_at:new Date().toISOString()},
+    body:{...(creating?{user_id:userId}:{}),state:sanitized,schema_version:23,updated_at:updatedAt},
     prefer:'return=representation'
   })}catch(error){if(error.status===409)throw conflict();throw error}
   if(!rows?.[0])throw conflict();

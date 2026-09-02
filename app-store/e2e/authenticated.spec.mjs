@@ -26,7 +26,8 @@ async function state(request,token){
 }
 
 async function putState(request,token,value){
-  const response=await request.put('/api/v18/state',{headers:{Authorization:`Bearer ${token}`},data:{state:value}});
+  const current=await state(request,token);
+  const response=await request.put('/api/v18/state',{headers:{Authorization:`Bearer ${token}`},data:{state:value,baseUpdatedAt:current.updatedAt}});
   expect(response.ok()).toBeTruthy();
   return response.json();
 }

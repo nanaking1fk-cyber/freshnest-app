@@ -86,13 +86,13 @@ test('an abandoned password recovery is cleared on sign-in and sign-out',()=>{
   assert.match(failedExchange.slice(0,300),/clearRecoveryFlag\(\)/,'a failed PKCE exchange must clear the recovery flag');
 });
 
-test('service workers require the core shell and tolerate optional vendor failures',()=>{
+test('service workers require the core shell and defer optional vendors until used',()=>{
   for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
     const source=read(worker);
     assert.match(source,/const OPTIONAL_SHELL=SHELL\.filter\(url=>url\.includes\('\/vendor\/'\)\)/,`${worker} must separate optional vendor assets`);
     assert.match(source,/const REQUIRED_SHELL=SHELL\.filter\(url=>!OPTIONAL_SHELL\.includes\(url\)\)/,`${worker} must identify the required shell`);
     assert.match(source,/await c\.addAll\(REQUIRED_SHELL\)/,`${worker} must fail installation when an essential shell asset is missing`);
-    assert.match(source,/Promise\.allSettled\(OPTIONAL_SHELL\.map\(url=>c\.add\(url\)\)\)/,`${worker} must tolerate an optional vendor-cache failure`);
+    assert.doesNotMatch(source,/OPTIONAL_SHELL\.map\(url=>c\.add/,`${worker} must not download large scanning tools during startup`);
   }
 });
 
@@ -142,13 +142,12 @@ test('notification artwork exists at the path used by the app',()=>{
   assert.ok(fs.existsSync(path.join(root,'work-gym-planner/icons',match[1])),`missing notification icon ${match[1]}`);
 });
 
-test('service-worker installation executes required and optional cache phases',async()=>{
+test('service-worker installation downloads only the required shell',async()=>{
   for(const worker of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
     const calls=await runWorkerInstall(worker,{failOptional:true});
     assert.ok(calls.required.length>10,`${worker} should have a substantial required shell`);
     assert.ok(calls.required.every(url=>!url.includes('/vendor/')),`${worker} put a vendor asset in the required shell`);
-    assert.ok(calls.optional.length>=3,`${worker} should attempt optional vendor assets`);
-    assert.ok(calls.optional.every(url=>url.includes('/vendor/')),`${worker} put a core asset in the optional shell`);
+    assert.equal(calls.optional.length,0,`${worker} should load optional vendors only when requested`);
     assert.equal(calls.skipWaiting,1,`${worker} should install despite one optional cache failure`);
   }
 });

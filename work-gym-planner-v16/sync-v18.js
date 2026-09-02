@@ -1,9 +1,9 @@
 // v18 lightweight account autosync. Keeps local-first writes responsive.
 window.WGC18=window.WGC18||{};
 (function(A){
- let timer=null,pushing=false,dirty=false,lastPush=0;
- async function push(){if(pushing||!dirty||!A.session||typeof A.pushState!=='function')return;pushing=true;try{let sent=await A.pushState({quiet:true});if(sent!==false){dirty=false;lastPush=Date.now()}}catch(e){console.warn('Account autosync deferred:',e.message)}finally{pushing=false}}
- A.queueSync=function(){if(!A.session)return;dirty=true;clearTimeout(timer);timer=setTimeout(push,2500)};
+ let timer=null,pushing=false,dirty=false,lastPush=0,generation=0;
+ async function push(){if(pushing||!dirty||!A.session||!A.cloudStateReady||typeof A.pushState!=='function')return;pushing=true;const sending=generation;try{let sent=await A.pushState({quiet:true});if(sent!==false){dirty=generation!==sending;lastPush=Date.now()}}catch(e){console.warn('Account autosync deferred:',e.message)}finally{pushing=false}}
+ A.queueSync=function(){if(!A.session)return;dirty=true;generation++;clearTimeout(timer);timer=setTimeout(push,2500)};
  const oldSet=window.jset;
  if(typeof oldSet==='function'&&!oldSet.__sync18){let wrapped=function(key,val){let r=oldSet(key,val);if(A.session)A.queueSync();return r};wrapped.__sync18=true;window.jset=wrapped}
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&dirty)push()});

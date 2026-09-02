@@ -489,7 +489,7 @@
       document.body.classList.add('schedulePlatformV25');
     }finally{mounting=false}
   }
-  function boot(){mount();handleOAuthReturn();var queued=false;new MutationObserver(function(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;mount()})}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
+  function boot(){mount();handleOAuthReturn();window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
 
   V.sources=sources;V.events=events;V.rotations=rotations;V.saveSources=saveSources;V.saveEvents=saveEvents;V.saveRotations=saveRotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.addOffDay=addOffDay;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

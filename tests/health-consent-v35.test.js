@@ -57,7 +57,7 @@ test('browser cloud and AI paths require the matching selected purpose',()=>{
   assert.match(webdav,/interactive:!silent,purpose:'encrypted_webdav_sync'/);
   assert.match(webdav,/interactive:true,purpose:'encrypted_webdav_sync'/);
   assert.match(consent,/path==='coach'\|\|path==='onboarding'\?'personalized_ai'/);
-  assert.match(read('work-gym-planner-v16/sync-v18.js'),/if\(sent!==false\)\{dirty=false/);
+  assert.match(read('work-gym-planner-v16/sync-v18.js'),/if\(sent!==false\)\{dirty=generation!==sending/);
 });
 
 test('server enforces consent before health state writes and personalized AI',()=>{

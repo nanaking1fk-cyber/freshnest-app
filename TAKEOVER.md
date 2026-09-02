@@ -2,7 +2,7 @@
 
 ## Current release
 
-Version 30.1.30 is live from `main`. It includes the premium public landing experience, responsive six-question onboarding, the signed-in workspace, trusted text/photo/PDF schedule review, rotations and multi-source calendars, adaptive or user-owned training plans, nutrition planning/logging, Progressive Coach, and the canonical Capacitor package in `app-store/`.
+Version 30.1.31 is live from `main`. It includes the premium public landing experience, responsive six-question onboarding, the signed-in workspace, trusted text/photo/PDF schedule review, rotations and multi-source calendars, adaptive or user-owned training plans, nutrition planning/logging, Progressive Coach, and the canonical Capacitor package in `app-store/`.
 
 ## Current architecture
 

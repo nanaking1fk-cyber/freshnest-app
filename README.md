@@ -2,8 +2,9 @@
 
 A schedule-aware fitness, nutrition and recovery coach designed for people whose real life does not fit a generic Monday-Friday workout plan.
 
-## Current release — v30.1.30
+## Current release — v30.1.31
 
+- **Reliable account recovery:** reset emails return directly to the planner's new-password form, password managers receive a complete username/password form, and Supabase rejects known leaked passwords.
 - **Automatic phone steps:** the native apps can read the user-approved daily Step Count from Apple Health or Health Connect, refresh it on foreground, and show goal progress on Home without location, write, or background-history access.
 - **Worker-first story:** a premium, auto-advancing carousel gives healthcare, construction, transit, hospitality, education and logistics equal prominence, with job-specific planning benefits and manual/swipe controls.
 - **Autoplay product demonstration:** the hero continuously follows a demanding day from pre-shift planning through a late-shift adjustment, gym logging, meal logging and Progressive Coach guidance. Real footage and the Work + Workout interface stay visible together; there is no separate film modal.
@@ -32,7 +33,7 @@ Licensed footage sources and usage notes are recorded in `VIDEO_SOURCES.md`.
 ## Cloud setup
 
 1. Create a Supabase project, run `cloud-v18/schema.sql`, then apply the ordered files in `supabase/migrations/`. Every new table migration must enable RLS and explicitly declare its Data API grants or revokes; `npm run audit:release` enforces this policy.
-2. In Supabase Auth, enable Email/Password, leaked-password protection, and a minimum password policy. Set the Site URL and exact web redirect to `https://www.workandworkout.com/`; add only explicit native deep links that are actually shipped. Confirmation and recovery use PKCE and must finish in the browser where they started.
+2. In Supabase Auth, enable Email/Password, leaked-password protection, and a minimum password policy. Set the Site URL to `https://www.workandworkout.com/`, and allow the exact planner callbacks `https://www.workandworkout.com/work-gym-planner/?auth=signup` and `https://www.workandworkout.com/work-gym-planner/?auth=recovery`; add only explicit native deep links that are actually shipped. Confirmation and recovery use PKCE and must finish in the browser where they started.
 3. Deploy this repository to Vercel and set server environment variables:
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`

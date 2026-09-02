@@ -44,8 +44,8 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
   const markerA=`account-a-${Date.now()}`;
   const markerB=`account-b-${Date.now()}`;
   try{
-    await putState(request,a.access_token,{appVersion:'30.1.30',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerA)}});
-    await putState(request,b.access_token,{appVersion:'30.1.30',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerB)}});
+    await putState(request,a.access_token,{appVersion:'30.1.31',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerA)}});
+    await putState(request,b.access_token,{appVersion:'30.1.31',storage:{'wgp-v15-e2e-marker':JSON.stringify(markerB)}});
     const readA=await state(request,a.access_token);
     const readB=await state(request,b.access_token);
     expect(readA.state.storage['wgp-v15-e2e-marker']).toBe(JSON.stringify(markerA));
@@ -84,8 +84,8 @@ test('dedicated accounts remain isolated and restore across sessions',async({req
     // cleanup must authenticate again instead of reusing a revoked token.
     const restoreA=await signIn(request,cloud,process.env.E2E_USER_A_EMAIL,process.env.E2E_USER_A_PASSWORD);
     const restoreB=await signIn(request,cloud,process.env.E2E_USER_B_EMAIL,process.env.E2E_USER_B_PASSWORD);
-    await putState(request,restoreA.access_token,beforeA.state||{appVersion:'30.1.30',storage:{}});
-    await putState(request,restoreB.access_token,beforeB.state||{appVersion:'30.1.30',storage:{}});
+    await putState(request,restoreA.access_token,beforeA.state||{appVersion:'30.1.31',storage:{}});
+    await putState(request,restoreB.access_token,beforeB.state||{appVersion:'30.1.31',storage:{}});
   }
 });
 

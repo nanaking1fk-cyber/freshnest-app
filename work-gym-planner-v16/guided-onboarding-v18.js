@@ -475,6 +475,7 @@
     if(paused){window.page?.('home');window.renderTodayDashboard?.();window.toast?.('Setup saved. Resume whenever you are ready.')}
   }
   function openGuided(options){
+    if(A.passwordRecovery){A.openAccount?.('signin');return}
     const automatic=!!(options&&options.auto);
     if(automatic){try{if(sessionStorage.getItem(pausedSessionKey())==='1')return}catch{}}
     else try{sessionStorage.removeItem(pausedSessionKey())}catch{}

@@ -2,7 +2,7 @@
 window.WGC18=window.WGC18||{};
 (function(A){
  let threadId=null,pendingImage=null;
- function context(){let ob=jget(PREFIX+'onboarding-v18',null);return{profile:profile(),nutrition:nutrition(),today:dkey(),todayWork:workState(dkey()),todayTarget:target(dkey()),onboarding:ob?.answers||null,plan:ob?.plan?{training:ob.plan.training,nutrition:ob.plan.nutrition}:null,recentCompleted:history().slice(-5)}}
+ function context(){let ob=jget(PREFIX+'onboarding-v18',null);return{profile:profile(),nutrition:nutrition(),today:dkey(),todayWork:workState(dkey()),todayTarget:target(dkey()),onboarding:ob?.answers||null,plan:ob?.plan?{training:ob.plan.training,nutrition:ob.plan.nutrition}:null,recentCompleted:workoutHistory().slice(-5)}}
  function bubble(role,text){let el=document.createElement('div');el.className='coachBubble '+role;el.innerHTML=`<b>${role==='user'?'You':'AI Coach'}</b><p>${esc(text).replace(/\n/g,'<br>')}</p>`;$('#coachMessages18').appendChild(el);el.scrollIntoView({behavior:'smooth',block:'end'})}
  function status(t){let e=$('#coachStatus18');if(e)e.textContent=t||''}
  function resizeImage(file){return new Promise((resolve,reject)=>{let r=new FileReader;r.onerror=reject;r.onload=()=>{let im=new Image;im.onerror=reject;im.onload=()=>{let max=1280,scale=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*scale);c.height=Math.round(im.height*scale);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.82))};im.src=r.result};r.readAsDataURL(file)})}

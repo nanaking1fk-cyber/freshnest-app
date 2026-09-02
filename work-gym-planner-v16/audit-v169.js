@@ -9,7 +9,7 @@ if(typeof EXERCISE_ALTERNATIVES==='object'&&typeof MUSCLE_MAP==='object'){
 }
 weeklyMuscleSets=function(end=dkey(),days=7){
   let start=addDays(end,-days+1),out={};
-  for(const s of history().filter(x=>x.completed&&x.date>=start&&x.date<=end)){
+  for(const s of workoutHistory().filter(x=>x.completed&&x.date>=start&&x.date<=end)){
     for(const e of s.exercises||[]){
       let groups=MUSCLE_MAP[e.name]||MUSCLE_MAP[e.baseName]||['other'];
       let hard=(e.sets||[]).filter(z=>+z.r>0&&(z.rir===''||z.rir==null||+z.rir<=3)).length;

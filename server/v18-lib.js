@@ -191,14 +191,20 @@ async function getState(userIdOrAuthorization,authorization=userIdOrAuthorizatio
   return{...row,state:sanitizePlannerState(row.state,{appVersion:'23.0.0'}),schema_version:23};
 }
 
-async function saveState(userId,state,authorization){
+async function saveState(userId,state,authorization,baseUpdatedAt){
+  if(baseUpdatedAt===undefined)throw Object.assign(new Error('Reload the app and load your saved account before syncing.'),{status:428,code:'STATE_BASE_REQUIRED'});
+  if(baseUpdatedAt!==null&&(typeof baseUpdatedAt!=='string'||!Number.isFinite(Date.parse(baseUpdatedAt))))throw Object.assign(new Error('A valid saved-account version is required.'),{status:400,code:'STATE_BASE_REQUIRED'});
   const sanitized=sanitizePlannerState(state,{appVersion:'23.0.0'});
-  const rows=await userFetch(authorization,'user_state?on_conflict=user_id',{
-    method:'POST',
-    body:{user_id:userId,state:sanitized,schema_version:23,updated_at:new Date().toISOString()},
-    prefer:'resolution=merge-duplicates,return=representation'
-  });
-  return{...(rows?.[0]||{}),state:sanitized};
+  const conflict=()=>Object.assign(new Error('Your saved account changed. Load the latest copy before syncing; no data was overwritten.'),{status:409,code:'STATE_CONFLICT'});
+  const creating=baseUpdatedAt===null;
+  let rows;
+  try{rows=await userFetch(authorization,creating?'user_state':`user_state?user_id=eq.${encodeURIComponent(userId)}&updated_at=eq.${encodeURIComponent(baseUpdatedAt)}`,{
+    method:creating?'POST':'PATCH',
+    body:{...(creating?{user_id:userId}:{}),state:sanitized,schema_version:23,updated_at:new Date().toISOString()},
+    prefer:'return=representation'
+  })}catch(error){if(error.status===409)throw conflict();throw error}
+  if(!rows?.[0])throw conflict();
+  return{...rows[0],state:sanitized};
 }
 
 async function saveOnboarding(userId,answers,authorization){

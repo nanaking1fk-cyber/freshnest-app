@@ -17,11 +17,11 @@ function harness({local={},consent=true,response=remote('Saved user'),secure=fal
   const localStorage=storage(local),timers=[],events=[],calls=[],modals=[];
   const document={readyState:'complete',addEventListener(){},getElementById(){return null}};
   const context={localStorage,sessionStorage:storage(),document,location:{hash:'',pathname:'/work-gym-planner/',search:'',protocol:'https:'},URL,URLSearchParams,TextEncoder,crypto:require('node:crypto').webcrypto,btoa:s=>Buffer.from(s,'binary').toString('base64'),fetch:async()=>{throw Error('unexpected real network')},CustomEvent:class{constructor(type){this.type=type}},setTimeout:fn=>{timers.push(fn);return timers.length},clearTimeout(){},setInterval(){},clearInterval(){},console,APP_VERSION:'test',PREFIX:'wgp-v15-',LEGACY_EXPORT_KEYS:[],LEGACY_EXPORT_PREFIXES:[],K:{profile:PROFILE,migrated:'wgp-v15-migrated',recovery:'wgp-v15-recovery-snapshots',diagnostics:'wgp-v15-diagnostics'},$:()=>null,$$:()=>[],openModal:id=>modals.push(id),closeModal(){},toast(){},recordDiagnostic(){},createRecoverySnapshot(){},profile:()=>JSON.parse(localStorage.getItem(PROFILE)||'null')};
-  context.window=context;context.WGC23Core=core;context.dispatchEvent=event=>events.push(event.type);context.renderAll=()=>events.push('render');
+  context.window=context;context.history={replaceState(){}};context.WGC23Core=core;context.dispatchEvent=event=>events.push(event.type);context.renderAll=()=>events.push('render');
   vm.createContext(context);
   const source=read('work-gym-planner-v16/accounts-v18.js');
   // Load the actual module functions without browser startup or CSS injection.
-  vm.runInContext(source.slice(0,source.indexOf(' loadSession();if(!A.session)'))+'})(window.WGC18);',context);
+  vm.runInContext(source.slice(0,source.indexOf(' loadSession();if(!A.session)'))+'A.testConsumeAuthRedirect=consumeAuthRedirect;})(window.WGC18);',context);
   const A=context.WGC18;A.session={access_token:'test',user:{id:'user-a'}};A.config={loaded:true,cloudConfigured:true};
   A.ensureHealthConsent=async options=>{calls.push({kind:'consent',options});return typeof consent==='function'?consent():consent};
   A.authedFetch=async(route,options)=>{calls.push({kind:'request',route,options});return typeof response==='function'?response(route,options):response};
@@ -150,6 +150,37 @@ test('rejected reset emails retain the verifier for the already-sent link and pr
   assert.equal(h.localStorage.getItem('wgc-v25-pkce-verifier'),'valid-previous');
   await assert.rejects(h.A.recover('user@example.test'),/already requested/);
   assert.equal(calls,1);
+});
+
+test('new signup requests bind confirmation to the planner and wait for the email',async()=>{
+  const h=harness();h.A.session=null;h.A.config.supabaseUrl='https://auth.example.test';h.A.config.supabaseAnonKey='public-test';
+  let request;h.context.fetch=async(url,options)=>{request={url,options};return {ok:true,text:async()=>JSON.stringify({user:{id:'new-user'}})}};
+  await h.A.signUp('New user','new@example.test','Valid-Passphrase-123');
+  const url=new URL(request.url),body=JSON.parse(request.options.body);
+  assert.equal(url.pathname,'/auth/v1/signup');
+  assert.equal(url.searchParams.get('redirect_to'),'https://www.workandworkout.com/work-gym-planner/?auth=signup');
+  assert.equal(body.code_challenge_method,'s256');assert.ok(body.code_challenge);
+  assert.equal(h.localStorage.getItem('wgc-v25-pkce-purpose'),'signup');
+  assert.equal(h.A.session,null);assert.equal(h.A.cloudStateReady,false);
+});
+
+test('valid signup confirmation exchanges the bound code before consent or setup',async()=>{
+  const h=harness({consent:false,local:{'wgc-v25-pkce-verifier':'saved-verifier','wgc-v25-pkce-purpose':'signup'}});
+  h.A.session=null;h.A.config.supabaseUrl='https://auth.example.test';h.context.location.search='?auth=signup&code=one-time-code';
+  let request;h.context.fetch=async(url,options)=>{request={url,options};return {ok:true,text:async()=>JSON.stringify({access_token:'fixture-token',user:{id:'new-user'}})}};
+  assert.equal(await h.A.testConsumeAuthRedirect(),true);
+  assert.equal(new URL(request.url).searchParams.get('grant_type'),'pkce');
+  assert.deepEqual(JSON.parse(request.options.body),{auth_code:'one-time-code',code_verifier:'saved-verifier'});
+  assert.equal(h.localStorage.getItem('wgc-v25-pkce-verifier'),null);
+  assert.equal(h.A.session.user.id,'new-user');assert.equal(h.A.accountState,'needs-consent');
+  assert.equal(h.A.canStartOnboarding(),false);
+});
+
+test('a confirmation opened in the wrong browser cannot create an empty account session',async()=>{
+  const h=harness();h.A.session=null;h.context.location.search='?auth=signup&code=one-time-code';
+  assert.equal(await h.A.testConsumeAuthRedirect(),false);
+  assert.equal(h.A.session,null);assert.equal(h.A.cloudStateReady,false);
+  assert.ok(h.modals.includes('accountDialog'));
 });
 
 test('startup and every onboarding entry point honor saved-account readiness',()=>{

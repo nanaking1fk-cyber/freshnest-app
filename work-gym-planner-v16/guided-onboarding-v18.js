@@ -9,6 +9,7 @@
   let step=0;
   let busy=false;
   let previewReady=false;
+  let detailedSetup=false;
   let draft=loadDraft();
 
   function pausedSessionKey(){return PAUSED_SESSION_PREFIX+(A.session?.user?.id||'local')}
@@ -26,17 +27,17 @@
     const previous=typeof jget==='function'?jget(PREFIX+'onboarding-v18',{})?.answers:null;
     const basics=previous?.basics||{},work=previous?.work||{},training=previous?.training||{},nutrition=previous?.nutrition||{};
     const commitments=(work.commitments||[]).map(function(item){return DAYS[item.day]+' '+item.start+'-'+item.end+' '+(item.label||'Commitment')}).join('\n');
-    return{version:2,step:0,values:{
+    return{version:2,flow:'quick-v49',step:0,values:{
       name:basics.name||p?.name||'',
       goal:basics.goal||'recomp',
       age:basics.age||'',
       sex:basics.sex||'neutral',
-      heightFt:basics.heightFt||'',
-      heightIn:basics.heightIn||'',
+      heightFt:basics.heightFt||(p?.heightIn?Math.floor(p.heightIn/12):''),
+      heightIn:basics.heightIn??(p?.heightIn?p.heightIn%12:''),
       weight:basics.weight||'',
       bodyFat:basics.bodyFat||'',
       activity:basics.activity||'moderate',
-      workMode:(work.primaryDays||[]).length||p?.fixed?.enabled?'standard':'none',
+      workMode:work.scheduleDeferred?'calendar':(work.primaryDays||[]).length||p?.fixed?.enabled?'standard':p?'none':'calendar',
       jobName:work.primaryName||p?.fixed?.name||'Work',
       jobStart:work.primaryStart||p?.fixed?.start||'09:00',
       jobEnd:work.primaryEnd||p?.fixed?.end||'17:00',
@@ -52,11 +53,11 @@
       trainingMode:training.mode||p?.trainingMode||'adaptive',
       existingRoutine:training.existingRoutineText||p?.existingRoutineText||(p?.existingRoutine||[]).map(function(item){return DAYS[item.weekday]+' '+(item.start||'18:00')+' '+(item.name||'Workout')}).join('\n'),
       trainingDays:String(training.days||p?.trainingDaysPerWeek||3),
-      duration:String(training.duration||60),
-      experience:training.experience||'intermediate',
+      duration:String(training.duration||p?.trainingDuration||60),
+      experience:training.experience||p?.trainingExperience||'beginner',
       equipment:training.equipment||p?.equipmentMode||'full',
-      preferred:training.preferred||'flexible',
-      limitations:training.limitations||'',
+      preferred:training.preferred||p?.trainingPreferred||'flexible',
+      limitations:training.limitations||p?.trainingLimitations||'',
       foods:(nutrition.foods||[]).join(', '),
       cuisines:(nutrition.cuisines||[]).join(', '),
       restrictions:nutrition.restrictions||'',
@@ -65,7 +66,7 @@
       cook:nutrition.cook||'moderate'
     },days:{job:(work.primaryDays||[1,2,3,4,5]).slice(),second:(work.secondaryDays||[]).slice()}};
   }
-  function saveDraft(){draft.step=step;try{localStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch{}}
+  function saveDraft(){draft.step=step;draft.flow=detailedSetup?'details-v49':'quick-v49';draft.screenId=activeScreens()[step]?.id;try{localStorage.setItem(DRAFT_KEY,JSON.stringify(draft))}catch{}}
   function clearDraft(){try{localStorage.removeItem(DRAFT_KEY);sessionStorage.removeItem(LEGACY_DRAFT_KEY)}catch{};draft=loadDraft()}
   function get(key,fallback=''){const value=draft.values[key];return value===undefined||value===null?fallback:value}
   function set(key,value){draft.values[key]=value;saveDraft()}
@@ -112,8 +113,8 @@
   }
   function personName(){return get('name').trim()||'there'}
 
-  // Six to nine adaptive steps replace the former 19-question flow. Related
-  // details stay together so setup feels like a conversation, not a survey.
+  // Detailed preferences remain available from Profile → More plan settings.
+  // They are never a required part of the three-step quick start below.
   const screens=[
     {
       id:'identity',
@@ -154,12 +155,13 @@
       render:function(){return question('calendar','Work rhythm','Which description is closest to your work schedule?','We will fit training around work before recommending a session.',choices('workMode',[
         {value:'standard',label:'Consistent weekly schedule',copy:'The same work days repeat most weeks',icon:'7'},
         {value:'rotating',label:'Rotating or shift work',copy:'Days vary, but I can enter my usual pattern',icon:'↻'},
+        {value:'calendar',label:'Add in Calendar later',copy:'Use rotations, individual shifts or a roster photo',icon:'+'},
         {value:'none',label:'No work schedule',copy:'Plan mainly from recovery and availability',icon:'—'}
       ],'standard'))}
     },
     {
       id:'workDetails',
-      when:function(){return get('workMode')!=='none'},
+      when:function(){return get('workMode')!=='none'&&get('workMode')!=='calendar'},
       render:function(){return question('calendar','Primary schedule','When does work need protected time?','Choose the usual days and hours. Commute time is protected automatically.',
         textInput('jobName','Job or schedule name','Work')+dayPicker('job')+
         '<div class="guidedFieldGrid">'+
@@ -172,7 +174,7 @@
     {
       id:'secondJob',
       auto:true,
-      when:function(){return get('workMode')!=='none'},
+      when:function(){return get('workMode')!=='none'&&get('workMode')!=='calendar'},
       render:function(){return question('calendar','One more schedule check','Do you need to protect another recurring schedule?','Add it only when it is part of your real week.',choices('secondJob',[
         {value:'no',label:'No, one work rhythm',copy:'Keep planning focused on the schedule I already added',icon:'1'},
         {value:'yes',label:'Yes, add another',copy:'Protect another job, class or recurring responsibility',icon:'2'}
@@ -180,7 +182,7 @@
     },
     {
       id:'secondDetails',
-      when:function(){return get('secondJob')==='yes'},
+      when:function(){return get('secondJob')==='yes'&&get('workMode')!=='none'&&get('workMode')!=='calendar'},
       render:function(){return question('calendar','Additional schedule','When does this other commitment usually happen?','Add the repeating days now; changing dates can still be imported or reviewed in the calendar.',
         textInput('secondName','Schedule name','Additional schedule')+
         dayPicker('second')+
@@ -241,7 +243,46 @@
     }
   ];
 
-  function activeScreens(){return screens.filter(function(screen){return!screen.when||screen.when()})}
+  const quickScreens=[
+    {
+      id:'quick-basics',
+      render:function(){return question('sparkle','1 · Your starting point','What are you working toward?','Just the basics for your starting targets. Fine-tune the details later.',
+        '<div class="guidedFieldGrid">'+textInput('name','First name','Your name','text','autocomplete="given-name"')+
+        selectInput('goal','Main goal',[{value:'recomp',label:'Build muscle & lose fat'},{value:'fat_loss',label:'Lose body fat'},{value:'muscle_gain',label:'Build muscle'},{value:'maintain',label:'Maintain & feel stronger'}])+
+        textInput('age','Age','','number','min="16" max="100" inputmode="numeric"')+
+        textInput('weight','Weight (lb)','','number','min="70" max="600" step="0.1" inputmode="decimal"')+
+        textInput('heightFt','Height (ft)','','number','min="3" max="8" inputmode="numeric"')+
+        textInput('heightIn','Height (in) · optional','0','number','min="0" max="11.9" step="0.1" inputmode="decimal"')+'</div>')},
+      validate:function(){
+        if(!get('name').trim())return 'Add your name to continue.';
+        return +get('age')>=16&&+get('age')<=100&&+get('heightFt')>=3&&+get('heightFt')<=8&&+get('heightIn')>=0&&+get('heightIn')<12&&+get('weight')>=70&&+get('weight')<=600?'':'Check your age, height and weight to continue.';
+      }
+    },
+    {
+      id:'quick-work',
+      render:function(){const weekly=['standard','rotating'].includes(get('workMode'));return question('calendar','2 · Your work','When do you work?','Add a regular week now, or use the Calendar for shifts, rotations and roster photos later.',
+        selectInput('workMode','Work schedule',[{value:'calendar',label:'Add my shifts in Calendar later'},{value:'standard',label:'The same days each week'},...(get('workMode')==='rotating'?[{value:'rotating',label:'Keep my saved shift pattern'}]:[]),{value:'none',label:'No work schedule'}])+
+        (weekly?'<div class="guidedFieldTop">'+dayPicker('job')+'</div><div class="guidedFieldGrid">'+textInput('jobStart','Shift starts','','time')+textInput('jobEnd','Shift ends','','time')+'</div><p class="guidedQuickNoteV49">Commute time, extra jobs and time off can be adjusted in plan settings or Calendar.</p>':'<p class="guidedQuickNoteV49">'+(get('workMode')==='calendar'?'No work shifts will be guessed or added. Add your schedule in Calendar before relying on workout times.':'You can add a work schedule whenever you need one.')+'</p>'))},
+      validate:function(){return !['standard','rotating'].includes(get('workMode'))||(draft.days.job||[]).length&&get('jobStart')&&get('jobEnd')?'':'Choose your work days and shift times.'}
+    },
+    {
+      id:'quick-training',dynamic:true,
+      render:function(){const own=get('trainingMode','adaptive')==='existing';return question('dumbbell','3 · Your training','How would you like to train?','Start simple. Session length, recovery and food preferences can be changed in plan settings.',
+        choices('trainingMode',[{value:'adaptive',label:'Build a program for me',copy:'A simple starting routine that fits your week',icon:'↗'},{value:'existing',label:'I already have a routine',copy:'Keep my own workout days and times',icon:'✓'}],'adaptive')+
+        (own?'<label class="guidedField guidedFieldTop"><span>Your weekly routine</span><textarea data-answer="existingRoutine" rows="3" placeholder="Mon 18:00 Push&#10;Wed 18:00 Pull&#10;Fri 17:30 Legs">'+safe(get('existingRoutine'))+'</textarea><small>We schedule and track it—we do not replace it.</small></label>':'<div class="guidedFieldGrid guidedFieldTop">'+selectInput('trainingDays','Workouts per week',[{value:'2',label:'2 workouts'},{value:'3',label:'3 workouts'},{value:'4',label:'4 workouts'}])+selectInput('equipment','Where you train',[{value:'full',label:'Full gym'},{value:'basic',label:'Basic gym'},{value:'home',label:'Home / minimal equipment'}])+'</div>')+
+        '<p class="guidedQuickNoteV49">You can add food restrictions, movement limitations and other preferences in More plan settings.</p>')},
+      validate:function(){return get('trainingMode','adaptive')==='existing'&&!parseTrainingRoutine(get('existingRoutine'),+get('duration')||60).length?'Add at least one workout like “Mon 18:00 Push”.':''}
+    }
+  ];
+  function activeScreens(){return detailedSetup?screens.filter(function(screen){return!screen.when||screen.when()}):quickScreens}
+  function migrateDraftFlow(){
+    const target=detailedSetup?'details-v49':'quick-v49';if(draft.flow===target)return;
+    const legacy=screens.filter(function(screen){return!screen.when||screen.when()});
+    const prior=draft.screenId||(draft.flow==='quick-v49'?quickScreens:legacy)[Math.max(0,+draft.step||0)]?.id||'identity';
+    if(detailedSetup){const id=({'quick-basics':'identity','quick-work':'workMode','quick-training':'training'})[prior]||prior;draft.step=Math.max(0,legacy.findIndex(function(screen){return screen.id===id}))}
+    else draft.step=['identity','baseline','quick-basics'].includes(prior)?0:['workMode','workDetails','secondJob','secondDetails','quick-work'].includes(prior)?1:2;
+    draft.flow=target;
+  }
   function mountedScreen(){const list=activeScreens();step=Math.max(0,Math.min(step,list.length-1));return{list:list,screen:list[step]}}
   function syncVisible(){
     document.querySelectorAll('#guidedOnboardingBody [data-answer]').forEach(function(input){set(input.dataset.answer,input.value)});
@@ -255,6 +296,7 @@
     document.querySelectorAll('#guidedOnboardingBody [data-answer]').forEach(function(input){
       input.addEventListener('input',function(){set(input.dataset.answer,input.value)});
       input.addEventListener('change',function(){set(input.dataset.answer,input.value)});
+      if(screen.id==='quick-work'&&input.dataset.answer==='workMode')input.addEventListener('change',function(){syncVisible();render()});
     });
     document.querySelectorAll('#guidedOnboardingBody [data-day-kind]').forEach(function(input){input.addEventListener('change',syncVisible)});
     document.querySelectorAll('#guidedOnboardingBody [data-choice-field]').forEach(function(button){
@@ -278,7 +320,7 @@
           '</aside>'+
           '<div class="guidedJourney">'+
             '<div class="sheetHandle"></div>'+
-            '<div class="guidedHead"><div><small id="guidedStepLabel">Question 1</small><h2 id="guidedOnboardingTitle">Build your adaptive plan</h2></div><button id="guidedClose">Finish later</button></div>'+
+            '<div class="guidedHead"><div><small id="guidedStepLabel">Step 1 of 3</small><h2 id="guidedOnboardingTitle">Your plan in 3 quick steps</h2></div><button id="guidedClose">Finish later</button></div>'+
             '<div class="guidedProgress"><i id="guidedProgressFill"></i></div>'+
             '<div id="guidedOnboardingBody"></div>'+
             '<p id="guidedStatus" class="statusText" role="status"></p>'+
@@ -294,9 +336,12 @@
     modal();
     const state=mountedScreen();
     saveDraft();
-    document.getElementById('guidedStepLabel').textContent='Question '+(step+1)+' of '+state.list.length;
+    document.getElementById('guidedOnboarding').classList.toggle('guidedQuickV49',!detailedSetup);
+    document.getElementById('guidedStepLabel').textContent=(detailedSetup?'Settings section ':'Step ')+(step+1)+' of '+state.list.length;
+    document.getElementById('guidedOnboardingTitle').textContent=detailedSetup?'More plan settings':'Your plan in 3 quick steps';
     document.getElementById('guidedProgressFill').style.width=((step+1)/state.list.length*100)+'%';
     document.getElementById('guidedOnboardingBody').innerHTML=state.screen.render();
+    document.getElementById('guidedOnboardingBody').scrollTop=0;
     document.getElementById('guidedStatus').textContent='';
     const back=document.getElementById('guidedBack');
     const next=document.getElementById('guidedNext');
@@ -319,6 +364,9 @@
     if(error){document.getElementById('guidedStatus').textContent=error;return}
     const refreshed=activeScreens();
     if(step<refreshed.length-1){step++;render();return}
+    // Resumed older drafts must still contain the essentials; never substitute
+    // guessed body measurements merely because they resumed at the last step.
+    if(!detailedSetup){const invalid=quickScreens.findIndex(function(screen){return !!screen.validate?.()});if(invalid>=0){step=invalid;render();document.getElementById('guidedStatus').textContent=quickScreens[invalid].validate();return}}
     await buildPlan();
   }
   function parseCommitments(text){
@@ -349,7 +397,8 @@
   }
   function collectAnswers(){
     const workMode=get('workMode','standard');
-    const second=get('secondJob','no')==='yes'&&workMode!=='none';
+    const hasWork=workMode!=='none'&&workMode!=='calendar';
+    const second=get('secondJob','no')==='yes'&&hasWork;
     return{
       basics:{
         name:get('name').trim(),
@@ -367,11 +416,12 @@
         bedtime:get('bedtime','23:00')
       },
       work:{
+        scheduleDeferred:workMode==='calendar',
         primaryName:get('jobName','Work').trim()||'Work',
-        primaryDays:workMode==='none'?[]:(draft.days.job||[]),
-        primaryStart:workMode==='none'?'':get('jobStart','09:00'),
-        primaryEnd:workMode==='none'?'':get('jobEnd','17:00'),
-        primaryCommute:workMode==='none'?0:(+get('commute')||0),
+        primaryDays:hasWork?(draft.days.job||[]):[],
+        primaryStart:hasWork?get('jobStart','09:00'):'',
+        primaryEnd:hasWork?get('jobEnd','17:00'):'',
+        primaryCommute:hasWork?(+get('commute')||0):0,
         secondaryEnabled:second,
         secondaryName:get('secondName','Additional schedule').trim()||'Additional schedule',
         secondaryDays:second?(draft.days.second||[]):[],
@@ -386,7 +436,7 @@
         existingRoutine:parseTrainingRoutine(get('existingRoutine'),+get('duration')||60),
         days:get('trainingMode','adaptive')==='existing'?Math.max(1,parseTrainingRoutine(get('existingRoutine'),+get('duration')||60).length):(+get('trainingDays')||3),
         duration:+get('duration')||60,
-        experience:get('experience','intermediate'),
+        experience:get('experience','beginner'),
         equipment:get('equipment','full'),
         preferred:get('preferred','flexible'),
         limitations:get('limitations').trim()
@@ -466,6 +516,7 @@
       window.toast?.('Your work, workouts and commitments are on the calendar');
     };
     document.getElementById('guidedStatus').textContent=refining&&A.session&&A.config?.aiConfigured?'Your plan is ready. Coaching details are refining quietly in the background.':'Your plan is saved. You can edit every choice later.';
+    if(answers.work.scheduleDeferred)document.getElementById('guidedStatus').textContent='Your starting plan is saved. Add your work schedule in Calendar before relying on workout times.';
   }
   function closeGuided(){
     const paused=!previewReady&&!(typeof profile==='function'&&profile());
@@ -480,12 +531,15 @@
     if(A.session&&A.canStartOnboarding?.()===false){if(!options?.auto)A.openAccount?.('signin');return}
     const automatic=!!(options&&options.auto);
     if(automatic&&typeof profile==='function'&&profile())return;
+    if(automatic&&document.getElementById('guidedOnboarding')?.classList.contains('open'))return;
     if(automatic){try{if(sessionStorage.getItem(pausedSessionKey())==='1')return}catch{}}
     else try{sessionStorage.removeItem(pausedSessionKey())}catch{}
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}
     document.querySelectorAll('.modal.open').forEach(function(open){window.closeModal?.(open.id)});
     previewReady=false;
+    detailedSetup=!!options?.details;
     draft=loadDraft();
+    migrateDraftFlow();
     step=Math.max(0,+draft.step||0);
     render();
     window.openModal?.('guidedOnboarding');
@@ -497,11 +551,12 @@
         '<div class="sheet guidedProfileSheet"><div class="sheetHandle"></div>'+
           '<div class="guidedProfileHero"><div id="guidedProfileInitial" class="guidedProfileInitial">W</div><div><p class="guidedEyebrow">YOUR PLAN</p><h2 id="guidedProfileTitle">Profile</h2><p id="guidedProfileEmail"></p></div></div>'+
           '<div id="guidedProfileFacts" class="guidedProfileFacts"></div>'+
-          '<div class="guidedProfileActions"><button id="guidedProfileClose">Close</button><button id="guidedProfileAccount">Account & sync</button><button id="guidedProfileEdit" class="primary">Edit adaptive plan</button></div>'+
+          '<div class="guidedProfileActions"><button id="guidedProfileClose">Close</button><button id="guidedProfileAccount">Account & sync</button><button id="guidedProfileEdit" class="primary">Edit my plan</button><button id="guidedProfileDetails">More plan settings</button></div>'+
         '</div></div>');
     document.getElementById('guidedProfileClose').onclick=function(){window.closeModal?.('guidedProfileSummary')};
     document.getElementById('guidedProfileAccount').onclick=function(){window.closeModal?.('guidedProfileSummary');A.openAccount?.('account')};
     document.getElementById('guidedProfileEdit').onclick=function(){window.closeModal?.('guidedProfileSummary');openGuided()};
+    document.getElementById('guidedProfileDetails').onclick=function(){window.closeModal?.('guidedProfileSummary');openGuided({details:true})};
   }
   function openProfileSummary(){
     const p=typeof profile==='function'?profile():null;
@@ -520,6 +575,16 @@
     window.openModal?.('guidedProfileSummary');
   }
   function rerouteProfileEditors(){
+    // The current home avatar opens Account; keep optional preferences there
+    // as well as in the older profile-summary entry point.
+    const accountPlan=document.getElementById('startOnboardingAccount');
+    if(accountPlan&&typeof profile==='function'&&profile()){
+      if(!document.getElementById('morePlanSettingsV49')){
+        accountPlan.insertAdjacentHTML('afterend','<button id="morePlanSettingsV49"><b>More plan settings</b><small>Food preferences, recovery, extra jobs and other details</small></button>');
+        document.getElementById('morePlanSettingsV49').onclick=function(){openGuided({details:true})};
+      }
+      document.getElementById('morePlanSettingsV49').disabled=!!A.passwordRecovery||A.canStartOnboarding?.()===false;
+    }
     const profileButton=document.querySelector('[data-open="profile"]');
     if(profileButton){
       if(!profileButton.dataset.guidedProfile){
@@ -541,6 +606,7 @@
   }
 
   A.openOnboarding=openGuided;
+  A.openPlanSettings=function(){openGuided({details:true})};
   A.onboardingAnswers=collectAnswers;
   modal();
   rerouteProfileEditors();

@@ -865,6 +865,9 @@ body.premiumV30 .guidedActions button:disabled{opacity:.4}
 body.premiumV30 .guidedPlanPhoto{height:145px;margin-bottom:22px;overflow:hidden;border-radius:17px}
 body.premiumV30 .guidedPlanPhoto img{width:100%;height:100%;object-fit:cover}
 body.premiumV30 .guidedPreviewGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:18px}
+body.premiumV30 #guidedOnboarding .guidedQuickNoteV49{margin:16px 0 0;color:var(--v30-muted);font-size:13px;line-height:1.55}
+body.premiumV30 #guidedOnboarding.guidedQuickV49 .guidedQuestionIcon{display:none}
+body.premiumV30 #guidedOnboarding.guidedQuickV49 .guidedAnswer{margin-top:20px}
 
 @media(max-width:700px){
   body.premiumV30 .guidedOnboarding{align-items:stretch;padding:0}
@@ -892,6 +895,9 @@ body.premiumV30 .guidedPreviewGrid{display:grid;grid-template-columns:repeat(2,m
   body.premiumV30 .guidedChoices{grid-template-columns:1fr}
   body.premiumV30 .guidedChoice{min-height:72px}
   body.premiumV30 .guidedFieldGrid{grid-template-columns:1fr}
+  body.premiumV30 #guidedOnboarding.guidedQuickV49 .guidedFieldGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  body.premiumV30 #guidedOnboarding.guidedQuickV49 label:has([data-answer="name"]),
+  body.premiumV30 #guidedOnboarding.guidedQuickV49 label:has([data-answer="goal"]){grid-column:1/-1}
   body.premiumV30 .guidedDays{gap:4px}
   body.premiumV30 .guidedDays span{min-height:44px;font-size:10px}
   body.premiumV30 .guidedActions{padding:12px 0 max(4px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(12,17,23,.82),#0c1117 26%)}

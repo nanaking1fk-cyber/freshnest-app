@@ -23,7 +23,7 @@ function worker(file,{cached=null,network=async()=>new Response('network'),offli
 for(const file of workers){
  test(`${file}: cached redirected pages are safe to replay and retain security headers`,async()=>{
   const h=worker(file,{cached:redirectedResponse()});const response=await h.dispatch('/work-gym-planner/');
-  assert.equal(response.redirected,false);assert.equal(response.status,200);assert.equal(await response.text(),'offline planner');assert.equal(response.headers.get('content-security-policy'),"default-src 'self'");assert.equal(h.calls.network.length,0);assert.ok(h.calls.opens.every(name=>name.endsWith('-email51')));
+  assert.equal(response.redirected,false);assert.equal(response.status,200);assert.equal(await response.text(),'offline planner');assert.equal(response.headers.get('content-security-policy'),"default-src 'self'");assert.equal(h.calls.network.length,0);assert.ok(h.calls.opens.every(name=>name.endsWith('-email51b')));
  });
  test(`${file}: one-time links bypass cache, including an already-installed redirect entry`,()=>{
   for(const query of ['auth=signup&code=secret','auth=recovery&code=secret','code=secret','token_hash=secret','error=access_denied&error_code=otp_expired','access_token=secret','refresh_token=secret']){
@@ -40,12 +40,15 @@ for(const file of workers){
   for(const [url,options] of [['/api/v18/state',{}],['https://example.test/asset',{}],['/work-gym-planner/',{method:'POST'}],['/work-gym-planner/',{headers:new Headers({Authorization:'Bearer private'})}]]){const h=worker(file);assert.equal(h.dispatch(url,options),undefined)}
  });
 }
-test('planner folder and index serve the shell without an HTTP redirect',()=>{
+test('planner folder and index redirect to the strict-CSP external-script shell',()=>{
  const config=JSON.parse(read('vercel.json'));
- for(const url of ['/work-gym-planner/','/work-gym-planner/index.html']){assert.equal(config.rewrites.find(rule=>rule.source===url)?.destination,'/work-gym-planner/shell.html');assert.ok(!(config.redirects||[]).some(rule=>rule.source===url))}
+ // Vercel gives physical index.html precedence over rewrites. A redirect
+ // selects the external-script shell; the worker safely replays its response.
+ for(const url of ['/work-gym-planner/','/work-gym-planner/index.html'])assert.equal(config.redirects.find(rule=>rule.source===url)?.destination,'/work-gym-planner/shell.html');
+ assert.doesNotMatch(read('work-gym-planner/shell.html'),/<script(?![^>]+src=)[^>]*>/i);
 });
 test('new emails use the direct shell and the fixed worker is refreshed',()=>{
  assert.match(read('work-gym-planner-v16/accounts-v18.js'),/new URL\('\/work-gym-planner\/shell\.html'/);
  assert.match(read('work-gym-planner-v16/pwa-patch.js'),/updateViaCache:'none'/);
- for(const file of ['work-gym-planner/boot.js','work-gym-planner/shell.html','work-gym-planner/index.html',...workers])assert.ok(read(file).includes('30.1.31-email51'));
+ for(const file of ['work-gym-planner/boot.js','work-gym-planner/shell.html','work-gym-planner/index.html',...workers])assert.ok(read(file).includes('30.1.31-email51b'));
 });

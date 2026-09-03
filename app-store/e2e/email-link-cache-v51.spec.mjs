@@ -13,6 +13,7 @@ const contentTypes={'.html':'text/html','.js':'text/javascript','.css':'text/css
 test.beforeAll(async()=>{
  server=createServer(async(req,res)=>{
   const url=new URL(req.url,base||'http://localhost');
+  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'");
   const json=value=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(value))};
   if(url.pathname==='/auth/v1/token'){
    let body='';for await(const chunk of req)body+=chunk;exchanges.push(JSON.parse(body));
@@ -27,9 +28,12 @@ test.beforeAll(async()=>{
   if(url.pathname==='/redirected-shell'){res.writeHead(302,{Location:'/work-gym-planner/shell.html'});return res.end()}
   if(url.pathname==='/legacy-worker.js'){
    res.setHeader('Content-Type','text/javascript');res.setHeader('Service-Worker-Allowed','/work-gym-planner/');
-   return res.end(`self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.mode!=='navigate')return;e.respondWith(caches.open('legacy-email51-fixture').then(async c=>(await c.match(e.request,{ignoreSearch:true}))||fetch(e.request)))});`);
+   return res.end(`self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(e.request.mode!=='navigate')return;e.respondWith(caches.open('legacy-email51b-fixture').then(async c=>(await c.match(e.request,{ignoreSearch:true}))||fetch(e.request)))});`);
   }
-  let pathname=['/work-gym-planner/','/work-gym-planner/index.html'].includes(url.pathname)?'/work-gym-planner/shell.html':url.pathname;
+  if(['/work-gym-planner/','/work-gym-planner/index.html'].includes(url.pathname)){
+   res.writeHead(307,{Location:'/work-gym-planner/shell.html'+url.search});return res.end();
+  }
+  let pathname=url.pathname;
   const file=resolve(root,'.'+pathname);
   if(!file.startsWith(root+'/')){res.writeHead(403);return res.end()}
   try{const data=await readFile(file);res.setHeader('Content-Type',contentTypes[extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(data)}catch{res.writeHead(404);res.end('Not found')}
@@ -65,7 +69,7 @@ for(const width of [390,1440])test.describe(`${width}px confirmation with offlin
   const reset=await page.goto(base+'/work-gym-planner/shell.html?auth=recovery&code=sample-reset');expect(reset.fromServiceWorker()).toBe(false);
   await expect(page.locator('#recoveryPasswordForm')).toBeVisible();await page.screenshot({path:info.outputPath('email-return.png')});
   const cachedUrls=await page.evaluate(async()=>{const names=await caches.keys();return(await Promise.all(names.map(async name=>(await(await caches.open(name)).keys()).map(r=>r.url)))).flat()});
-  expect(cachedUrls.some(url=>/[?&](?:code|auth)=/.test(url))).toBe(false);expect(cacheName).toContain('email51');expect(errors).toEqual([]);
+  expect(cachedUrls.some(url=>/[?&](?:code|auth)=/.test(url))).toBe(false);expect(cacheName).toContain('email51b');expect(errors).toEqual([]);
  });
 });
 test('expired and cross-browser links show sign-in help, never a blank page or new account',async({page})=>{
@@ -81,7 +85,7 @@ test('new direct-shell links still open when an older worker has the broken fold
   // Model the previous production worker, including its redirect-marked cache.
   await navigator.serviceWorker.register('/legacy-worker.js',{scope:'/work-gym-planner/'});
   if(!navigator.serviceWorker.controller?.scriptURL.includes('legacy-worker'))await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));
-  const cache=await caches.open('legacy-email51-fixture');await cache.put('/work-gym-planner/',await fetch('/redirected-shell'));await cache.put('/work-gym-planner/shell.html',await fetch('/work-gym-planner/shell.html'));
+  const cache=await caches.open('legacy-email51b-fixture');await cache.put('/work-gym-planner/',await fetch('/redirected-shell'));await cache.put('/work-gym-planner/shell.html',await fetch('/work-gym-planner/shell.html'));
   localStorage.setItem('wgc-v25-pkce-verifier','legacy-verifier');localStorage.setItem('wgc-v25-pkce-purpose','signup');
  });
  const response=await page.goto(base+'/work-gym-planner/shell.html?auth=signup&code=legacy-safe');expect(response.status()).toBe(200);

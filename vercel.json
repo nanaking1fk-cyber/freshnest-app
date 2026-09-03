@@ -4,15 +4,19 @@
     "api/v18/*.js": { "maxDuration": 60 },
     "api/v25/*.js": { "maxDuration": 60 }
   },
-  "rewrites": [
+  "redirects": [
     {
       "source": "/work-gym-planner/index.html",
-      "destination": "/work-gym-planner/shell.html"
+      "destination": "/work-gym-planner/shell.html",
+      "permanent": true
     },
     {
       "source": "/work-gym-planner/",
-      "destination": "/work-gym-planner/shell.html"
-    },
+      "destination": "/work-gym-planner/shell.html",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/",
       "destination": "/work-gym-planner/shell.html"

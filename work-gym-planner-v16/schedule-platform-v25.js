@@ -173,7 +173,7 @@
     var capture=ensureCapture();if(capture&&capture.parentElement!==addPane)addPane.appendChild(capture);
     ['.legend','#calendarActionBarV24','.monthbar','.weekdays','#calendarGrid','#dayCard'].forEach(function(selector){var element=calendar.querySelector(selector);if(element&&element.parentElement!==calendarPane)calendarPane.appendChild(element)});
     var monthbar=calendarPane.querySelector('.monthbar');
-    if(monthbar&&!document.getElementById('calendarTodayV33'))monthbar.insertAdjacentHTML('beforeend','<button id="calendarTodayV33" type="button">Today</button><div class="calendarDisplayToggleV32" role="group" aria-label="Calendar display"><button type="button" data-calendar-display="details" aria-pressed="true">Details</button><button type="button" data-calendar-display="compact" aria-pressed="false">Compact</button></div>');
+    if(monthbar&&!document.getElementById('calendarTodayV33'))monthbar.insertAdjacentHTML('beforeend','<button id="calendarTodayV33" type="button">Today</button><div class="calendarDisplayToggleV32" role="group" aria-label="Calendar display"><button type="button" data-calendar-display="compact" aria-pressed="true">Compact</button><button type="button" data-calendar-display="details" aria-pressed="false">Detailed</button></div>');
     if(monthbar&&!document.getElementById('calendarWeekRailV33'))monthbar.insertAdjacentHTML('afterend','<div id="calendarWeekRailV33" class="calendarWeekRailV33" aria-label="Selected week"></div>');
     var today=document.getElementById('calendarTodayV33');if(today&&!today.dataset.v25Bound){today.dataset.v25Bound='true';today.onclick=function(){selectedDate=dkey();calView=new Date();renderCalendar()}};
     var hero=document.getElementById('calendarUtilityV24');if(hero)hero.hidden=true;

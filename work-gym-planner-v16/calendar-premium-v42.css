@@ -27,9 +27,10 @@ body.premiumV30 #page-calendar .calendarAddV42 span{margin-right:5px;font-size:1
 body.premiumV30 #page-calendar .calendarHeadActionsV42>.calendarAddV42:hover{color:#0b1108;background:#e0ff6b}
 
 body.premiumV30 #page-calendar #plannerPane-calendar.active{display:grid;grid-template-columns:minmax(0,1.82fr) minmax(300px,.68fr);grid-template-rows:auto auto 1fr;column-gap:17px;padding-top:17px;align-items:start}
-body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar{grid-template-columns:minmax(180px,1fr) 38px 38px;grid-template-areas:"heading prev next";padding:14px 15px}
-body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar #calendarTodayV33,
-body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar .calendarDisplayToggleV32{display:none!important}
+body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar{grid-template-columns:minmax(180px,1fr) 38px 38px;grid-template-areas:"heading prev next" "view view view";padding:14px 15px}
+body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar #calendarTodayV33{display:none!important}
+body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar .calendarDisplayToggleV32{display:flex;grid-area:view;justify-self:start;margin-top:8px}
+body.premiumV30 #page-calendar .calendarDisplayToggleV32 button{min-height:36px;padding:0 15px;font-size:11px}
 body.premiumV30 #page-calendar #plannerPane-calendar>.monthbar h2{font-size:22px;font-weight:670}
 body.premiumV30 #page-calendar #plannerPane-calendar>.weekdays{padding:9px 7px 4px}
 body.premiumV30 #page-calendar #plannerPane-calendar>#calendarGrid{gap:3px;padding:5px 7px 10px}
@@ -43,6 +44,22 @@ body.premiumV30 #page-calendar .calendarMarkersV42{display:flex;align-items:cent
 body.premiumV30 #page-calendar .calendarMarkerV42{display:block;width:5px;height:5px;border-radius:50%;box-shadow:0 0 0 2px rgba(255,255,255,.025)}
 body.premiumV30 #page-calendar .calendarMarkerV42.work{background:#5f8dff}
 body.premiumV30 #page-calendar .calendarMarkerV42.workout{background:#8edb69}
+body.premiumV30 #page-calendar .calendarMarkerV42.personal{background:#bd9cff}
+body.premiumV30 #page-calendar .calendarCellDetailsV47{display:none}
+body.premiumV30 #page-calendar #plannerPane-calendar[data-calendar-density="details"] .calendarCellDetailsV47{display:grid!important;gap:4px;width:100%;margin-top:5px;text-align:left}
+body.premiumV30 #page-calendar #plannerPane-calendar[data-calendar-density="details"] .calDay{height:auto;min-height:138px;justify-content:flex-start}
+body.premiumV30 #page-calendar .calendarCellItemV47{display:block;min-width:0;padding:4px;border-left:2px solid #5f8dff;border-radius:4px;background:rgba(95,141,255,.08)}
+body.premiumV30 #page-calendar .calendarCellItemV47.personal{border-color:#bd9cff;background:rgba(189,156,255,.09)}
+body.premiumV30 #page-calendar .calendarCellItemV47.workout{border-color:#8edb69}
+body.premiumV30 #page-calendar .calendarCellItemV47.holiday{border-color:#ffe27b}
+body.premiumV30 #page-calendar .calendarCellItemV47.overtime{border-color:#ff963d}
+body.premiumV30 #page-calendar .calendarCellItemV47.timeoff{border-color:#dfd2ff}
+body.premiumV30 #page-calendar .calendarCellItemV47 strong,body.premiumV30 #page-calendar .calendarCellItemV47 small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;line-height:1.3}
+body.premiumV30 #page-calendar .calendarCellItemV47 strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;overflow-wrap:anywhere}
+body.premiumV30 #page-calendar .calendarCellItemV47 small{margin-top:2px;color:var(--v30-muted);font-size:8px;white-space:normal;overflow-wrap:anywhere}
+body.premiumV30 #page-calendar .calendarCellMoreV47{color:var(--v30-muted);font-size:9px}
+body.premiumV30 #calendarPersonalFormV47 [hidden]{display:none!important}
+body.premiumV30 #calendarPersonalFormV47 .calendarFormStepV42{padding-top:5px}
 body.premiumV30 #page-calendar .calendarBadgeV42{display:grid;place-items:center;min-width:16px;height:15px;padding:0 4px;border-radius:5px;font:750 7px/1 "IBM Plex Mono",monospace;font-style:normal;letter-spacing:-.02em}
 body.premiumV30 #page-calendar .calendarBadgeV42.overtime,body.premiumV30 #page-calendar .calendarBadgeV42.extra{color:#ffd4ae;background:rgba(255,137,48,.17)}
 body.premiumV30 #page-calendar .calendarBadgeV42.timeoff{color:#dfd2ff;background:rgba(167,139,250,.2)}
@@ -216,6 +233,10 @@ body.premiumV30 .calendarPdfPreviewV42>footer{padding:10px 19px;color:#8b9098;ba
   body.premiumV30 #page-calendar .dayNum{width:23px;height:23px;font-size:10px}
   body.premiumV30 #page-calendar .calendarMarkersV42{gap:2px;min-height:15px;margin-top:2px}
   body.premiumV30 #page-calendar .calendarMarkerV42{width:4px;height:4px}
+  body.premiumV30 #page-calendar #plannerPane-calendar[data-calendar-density="details"] .calDay{min-height:118px}
+  body.premiumV30 #page-calendar .calendarCellItemV47{padding:3px 2px}
+  body.premiumV30 #page-calendar .calendarCellItemV47 strong{font-size:9px}
+  body.premiumV30 #page-calendar .calendarCellItemV47 small{font-size:7px}
   body.premiumV30 #page-calendar .calendarBadgeV42{min-width:13px;height:13px;padding:0 3px;font-size:5.5px}
   body.premiumV30 #page-calendar #plannerPane-calendar>.dayCard{display:none;position:fixed;z-index:1200;left:0;right:0;bottom:0;top:auto;max-height:min(78dvh,690px);margin:0;overflow:auto;border-width:1px 0 0;border-radius:23px 23px 0 0;box-shadow:0 -32px 90px rgba(0,0,0,.58)}
   body.premiumV30.calendarDaySheetOpenV42::before{content:"";position:fixed;z-index:1199;inset:0;background:rgba(2,5,8,.68);backdrop-filter:blur(7px)}

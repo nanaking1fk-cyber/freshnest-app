@@ -25,6 +25,6 @@ for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
 test('calendar redraw observers are scoped instead of rerunning setup after every app change',()=>{
   const calendar=read('work-gym-planner-v16/calendar-premium-v42.js');
   assert.match(calendar,/observe\(calendar,\{subtree:true,childList:true\}\)/);
-  assert.match(calendar,/calendarMarkersV42,\.calendarDayBriefV42,\.calendarDayCloseV42/);
+  assert.match(calendar,/calendarMarkersV42,\.calendarCellDetailsV47,\.calendarDayBriefV42,\.calendarDayCloseV42/);
   for(const file of ['calendar-premium-v42.js','schedule-platform-v25.js'])assert.doesNotMatch(read('work-gym-planner-v16/'+file),/observe\(document\.documentElement/);
 });

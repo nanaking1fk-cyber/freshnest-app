@@ -12,7 +12,7 @@
     filters:PREFIX+'calendar-filters-v42',
     view:PREFIX+'calendar-view-v42'
   };
-  var defaultFilters={work:true,workout:true,holidays:true,overtime:true,timeOff:true};
+  var defaultFilters={work:true,workout:true,holidays:true,overtime:true,timeOff:true,personal:true};
   var flow=null,decorating=false,scheduled=false,pdfUrl='';
 
   function safe(value){return String(value==null?'':value).replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})}
@@ -92,27 +92,40 @@
   function workoutOn(key){try{return!!(completedOn?.(key)||isScheduled?.(key))}catch{return false}}
   function agendaOn(key){try{return typeof agendaItemsOn==='function'?agendaItemsOn(key):[]}catch{return[]}}
   function dayFacts(key){return{work:workRows(key),holiday:holidayOn(key),workout:workoutOn(key),agenda:agendaOn(key)}}
-  function markerMarkup(key){
-    var state=filters(),facts=dayFacts(key),kinds=facts.work.map(eventKind),values=[];
+  function markerMarkup(key,facts){
+    var state=filters();facts=facts||dayFacts(key);var kinds=facts.work.map(eventKind),values=[];
     if(state.work&&facts.work.some(function(row){return !row.off&&!['overtime','extra_shift','call_in','swap_shift'].includes(eventKind(row))}))values.push('<i class="calendarMarkerV42 work" title="Work"></i>');
     if(state.workout&&facts.workout)values.push('<i class="calendarMarkerV42 workout" title="Workout"></i>');
+    if(state.personal&&facts.agenda.length)values.push('<i class="calendarMarkerV42 personal" title="Personal events & tasks"></i>');
     if(state.overtime&&kinds.some(function(kind){return kind==='overtime'}))values.push('<em class="calendarBadgeV42 overtime">OT</em>');
     if(state.overtime&&kinds.some(function(kind){return['extra_shift','call_in','swap_shift'].includes(kind)}))values.push('<em class="calendarBadgeV42 extra">+</em>');
     if(state.timeOff&&facts.work.some(function(row){return row.off&&eventKind(row)!=='holiday'}))values.push('<em class="calendarBadgeV42 timeoff">PTO</em>');
     if(state.holidays&&facts.holiday.length)values.push('<em class="calendarBadgeV42 holiday">H</em>');
-    return'<span class="calendarMarkersV42">'+values.slice(0,4).join('')+'</span>';
+    return'<span class="calendarMarkersV42">'+values.join('')+'</span>';
+  }
+  function visibleCellItems(facts){
+    var state=filters(),items=[];
+    facts.work.forEach(function(row){var kind=eventKind(row),exception=['overtime','extra_shift','call_in','swap_shift'].includes(kind);if(row.off?!state.timeOff:exception?!state.overtime:!state.work)return;items.push({kind:row.off?'timeoff':exception?'overtime':'work',title:rawEventForRow(row)?.title||row.name||'Work',time:row.time||''})});
+    if(state.personal)facts.agenda.forEach(function(item){items.push({kind:'personal',title:item.title,time:item.time?(item.time+(item.end?'–'+item.end:'')):'All day'})});
+    if(state.workout&&facts.workout)items.push({kind:'workout',title:'Workout',time:''});
+    if(state.holidays)facts.holiday.forEach(function(item){items.push({kind:'holiday',title:item.name,time:''})});
+    return items;
+  }
+  function cellDetailsMarkup(items){
+    return'<span class="calendarCellDetailsV47">'+items.slice(0,2).map(function(item){return'<span class="calendarCellItemV47 '+safe(item.kind)+'" title="'+safe(item.title+(item.time?' · '+item.time:''))+'"><strong>'+safe(item.title)+'</strong>'+(item.time?'<small>'+safe(item.time)+'</small>':'')+'</span>'}).join('')+(items.length>2?'<small class="calendarCellMoreV47">+'+(items.length-2)+' more</small>':'')+'</span>';
   }
   function decorateCells(){
-    document.querySelectorAll('#page-calendar .calDay[data-date],#calendarWeekRailV33 [data-week-date]').forEach(function(button){var key=button.dataset.date||button.dataset.weekDate,markup=markerMarkup(key);if(button.dataset.calendarMarkersV42===markup&&button.querySelector('.calendarMarkersV42'))return;button.querySelector('.calendarMarkersV42')?.remove();button.insertAdjacentHTML('beforeend',markup);button.dataset.calendarMarkersV42=markup});
+    var pane=document.getElementById('plannerPane-calendar');if(pane)pane.dataset.calendarDensity=calendarDisplayMode();
+    document.querySelectorAll('#page-calendar .calDay[data-date],#calendarWeekRailV33 [data-week-date]').forEach(function(button){var key=button.dataset.date||button.dataset.weekDate,facts=dayFacts(key),items=visibleCellItems(facts),markup=markerMarkup(key,facts)+cellDetailsMarkup(items);if(button.dataset.calendarMarkersV42===markup&&button.querySelector('.calendarMarkersV42')&&button.querySelector('.calendarCellDetailsV47'))return;button.querySelectorAll('.calendarMarkersV42,.calendarCellDetailsV47').forEach(function(node){node.remove()});button.insertAdjacentHTML('beforeend',markup);button.dataset.calendarMarkersV42=markup;button.setAttribute('aria-label',dateLabel(key)+'. '+(items.length?items.map(function(item){return item.title+(item.time?' '+item.time:'')}).join('. '):'No visible events')+'. Tap for day details')});
   }
   function iconFor(kind){return({work:'W',overtime:'OT',extra_shift:'+',call_in:'C',swap_shift:'S',time_off:'PTO',vacation:'PTO',sick:'S',holiday:'H',workout:'↗',plan:'•'})[kind]||'•'}
   function dayBriefRow(kind,title,detail){return'<div class="calendarBriefRowV42 '+safe(kind)+'"><span>'+safe(iconFor(kind))+'</span><div><b>'+safe(title)+'</b><small>'+safe(detail||'')+'</small></div></div>'}
   function decorateDayCard(){
-    var card=document.getElementById('dayCard');if(!card)return;var key=activeDate(),facts=dayFacts(key),signature=JSON.stringify({key:key,work:facts.work.map(function(row){return[row.eventId,row.rotationId,row.name,row.time,row.done,eventKind(row)]}),holiday:facts.holiday,workout:facts.workout,agenda:facts.agenda.map(function(item){return[item.id,item.title,item.time,item.done]})});if(card.dataset.calendarV42Signature===signature&&card.querySelector('.calendarDayBriefV42'))return;card.dataset.calendarV42Signature=signature;card.querySelector('.calendarDayBriefV42')?.remove();var rows='';
+    var card=document.getElementById('dayCard');if(!card)return;var key=activeDate(),facts=dayFacts(key),signature=JSON.stringify({key:key,work:facts.work.map(function(row){return[row.eventId,row.rotationId,row.name,row.time,row.done,eventKind(row)]}),holiday:facts.holiday,workout:facts.workout,agenda:facts.agenda.map(function(item){return[item.id,item.title,item.time,item.end,item.done]})});if(card.dataset.calendarV42Signature===signature&&card.querySelector('.calendarDayBriefV42'))return;card.dataset.calendarV42Signature=signature;card.querySelector('.calendarDayBriefV42')?.remove();var rows='';
     facts.work.forEach(function(row){var kind=eventKind(row),raw=rawEventForRow(row),label=row.off?(raw?.timeOffType||'Time off'):kind==='work'?'Work':kind.replace(/_/g,' ');rows+=dayBriefRow(kind,raw?.title||row.name,(row.time||'')+(kind!=='work'?' · '+label.replace(/\b\w/g,function(c){return c.toUpperCase()}):''))});
     facts.holiday.forEach(function(item){rows+=dayBriefRow('holiday',item.name,item.automatic?'Regional holiday':'Workplace holiday')});
     if(facts.workout){var name='Workout';try{name=typeof plannedWorkoutName==='function'?plannedWorkoutName(key):name}catch{}rows+=dayBriefRow('workout',name,'Scheduled training')}
-    facts.agenda.slice(0,3).forEach(function(item){rows+=dayBriefRow('plan',item.title,item.time||'Any time')});
+    facts.agenda.slice(0,3).forEach(function(item){rows+=dayBriefRow('plan',item.title,item.time?(item.time+(item.end?'–'+item.end:'')):'All day')});
     if(!rows)rows='<p class="calendarBriefEmptyV42">Nothing scheduled. Keep the day open or add only what matters.</p>';
     var brief='<section class="calendarDayBriefV42"><div class="calendarBriefRowsV42">'+rows+'</div><div class="calendarBriefActionsV42"><button type="button" data-calendar-add-day="'+safe(key)+'"><span>+</span> Add to this day</button><button type="button" data-calendar-manage-day>View details</button></div></section>';
     var head=card.querySelector('.dayCardHeadV33');if(head){head.insertAdjacentHTML('afterend',brief);if(!head.querySelector('.calendarDayCloseV42'))head.insertAdjacentHTML('beforeend','<button class="calendarDayCloseV42" type="button" aria-label="Close day details">×</button>')}
@@ -163,14 +176,29 @@
   function bindSheetBack(root,callback){root.querySelector('[data-sheet-back]')?.addEventListener('click',callback||closeOverlay)}
 
   function chooserMarkup(){
-    var choices=[['work','W','Work schedule','Set up your normal repeating work pattern'],['extra','OT','Extra shift','One-off shift, overtime, call-in or swap'],['timeoff','PTO','Time off','Vacation, PTO, sick day or unpaid leave'],['holiday','H','Holiday','Add a workplace holiday or adjust holidays'],['workout','↗','Workout','Schedule a training session']];
+    var choices=[['personal','•','Personal event','Appointments, family plans, birthdays or anything else'],['work','W','Work schedule','Set up your normal repeating work pattern'],['extra','OT','Extra shift','One-off shift, overtime, call-in or swap'],['timeoff','PTO','Time off','Vacation, PTO, sick day or unpaid leave'],['holiday','H','Holiday','Add a workplace holiday or adjust holidays'],['workout','↗','Workout','Schedule a training session']];
     return sheetHead('Add to calendar','Only choose what you need.',false)+'<section class="calendarChoiceStepV42"><p>What would you like to add?</p><div class="calendarChoiceListV42">'+choices.map(function(choice){return'<button type="button" data-add-kind="'+choice[0]+'"><i>'+choice[1]+'</i><span><b>'+choice[2]+'</b><small>'+choice[3]+'</small></span><em>›</em></button>'}).join('')+'</div><button class="calendarImportLinkV42" type="button" data-open-import>Have a roster photo, PDF or pasted schedule?</button></section>';
   }
   function newFlow(kind,key){
     var source=firstSource(),selected=key||activeDate();return{kind:kind||'',step:kind?1:0,date:selected,draft:{date:selected,sourceId:source?.id||'',sourceName:source?.name||'Work',name:'Regular shift',start:'09:00',end:'17:00',pattern:'weekdays',anchor:selected,weeks:2,custom:[true,true,false,true,true,true,true,false,true,true,true,true,false,false],exceptionType:'extra_shift',overtimeMode:'extend',timeOffType:'pto',endDate:selected,holidayName:'Workplace holiday'}}
   }
   function openAdd(kind,key){var root=overlay('calendarAddFlowV42','Add to calendar');flow=newFlow(kind,key);renderFlow(root)}
-  function renderFlow(root){var body=root.querySelector('.calendarSheetBodyV42');if(!flow.kind){body.innerHTML=chooserMarkup();bindSheetBack(root);root.querySelectorAll('[data-add-kind]').forEach(function(button){button.onclick=function(){flow.kind=button.dataset.addKind;flow.step=1;renderFlow(root)}});root.querySelector('[data-open-import]').onclick=function(){closeOverlay();V.selectTab?.('add',true)};return}if(flow.kind==='work')renderWorkFlow(root);else if(flow.kind==='extra')renderExtraFlow(root);else if(flow.kind==='timeoff')renderTimeOffFlow(root);else if(flow.kind==='holiday')renderHolidayFlow(root);else renderWorkoutFlow(root)}
+  function renderFlow(root){var body=root.querySelector('.calendarSheetBodyV42');if(!flow.kind){body.innerHTML=chooserMarkup();bindSheetBack(root);root.querySelectorAll('[data-add-kind]').forEach(function(button){button.onclick=function(){flow.kind=button.dataset.addKind;flow.step=1;renderFlow(root)}});root.querySelector('[data-open-import]').onclick=function(){closeOverlay();V.selectTab?.('add',true)};return}if(flow.kind==='personal')renderPersonalFlow(root);else if(flow.kind==='work')renderWorkFlow(root);else if(flow.kind==='extra')renderExtraFlow(root);else if(flow.kind==='timeoff')renderTimeOffFlow(root);else if(flow.kind==='holiday')renderHolidayFlow(root);else renderWorkoutFlow(root)}
+  function renderPersonalFlow(root){
+    var d=flow.draft;
+    root.querySelector('.calendarSheetBodyV42').innerHTML=sheetHead('Personal event','Make room for life outside work.',true)+'<form id="calendarPersonalFormV47"><section class="calendarFormStepV42"><label>Event name<input name="title" type="text" required maxlength="100" placeholder="Dinner with friends" value="'+safe(d.personalTitle||'')+'"></label><label>Date<input name="date" type="date" required value="'+safe(d.date)+'"></label><label class="calendarCheckV42"><input name="allDay" type="checkbox" '+(d.allDay?'checked':'')+'><span><b>All day</b><small>No set time</small></span></label><div class="calendarFieldGridV42" data-personal-times '+(d.allDay?'hidden':'')+'><label>Starts<input name="time" type="time" required value="'+safe(d.personalTime||'09:00')+'"></label><label>Ends <small>optional</small><input name="end" type="time" value="'+safe(d.personalEnd||'')+'"></label></div><label>Repeat<select name="frequency">'+[['none','Does not repeat'],['weekly','Every week'],['biweekly','Every 2 weeks'],['monthly','Every month'],['yearly','Every year']].map(function(item){return'<option value="'+item[0]+'" '+((d.frequency||'none')===item[0]?'selected':'')+'>'+item[1]+'</option>'}).join('')+'</select></label></section><footer class="calendarFlowActionsV42"><button type="button" data-personal-cancel>Cancel</button><button class="primary" type="submit">Save event</button></footer></form>';
+    var form=root.querySelector('form'),fields=form.elements;
+    function remember(){d.personalTitle=fields.title.value;d.date=fields.date.value;d.allDay=fields.allDay.checked;d.personalTime=fields.time.value;d.personalEnd=fields.end.value;d.frequency=fields.frequency.value}
+    function updateTimes(){var allDay=fields.allDay.checked;form.querySelector('[data-personal-times]').hidden=allDay;fields.time.disabled=allDay;fields.end.disabled=allDay;fields.end.setCustomValidity('')}
+    form.addEventListener('input',function(){remember();fields.end.setCustomValidity('')});fields.allDay.onchange=function(){remember();updateTimes()};updateTimes();
+    bindSheetBack(root,function(){remember();flow.kind='';renderFlow(root)});root.querySelector('[data-personal-cancel]').onclick=closeOverlay;
+    form.onsubmit=function(event){event.preventDefault();remember();if(!d.personalTitle.trim()){fields.title.setCustomValidity('Give your event a name.');fields.title.reportValidity();fields.title.oninput=function(){this.setCustomValidity('')};return}if(!d.allDay&&d.personalEnd&&d.personalEnd<=d.personalTime){fields.end.setCustomValidity('Choose an end time after the start time.');fields.end.reportValidity();return}if(!form.reportValidity())return;savePersonalEvent(d)};
+  }
+  function savePersonalEvent(d){
+    var item={title:d.personalTitle.trim(),type:'event',category:'event',time:d.allDay?'':d.personalTime,end:d.allDay?'':d.personalEnd,frequency:d.frequency||'none'};
+    if(item.frequency==='none')addDayItem(d.date,item);else addRecurringCalendarItem(d.date,item);
+    selectedDate=d.date;calView=Core.dateFromKey(d.date);closeOverlay();closeDaySheet();V.selectTab?.('calendar',true);refreshCalendar();toast?.('Personal event added');
+  }
   function progress(step){return'<div class="calendarFlowProgressV42">'+['Shift','Pattern','Start'].map(function(label,index){var number=index+1;return'<span class="'+(number===step?'active':number<step?'done':'')+'"><i>'+(number<step?'✓':number)+'</i><small>'+label+'</small></span>'}).join('')+'</div>'}
   function rememberFields(root,names){names.forEach(function(name){var field=root.querySelector('[name="'+name+'"]');if(!field)return;var remember=function(){flow.draft[name]=field.type==='checkbox'?field.checked:field.value};field.addEventListener('input',remember);field.addEventListener('change',remember)})}
   function workStepMarkup(){
@@ -221,7 +249,7 @@
   function renderWorkoutFlow(root){root.querySelector('.calendarSheetBodyV42').innerHTML=workoutMarkup();bindSheetBack(root,function(){flow.kind='';renderFlow(root)});rememberFields(root,['date']);root.querySelector('[data-flow-back]').onclick=function(){flow.kind='';renderFlow(root)};root.querySelector('[data-flow-next]').onclick=function(){var d=flow.draft;try{var value=typeof overrides==='function'?overrides():{};value[d.date]={action:'train',createdAt:new Date().toISOString()};if(typeof saveOverrides==='function')saveOverrides(value);else write(PREFIX+'training-overrides',value)}catch{}selectedDate=d.date;closeOverlay();refreshCalendar();toast?.('Workout added to '+dateLabel(d.date,{month:'short',day:'numeric'}))}}
 
   function openFilters(){
-    var root=overlay('calendarFiltersSheetV42','Calendar filters'),state=filters(),settings=holidaySettings();root.querySelector('.calendarSheetBodyV42').innerHTML=sheetHead('Calendar filters','Keep the month quiet. Show only what helps.',false)+'<section class="calendarFilterListV42">'+[['work','Work','Regular scheduled work'],['workout','Workouts','Training sessions'],['holidays','Holidays','Regional and workplace holidays'],['overtime','Overtime & extra','Unusual shifts and call-ins'],['timeOff','Time off','PTO, vacation and sick days']].map(function(item){return'<label><span><b>'+item[1]+'</b><small>'+item[2]+'</small></span><input name="'+item[0]+'" type="checkbox" '+(state[item[0]]?'checked':'')+'></label>'}).join('')+'<button type="button" data-holiday-settings><span><b>Holiday settings</b><small>'+safe({US:'United States',GB:'United Kingdom',CA:'Canada',EU:'European Union · common dates'}[settings.region]||settings.region)+' · '+(settings.show===false?'hidden':'shown')+'</small></span><i>›</i></button><button type="button" data-calendar-settings><span><b>Calendar settings</b><small>Work sources, rotations and connections</small></span><i>›</i></button></section><footer class="calendarFlowActionsV42"><button type="button" data-sheet-close>Cancel</button><button class="primary" type="button" data-save-filters>Apply filters</button></footer>';bindSheetBack(root);root.querySelector('[data-sheet-close]').onclick=closeOverlay;root.querySelector('[data-save-filters]').onclick=function(){var next={};Object.keys(defaultFilters).forEach(function(key){next[key]=root.querySelector('[name="'+key+'"]').checked});write(KEY.filters,next);closeOverlay();queueDecorate()};root.querySelector('[data-holiday-settings]').onclick=openHolidaySettings;root.querySelector('[data-calendar-settings]').onclick=function(){closeOverlay();V.selectTab?.('tools',true)}
+    var root=overlay('calendarFiltersSheetV42','Calendar filters'),state=filters(),settings=holidaySettings();root.querySelector('.calendarSheetBodyV42').innerHTML=sheetHead('Calendar filters','Keep the month quiet. Show only what helps.',false)+'<section class="calendarFilterListV42">'+[['personal','Personal events & tasks','Appointments, family plans and to-dos'],['work','Work','Regular scheduled work'],['workout','Workouts','Training sessions'],['holidays','Holidays','Regional and workplace holidays'],['overtime','Overtime & extra','Unusual shifts and call-ins'],['timeOff','Time off','PTO, vacation and sick days']].map(function(item){return'<label><span><b>'+item[1]+'</b><small>'+item[2]+'</small></span><input name="'+item[0]+'" type="checkbox" '+(state[item[0]]?'checked':'')+'></label>'}).join('')+'<button type="button" data-holiday-settings><span><b>Holiday settings</b><small>'+safe({US:'United States',GB:'United Kingdom',CA:'Canada',EU:'European Union · common dates'}[settings.region]||settings.region)+' · '+(settings.show===false?'hidden':'shown')+'</small></span><i>›</i></button><button type="button" data-calendar-settings><span><b>Calendar settings</b><small>Work sources, rotations and connections</small></span><i>›</i></button></section><footer class="calendarFlowActionsV42"><button type="button" data-sheet-close>Cancel</button><button class="primary" type="button" data-save-filters>Apply filters</button></footer>';bindSheetBack(root);root.querySelector('[data-sheet-close]').onclick=closeOverlay;root.querySelector('[data-save-filters]').onclick=function(){var next={};Object.keys(defaultFilters).forEach(function(key){next[key]=root.querySelector('[name="'+key+'"]').checked});write(KEY.filters,next);closeOverlay();queueDecorate()};root.querySelector('[data-holiday-settings]').onclick=openHolidaySettings;root.querySelector('[data-calendar-settings]').onclick=function(){closeOverlay();V.selectTab?.('tools',true)}
   }
 
   function openHolidaySettings(){
@@ -259,7 +287,7 @@
         var target=record.target.nodeType===1?record.target:record.target.parentElement;
         if(!target?.closest?.('#calendarGrid,#dayCard,#calendarWeekRailV33'))return false;
         var nodes=Array.from(record.addedNodes).concat(Array.from(record.removedNodes)).filter(function(node){return node.nodeType===1});
-        return nodes.some(function(node){return !node.matches?.('.calendarMarkersV42,.calendarDayBriefV42,.calendarDayCloseV42')});
+        return nodes.some(function(node){return !node.matches?.('.calendarMarkersV42,.calendarCellDetailsV47,.calendarDayBriefV42,.calendarDayCloseV42')});
       });
       if(needsDecorate)queueDecorate();
     }).observe(calendar,{subtree:true,childList:true});

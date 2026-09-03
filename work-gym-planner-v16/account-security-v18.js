@@ -31,7 +31,18 @@ window.WGC18=window.WGC18||{};
    A.assertCloudReady();
    let state=secureCapture();
    let result;
-   try{result=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state,baseUpdatedAt:A.cloudRevision})})}catch(error){if(A.session?.user?.id===uid&&(error.code==='STATE_CONFLICT'||error.code==='STATE_BASE_REQUIRED'))A.pauseCloudSync?.();throw error}
+   try{result=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state,baseUpdatedAt:A.cloudRevision})})}catch(error){
+     // A disconnected response does not prove the write failed. Read back the
+     // exact sent storage before acknowledging; never blindly replay a write.
+     if(A.session?.user?.id===uid&&['NETWORK_ERROR','REQUEST_TIMEOUT'].includes(error.code)){
+       try{
+         const remote=await A.authedFetch('state');
+         const stored=remote?.state?.storage;
+         if(A.session?.user?.id===uid&&remote.updatedAt&&stored&&Object.keys(stored).length===Object.keys(state.storage).length&&Object.entries(state.storage).every(([key,value])=>stored[key]===value))result={updatedAt:remote.updatedAt};
+       }catch{}
+     }
+     if(!result){if(A.session?.user?.id===uid&&(error.code==='STATE_CONFLICT'||error.code==='STATE_BASE_REQUIRED'))A.pauseCloudSync?.();throw error}
+   }
    if(A.session?.user?.id!==uid)return false;
    A.acceptCloudRevision(result.updatedAt,uid);
    localStorage.setItem('wgc-v18-last-sync',result.updatedAt||new Date().toISOString());

@@ -1,11 +1,58 @@
 function normalizeOFF(p){return window.WGCFoodPortions.normalizeOFF(p)}
 function foodResult(p,index=0){let F=window.WGCFoodPortions,q=F.totalNutrition(p).cal,known=F.number(p.per100?.cal)!==null;return'<div class="foodResultRow"><button type="button" class="foodResultSelect" data-result-index="'+index+'"><span>'+(p.img?'<img src="'+esc(p.img)+'" alt="">':'<span class="ph">◉</span>')+'</span><span><b>'+esc(p.name)+'</b><small>'+esc(p.brand||p.source)+' · '+esc(foodAmountLabel(p))+'</small></span><strong>'+(p.needsNutritionCheck?'Check label':known?Math.round(q)+' kcal':'Calories needed')+'</strong></button><button type="button" class="foodQuickAdd" data-quick-add-index="'+index+'" aria-label="Quick add '+esc(p.name)+'">+</button></div>'}
-let lastSearchProducts=[],foodSearchRequest=0,foodSearchTimer=null,mealScanImageDataUrl='';
-function clearFoodSearch({restore=true}={}){foodSearchRequest++;clearTimeout(foodSearchTimer);lastSearchProducts=[];let input=$('foodSearchInput'),results=$('foodSearchResults'),clear=$('clearFoodSearch');if(input)input.value='';if(results){results.innerHTML='';results.hidden=true}if(clear)clear.hidden=true;if(restore&&$('#foodDialog')?.classList.contains('open')&&!foodState.editId)foodTab(foodState.libraryTab||'history')}
+let lastSearchProducts=[],foodSearchRequest=0,foodSearchTimer=null,mealScanImageDataUrl='',foodSearchController=null,barcodeLookupTask=null,mealScanTask=null,lastFoodRemoteSearch=0,lastBarcodeLookup=0;
+const packagedFoodCache=new Map();
+async function foodRequest(url,signal){
+ const result=window.WWObservability?.request?await window.WWObservability.request(url,{signal},{readText:true,timeoutMs:12000}):await fetch(url,{signal}).then(async response=>({response,text:await response.text()}));
+ if(!result.response.ok)throw Object.assign(Error(result.response.status===429?'Packaged-food search is busy. Please wait a minute or use Quick add.':'Food search is temporarily unavailable. Use the available foods or Quick add.'),{status:result.response.status});
+ return JSON.parse(result.text);
+}
+function clearFoodSearch({restore=true}={}){foodSearchRequest++;foodSearchController?.abort();foodSearchController=null;barcodeLookupTask?.controller.abort();barcodeLookupTask=null;clearTimeout(foodSearchTimer);lastSearchProducts=[];let input=$('foodSearchInput'),results=$('foodSearchResults'),clear=$('clearFoodSearch');if(input)input.value='';if(results){results.innerHTML='';results.hidden=true}if(clear)clear.hidden=true;if(restore&&$('#foodDialog')?.classList.contains('open')&&!foodState.editId)foodTab(foodState.libraryTab||'history')}
 function showFoodSearchResults(){stopBarcode();$('foodEntryEditor').hidden=true;$$('#foodDialog [data-food-pane]').forEach(p=>{p.hidden=true;p.classList.remove('active')});$('foodSearchResults').hidden=false;$('clearFoodSearch').hidden=false;renderFoodBatch()}
-async function searchFood(){let input=$('foodSearchInput'),q=input.value.trim();if(!q)return clearFoodSearch();let request=++foodSearchRequest;showFoodSearchResults();let built=[...myFoods().filter(x=>x.name?.toLowerCase().includes(q.toLowerCase())).slice(0,5),...builtinFoodMatches(q)],seen=new Set;built=built.filter(x=>{let key=String(x.code||x.name).toLowerCase();if(seen.has(key))return false;seen.add(key);return true});lastSearchProducts=built;$('foodSearchResults').innerHTML=built.length?'<p class="foodSearchStatus">Matches available now · checking packaged foods…</p>'+built.map(foodResult).join(''):'<p class="foodSearchStatus">Searching packaged foods…</p>';bindFoodResults();try{let fields='code,product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,product_quantity_unit,quantity,image_front_small_url',u=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&fields=${fields}`,r=await fetch(u),j=await r.json();if(request!==foodSearchRequest||input.value.trim()!==q)return;let off=(j.products||[]).map(normalizeOFF).filter(x=>x.name).filter(x=>{let key=String(x.code||x.name).toLowerCase();if(seen.has(key))return false;seen.add(key);return true});lastSearchProducts=[...built,...off];$('foodSearchResults').innerHTML=lastSearchProducts.length?lastSearchProducts.map(foodResult).join(''):'<p class="muted">No matching foods found. Try a simpler name or Quick add.</p>';bindFoodResults()}catch{if(request!==foodSearchRequest||input.value.trim()!==q)return;lastSearchProducts=built;$('foodSearchResults').innerHTML=built.length?built.map(foodResult).join('')+'<p class="foodSearchStatus">Packaged-food search is offline; these foods are still available.</p>':'<p class="muted">Food search failed. Check your connection or use Quick add.</p>';bindFoodResults()}}
+async function searchFood({remote=true}={}){
+ clearTimeout(foodSearchTimer);let input=$('foodSearchInput'),q=input.value.trim();if(!q)return clearFoodSearch();
+ foodSearchController?.abort();const controller=new AbortController();foodSearchController=controller;
+ let request=++foodSearchRequest;showFoodSearchResults();
+ let built=[...myFoods().filter(x=>x.name?.toLowerCase().includes(q.toLowerCase())).slice(0,5),...builtinFoodMatches(q)],seen=new Set;
+ built=built.filter(x=>{let key=String(x.code||x.name).toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
+ const display=(items,note='')=>{lastSearchProducts=items;$('foodSearchResults').innerHTML=items.map(foodResult).join('')+(note?'<p class="foodSearchStatus">'+esc(note)+'</p>':'');bindFoodResults()};
+ lastSearchProducts=built;display(built,remote?'Checking packaged foods…':'Tap Search for packaged foods.');bindFoodResults();
+ if(!remote)return;
+ if(q.length<2)return display(built,'Type at least two letters to search packaged foods.');
+ try{
+  const cacheKey=q.toLowerCase();let j=packagedFoodCache.get(cacheKey);
+  if(!j){
+   // Open Food Facts limits search to 10 requests/minute. Never search remotely on each keystroke.
+   if(Date.now()-lastFoodRemoteSearch<6500)return display(built,'Please wait a few seconds before searching again. These foods and Quick add are still available.');
+   lastFoodRemoteSearch=Date.now();
+   let fields='code,product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,product_quantity_unit,quantity,image_front_small_url',u=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&fields=${fields}`;
+   j=await foodRequest(u,controller.signal);
+   packagedFoodCache.set(cacheKey,j);if(packagedFoodCache.size>20)packagedFoodCache.delete(packagedFoodCache.keys().next().value);
+  }
+  if(request!==foodSearchRequest||input.value.trim()!==q||controller.signal.aborted)return;
+  let off=(j.products||[]).map(normalizeOFF).filter(x=>x.name).filter(x=>{let key=String(x.code||x.name).toLowerCase();if(seen.has(key))return false;seen.add(key);return true});
+  display([...built,...off],!built.length&&!off.length?'No matching foods found. Try a simpler name or Quick add.':'');
+ }catch(error){
+  if(request!==foodSearchRequest||input.value.trim()!==q||controller.signal.aborted)return;
+  display(built,error.status===429?error.message:'Packaged-food search is unavailable. Your saved foods and Quick add still work.');
+ }finally{if(foodSearchController===controller)foodSearchController=null}
+}
 function bindFoodResults(){$$('#foodSearchResults [data-result-index]').forEach(b=>b.onclick=()=>setFoodBase(lastSearchProducts[+b.dataset.resultIndex]));$$('#foodSearchResults [data-quick-add-index]').forEach(b=>b.onclick=()=>queueFoodProduct(lastSearchProducts[+b.dataset.quickAddIndex]))}
-async function lookupBarcode(code){code=String(code||'').replace(/\D/g,'');if(!code)return setBarcodeStatus('Enter a UPC/EAN barcode.');setBarcodeStatus('Looking up '+code+' in Open Food Facts…');try{let fields='code,product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,product_quantity_unit,quantity,image_front_small_url',r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=${fields}`),j=await r.json();if(j.status===1&&j.product){setFoodBase(normalizeOFF({...j.product,code}));setBarcodeStatus('✓ Product found. Review the serving and nutrition values.');stopBarcode()}else setBarcodeStatus('✓ Barcode decoded, but no exact Open Food Facts product was found. Search by product name or use Manual.')}catch{setBarcodeStatus('Barcode lookup failed. Check your internet connection.') }}
+async function lookupBarcode(code){
+ code=String(code||'').replace(/[\s-]/g,'');
+ if(!/^(?:\d{8}|\d{12,14})$/.test(code))return setBarcodeStatus('Enter the full 8, 12, 13 or 14-digit barcode, or search by food name.');
+ if(barcodeLookupTask?.code===code)return;
+ if(Date.now()-lastBarcodeLookup<4200)return setBarcodeStatus('Please wait a few seconds before scanning another barcode.');
+ barcodeLookupTask?.controller.abort();const task={code,controller:new AbortController()};barcodeLookupTask=task;lastBarcodeLookup=Date.now();
+ setBarcodeStatus('Looking up '+code+' in Open Food Facts…');
+ try{
+  let fields='code,product_name,generic_name,brands,nutriments,serving_size,serving_quantity,serving_quantity_unit,product_quantity_unit,quantity,image_front_small_url',j=await foodRequest(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=${fields}`,task.controller.signal);
+  if(barcodeLookupTask!==task||task.controller.signal.aborted)return;
+  if(j.status===1&&j.product){setFoodBase(normalizeOFF({...j.product,code}));setBarcodeStatus('✓ Product found. Review the serving and nutrition values.');stopBarcode()}
+  else setBarcodeStatus('Barcode read, but this product was not found. Search by food name or use Quick add.');
+ }catch(error){if(barcodeLookupTask===task&&!task.controller.signal.aborted)setBarcodeStatus('Barcode search is unavailable. Try again, search by food name or use Quick add.')}
+ finally{if(barcodeLookupTask===task)barcodeLookupTask=null}
+}
 function setBarcodeStatus(t){$('#barcodeStatus').textContent=t}
 const SCANNER_URL='/work-gym-planner-v16/vendor/html5-qrcode/html5-qrcode.min.js';
 async function ensureScanner(){if(window.Html5Qrcode)return true;return new Promise(resolve=>{let s=document.createElement('script');s.src=SCANNER_URL;s.onload=()=>resolve(!!window.Html5Qrcode);s.onerror=()=>resolve(false);document.head.appendChild(s)})}
@@ -23,5 +70,24 @@ function renderRecipes(){let host=$('recipeResults');if(!host)return;let a=recip
 function mealScanFileData(file){return new Promise((resolve,reject)=>{let reader=new FileReader;reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('Could not read this photo.'));reader.readAsDataURL(file)})}
 async function prepareMealScan(file){resetMealScan();if(!file)return;if(!/^image\/(?:jpeg|png|webp)$/i.test(file.type||''))return setMealScanStatus('Use a JPG, PNG or WebP photo.',true);if(file.size>12_000_000)return setMealScanStatus('Choose a meal photo under 12 MB.',true);try{let raw=await mealScanFileData(file),img=new Image;await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('This image could not be opened.'));img.src=raw});let scale=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);mealScanImageDataUrl=canvas.toDataURL('image/jpeg',.84);$('mealScanPreview').innerHTML=`<img src="${mealScanImageDataUrl}" alt="Meal photo ready to analyze">`;$('mealScanPreview').hidden=false;$('analyzeMealPhoto').disabled=false;setMealScanStatus('Photo ready. AI estimates can be wrong; review every food before saving.')}catch(e){setMealScanStatus(e.message||'Could not prepare this photo.',true)}}
 function setMealScanStatus(message,error=false){let el=$('mealScanStatus');if(!el)return;el.textContent=message;el.classList.toggle('error',error)}
-function resetMealScan(){mealScanImageDataUrl='';let input=$('mealScanPhoto'),preview=$('mealScanPreview'),button=$('analyzeMealPhoto');if(input)input.value='';if(preview){preview.innerHTML='';preview.hidden=true}if(button){button.disabled=true;button.textContent='Analyze meal photo'}if($('mealScanStatus'))setMealScanStatus('The photo is sent to OpenAI for this analysis only and is not saved by Work + Workout.')}
-async function analyzeMealPhoto(){if(!mealScanImageDataUrl)return setMealScanStatus('Take or choose a meal photo first.',true);let A=window.WGC18;if(!A?.session)return setMealScanStatus('Sign in to use Meal Scan.',true);let button=$('analyzeMealPhoto');button.disabled=true;button.textContent='Analyzing…';setMealScanStatus('Identifying the visible foods and estimating portions…');try{if(typeof A.ensureHealthConsent!=='function'||!await A.ensureHealthConsent({interactive:true,purpose:'meal_scan_ai'}))throw Error('Meal Scan remains off until you allow its one-time photo analysis.');let j=await A.authedFetch('meal-scan',{method:'POST',body:JSON.stringify({imageDataUrl:mealScanImageDataUrl})}),products=(j.items||[]).map(x=>({name:x.name,brand:'',code:'',source:'AI meal scan estimate',defaultGrams:x.defaultGrams,per100:x.per100,img:''}));if(!products.length)throw Error('No foods could be identified confidently. Try a clearer overhead photo.');stageFoodItems(products.map(foodDraftFromProduct),'Meal Scan');let count=products.length;resetMealScan();foodTab('history');toast(`${count} estimated ${count===1?'food':'foods'} ready to review`)}catch(e){setMealScanStatus(e.message||'Meal Scan could not analyze this photo.',true);button.disabled=false;button.textContent='Try again'}}
+function resetMealScan(){mealScanTask?.controller.abort();mealScanTask=null;mealScanImageDataUrl='';let input=$('mealScanPhoto'),preview=$('mealScanPreview'),button=$('analyzeMealPhoto');if(input)input.value='';if(preview){preview.innerHTML='';preview.hidden=true}if(button){button.disabled=true;button.textContent='Analyze meal photo'}if($('mealScanStatus'))setMealScanStatus('The photo is sent to OpenAI for this analysis only and is not saved by Work + Workout.')}
+async function analyzeMealPhoto(){
+ if(mealScanTask)return;
+ if(!mealScanImageDataUrl)return setMealScanStatus('Take or choose a meal photo first.',true);
+ let A=window.WGC18;if(!A?.session)return setMealScanStatus('Sign in to use Meal Scan.',true);
+ const task={controller:new AbortController(),photo:mealScanImageDataUrl,owner:A.session.user.id};mealScanTask=task;
+ let button=$('analyzeMealPhoto');button.disabled=true;button.textContent='Analyzing…';setMealScanStatus('Identifying the visible foods and estimating portions…');
+ try{
+  if(typeof A.ensureHealthConsent!=='function'||!await A.ensureHealthConsent({interactive:true,purpose:'meal_scan_ai'}))throw Error('Meal Scan remains off until you allow its one-time photo analysis.');
+  if(mealScanTask!==task||A.session?.user?.id!==task.owner)return;
+  let j=await A.authedFetch('meal-scan',{method:'POST',signal:task.controller.signal,body:JSON.stringify({imageDataUrl:task.photo})});
+  if(mealScanTask!==task||A.session?.user?.id!==task.owner||task.controller.signal.aborted)return;
+  let products=(j.items||[]).map(x=>({name:x.name,brand:'',code:'',source:'AI meal scan estimate',defaultGrams:x.defaultGrams,per100:x.per100,img:''}));
+  if(!products.length)throw Error('No foods could be identified confidently. Try a clearer overhead photo.');
+  stageFoodItems(products.map(foodDraftFromProduct),'Meal Scan');let count=products.length;resetMealScan();foodTab('history');toast(`${count} estimated ${count===1?'food':'foods'} ready to review`);
+ }catch(error){
+  if(mealScanTask!==task||task.controller.signal.aborted)return;
+  const connection=['NETWORK_ERROR','NETWORK_OFFLINE','REQUEST_TIMEOUT'].includes(error.code)||error.name==='TypeError';
+  setMealScanStatus(connection?'Meal Scan could not connect. Your photo is still here—check your connection and tap Try again.':error.message||'Meal Scan could not analyze this photo.',true);
+ }finally{if(mealScanTask===task){mealScanTask=null;button.disabled=false;button.textContent='Try again'}}
+}

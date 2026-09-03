@@ -457,6 +457,7 @@ body.premiumV30 #foodDialog .foodSearchShell>span{color:var(--v30-muted);font-si
 body.premiumV30 #foodDialog .foodSearchShell input{min-width:0;height:48px;padding:0;border:0;background:transparent;color:var(--v30-ink);font-size:14px;outline:0}
 body.premiumV30 #foodDialog .foodSearchShell button{min-height:34px;padding:0 9px;border:0;border-radius:9px;background:transparent;color:var(--v30-signal);font-size:10px;font-weight:800}
 body.premiumV30 #foodDialog .foodSearchShell #clearFoodSearch{width:32px;padding:0;color:var(--v30-muted);font-size:19px}
+body.premiumV30 #foodDialog #foodSearchBtn{grid-column:4;min-width:56px;min-height:44px;font-size:12px}
 body.premiumV30 #foodDialog .foodLibraryTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:13px 0 10px;border-bottom:1px solid var(--v30-line)}
 body.premiumV30 #foodDialog .foodLibraryTabs button{min-width:0;min-height:42px;padding:0 2px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--v30-muted);font-size:11px;font-weight:750;white-space:nowrap}
 body.premiumV30 #foodDialog .foodLibraryTabs button.active{border-bottom-color:var(--v30-signal);color:var(--v30-ink)}
@@ -570,8 +571,7 @@ body.premiumV30 #foodDialog #queueFoodEntry{border-color:rgba(214,255,63,.22)!im
 @media(max-width:390px){
   body.premiumV30 #foodDialog .foodHeadCopy{display:none}
   body.premiumV30 #foodDialog .sheetHead{grid-template-columns:40px minmax(0,1fr)}
-  body.premiumV30 #foodDialog .foodSearchShell{grid-template-columns:24px minmax(0,1fr) 30px}
-  body.premiumV30 #foodDialog #foodSearchBtn{display:none}
+  body.premiumV30 #foodDialog .foodSearchShell{grid-template-columns:20px minmax(0,1fr) 30px auto}
   body.premiumV30 #foodDialog .foodBatchTray{padding:10px}
   body.premiumV30 #foodDialog .sheetActions{grid-template-columns:1fr}
   body.premiumV30 #foodDialog .sheetActions button{min-height:46px}

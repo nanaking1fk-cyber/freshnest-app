@@ -30,7 +30,14 @@ window.WGC18=window.WGC18||{};
  function clearRecoveryFlag(){try{sessionStorage.removeItem(RECOVERY_KEY)}catch{}A.passwordRecovery=false}
  function loadSession(){try{A.session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{A.session=null}}
  function sessionExpired(s=A.session){if(!s?.access_token)return true;let exp=+s.expires_at||0;return exp&&Date.now()/1000>exp-60}
- async function raw(url,opt={}){let r=await fetch(url,opt),txt=await r.text(),j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:txt}}}if(!r.ok){let error=Error(j.error_description||j.msg||j.error||j.message||`Request failed (${r.status})`);error.status=r.status;error.code=j.error_code||j.code||null;error.retryAfter=Math.max(0,Number(r.headers.get('retry-after'))||0);throw error}return j}
+ async function requestText(url,opt={},shouldContinue){
+  if(window.WWObservability?.request){
+   const reading=['GET','HEAD'].includes(String(opt.method||'GET').toUpperCase()),scan=/\/(?:meal-scan|coach|onboarding)(?:\?|$)/.test(url);
+   return window.WWObservability.request(url,opt,{readText:true,retries:reading?1:0,timeoutMs:scan?75000:reading?15000:25000,shouldContinue});
+  }
+  const response=await fetch(url,opt);return{response,text:await response.text()};
+ }
+ async function raw(url,opt={}){let {response:r,text:txt}=await requestText(url,opt),j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:txt}}}if(!r.ok){let error=Error(j.error_description||j.msg||j.error||j.message||`Request failed (${r.status})`);error.status=r.status;error.code=j.error_code||j.code||null;error.retryAfter=Math.max(0,Number(r.headers.get('retry-after'))||0);throw error}return j}
  function base64Url(bytes){let binary='';bytes.forEach(value=>binary+=String.fromCharCode(value));return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
  async function beginPkce(purpose){let bytes=new Uint8Array(48);crypto.getRandomValues(bytes);let verifier=base64Url(bytes),digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier));localStorage.setItem(PKCE_VERIFIER_KEY,verifier);localStorage.setItem(PKCE_PURPOSE_KEY,purpose);return base64Url(new Uint8Array(digest))}
  function passwordStrong(value){return String(value||'').length>=12&&/[a-z]/.test(value)&&/[A-Z]/.test(value)&&/\d/.test(value)&&/[^A-Za-z0-9]/.test(value)}
@@ -69,7 +76,7 @@ window.WGC18=window.WGC18||{};
   const uid=A.session?.user?.id,token=await A.accessToken();
   if(!token||A.session?.user?.id!==uid)throw Error('Sign in again to continue.');
   const headers={...(opt.headers||{}),Authorization:`Bearer ${token}`,'Content-Type':'application/json'};
-  const r=await fetch(A.api(path),{...opt,headers}),txt=await r.text();let j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:'The account service returned an unexpected response.'}}}
+  const {response:r,text:txt}=await requestText(A.api(path),{...opt,headers},()=>A.session?.user?.id===uid);let j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:'The account service returned an unexpected response.'}}}
   if(A.session?.user?.id!==uid)throw Error('Your account changed. Please try again.');
   if(r.status===401&&retry&&A.session?.refresh_token){if(A.session.access_token===token)await refreshSession();return A.authedFetch(path,opt,false)}
   if(r.status===401){lockPlannerForLoggedOut();saveSession(null)}
@@ -207,6 +214,7 @@ window.WGC18=window.WGC18||{};
  }
  function useDeviceOnly(){setAccountState('local');closeModal('accountDialog');window.renderAll?.();if(!profile())A.openOnboarding?.({auto:true})}
  A.resumeAccount=afterAuth;
+ window.addEventListener?.('online',()=>{if(A.session&&A.accountState==='unavailable')A.resumeAccount?.()});
  A.assertCloudReady=function(){if(A.deletingAccount||!A.cloudStateReady||A.cloudStateOwner!==A.session?.user?.id||localStorage.getItem(OWNER_KEY)!==A.session?.user?.id)throw Object.assign(Error('Load your saved account before syncing. Your cloud copy has not been changed.'),{code:'CLOUD_STATE_NOT_READY'})};
  A.acceptCloudRevision=function(updatedAt,uid=A.session?.user?.id){if(uid!==A.session?.user?.id||uid!==A.cloudStateOwner)return;A.cloudRevision=updatedAt||null;try{localStorage.setItem(BASELINE_PREFIX+uid,JSON.stringify(A.cloudRevision))}catch{}};
  A.pauseCloudSync=function(){setAccountState('choice');status('Your saved account changed on another device. Load it before syncing; both copies are protected.',true)};

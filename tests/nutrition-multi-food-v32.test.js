@@ -35,7 +35,7 @@ test('search results separate selection from quick add',()=>{
   assert.match(diaryB,/class="foodResultSelect"[^>]*data-result-index/);
   assert.match(diaryB,/class="foodQuickAdd"[^>]*data-quick-add-index/);
   assert.match(diaryB,/queueFoodProduct\(lastSearchProducts\[\+b\.dataset\.quickAddIndex\]\)/);
-  assert.match(diaryB,/lastSearchProducts=built;[\s\S]*bindFoodResults\(\);[\s\S]*await fetch/,
+  assert.match(diaryB,/lastSearchProducts=built;[\s\S]*bindFoodResults\(\);[\s\S]*await foodRequest/,
     'built-in results should be usable before remote search finishes');
 });
 

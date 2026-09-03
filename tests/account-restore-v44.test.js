@@ -169,6 +169,27 @@ test('a stale cloud write pauses autosync and preserves local content',async()=>
   assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
 });
 
+test('a lost save acknowledgment is verified by reading the exact sent state without a second write',async()=>{
+ let sent,writes=0;
+ const h=harness({secure:true,response:(route,opt)=>{
+  if(opt?.method==='PUT'){writes++;sent=JSON.parse(opt.body).state;throw Object.assign(Error('disconnected'),{code:'NETWORK_ERROR'})}
+  return sent?{state:sent,updatedAt:'confirmed-write'}:remote('Saved user');
+ }});
+ await h.A.resumeAccount();assert.equal(await h.A.pushState(),true);
+ assert.equal(writes,1);assert.equal(h.A.cloudRevision,'confirmed-write');assert.equal(h.A.cloudStateReady,true);
+});
+
+test('an uncertain save with different cloud data is never acknowledged or overwritten',async()=>{
+ let writes=0;
+ const h=harness({secure:true,response:(route,opt)=>{
+  if(opt?.method==='PUT'){writes++;throw Object.assign(Error('disconnected'),{code:'NETWORK_ERROR'})}
+  return writes?remote('Changed elsewhere'):remote('Saved user');
+ }});
+ await h.A.resumeAccount();await assert.rejects(h.A.pushState(),{code:'NETWORK_ERROR'});
+ assert.equal(writes,1);assert.equal(h.A.cloudRevision,remote().updatedAt);
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
+});
+
 test('account changes during consent never read or restore the previous account',async()=>{
   let grant;const h=harness({consent:()=>new Promise(resolve=>{grant=resolve})});
   const pending=h.A.resumeAccount();h.A.session={user:{id:'user-b'}};grant(true);await pending;
@@ -243,7 +264,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-privacy52'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-crash53'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{

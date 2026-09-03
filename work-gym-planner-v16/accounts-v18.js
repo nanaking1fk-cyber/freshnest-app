@@ -77,8 +77,15 @@ window.WGC18=window.WGC18||{};
   return j;
  };
  async function signIn(email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});clearRecoveryFlag();saveSession(j);await afterAuth();return j}
- function authRedirectUrl(purpose='signup'){let url=new URL('/work-gym-planner/','https://www.workandworkout.com');url.searchParams.set('auth',purpose==='recovery'?'recovery':'signup');return url.href}
- async function signUp(name,email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');if(!passwordStrong(password))throw Error('Use 12+ characters with uppercase, lowercase, a number and a symbol.');let target=encodeURIComponent(authRedirectUrl('signup')),challenge=await beginPkce('signup'),j=await raw(`${A.config.supabaseUrl}/auth/v1/signup?redirect_to=${target}`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,data:{display_name:name||''},code_challenge:challenge,code_challenge_method:'s256'})});if(j.access_token){saveSession(j);await afterAuth()}else lockPlannerForLoggedOut();return j}
+ // Use the direct shell: older installed workers may have cached the folder
+ // URL after a redirect, which Safari cannot replay when opening an email.
+ function authRedirectUrl(purpose='signup'){let url=new URL('/work-gym-planner/shell.html','https://www.workandworkout.com');url.searchParams.set('auth',purpose==='recovery'?'recovery':'signup');return url.href}
+ async function signUp(name,email,password){
+  if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');if(!passwordStrong(password))throw Error('Use 12+ characters with uppercase, lowercase, a number and a symbol.');
+  const previousVerifier=localStorage.getItem(PKCE_VERIFIER_KEY),previousPurpose=localStorage.getItem(PKCE_PURPOSE_KEY),target=encodeURIComponent(authRedirectUrl('signup')),challenge=await beginPkce('signup');let j;
+  try{j=await raw(`${A.config.supabaseUrl}/auth/v1/signup?redirect_to=${target}`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,data:{display_name:name||''},code_challenge:challenge,code_challenge_method:'s256'})})}catch(error){if(error?.status)restorePkce(previousVerifier,previousPurpose);throw error}
+  if(j.access_token){saveSession(j);await afterAuth()}else lockPlannerForLoggedOut();return j;
+ }
  async function recover(email){
   if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');
   var remaining=recoveryCooldown();if(remaining){let wait=Error('A reset email was already requested. Use the newest email, or wait before sending another.');wait.code='recovery_cooldown';wait.retryAfter=Math.ceil(remaining/1000);throw wait}
@@ -203,12 +210,17 @@ window.WGC18=window.WGC18||{};
  A.pauseCloudSync=function(){setAccountState('choice');status('Your saved account changed on another device. Load it before syncing; both copies are protected.',true)};
  async function consumeAuthRedirect(){
   if(LEGACY_AUTH_FRAGMENT){status('For your security, this older confirmation link can no longer be accepted. Request a new email and try again.',true);return false}
-  const params=new URLSearchParams(location.search),code=params.get('code');if(!code)return false;
+  const params=new URLSearchParams(location.search),fragment=new URLSearchParams(location.hash.slice(1)),code=params.get('code');
+  if(params.has('error')||params.has('error_code')||fragment.has('error')||fragment.has('error_code')){
+   window.history.replaceState(null,'',location.pathname);clearRecoveryFlag();openAccount('signin');
+   status(params.get('auth')==='recovery'?'This password reset link has expired or was already used. Request a new reset email.':'This email link has expired or was already used. Try signing in with your email and password first. You do not need to create another account.',true);return true;
+  }
+  if(!code)return false;
   const requestedPurpose=params.get('auth'),storedPurpose=localStorage.getItem(PKCE_PURPOSE_KEY);
   const purpose=['signup','recovery'].includes(storedPurpose)?storedPurpose:(['signup','recovery'].includes(requestedPurpose)?requestedPurpose:'signup');
   window.history.replaceState(null,'',location.pathname);
   const verifier=localStorage.getItem(PKCE_VERIFIER_KEY);
-  if(!verifier){openAccount('signin');status(purpose==='recovery'?'This reset link must be opened in the same browser where you requested it. Enter your email and request a new link here.':'This confirmation must be completed in the same browser where it was requested. Start again here.',true);return false}
+  if(!verifier){openAccount('signin');status(purpose==='recovery'?'This reset link must be opened in the same browser where you requested it. Enter your email and request a new link here.':'This link opened in a different browser. Sign in with the email and password you used to create your account to continue.',true);return true}
   try{
    const session=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=pkce`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({auth_code:code,code_verifier:verifier})});
    localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);

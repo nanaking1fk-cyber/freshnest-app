@@ -9,9 +9,9 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 test('production routes use an external-script shell under strict script CSP',()=>{
   const config=JSON.parse(read('vercel.json'));
   const rootRewrite=config.rewrites.find(rule=>rule.source==='/');
-  const appRedirect=config.redirects.find(rule=>rule.source==='/work-gym-planner/');
+  const appRewrite=config.rewrites.find(rule=>rule.source==='/work-gym-planner/');
   assert.equal(rootRewrite.destination,'/work-gym-planner/shell.html');
-  assert.equal(appRedirect.destination,'/work-gym-planner/shell.html');
+  assert.equal(appRewrite.destination,'/work-gym-planner/shell.html');
   const csp=config.headers.find(rule=>rule.source==='/').headers.find(header=>header.key==='Content-Security-Policy').value;
   assert.match(csp,/script-src 'self'/);
   assert.doesNotMatch(csp,/script-src[^;]*'unsafe-inline'/);

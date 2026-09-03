@@ -122,7 +122,7 @@ test('the production offline shell can complete the current boot sequence',()=>{
     '../work-gym-planner-v15/index.html','accounts-v18.js','guided-onboarding-v18.js',
     'landing-v29.js','app-v30.js'
   ])assert.ok(worker.includes(asset),`production worker must precache ${asset}`);
-  assert.match(worker,/caches\.match\(request,\{ignoreSearch:true\}\)/,
+  assert.match(worker,/cache\.match\(request,\{ignoreSearch:true\}\)/,
     'versioned boot requests must fall back to their precached unversioned asset');
   assert.match(worker,/e\.request\.mode==='navigate'[\s\S]*cacheMatch\('\.\/shell\.html'\)/,
     'an offline navigation must return the executable boot shell');

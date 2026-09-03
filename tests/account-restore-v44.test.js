@@ -158,10 +158,29 @@ test('new signup requests bind confirmation to the planner and wait for the emai
   await h.A.signUp('New user','new@example.test','Valid-Passphrase-123');
   const url=new URL(request.url),body=JSON.parse(request.options.body);
   assert.equal(url.pathname,'/auth/v1/signup');
-  assert.equal(url.searchParams.get('redirect_to'),'https://www.workandworkout.com/work-gym-planner/?auth=signup');
+  assert.equal(url.searchParams.get('redirect_to'),'https://www.workandworkout.com/work-gym-planner/shell.html?auth=signup');
   assert.equal(body.code_challenge_method,'s256');assert.ok(body.code_challenge);
   assert.equal(h.localStorage.getItem('wgc-v25-pkce-purpose'),'signup');
   assert.equal(h.A.session,null);assert.equal(h.A.cloudStateReady,false);
+});
+
+test('rejected signup retries do not replace the verifier for an already-sent confirmation',async()=>{
+ const h=harness({local:{'wgc-v25-pkce-verifier':'original-verifier','wgc-v25-pkce-purpose':'signup'}});h.A.session=null;
+ h.context.fetch=async()=>({ok:false,status:429,headers:{get:()=>null},text:async()=>JSON.stringify({error_code:'over_email_send_rate_limit',msg:'Wait before requesting another email'})});
+ await assert.rejects(h.A.signUp('New user','new@example.test','Valid-Passphrase-123'),/Wait before/);
+ assert.equal(h.localStorage.getItem('wgc-v25-pkce-verifier'),'original-verifier');assert.equal(h.localStorage.getItem('wgc-v25-pkce-purpose'),'signup');
+});
+
+test('expired confirmation links open an actionable account screen without exchanging or exposing the error',async()=>{
+ const h=harness();h.A.session=null;h.context.location.search='?auth=signup';h.context.location.hash='#error=access_denied&error_code=otp_expired&error_description=untrusted';
+ let message='',replaced=0;h.context.$=selector=>selector==='#accountStatus'?{set textContent(value){message=value},classList:{toggle(){}}}:null;h.context.history.replaceState=()=>replaced++;
+ assert.equal(await h.A.testConsumeAuthRedirect(),true);assert.equal(replaced,1);assert.ok(h.modals.includes('accountDialog'));assert.match(message,/expired or was already used/);assert.match(message,/Try signing in/);assert.doesNotMatch(message,/untrusted/);assert.equal(h.A.session,null);
+});
+
+test('cross-browser confirmation links offer sign-in without discarding existing data',async()=>{
+ const h=harness({local:{[PROFILE]:JSON.stringify({name:'Existing device data'})}});h.A.session=null;h.context.location.search='?auth=signup&code=sample';
+ let message='';h.context.$=selector=>selector==='#accountStatus'?{set textContent(value){message=value},classList:{toggle(){}}}:null;
+ assert.equal(await h.A.testConsumeAuthRedirect(),true);assert.match(message,/Sign in with the email and password/);assert.equal(h.A.session,null);assert.match(h.localStorage.getItem(PROFILE),/Existing device data/);
 });
 
 test('valid signup confirmation exchanges the bound code before consent or setup',async()=>{
@@ -178,7 +197,7 @@ test('valid signup confirmation exchanges the bound code before consent or setup
 
 test('a confirmation opened in the wrong browser cannot create an empty account session',async()=>{
   const h=harness();h.A.session=null;h.context.location.search='?auth=signup&code=one-time-code';
-  assert.equal(await h.A.testConsumeAuthRedirect(),false);
+  assert.equal(await h.A.testConsumeAuthRedirect(),true,'callback is handled by the sign-in prompt, not an authenticated session');
   assert.equal(h.A.session,null);assert.equal(h.A.cloudStateReady,false);
   assert.ok(h.modals.includes('accountDialog'));
 });
@@ -190,7 +209,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-servings50'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-email51'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{

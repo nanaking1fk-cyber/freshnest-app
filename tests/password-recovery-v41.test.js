@@ -8,7 +8,7 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const account=read('work-gym-planner-v16/accounts-v18.js');
 
 test('password recovery emails return to the planner reset flow',()=>{
-  assert.match(account,/new URL\('\/work-gym-planner\/'\s*,\s*'https:\/\/www\.workandworkout\.com'\)/);
+  assert.match(account,/new URL\('\/work-gym-planner\/shell\.html'\s*,\s*'https:\/\/www\.workandworkout\.com'\)/);
   assert.match(account,/url\.searchParams\.set\('auth',purpose==='recovery'\?'recovery':'signup'\)/);
   assert.match(account,/authRedirectUrl\('recovery'\)/);
   assert.doesNotMatch(account,/function authRedirectUrl\(\)\{return 'https:\/\/www\.workandworkout\.com\/'\}/);
@@ -16,7 +16,7 @@ test('password recovery emails return to the planner reset flow',()=>{
 
 test('auth callback cleanup cannot be shadowed by the workout history function',()=>{
   assert.doesNotMatch(account,/(^|[^.])history\.replaceState\(/m);
-  assert.equal((account.match(/window\.history\.replaceState\(/g)||[]).length,2);
+  assert.equal((account.match(/window\.history\.replaceState\(/g)||[]).length,3);
   assert.doesNotMatch(read('work-gym-planner-v16/workout-plan.js'),/function history\(\)/);
   assert.match(read('work-gym-planner-v16/workout-plan.js'),/function workoutHistory\(\)/);
   for(const directory of ['work-gym-planner-v15','work-gym-planner-v16']){

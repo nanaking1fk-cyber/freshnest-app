@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.31-servings50';
+const CACHE='wgp-stable-v30.1.31-email51';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/usage-counts-v45.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',
@@ -17,17 +17,28 @@ self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(async c=>
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('message',e=>{if(e.data?.type==='SKIP_WAITING')self.skipWaiting()});
 async function cacheMatch(request){
- return (await caches.match(request))||(await caches.match(request,{ignoreSearch:true}));
+ const cache=await caches.open(CACHE);
+ const response=(await cache.match(request))||(await cache.match(request,{ignoreSearch:true}));
+ return navigationSafeResponse(response);
 }
+// Safari rejects a followed redirect replayed from Cache Storage for a
+// navigation. Keep the body/security headers, without its redirect history.
+function navigationSafeResponse(response){
+ return response?.redirected&&response.ok?new Response(response.body,{status:response.status,statusText:response.statusText,headers:response.headers}):response;
+}
+function isAuthCallback(url){return ['auth','code','token_hash','access_token','refresh_token','error','error_code','error_description'].some(key=>url.searchParams.has(key))}
 self.addEventListener('fetch',e=>{
  if(e.request.method!=='GET')return;
  const u=new URL(e.request.url);
  if(u.origin!==location.origin||u.pathname.startsWith('/api/')||e.request.headers.has('Authorization'))return;
+ // Let the browser load one-time links directly; never cache their URLs or
+ // replace an auth callback with an unrelated cached navigation.
+ if(isAuthCallback(u))return;
  e.respondWith((async()=>{
   const cached=await cacheMatch(e.request);
   if(cached)return cached;
   try{
-   const r=await fetch(e.request);
+   const r=navigationSafeResponse(await fetch(e.request));
    if(r.ok){const copy=r.clone();await caches.open(CACHE).then(c=>c.put(e.request,copy)).catch(()=>{})}
    return r;
   }catch(error){

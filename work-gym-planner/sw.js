@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.31-calendar47';
+const CACHE='wgp-stable-v30.1.31-roster48';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/usage-counts-v45.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',
@@ -8,6 +8,7 @@ const SHELL=[
  '../work-gym-planner-v15/index.html','../work-gym-planner-v15/base.css','../work-gym-planner-v15/training.css','../work-gym-planner-v15/responsive.css','../work-gym-planner-v15/base.js','../work-gym-planner-v15/work-model.js','../work-gym-planner-v15/profile.js','../work-gym-planner-v15/nutrition-ui.js','../work-gym-planner-v15/ui.js','../work-gym-planner-v15/pwa.js'
 ];
 SHELL.push('../work-gym-planner-v16/health-consent-v35.js');
+SHELL.push('../work-gym-planner-v16/roster-scan-v48.js','../work-gym-planner-v16/roster-scan-v48.css');
 const OPTIONAL_SHELL=SHELL.filter(url=>url.includes('/vendor/'));
 const REQUIRED_SHELL=SHELL.filter(url=>!OPTIONAL_SHELL.includes(url));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(async c=>{

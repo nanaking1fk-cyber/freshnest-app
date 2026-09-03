@@ -11,6 +11,7 @@ const required=[
   'work-gym-planner-v16/landing-v29.js','work-gym-planner-v16/landing-v29.css',
   'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/account-security-v18.js',
   'work-gym-planner-v16/onboarding-v18.js','work-gym-planner-v16/schedule-platform-v25.js',
+  'work-gym-planner-v16/roster-scan-v48.js','work-gym-planner-v16/roster-scan-v48.css',
   'work-gym-planner-v16/adaptive-planner-v24.js','work-gym-planner-v16/ai-coach-v18.js',
   'work-gym-planner-v16/nutrition-plan-v18.js','work-gym-planner-v16/training-guides-v18.js',
   'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',

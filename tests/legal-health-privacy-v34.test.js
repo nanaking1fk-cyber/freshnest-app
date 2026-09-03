@@ -42,7 +42,9 @@ test('privacy policy accurately describes optional sensitive-data features and d
   const privacy=read('work-gym-planner/privacy.html');
   assert.match(privacy,/Requests are sent with API storage disabled/);
   assert.match(privacy,/saves the text “\[equipment photo\]”/);
-  assert.match(privacy,/matched row believed to be yours and relevant date headers, not the full roster/);
+  assert.match(privacy,/Only those selected image sections/);
+  assert.match(privacy,/Unselected parts of the photo stay on your device/);
+  assert.match(privacy,/after you enable personalized AI and confirm this scan/);
   assert.match(privacy,/Apple Health export or CSV files are parsed on your device/);
   assert.match(privacy,/encrypted access\/refresh tokens/);
   assert.match(privacy,/first-party error reporter sends the error type, a privacy-filtered message pattern and stack/);

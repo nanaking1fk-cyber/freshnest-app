@@ -1,0 +1,47 @@
+body.premiumV30 #rosterScanDialogV48{z-index:11500;padding:16px;align-items:center;background:rgba(0,0,0,.8)}
+body.premiumV30 #rosterScanDialogV48 .rosterScanSheetV48{width:min(840px,100%);max-width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:24px;border:1px solid #354039;border-radius:24px;background:#11191c;color:#f2f6f0;overscroll-behavior:contain}
+body.premiumV30 #rosterScanDialogV48 header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.premiumV30 #rosterScanDialogV48 header small{font-size:11px;letter-spacing:.12em;color:#c1f657}
+body.premiumV30 #rosterScanDialogV48 h2{font-size:clamp(22px,4vw,30px);margin:6px 0}
+body.premiumV30 #rosterScanDialogV48 p{line-height:1.55;color:#b6c0c0}
+body.premiumV30 #rosterScanDialogV48 button{min-height:44px;white-space:normal;border:1px solid #384443;border-radius:12px;background:#1c272b;color:#f2f6f0;padding:10px 14px;font:inherit;font-size:13px;cursor:pointer}
+body.premiumV30 #rosterScanDialogV48 button.primary{background:#b9f33e;color:#142000;border-color:#b9f33e;font-weight:650}
+body.premiumV30 #rosterScanDialogV48 button:disabled{opacity:.4;cursor:default}
+body.premiumV30 #rosterScanDialogV48 .rosterScanFieldsV48{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+body.premiumV30 #rosterScanDialogV48 label{display:grid;gap:6px;font-size:13px;min-width:0}
+body.premiumV30 #rosterScanDialogV48 input{max-width:100%;min-width:0;box-sizing:border-box}
+body.premiumV30 #rosterScanDialogV48 .rosterScanToolsV48{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+body.premiumV30 #rosterScanDialogV48 .rosterCanvasWrapV48{background:#050809;border:1px solid #52614b;border-radius:12px;overflow:hidden;line-height:0}
+body.premiumV30 #rosterScanDialogV48 #rosterCanvasV48{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+body.premiumV30 #rosterScanDialogV48 #rosterRegionCountV48{font-size:12px;color:#c1f657}
+body.premiumV30 #rosterScanDialogV48 details{padding:12px 0;border-top:1px solid #303938;border-bottom:1px solid #303938;margin-bottom:14px}
+body.premiumV30 #rosterScanDialogV48 summary{cursor:pointer;min-height:32px;align-content:center}
+body.premiumV30 #rosterScanDialogV48 .rosterScanEdgesV48{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}
+body.premiumV30 #rosterScanDialogV48 #rosterPreviewV48 canvas{display:block;max-width:100%;height:auto;border-radius:10px;margin:14px 0}
+body.premiumV30 #rosterScanDialogV48 .rosterScanConsentV48{display:flex;align-items:flex-start;gap:12px;border:1px solid #596735;padding:16px;border-radius:14px;margin-top:16px;line-height:1.6;background:#1b2319}
+body.premiumV30 #rosterScanDialogV48 #rosterConfirmV48{width:22px;height:22px;flex:0 0 22px;margin:2px 0;accent-color:#b9f33e}
+body.premiumV30 #rosterScanDialogV48 .rosterScanPrivacyV48{font-size:12px}
+body.premiumV30 #rosterScanDialogV48 a{color:#c1f657;text-decoration:underline}
+body.premiumV30 #rosterScanDialogV48 #rosterScanStatusV48{color:#f2f6f0;min-height:24px}
+body.premiumV30 #rosterScanDialogV48 footer{position:sticky;bottom:-24px;display:grid;grid-template-columns:1fr 2fr;gap:12px;padding:14px 0 max(14px,env(safe-area-inset-bottom));background:#11191c;border-top:1px solid #354039}
+body.premiumV30 #page-calendar .photoRosterReviewV48{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:12px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 article{padding:14px;border:1px solid #354039;border-radius:14px;background:#131c20;min-width:0}
+body.premiumV30 #page-calendar .photoRosterReviewV48 h4{font-size:14px;margin:0 0 8px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarChipV25{padding:12px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarSelectV36{display:flex;align-items:center;gap:12px;min-height:44px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarChipV25 input[type="checkbox"]{position:static;opacity:1;pointer-events:auto;flex:0 0 22px;width:22px;height:22px;margin:0;accent-color:#b9f33e}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarChipV25:has(input[type="checkbox"]:not(:checked)){opacity:.75;text-decoration:none}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarChipV25 b{font-size:14px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarChipV25 small{font-size:12px;white-space:normal}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarDateV36 input{min-height:42px;font-size:14px}
+body.premiumV30 #page-calendar .photoRosterReviewV48 .proposalCalendarDateV36 span{font-size:11px}
+body.premiumV30 #page-calendar .rosterReviewTimesV48{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+body.premiumV30 #page-calendar .rosterReviewTimesV48 label{display:grid;font-size:11px;gap:3px;min-width:0}
+body.premiumV30 #page-calendar .rosterReviewTimesV48 input{width:100%;min-width:0;min-height:42px;padding:8px;box-sizing:border-box;font-size:14px}
+@media(max-width:600px){
+ body.premiumV30 #rosterScanDialogV48{padding:0;align-items:flex-end}
+ body.premiumV30 #rosterScanDialogV48 .rosterScanSheetV48{border-radius:22px 22px 0 0;max-height:calc(100dvh - env(safe-area-inset-top) - 12px);padding:18px 16px}
+ body.premiumV30 #rosterScanDialogV48 .rosterScanFieldsV48{grid-template-columns:1fr}
+ body.premiumV30 #rosterScanDialogV48 footer{bottom:-18px}
+ body.premiumV30 #rosterScanDialogV48 .rosterScanToolsV48 button{flex:1;font-size:12px}
+}

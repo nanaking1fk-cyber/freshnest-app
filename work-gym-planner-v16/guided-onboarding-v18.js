@@ -460,23 +460,12 @@
     document.getElementById('guidedStatus').textContent='Building your calendar…';
     try{
       const plan=A.buildDeterministicPlan(answers);
-      // The local planner is instant and reliable. Save it before any network
-      // request so a slow AI refinement can never strand the setup screen.
+      // Initial setup stays local; cloud sync follows only when already allowed.
       A.applyPersonalizedPlan(answers,plan);
       clearDraft();
       window.dispatchEvent(new CustomEvent('wgc:profile-ready'));
-      showPreview(answers,plan,true);
+      showPreview(answers,plan,false);
       A.pushState?.({quiet:true}).catch(function(){});
-      if(A.session&&A.config?.aiConfigured&&answers.training.mode!=='existing'){
-        A.authedFetch('onboarding',{method:'POST',body:JSON.stringify({answers:answers,deterministicPlan:plan})})
-          .then(function(result){
-            if(!result.plan)return;
-            A.applyPersonalizedPlan(answers,result.plan);
-            if(document.getElementById('guidedOnboarding')?.classList.contains('open'))showPreview(answers,result.plan,false);
-            A.pushState?.({quiet:true}).catch(function(){});
-          })
-          .catch(function(error){window.recordDiagnostic?.('guided-ai-onboarding',error)});
-      }
     }catch(error){
       document.getElementById('guidedStatus').textContent=error.message||'We could not build the plan yet.';
     }finally{

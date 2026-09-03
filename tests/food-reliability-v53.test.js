@@ -57,3 +57,27 @@ test('a cancelled or different-account meal scan cannot stage late foods',async(
   finish({items:[{name:'Late meal',defaultGrams:100,per100:{cal:100}}]});await pending;assert.equal(h.staged.length,0);
  }
 });
+test('cancellation or account change while consent is open never sends the photo',async()=>{
+ for(const change of ['resetMealScan()',"WGC18.session={user:{id:'other'}}"]){
+  const h=harness();let approve,calls=0;h.run("mealScanImageDataUrl='data:image/jpeg;base64,sample'");
+  h.context.WGC18.ensureHealthConsent=()=>new Promise(resolve=>approve=resolve);
+  h.context.WGC18.authedFetch=async()=>{calls++;return{items:[]}};
+  const pending=h.context.analyzeMealPhoto();h.run(change);approve(true);await pending;
+  assert.equal(calls,0);assert.equal(h.run('mealScanImageDataUrl'),'');assert.equal(h.element('analyzeMealPhoto').disabled,true);
+ }
+});
+test('cancelled, replaced and different-account photo reads cannot reappear',async()=>{
+ for(const change of ['resetMealScan()',"WGC18.session={user:{id:'other'}}","prepareMealScan(null)"]){
+  const h=harness();let finish;
+  h.context.FileReader=class{readAsDataURL(){finish=()=>{this.result='data:image/jpeg;base64,old';this.onload()}}};
+  const pending=h.context.prepareMealScan({type:'image/jpeg',size:10});h.run(change);finish();await pending;
+  assert.equal(h.run('mealScanImageDataUrl'),'');assert.equal(h.element('mealScanPreview').hidden,true);assert.equal(h.element('analyzeMealPhoto').disabled,true);
+ }
+});
+test('late scan failures do not show the previous account photo or error',async()=>{
+ const h=harness();let reject,started;const sending=new Promise(resolve=>started=resolve);
+ h.run("mealScanImageDataUrl='data:image/jpeg;base64,sample'");
+ h.context.WGC18.authedFetch=()=>{started();return new Promise((resolve,fail)=>reject=fail)};
+ const pending=h.context.analyzeMealPhoto();await sending;h.run("WGC18.session={user:{id:'other'}}");reject(Error('Previous account error'));await pending;
+ assert.equal(h.run('mealScanImageDataUrl'),'');assert.doesNotMatch(h.element('mealScanStatus').textContent,/Previous account error/);assert.equal(h.element('analyzeMealPhoto').disabled,true);
+});

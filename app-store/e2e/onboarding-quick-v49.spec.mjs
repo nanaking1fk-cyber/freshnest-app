@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+test.use({browserName:process.env.E2E_BROWSER||'chromium'});
 
 async function setup(page,{draft=null}={}){
  const errors=[];page.on('pageerror',error=>errors.push(error.message));let cloud=null;
@@ -9,7 +10,8 @@ async function setup(page,{draft=null}={}){
  });
  await page.route('**/api/**',async route=>{
   const path=new URL(route.request().url()).pathname;let value={ok:true};
-  if(path.endsWith('/config'))value={ok:true,cloudConfigured:true,aiConfigured:false,supabaseUrl:'https://example.test',supabaseAnonKey:'fixture'};
+  if(path.endsWith('/config'))value={ok:true,cloudConfigured:true,aiConfigured:true,supabaseUrl:'https://example.test',supabaseAnonKey:'fixture'};
+  if(path.endsWith('/onboarding'))errors.push('Unexpected automatic AI refinement');
   if(path.endsWith('/health-consent'))value={ok:true,receipt:{action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync']}};
   if(path.endsWith('/state')&&route.request().method()==='PUT'){cloud=route.request().postDataJSON().state;return route.fulfill({status:200,json:{ok:true,updatedAt:new Date().toISOString()}})}
   if(path.endsWith('/state'))value={ok:true,state:cloud,updatedAt:cloud?'2026-09-03T12:00:00Z':null};

@@ -94,6 +94,12 @@ test('cloud restore and password recovery still block both onboarding entry poin
   h.A.canStartOnboarding=()=>true;h.A.passwordRecovery=true;h.A[entry]();assert.equal(h.opened.length,0);
  }
 });
+test('signed-in quick setup never starts an unsolicited AI refinement',async()=>{
+ const h=harness({saved:legacy(0,'calendar')});h.A.session={user:{id:'fixture'}};h.A.config={aiConfigured:true};h.A.canStartOnboarding=()=>true;
+ h.A.authedFetch=()=>assert.fail('initial setup must not call AI');
+ h.A.openOnboarding();await h.A.test.goNext();await h.A.test.goNext();await h.A.test.goNext();
+ assert.equal(h.applied.length,1);assert.doesNotMatch(h.el('guidedStatus').textContent,/refining/);
+});
 
 test('a late automatic startup cannot interrupt an already open setup or clear its validation',()=>{
  const h=harness();h.A.openOnboarding();h.el('guidedOnboarding').classList.add('open');
@@ -104,8 +110,8 @@ test('a late automatic startup cannot interrupt an already open setup or clear i
 
 test('production and offline loaders ship the three-step flow and its scoped styles',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
-  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-calendar54'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-calendar54'));
+  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-free57'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-free57'));
  }
- for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-calendar54'));
+ for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-free57'));
  const css=read('work-gym-planner-v16/app-v30.css');assert.match(css,/body\.premiumV30 #guidedOnboarding\.guidedQuickV49 \.guidedFieldGrid/);
 });

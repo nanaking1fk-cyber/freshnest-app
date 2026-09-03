@@ -120,7 +120,7 @@ test('consent module is ordered before autosync and remains in offline/native re
 
 test('published policy describes the implemented global consent controls',()=>{
   const privacy=read('work-gym-planner/privacy.html');
-  assert.match(privacy,/Version:<\/strong> 1\.5/);
+  assert.match(privacy,/Version:<\/strong> 1\.6/);
   assert.match(privacy,/explains the requested use in plain language/);
   assert.match(privacy,/Selecting “Not now”/);
   assert.match(privacy,/consent version, policy version, selected purposes, statement, locale and time/);

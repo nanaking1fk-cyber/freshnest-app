@@ -16,7 +16,7 @@ window.WGC18=window.WGC18||{};
  A.config={loaded:false,cloudConfigured:false,aiConfigured:false,supabaseUrl:null,supabaseAnonKey:null,apiVersion:18};
  A.session=null;A.apiBase='';A.syncTimer=null;A.authBusy=false;A.passwordRecovery=sessionStorage.getItem(RECOVERY_KEY)==='1';
  A.accountState='checking';A.cloudStateReady=false;A.cloudStateOwner=null;A.cloudRevision=null;
- let accountLoad=null;
+ let accountLoad=null,sessionRefresh=null;
  const BASELINE_PREFIX='wgc-v44-cloud-revision:',PROTECTED_PREFIX='wgc-v44-protected-copy:';
  const accountModulesReady=new Promise(resolve=>{if(document.readyState==='complete')resolve();else document.addEventListener('DOMContentLoaded',resolve,{once:true})});
  A.canStartOnboarding=()=>!A.session||A.accountState==='ready'||A.accountState==='local';
@@ -48,9 +48,34 @@ window.WGC18=window.WGC18||{};
   update();if(recoveryCooldown()>0)button._recoveryTimer=setInterval(update,1000);
  }
  async function loadConfig(){A.apiBase=absoluteApiBase();if(!A.apiBase){A.config.loaded=true;renderAccountUI();return A.config}try{let j=await raw(A.api('config'));A.config={...A.config,...j,loaded:true};return A.config}catch(e){A.config.loaded=true;A.config.error=e.message;return A.config}finally{renderAccountUI()}}
- async function refreshSession(){let s=A.session;if(!s?.refresh_token||!A.config.supabaseUrl)return null;try{let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});saveSession(j);return j}catch(e){lockPlannerForLoggedOut();saveSession(null);throw e}}
+ function refreshSession(){
+  const s=A.session;if(!s?.refresh_token||!A.config.supabaseUrl)return Promise.resolve(null);
+  if(sessionRefresh?.token===s.refresh_token)return sessionRefresh.promise;
+  const task={token:s.refresh_token};
+  task.promise=(async()=>{
+   try{
+    const j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+    if(A.session?.refresh_token!==s.refresh_token)return A.session;
+    saveSession(j);return j;
+   }catch(error){
+    // A network outage is not a sign-out. Nor may an old request sign out a new login.
+    if(A.session?.refresh_token===s.refresh_token&&[400,401,403].includes(error.status)){lockPlannerForLoggedOut();saveSession(null)}
+    throw error;
+   }finally{if(sessionRefresh===task)sessionRefresh=null}
+  })();sessionRefresh=task;return task.promise;
+ }
  A.accessToken=async function(){if(!A.session)return null;if(sessionExpired())await refreshSession();return A.session?.access_token||null};
- A.authedFetch=async function(path,opt={},retry=true){let token=await A.accessToken();if(!token)throw Error('Sign in required.');let headers={...(opt.headers||{}),Authorization:`Bearer ${token}`,'Content-Type':'application/json'};let r=await fetch(A.api(path),{...opt,headers}),txt=await r.text(),j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:txt}}}if((r.status===401||r.status===403)&&retry&&A.session?.refresh_token){try{await refreshSession()}catch(e){lockPlannerForLoggedOut();saveSession(null);throw e}return A.authedFetch(path,opt,false)}if((r.status===401||r.status===403)&&!retry){lockPlannerForLoggedOut();saveSession(null)}if(!r.ok||j.ok===false){let error=Error(j.error||j.message||`Request failed (${r.status})`);error.code=j.code||null;error.status=r.status;throw error}return j};
+ A.authedFetch=async function(path,opt={},retry=true){
+  const uid=A.session?.user?.id,token=await A.accessToken();
+  if(!token||A.session?.user?.id!==uid)throw Error('Sign in again to continue.');
+  const headers={...(opt.headers||{}),Authorization:`Bearer ${token}`,'Content-Type':'application/json'};
+  const r=await fetch(A.api(path),{...opt,headers}),txt=await r.text();let j={};if(txt){try{j=JSON.parse(txt)}catch{j={error:'The account service returned an unexpected response.'}}}
+  if(A.session?.user?.id!==uid)throw Error('Your account changed. Please try again.');
+  if(r.status===401&&retry&&A.session?.refresh_token){if(A.session.access_token===token)await refreshSession();return A.authedFetch(path,opt,false)}
+  if(r.status===401){lockPlannerForLoggedOut();saveSession(null)}
+  if(!r.ok||j.ok===false){const error=Error(j.error||j.message||`Request failed (${r.status})`);error.code=j.code||null;error.status=r.status;error.requestId=r.headers?.get?.('x-request-id')||null;throw error}
+  return j;
+ };
  async function signIn(email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');let j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password})});clearRecoveryFlag();saveSession(j);await afterAuth();return j}
  function authRedirectUrl(purpose='signup'){let url=new URL('/work-gym-planner/','https://www.workandworkout.com');url.searchParams.set('auth',purpose==='recovery'?'recovery':'signup');return url.href}
  async function signUp(name,email,password){if(!A.config.cloudConfigured)throw Error('Account server is not configured yet.');if(!passwordStrong(password))throw Error('Use 12+ characters with uppercase, lowercase, a number and a symbol.');let target=encodeURIComponent(authRedirectUrl('signup')),challenge=await beginPkce('signup'),j=await raw(`${A.config.supabaseUrl}/auth/v1/signup?redirect_to=${target}`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({email,password,data:{display_name:name||''},code_challenge:challenge,code_challenge_method:'s256'})});if(j.access_token){saveSession(j);await afterAuth()}else lockPlannerForLoggedOut();return j}
@@ -92,7 +117,14 @@ window.WGC18=window.WGC18||{};
  function localDataCount(){return Object.keys(captureLocalState().storage).length}
  function restoreCloudState(state,{snapshot=true}={}){if(!state?.storage||typeof state.storage!=='object')throw Error('No compatible cloud data found.');let recovery=null;if(snapshot){createRecoverySnapshot?.('before-cloud-restore');recovery=localStorage.getItem(K.recovery)}clearLocalPlanner();let count=0;for(const [k,v] of Object.entries(state.storage)){if(isPlannerKey(k)){localStorage.setItem(k,String(v));count++}}if(recovery)localStorage.setItem(K.recovery,recovery);localStorage.removeItem(K.migrated);return count}
  A.pushState=async function({quiet=false}={}){if(!A.session)return false;if(!A.cloudStateReady){if(quiet)return false;await A.resumeAccount?.();if(!A.cloudStateReady)return false}A.assertCloudReady();if(!await A.ensureHealthConsent?.({interactive:!quiet,purpose:'account_cloud_sync'}))return false;let state=A.captureLocalState(),j=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state,baseUpdatedAt:A.cloudRevision})});A.acceptCloudRevision(j.updatedAt);localStorage.setItem(LAST_SYNC_KEY,j.updatedAt||new Date().toISOString());if(!quiet){status('Your account is synced.');toast('Account sync complete')}renderAccountUI();return true};
- A.pullState=async function(){await afterAuth({forceCloud:true});if(!A.cloudStateReady)throw Error('Your cloud account has not been loaded. Nothing has been overwritten.');return localDataCount()};
+ A.pullState=async function(){
+  // A restore clicked while a consent/login check is finishing must still perform its own read.
+  if(accountLoad)await accountLoad;
+  const result=await afterAuth({forceCloud:true});
+  if(!result?.ok)throw Error(result?.message||'Your cloud account has not been loaded. Nothing has been overwritten.');
+  if(result.empty)throw Error('There is no saved planner in this cloud account yet. Your device data has not been replaced.');
+  toast('Your saved planner has been restored.');return localDataCount();
+ };
  A.queueSync=function(){if(!A.session)return;clearTimeout(A.syncTimer);A.syncTimer=setTimeout(()=>A.pushState({quiet:true}).catch(e=>recordDiagnostic?.('account-sync',e)),1500)};
  function stateFingerprint(state){return JSON.stringify(Object.entries(state?.storage||{}).filter(([key])=>window.WGC23Core?.isPlannerKey(key,PREFIX)!==false&&![K.migrated,K.recovery,K.diagnostics].includes(key)).sort(([a],[b])=>a.localeCompare(b)))}
  function finishAccountLoad(remote){
@@ -101,7 +133,7 @@ window.WGC18=window.WGC18||{};
   try{localStorage.setItem(BASELINE_PREFIX+uid,JSON.stringify(A.cloudRevision))}catch{}
   renderAccountUI();window.renderAll?.();
   if(profile())window.dispatchEvent(new CustomEvent('wgc:profile-ready'));
-  else setTimeout(()=>{if(A.canStartOnboarding()&&!A.passwordRecovery)A.openOnboarding?.({auto:true})},150);
+  else setTimeout(()=>{if(!profile()&&A.canStartOnboarding()&&!A.passwordRecovery)A.openOnboarding?.({auto:true})},150);
  }
  async function afterAuth({forceCloud=false}={}){
   if(accountLoad)return accountLoad;
@@ -129,6 +161,11 @@ window.WGC18=window.WGC18||{};
     if(A.session?.user?.id!==uid)return;
     if(!remote||!Object.prototype.hasOwnProperty.call(remote,'state')||(remote.state!==null&&(!remote.state?.storage||typeof remote.state.storage!=='object'||Array.isArray(remote.state.storage)||!remote.updatedAt)))throw Error('The saved-account response was incomplete.');
     const local=A.captureLocalState?.()||captureLocalState();
+    if(forceCloud&&!meaningfulState(remote.state)){
+     setAccountState('choice');
+     const message='There is no saved planner in this cloud account yet. Your device data has not been replaced.';
+     status(message,true);return {ok:false,empty:true,message};
+    }
     let baseline;try{baseline=JSON.parse(localStorage.getItem(BASELINE_PREFIX+uid)||'null')}catch{}
     if(remote.state){
      if(!forceCloud&&meaningfulState(local)&&stateFingerprint(local)!==stateFingerprint(remote.state)&&baseline!==remote.updatedAt){
@@ -139,10 +176,14 @@ window.WGC18=window.WGC18||{};
      }
     }
     finishAccountLoad(remote);
-    status(remote.state?'Your saved account is ready.':'Your account was checked. You can safely build your plan.');
+    status(meaningfulState(remote.state)?'Your saved planner is ready.':'Your account was checked. No saved planner was found.');
+    return {ok:true,empty:!meaningfulState(remote.state)};
    }catch(error){
     if(A.session?.user?.id!==uid)return;
-    setAccountState('unavailable');openAccount('signin');status(error.name==='QuotaExceededError'?'This device needs space for a recovery copy. Export a backup before trying again; your saved account is unchanged.':'We could not load your saved account. Nothing has been overwritten. Retry when connected, or use this device only.',true);
+    const message=error.name==='QuotaExceededError'?'This device needs space for a recovery copy. Export a backup before trying again; your saved account is unchanged.':error.status===401?'Please sign in again, then choose Restore from account.':error.code==='HEALTH_CONSENT_REQUIRED'?'Turn on Sync across devices in Privacy choices, then try again.':'We could not load your saved account. Nothing has been overwritten. Check your connection and try again.';
+    setAccountState('unavailable');openAccount('signin');status(message,true);
+    window.WWObservability?.capture?.('account_restore',error,{name:'AccountRestoreError',message:'Account restore failed'});
+    return {ok:false,message};
    }
   })().finally(()=>{accountLoad=null});
   return accountLoad;
@@ -157,7 +198,7 @@ window.WGC18=window.WGC18||{};
   $('#useDeviceOnly')?.addEventListener('click',()=>{setAccountState('local');closeModal('accountDialog');window.renderAll?.();if(!profile())A.openOnboarding?.({auto:true})});
  }
  A.resumeAccount=afterAuth;
- A.assertCloudReady=function(){if(!A.cloudStateReady||A.cloudStateOwner!==A.session?.user?.id||localStorage.getItem(OWNER_KEY)!==A.session?.user?.id)throw Object.assign(Error('Load your saved account before syncing. Your cloud copy has not been changed.'),{code:'CLOUD_STATE_NOT_READY'})};
+ A.assertCloudReady=function(){if(A.deletingAccount||!A.cloudStateReady||A.cloudStateOwner!==A.session?.user?.id||localStorage.getItem(OWNER_KEY)!==A.session?.user?.id)throw Object.assign(Error('Load your saved account before syncing. Your cloud copy has not been changed.'),{code:'CLOUD_STATE_NOT_READY'})};
  A.acceptCloudRevision=function(updatedAt,uid=A.session?.user?.id){if(uid!==A.session?.user?.id||uid!==A.cloudStateOwner)return;A.cloudRevision=updatedAt||null;try{localStorage.setItem(BASELINE_PREFIX+uid,JSON.stringify(A.cloudRevision))}catch{}};
  A.pauseCloudSync=function(){setAccountState('choice');status('Your saved account changed on another device. Load it before syncing; both copies are protected.',true)};
  async function consumeAuthRedirect(){
@@ -181,6 +222,50 @@ window.WGC18=window.WGC18||{};
   }catch(e){localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);clearRecoveryFlag();openAccount('signin');status(purpose==='recovery'?'This password reset link is invalid or expired. Enter your email and request a new link.':'The confirmation link could not be completed. Request a new email in this browser.',true);return false}
  }
  A.signIn=signIn;A.signUp=signUp;A.signOut=signOut;A.recover=recover;A.captureLocalState=captureLocalState;A.restoreCloudState=restoreCloudState;
+ A.deleteAccount=async function(confirmation,expectedUserId){
+  const uid=A.session?.user?.id;
+  if(confirmation!=='DELETE ACCOUNT'||!uid||expectedUserId!==uid)throw Error('Confirm deletion for the account currently signed in.');
+  if(A.deletingAccount)return false;
+  A.deletingAccount=true;clearTimeout(A.syncTimer);clearTimeout(A._syncTimer);
+  try{
+   await A.waitForPendingSync?.();
+   if(A.session?.user?.id!==uid)throw Error('Your account changed. Please try again.');
+   const result=await A.authedFetch('account',{method:'DELETE',body:JSON.stringify({confirmation,expectedUserId:uid})});
+   if(result?.deleted!==true)throw Error('Deletion was not confirmed. Your device data has been kept.');
+   if(A.session?.user?.id!==uid)return true;
+   clearLocalPlanner();localStorage.removeItem(OWNER_KEY);localStorage.removeItem(LAST_SYNC_KEY);
+   for(const key of [cacheKey(uid),PROTECTED_PREFIX+uid,BASELINE_PREFIX+uid,'wgc-health-consent-v35:'+uid])localStorage.removeItem(key);
+   clearRecoveryFlag();saveSession(null);return true;
+  }finally{A.deletingAccount=false}
+ };
+ function accountAction(kind){
+  const uid=A.session?.user?.id;if(!uid)return openAccount('signin');
+  const deleting=kind==='delete';
+  let modal=$('#accountActionDialog');
+  if(!modal){document.body.insertAdjacentHTML('beforeend','<div id="accountActionDialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountActionTitle"><div class="sheet largeSheet"><h2 id="accountActionTitle"></h2><div id="accountActionBody"></div></div></div>');modal=$('#accountActionDialog')}
+  $('#accountActionTitle').textContent=deleting?'Delete your account?':'Restore your saved planner?';
+  $('#accountActionBody').innerHTML=`<p>${deleting?'This permanently deletes your account and its saved cloud data. It cannot be undone.':'Load the planner saved to your account. We will keep a recovery copy of this device first. If the cloud copy is empty, we will not replace your data.'}</p><p><b>${esc(accountEmail())}</b></p>${deleting?'<label>Type DELETE ACCOUNT to confirm<input id="accountDeleteConfirm" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>':''}<p id="accountActionStatus" role="status" aria-live="polite"></p><div class="sheetActions"><button id="accountActionCancel">Cancel</button><button id="accountActionConfirm" class="${deleting?'danger':'primary'}" ${deleting?'disabled':''}>${deleting?'Delete account permanently':'Restore planner'}</button></div>`;
+  let busy=false;
+  const cancel=()=>{if(!busy){closeModal('accountActionDialog');openAccount('signin')}};
+  $('#accountActionCancel').onclick=cancel;
+  modal.onclick=event=>{if(event.target===modal)cancel()};
+  modal.onkeydown=event=>{if(event.key==='Escape'){event.preventDefault();cancel()}};
+  const input=$('#accountDeleteConfirm'),button=$('#accountActionConfirm');
+  if(input)input.oninput=()=>{button.disabled=input.value.trim()!=='DELETE ACCOUNT'};
+  button.onclick=async()=>{
+   if(busy)return;if(A.session?.user?.id!==uid)return cancel();
+   busy=true;button.disabled=true;$('#accountActionCancel').disabled=true;
+   $('#accountActionStatus').textContent=deleting?'Deleting your account…':'Loading your saved planner…';
+   try{
+    if(deleting){await A.deleteAccount(input.value.trim(),uid);closeModal('accountActionDialog');status('Your account and its local planner copy were deleted.');toast('Account deleted');setTimeout(()=>location.reload(),250)}
+    else{await A.pullState();closeModal('accountActionDialog');closeModal('accountDialog')}
+   }catch(error){
+    $('#accountActionStatus').textContent=error.message||'We could not finish. Please try again.';
+    window.WWObservability?.capture?.(deleting?'account_delete':'account_restore',error,{name:deleting?'AccountDeleteError':'AccountRestoreError',message:deleting?'Account deletion failed':'Account restore failed'});
+   }finally{busy=false;button.disabled=deleting&&input.value.trim()!=='DELETE ACCOUNT';$('#accountActionCancel').disabled=false}
+  };
+  closeModal('accountDialog');openModal('accountActionDialog');
+ }
  function accountEmail(){return A.session?.user?.email||A.session?.user?.user_metadata?.email||''}
  function renderAccountUI(){let signed=!!A.session?.access_token,body=$('#accountBody'),chip=$('#accountChip');$('#signOutQuick')?.remove();if(chip){chip.textContent=signed?(accountEmail()||'Account'):'Sign in';chip.classList.toggle('signed',signed)}if(!body)return;if(!A.config.loaded){body.innerHTML='<p class="muted">Checking account service…</p>';return}if(!A.config.cloudConfigured){body.innerHTML='<div class="accountUnavailable"><b>Cloud accounts are temporarily unavailable.</b><p>The secure account service is not configured on this deployment. No alternate API destination can receive your sign-in token.</p></div>';return}if(!signed){body.innerHTML=`<div class="authTabs"><button type="button" data-auth-tab="signin" class="active">Sign in</button><button type="button" data-auth-tab="signup">Create account</button></div><form id="signinPane" class="authPane" autocomplete="on"><label>Email<input id="loginEmail" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label><label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" required></label><button id="loginBtn" type="submit" class="primary wideBtn">Sign in</button><button id="recoverBtn" type="button" class="linkBtn">Forgot password?</button></form><form id="signupPane" class="authPane hidden" autocomplete="on"><label>Name<input id="signupName" name="name" autocomplete="name" required maxlength="80"></label><label>Email<input id="signupEmail" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label><label>Password<input id="signupPassword" name="new-password" type="password" minlength="12" autocomplete="new-password" required></label><small>Use 12+ characters with uppercase, lowercase, a number and a symbol.</small><button id="signupBtn" type="submit" class="primary wideBtn">Create account</button><p class="muted">Your one-time PKCE confirmation code returns only to workandworkout.com. Every account starts with a private, empty planner.</p></form>`;$$('[data-auth-tab]').forEach(b=>b.onclick=()=>{$$('[data-auth-tab]').forEach(x=>x.classList.toggle('active',x===b));$('#signinPane').classList.toggle('hidden',b.dataset.authTab!=='signin');$('#signupPane').classList.toggle('hidden',b.dataset.authTab!=='signup')});$('#signinPane').onsubmit=async event=>{event.preventDefault();if(A.authBusy)return;let email=$('#loginEmail'),password=$('#loginPassword');if(!email.checkValidity()||!password.value)return status('Enter a valid email and password.',true);A.authBusy=true;status('Signing in…');try{await signIn(email.value.trim(),password.value);if(A.canStartOnboarding())closeModal('accountDialog');toast('Signed in')}catch(e){status(e.message,true)}finally{A.authBusy=false}};$('#signupPane').onsubmit=async event=>{event.preventDefault();if(A.authBusy)return;let name=$('#signupName'),email=$('#signupEmail'),password=$('#signupPassword');if(!name.value.trim())return status('Enter your name.',true);if(!email.checkValidity())return status('Enter a valid email address.',true);if(!passwordStrong(password.value))return status('Use 12+ characters with uppercase, lowercase, a number and a symbol.',true);A.authBusy=true;status('Creating account…');try{let j=await signUp(name.value.trim(),email.value.trim(),password.value);if(!j.access_token)status('Account created. Open the confirmation email in this browser to finish securely.');else{closeModal('accountDialog');toast('Account created')}}catch(e){status(e.message,true)}finally{A.authBusy=false}};let recoverButton=$('#recoverBtn');runRecoveryCountdown(recoverButton);recoverButton.onclick=async()=>{let email=$('#loginEmail');if(A.authBusy||recoveryCooldown())return runRecoveryCountdown(recoverButton);if(!email.checkValidity())return status('Enter a valid email first.',true);A.authBusy=true;recoverButton.disabled=true;recoverButton.textContent='Sending reset email…';try{await recover(email.value.trim());status('Password reset email sent. Open the newest email in this browser to continue securely.')}catch(e){status(e.message,true)}finally{A.authBusy=false;runRecoveryCountdown(recoverButton)}};return}
  let last=localStorage.getItem(LAST_SYNC_KEY),when=last?new Date(last).toLocaleString():'Never';
@@ -190,15 +275,11 @@ window.WGC18=window.WGC18||{};
  if($('#startOnboardingAccount'))$('#startOnboardingAccount').disabled=!A.canStartOnboarding();
  $('#recoveryPasswordForm')?.addEventListener('submit',async event=>{event.preventDefault();let value=$('#recoveryNewPassword').value;if(!passwordStrong(value))return status('Use 12+ characters with uppercase, lowercase, a number and a symbol.',true);try{let token=await A.accessToken();await raw(`${A.config.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password:value})});sessionStorage.removeItem(RECOVERY_KEY);A.passwordRecovery=false;status('Password updated.');renderAccountUI();toast('Password updated securely');await afterAuth()}catch(e){status(e.message,true)}});
  $('#migrateDevice').onclick=async()=>{if(!confirm(`Upload this device's ${localDataCount()} planner records to your signed-in account?`))return;status('Migrating this device…');try{await A.pushState()}catch(e){status(e.message,true)}};
- $('#restoreAccount').onclick=async()=>{if(!confirm('Replace this device planner data with the cloud copy? A recovery snapshot will be made first.'))return;status('Restoring…');try{await A.pullState()}catch(e){status(e.message,true)}};
+ $('#restoreAccount').onclick=()=>accountAction('restore');
  $('#syncAccount').onclick=async()=>{status('Syncing…');try{await A.pushState()}catch(e){status(e.message,true)}};
  $('#startOnboardingAccount').onclick=()=>{closeModal('accountDialog');window.WGC18?.openOnboarding?.()};
  $('#signOutAccount').onclick=signOut;
- $('#deleteCloudAccount').onclick=async()=>{
-  if(prompt('Type DELETE ACCOUNT to permanently delete your cloud account:')!=='DELETE ACCOUNT')return;
-  const uid=A.session?.user?.id;
-  try{await A.authedFetch('account',{method:'DELETE'});clearLocalPlanner();localStorage.removeItem(OWNER_KEY);if(uid){localStorage.removeItem(cacheKey(uid));localStorage.removeItem(PROTECTED_PREFIX+uid);localStorage.removeItem(BASELINE_PREFIX+uid)}saveSession(null);status('Account and its local planner copy were deleted.');toast('Account deleted');setTimeout(()=>location.reload(),250)}catch(e){status(e.message,true)}
- }
+ $('#deleteCloudAccount').onclick=()=>accountAction('delete');
  }
  function openAccount(mode='signin'){renderAccountUI();if(location.protocol==='file:'){let body=$('#accountBody');if(body)body.innerHTML='<div class="accountUnavailable"><b>This is a local preview.</b><p>Accounts and private cloud sync only work on the secure live website.</p><a class="primary wideBtn accountLiveLink" href="https://www.workandworkout.com/">Open the secure website</a></div>';openModal('accountDialog');return}openModal('accountDialog');let tries=0,timer=setInterval(()=>{let tab=$(`[data-auth-tab="${mode}"]`);if(tab){tab.click();clearInterval(timer)}else if(++tries>8)clearInterval(timer)},100)}
  A.openAccount=openAccount;A.renderAccountUI=renderAccountUI;

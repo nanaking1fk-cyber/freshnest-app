@@ -15,13 +15,14 @@ window.WGC18=window.WGC18||{};
  // the same privacy filter before sending state through the authenticated API.
  window.exportState18=secureCapture;
  let pendingPush=null;
+ A.waitForPendingSync=()=>pendingPush?.catch(()=>{});
  A.pushState=function(options={}){
    if(pendingPush)return pendingPush;
    pendingPush=pushState(options).finally(()=>{pendingPush=null});
    return pendingPush;
  };
  async function pushState({quiet=false}={}){
-   if(!A.session)return false;
+   if(!A.session||A.deletingAccount)return false;
    const uid=A.session.user.id;
    if(!A.cloudStateReady){if(quiet)return false;await A.resumeAccount?.();if(!A.cloudStateReady)return false}
    A.assertCloudReady();

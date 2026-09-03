@@ -9,7 +9,7 @@ for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
     const listeners={},cached={source:'cached'};let fetched=0;
     vm.runInNewContext(read(file),{self:{addEventListener:(name,handler)=>listeners[name]=handler},caches:{match:async()=>cached},fetch:async()=>{fetched++;throw Error('must not fetch')},URL,location:{origin:'https://example.test'}});
     let response;
-    listeners.fetch({request:{method:'GET',url:'https://example.test/script.js?v=account44',headers:new Headers()},respondWith:value=>response=value});
+    listeners.fetch({request:{method:'GET',url:'https://example.test/script.js?v=account45',headers:new Headers()},respondWith:value=>response=value});
     assert.equal(await response,cached);assert.equal(fetched,0);
   });
   test(file+' downloads optional tools on demand and leaves API traffic uncached',async()=>{

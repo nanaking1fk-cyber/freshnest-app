@@ -479,6 +479,7 @@
     if(A.passwordRecovery){A.openAccount?.('signin');return}
     if(A.session&&A.canStartOnboarding?.()===false){if(!options?.auto)A.openAccount?.('signin');return}
     const automatic=!!(options&&options.auto);
+    if(automatic&&typeof profile==='function'&&profile())return;
     if(automatic){try{if(sessionStorage.getItem(pausedSessionKey())==='1')return}catch{}}
     else try{sessionStorage.removeItem(pausedSessionKey())}catch{}
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}

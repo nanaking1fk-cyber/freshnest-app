@@ -11,7 +11,7 @@ window.WGC18=window.WGC18||{};
   personalized_ai:{title:'Personalized AI help',question:'Use personalized AI help?',allow:'Allow AI help',detail:'Share only the parts of your plan needed to answer your question when you use an AI feature.'},
   meal_scan_ai:{title:'Meal Scan',question:'Use Meal Scan?',allow:'Allow Meal Scan',detail:'Send only the meal photo you choose to our AI service to estimate foods and portions. We do not keep the photo.'}
  };
- let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null,showAllChoices=false;
+ let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null,showAllChoices=false,receiptRevision=0,refreshSequence=0;
  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  function owner(){return A.session?.user?.id||'device'}
  function key(){return LOCAL_PREFIX+owner()}
@@ -24,18 +24,21 @@ window.WGC18=window.WGC18||{};
  function refreshAccountUI(){A.renderAccountUI?.();window.dispatchEvent(new CustomEvent('wgc:health-consent-change',{detail:{activePurposes:activePurposes()}}))}
  async function refresh({render=true}={}){
   if(!A.session){writeLocal(readLocal());if(render)refreshAccountUI();return receipt}
+  const uid=owner(),revision=receiptRevision,sequence=++refreshSequence;
   const response=await A.authedFetch('health-consent');
+  if(uid!==owner()||revision!==receiptRevision||sequence!==refreshSequence)return receipt;
   writeLocal(response.receipt||null);
   if(render)refreshAccountUI();
   return receipt
  }
  async function record(action,purposes=[]){
-  let value;
+  let value;const uid=owner();receiptRevision++;
   if(A.session){
    const response=await A.authedFetch('health-consent',{method:'POST',body:JSON.stringify({action:action==='granted'?'grant':'withdraw',confirmed:action==='granted',purposes,consentVersion:CONSENT_VERSION,locale:navigator.language||null})});
    value=response.receipt
   }else value=localReceipt(action,purposes);
-  writeLocal(value);
+  if(uid!==owner())throw Error('Your account changed. Please review your choices again.');
+  receiptRevision++;writeLocal(value);
   refreshAccountUI();
   return value
  }
@@ -93,7 +96,7 @@ window.WGC18=window.WGC18||{};
   }
   if(active(purpose)&&!force)return true;
   if(!interactive)return false;
-  if(pending)return pending.promise;
+  if(pending){await pending.promise;return active(purpose)}
   return openChoice(purpose,{showAll:force})
  }
  async function withdraw(){
@@ -115,7 +118,7 @@ window.WGC18=window.WGC18||{};
   return`<div id="healthConsentPanel" class="healthConsentPanel ${on?'on':'local'}"><div><b>${on?'Privacy choices':'On-device only'}</b><small>${on?esc(labels):'Cloud backup and AI features stay off until you choose them.'}</small></div><button id="manageHealthConsent">${on?'Manage':'Review choices'}</button>${on?'<button id="withdrawHealthConsent" class="danger">Turn off all</button>':''}<a href="${esc(legalPage('privacy.html','#health'))}" target="_blank" rel="noopener noreferrer">Privacy &amp; health data</a></div>`
  }
  function bindPanel(){
-  $('#manageHealthConsent')?.addEventListener('click',()=>ensure({interactive:true,purpose:'account_cloud_sync',force:true}));
+  $('#manageHealthConsent')?.addEventListener('click',async()=>{const allowed=await ensure({interactive:true,purpose:'account_cloud_sync',force:true});if(allowed&&A.session&&!A.cloudStateReady)await A.resumeAccount?.()});
   $('#withdrawHealthConsent')?.addEventListener('click',withdraw)
  }
  function inject(){
@@ -132,7 +135,12 @@ window.WGC18=window.WGC18||{};
   $('#healthConsentDialog').addEventListener('click',event=>{if(event.target.id==='healthConsentDialog')closeChoice(false)})
  }
  window.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('#healthConsentDialog')?.classList.contains('open'))closeChoice(false)},true);
- window.addEventListener('wgc:authchange',()=>{receipt=null;loadedOwner=null;setTimeout(()=>refresh().catch(()=>refreshAccountUI()),0)});
+ window.addEventListener('wgc:authchange',()=>{
+  if(loadedOwner===owner())return; // Refreshing a token is not a different account.
+  receiptRevision++;receipt=null;loadedOwner=null;
+  if(pending)closeChoice(false);
+  setTimeout(()=>refresh().catch(()=>refreshAccountUI()),0)
+ });
  A.healthConsentVersion=CONSENT_VERSION;
  A.ensureHealthConsent=ensure;
  A.ensureHealthConsentForCloud=options=>ensure({...options,purpose:options?.purpose||'account_cloud_sync'});

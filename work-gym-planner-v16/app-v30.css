@@ -966,3 +966,12 @@ body.premiumV30 #healthDialog #nativeStepStatus.error{color:#ff9e95}
   body.premiumV30 #healthDialog .nativeStepActions{display:grid;grid-template-columns:1fr 1fr}
   body.premiumV30 #healthDialog .nativeStepActions .danger{grid-column:1/-1;margin:0}
 }
+/* Account confirmations stay usable in browser and native app webviews. */
+body.premiumV30 #healthConsentDialog { z-index: 12000; }
+body.premiumV30 #accountActionDialog { z-index: 11000; }
+body.premiumV30 #accountActionDialog .sheet { width: min(100% - 24px, 540px); max-height: calc(100dvh - 32px); overflow-y: auto; padding: 24px; margin: auto; }
+body.premiumV30 #accountActionDialog p { line-height: 1.6; overflow-wrap: anywhere; }
+body.premiumV30 #accountActionDialog label { display: grid; gap: 10px; }
+body.premiumV30 #accountActionDialog input { width: 100%; box-sizing: border-box; font-size: 16px; }
+body.premiumV30 #accountActionDialog .sheetActions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: sticky; bottom: 0; padding-top: 16px; background: var(--card, #121920); }
+body.premiumV30 #accountActionDialog button { min-height: 48px; white-space: normal; }

@@ -7,7 +7,7 @@ APP_VERSION='24.0.1';
   let title=$('.topbar h1');if(title)title.textContent='Work + Workout';
   let intro=$('#onboardingIntro');if(intro&&!profile()){let b=intro.querySelector('b'),p=intro.querySelector('p');if(b)b.textContent='Build a plan around your real life.';if(p)p.textContent='Create an account, answer a few questions about work, commute, sleep, commitments, training and familiar foods, and Work + Workout will build your starting plan.'}
   let cards=$('#page-more .menuCards');if(cards){let old=[...cards.querySelectorAll('button')].find(x=>x.dataset.open==='cloud');if(old){old.style.display='none';old.setAttribute('aria-hidden','true')}}
-  if(!profile()&&window.WGC18?.session&&localStorage.getItem(PREFIX+'onboarding-v18')==null)setTimeout(()=>window.WGC18.openOnboarding?.({auto:true}),500);
+  if(!profile()&&window.WGC18?.session&&localStorage.getItem(PREFIX+'onboarding-v18')==null)setTimeout(()=>{if(!profile()&&window.WGC18?.session&&window.WGC18.canStartOnboarding?.()!==false)window.WGC18.openOnboarding?.({auto:true})},500);
  }
  upgrade();document.addEventListener('DOMContentLoaded',()=>setTimeout(upgrade,180));
 })();

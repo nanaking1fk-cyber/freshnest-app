@@ -13,7 +13,7 @@ function internalAnchors(html){
 test('privacy policy identifies the operator and gives a private rights channel',()=>{
   const privacy=read('work-gym-planner/privacy.html');
   assert.match(privacy,/Privacy &amp; Consumer Health Data Policy/);
-  assert.match(privacy,/Effective:<\/strong> September 1, 2026/);
+  assert.match(privacy,/Effective:<\/strong> September 2, 2026/);
   assert.match(privacy,/Bibinii Farms Company Ltd/);
   assert.match(privacy,/Accra, Ghana/);
   assert.match(privacy,/info@bibiniifarms\.com/);

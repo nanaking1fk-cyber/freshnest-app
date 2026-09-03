@@ -51,9 +51,9 @@ test('a 429 from the auth service is still passed through',async()=>{
 
 test('the browser treats a rejected session as recoverable, then final',()=>{
   const account=read('work-gym-planner-v16/accounts-v18.js');
-  assert.match(account,/\(r\.status===401\|\|r\.status===403\)&&retry/,
+  assert.match(account,/r\.status===401&&retry/,
     'both statuses must trigger the refresh attempt');
-  assert.match(account,/\(r\.status===401\|\|r\.status===403\)&&!retry/,
+  assert.match(account,/if\(r\.status===401\)\{lockPlannerForLoggedOut\(\);saveSession\(null\)\}/,
     'a second rejection must end the session rather than loop');
   assert.match(account,/lockPlannerForLoggedOut\(\);saveSession\(null\)/,
     'the stale session must be cleared, not retried forever');

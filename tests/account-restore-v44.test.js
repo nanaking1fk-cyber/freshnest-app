@@ -22,7 +22,7 @@ function harness({local={},consent=true,response=remote('Saved user'),secure=fal
   const source=read('work-gym-planner-v16/accounts-v18.js');
   // Load the actual module functions without browser startup or CSS injection.
   vm.runInContext(source.slice(0,source.indexOf(' loadSession();if(!A.session)'))+'A.testConsumeAuthRedirect=consumeAuthRedirect;})(window.WGC18);',context);
-  const A=context.WGC18;A.session={access_token:'test',user:{id:'user-a'}};A.config={loaded:true,cloudConfigured:true};
+  const A=context.WGC18;A.testAuthedFetch=A.authedFetch;A.session={access_token:'test',user:{id:'user-a'}};A.config={loaded:true,cloudConfigured:true};
   A.ensureHealthConsent=async options=>{calls.push({kind:'consent',options});return typeof consent==='function'?consent():consent};
   A.authedFetch=async(route,options)=>{calls.push({kind:'request',route,options});return typeof response==='function'?response(route,options):response};
   A.openOnboarding=()=>events.push('onboarding');
@@ -190,5 +190,61 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-account44'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-account45'/);
+});
+
+test('an explicitly requested empty cloud restore never replaces device data',async()=>{
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE]},response:{state:{storage:{}},updatedAt:'2026-09-02T12:00:00Z'}});
+ await assert.rejects(h.A.pullState(),/no saved planner/);
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device');
+ assert.equal(h.A.cloudStateReady,false);
+});
+
+test('restore requested during a pending login performs a fresh explicit restore',async()=>{
+ let grant;const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE]},consent:()=>new Promise(resolve=>{grant=resolve})});
+ const checking=h.A.resumeAccount(),restoring=h.A.pullState();grant(true);await checking;
+ h.A.ensureHealthConsent=async()=>true;
+ // The pending restore has started its second consent check by this point.
+ grant(true);await restoring;
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
+});
+
+test('concurrent account requests refresh an expired session only once',async()=>{
+ const h=harness();h.A.config.supabaseUrl='https://auth.example.test';h.A.session={access_token:'expired',refresh_token:'refresh-old',expires_at:1,user:{id:'user-a'}};
+ let release,count=0;
+ h.context.fetch=async url=>{if(String(url).includes('/token')){count++;await new Promise(resolve=>{release=resolve});return {ok:true,text:async()=>JSON.stringify({access_token:'fresh',refresh_token:'refresh-new',expires_at:4102444800,user:{id:'user-a'}})}};return {ok:true,status:200,text:async()=>'{"ok":true}'}};
+ const first=h.A.testAuthedFetch('state'),second=h.A.testAuthedFetch('health-consent');
+ release();await Promise.all([first,second]);assert.equal(count,1);assert.equal(h.A.session.access_token,'fresh');
+});
+
+test('temporary refresh failures preserve login and saved device data',async()=>{
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE]}});
+ h.A.config.supabaseUrl='https://auth.example.test';h.A.session={access_token:'expired',refresh_token:'refresh-old',expires_at:1,user:{id:'user-a'}};
+ h.context.fetch=async()=>{throw TypeError('Network unavailable')};
+ await assert.rejects(h.A.testAuthedFetch('state'),/Network unavailable/);
+ assert.equal(h.A.session.user.id,'user-a');assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device');
+});
+
+test('a permission error does not refresh or sign the user out',async()=>{
+ const h=harness();h.context.fetch=async()=>({ok:false,status:403,text:async()=>'{"error":"Permission denied"}'});
+ await assert.rejects(h.A.testAuthedFetch('state'),error=>error.status===403);
+ assert.equal(h.A.session.user.id,'user-a');
+});
+
+test('deletion requires matching confirmation and verified server success',async()=>{
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE]},response:{ok:true,deleted:false}});
+ await assert.rejects(h.A.deleteAccount('DELETE ACCOUNT','other-user'),/Confirm deletion/);
+ assert.equal(h.calls.length,0);
+ await assert.rejects(h.A.deleteAccount('DELETE ACCOUNT','user-a'),/not confirmed/);
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device');assert.equal(h.A.session.user.id,'user-a');
+});
+
+test('successful deletion clears only this account and sends explicit confirmation',async()=>{
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE],'wgc-v18-user-cache:other-user':'keep','wgc-v44-protected-copy:user-a':'remove','wgc-health-consent-v35:user-a':'remove'},response:{ok:true,deleted:true}});
+ assert.equal(await h.A.deleteAccount('DELETE ACCOUNT','user-a'),true);
+ assert.equal(h.localStorage.getItem(PROFILE),null);assert.equal(h.A.session,null);
+ assert.equal(h.localStorage.getItem('wgc-v18-user-cache:other-user'),'keep');
+ assert.equal(h.localStorage.getItem('wgc-v44-protected-copy:user-a'),null);
+ assert.equal(h.localStorage.getItem('wgc-health-consent-v35:user-a'),null);
+ assert.deepEqual(JSON.parse(h.calls[0].options.body),{confirmation:'DELETE ACCOUNT',expectedUserId:'user-a'});
 });

@@ -264,7 +264,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-free57-hours58'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-account59'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{
@@ -314,11 +314,12 @@ test('deletion requires matching confirmation and verified server success',async
 });
 
 test('successful deletion clears only this account and sends explicit confirmation',async()=>{
- const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE],'wgc-v18-user-cache:other-user':'keep','wgc-v44-protected-copy:user-a':'remove','wgc-health-consent-v35:user-a':'remove'},response:{ok:true,deleted:true}});
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE],'wgc-v18-user-cache:other-user':'keep','wgc-v44-protected-copy:user-a':'remove','wgc-health-consent-v35:user-a':'remove'},response:{ok:true,deleted:true,verified:true}});
  assert.equal(await h.A.deleteAccount('DELETE ACCOUNT','user-a'),true);
  assert.equal(h.localStorage.getItem(PROFILE),null);assert.equal(h.A.session,null);
  assert.equal(h.localStorage.getItem('wgc-v18-user-cache:other-user'),'keep');
  assert.equal(h.localStorage.getItem('wgc-v44-protected-copy:user-a'),null);
  assert.equal(h.localStorage.getItem('wgc-health-consent-v35:user-a'),null);
+ assert.match(h.localStorage.getItem('wgc-v59-auth-event'),/account-deleted/);
  assert.deepEqual(JSON.parse(h.calls[0].options.body),{confirmation:'DELETE ACCOUNT',expectedUserId:'user-a'});
 });

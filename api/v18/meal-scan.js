@@ -19,7 +19,9 @@ module.exports=async(req,res)=>{
   try{
     if(req.method!=='POST')return lib.json(res,405,{ok:false,error:'Method not allowed.'});
     const user=await lib.verifyUser(req);
-    await lib.requireHealthConsent(user,'meal_scan_ai');
+    // New users make one AI-tools choice. Keep accepting the previous
+    // Meal-Scan-only receipt so an existing approval is never discarded.
+    await lib.requireAnyHealthConsent(user,['personalized_ai','meal_scan_ai']);
     const imageDataUrl=String(req.body?.imageDataUrl||'');
     if(!/^data:image\/(?:png|jpe?g|webp);base64,/i.test(imageDataUrl)||imageDataUrl.length>8_000_000)return lib.json(res,413,{ok:false,error:'Use a JPG, PNG or WebP meal photo under about 6 MB.'});
     await lib.countAI(user.id);

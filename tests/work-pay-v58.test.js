@@ -126,7 +126,7 @@ test('hours: UI exposes clock, pay rules, restoring excluded entries and export 
  for(const text of ['calendarWorkPayV58','moreWorkPayV58','Clock in','Clock out','Start break','wpRulesV58','data-wp-restore','Compare with my payslip','CSV','navigator.locks','Your account changed'])assert.ok(source.includes(text),text);
  assert.doesNotMatch(source,/\bfetch\s*\(|authedFetch\s*\(|sendBeacon\s*\(|queueSync\s*\(/);
  assert.ok(source.includes("PREFIX='ww-workpay-v58:'"));assert.ok(!'ww-workpay-v58:user'.startsWith('wgp-v15-'));
- const accounts=read('work-gym-planner-v16/accounts-v18.js');assert.ok(accounts.indexOf("localStorage.removeItem('ww-workpay-v58:'+uid)")>accounts.indexOf("if(result?.deleted!==true)"));
+ const accounts=read('work-gym-planner-v16/accounts-v18.js');assert.match(accounts,/if\(result\?\.deleted!==true\|\|result\?\.verified!==true\)[\s\S]*clearDeletedAccountLocally\(uid\)/);assert.match(accounts,/clearDeletedAccountLocally[\s\S]*'ww-workpay-v58:'\+uid/);
 });
 test('hours: assets load in web and service-worker entry points; premium styles scoped',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js'])for(const asset of ['work-pay-v58.js','work-pay-v58.css'])assert.ok(read(file).includes(asset),file+' '+asset);

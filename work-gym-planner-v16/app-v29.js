@@ -49,7 +49,8 @@
   function accountFromAvatar(event){
     var avatar=event.target.closest&&event.target.closest('#homeProfileBtn,#accountChip');if(!avatar)return;
     event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
-    if(A.openAccount)A.openAccount('signin');
+    if(avatar.id==='homeProfileBtn'&&A.openProfileMenu)A.openProfileMenu();
+    else if(A.openAccount)A.openAccount('signin');
   }
   function polish(){document.body.classList.add('premiumV29');normalizeBrand();enhanceNavigation();enhancePages()}
   document.addEventListener('click',accountFromAvatar,true);

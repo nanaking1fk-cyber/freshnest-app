@@ -22,12 +22,14 @@ test('health-data choice is separate, granular, affirmative and local-first',()=
   assert.doesNotMatch(source,/\.\.\/work-gym-planner\/privacy\.html/);
 });
 
-test('feature consent uses one friendly purpose and hides technical jargon',()=>{
+test('feature consent uses one friendly AI-tools purpose and hides technical jargon',()=>{
   const source=read('work-gym-planner-v16/health-consent-v35.js');
-  assert.match(source,/entries=showAll\?Object\.entries\(PURPOSES\):\[\[purpose,PURPOSES\[purpose\]\]\]/);
-  assert.match(source,/Use Meal Scan\?/);
-  assert.match(source,/Allow Meal Scan/);
-  assert.match(source,/We do not keep the photo/);
+  assert.match(source,/Object\.entries\(PURPOSES\)\.filter\(\(\[id\]\)=>id!=='meal_scan_ai'\)/);
+  assert.match(source,/title:'AI tools'/);
+  assert.match(source,/Use AI Coach, Meal Scan and roster reading/);
+  assert.match(source,/Scan photos are not kept/);
+  assert.match(source,/activeFor[\s\S]*personalized_ai[\s\S]*meal_scan_ai/);
+  assert.match(source,/We will not interrupt you with another consent screen for every scan or AI request/);
   assert.match(source,/I can turn it off later/);
   assert.match(source,/We could not save your choice\. Please try again\./);
   assert.doesNotMatch(source,/Optional and separate from account terms|explicit-consent standards|AES-GCM encrypted|through Vercel to OpenAI|private Supabase account/);
@@ -68,6 +70,7 @@ test('server enforces consent before health state writes and personalized AI',()
   assert.doesNotMatch(state,/req\.method==='GET'[\s\S]{0,100}requireHealthConsent/);
   assert.match(coach,/requireHealthConsent\(user,'personalized_ai'\)/);
   assert.match(onboarding,/requireHealthConsent\(user,'personalized_ai'\)/);
+  assert.match(read('api/v18/meal-scan.js'),/requireAnyHealthConsent\(user,\['personalized_ai','meal_scan_ai'\]\)/);
   assert.ok(coach.indexOf("requireHealthConsent(user,'personalized_ai')")<coach.indexOf('reserveAICoach(user)'));
   assert.match(read('server/v18-lib.js'),/status:428,[\s\S]*code:'HEALTH_CONSENT_REQUIRED'/);
 });
@@ -121,7 +124,8 @@ test('consent module is ordered before autosync and remains in offline/native re
 test('published policy describes the implemented global consent controls',()=>{
   const privacy=read('work-gym-planner/privacy.html');
   assert.match(privacy,/Version:<\/strong> 1\.6/);
-  assert.match(privacy,/explains the requested use in plain language/);
+  assert.match(privacy,/one short privacy step in plain language/);
+  assert.match(privacy,/not requested again for every scan or AI request/);
   assert.match(privacy,/Selecting “Not now”/);
   assert.match(privacy,/consent version, policy version, selected purposes, statement, locale and time/);
   assert.match(privacy,/Account &amp; sync/);

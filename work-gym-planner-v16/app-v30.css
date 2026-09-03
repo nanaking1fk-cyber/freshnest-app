@@ -1004,3 +1004,43 @@ body.premiumV30 #accountActionDialog label { display: grid; gap: 10px; }
 body.premiumV30 #accountActionDialog input { width: 100%; box-sizing: border-box; font-size: 16px; }
 body.premiumV30 #accountActionDialog .sheetActions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; position: sticky; bottom: 0; padding-top: 16px; background: var(--card, #121920); }
 body.premiumV30 #accountActionDialog button { min-height: 48px; white-space: normal; }
+
+/* Profile and account menus ------------------------------------------------ */
+body.premiumV30 .guidedProfileSummary .guidedProfileSheet{width:min(100% - 24px,540px);max-height:calc(100dvh - 28px);overflow-y:auto;padding:22px}
+body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance{margin-top:14px;border:1px solid var(--v30-line);border-radius:14px;background:rgba(255,255,255,.018)}
+body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary{min-height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:var(--v30-muted);font-size:11px;font-weight:800;cursor:pointer;list-style:none}
+body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary::-webkit-details-marker{display:none}
+body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary i{font-style:normal;transition:transform .18s ease}
+body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance[open] summary i{transform:rotate(180deg)}
+body.premiumV30 .guidedProfileSummary .guidedProfileFacts{padding:0 10px 10px}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu{display:grid;gap:8px;padding:14px 0}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu button{width:100%;min-height:63px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--v30-line);border-radius:14px;color:var(--v30-ink);background:#11171e;text-align:left}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu button:hover{border-color:rgba(214,255,63,.35);background:rgba(214,255,63,.045)}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu span,body.premiumV30 .guidedProfileSummary .guidedProfileMenu b,body.premiumV30 .guidedProfileSummary .guidedProfileMenu small{display:block}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu span{font-size:13px;font-weight:800}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu small{margin-top:4px;color:var(--v30-muted);font-size:9px;font-weight:550;line-height:1.35}
+body.premiumV30 .guidedProfileSummary .guidedProfileMenu>button>i{color:var(--v30-signal);font-size:18px;font-style:normal}
+body.premiumV30 .guidedProfileSummary .guidedProfileActions{display:block}
+body.premiumV30 .guidedProfileSummary .guidedProfileActions button{width:100%;min-height:46px}
+
+body.premiumV30 #accountDialog .premiumAccountSheet{width:min(100% - 24px,660px);max-height:calc(100dvh - 28px);overflow-y:auto}
+body.premiumV30 #accountDialog .accountMenu{display:grid;gap:9px;margin-top:14px}
+body.premiumV30 #accountDialog .accountMenuSection{overflow:hidden;border:1px solid var(--v30-line);border-radius:15px;background:rgba(255,255,255,.018)}
+body.premiumV30 #accountDialog .accountMenuSection summary{min-height:62px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;list-style:none}
+body.premiumV30 #accountDialog .accountMenuSection summary::-webkit-details-marker{display:none}
+body.premiumV30 #accountDialog .accountMenuSection summary span,body.premiumV30 #accountDialog .accountMenuSection summary small{display:block}
+body.premiumV30 #accountDialog .accountMenuSection summary span{font-size:13px;font-weight:850}
+body.premiumV30 #accountDialog .accountMenuSection summary small{margin-top:4px;color:var(--v30-muted);font-size:9px;font-weight:550}
+body.premiumV30 #accountDialog .accountMenuSection summary>i{color:var(--v30-signal);font-style:normal;transition:transform .18s ease}
+body.premiumV30 #accountDialog .accountMenuSection[open] summary>i{transform:rotate(180deg)}
+body.premiumV30 #accountDialog .accountMenuBody{padding:0 12px 12px;border-top:1px solid var(--v30-line)}
+body.premiumV30 #accountDialog .accountMenuBody>.accountActions{margin-top:12px}
+body.premiumV30 #accountDialog .accountMenuBody>.dangerZone{margin:12px 0 0}
+body.premiumV30 #accountDialog .accountMenuBody>.dangerZone>p{color:var(--v30-muted);font-size:10px;line-height:1.5}
+
+@media(max-width:600px){
+ body.premiumV30 .guidedProfileSummary{align-items:flex-end;padding:0}
+ body.premiumV30 .guidedProfileSummary .guidedProfileSheet{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));margin:0;padding:18px 16px max(16px,env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+ body.premiumV30 #accountDialog{align-items:flex-end;padding:0}
+ body.premiumV30 #accountDialog .premiumAccountSheet{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));margin:0;padding-bottom:max(18px,env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+}

@@ -8,8 +8,11 @@ window.WGC18=window.WGC18||{};
  const PURPOSES={
   account_cloud_sync:{title:'Sync across devices',question:'Turn on account backup?',allow:'Turn on backup',detail:'Save your planner privately to your Work + Workout account so you can restore it or use another device.'},
   encrypted_webdav_sync:{title:'Private backup service',question:'Use your private backup service?',allow:'Allow private backup',detail:'Send an encrypted planner backup to the private storage service you set up.'},
-  personalized_ai:{title:'Personalized AI help',question:'Use personalized AI help?',allow:'Allow AI help',detail:'Share only the parts of your plan needed to answer your question when you use an AI feature.'},
-  meal_scan_ai:{title:'Meal Scan',question:'Use Meal Scan?',allow:'Allow Meal Scan',detail:'Send only the meal photo you choose to our AI service to estimate foods and portions. We do not keep the photo.'}
+  personalized_ai:{title:'AI tools',question:'Turn on AI tools?',allow:'Turn on AI tools',detail:'Use AI Coach, Meal Scan and roster reading when you choose them. Only the question, photo or planner details needed for your request are sent. Scan photos are not kept by Work + Workout.'},
+  // Kept for receipts created by the earlier separate Meal Scan choice. New
+  // choices use the single AI-tools purpose so users are not asked again for
+  // every AI feature.
+  meal_scan_ai:{title:'Meal Scan (previous choice)',question:'Turn on AI tools?',allow:'Turn on AI tools',detail:'Your earlier Meal Scan approval remains valid.'}
  };
  let receipt=null,loadedOwner=null,pending=null,requestedPurpose=null,showAllChoices=false,onboardingChoice=false,receiptRevision=0,refreshSequence=0,refreshTask=null;
  const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -18,6 +21,7 @@ window.WGC18=window.WGC18||{};
  function readLocal(){try{return JSON.parse(localStorage.getItem(key())||'null')}catch{return null}}
  function writeLocal(value){receipt=value||null;loadedOwner=owner();try{value?localStorage.setItem(key(),JSON.stringify(value)):localStorage.removeItem(key())}catch{}}
  function active(purpose,value=receipt){return !!value&&value.action==='granted'&&value.consentVersion===CONSENT_VERSION&&Array.isArray(value.purposes)&&value.purposes.includes(purpose)}
+ function activeFor(purpose,value=receipt){return purpose==='meal_scan_ai'?active('personalized_ai',value)||active('meal_scan_ai',value):active(purpose,value)}
  function activePurposes(){return Object.keys(PURPOSES).filter(purpose=>active(purpose))}
  function legalPage(file,hash=''){let url;try{url=typeof window.productPage==='function'?window.productPage(file):new URL(`./${file}`,location.href).href}catch{url=`./${file}`}return`${url}${hash}`}
  function localReceipt(action,purposes=[]){return{action,consentVersion:CONSENT_VERSION,policyVersion:POLICY_VERSION,purposes,statement:STATEMENT,locale:navigator.language||null,region:'global',createdAt:new Date().toISOString()}}
@@ -78,12 +82,12 @@ window.WGC18=window.WGC18||{};
   showAllChoices=showAll;
   onboardingChoice=onboarding;
   const activeNow=activePurposes();
-  const entries=showAll?Object.entries(PURPOSES):[[purpose,PURPOSES[purpose]]];
+  const entries=showAll?Object.entries(PURPOSES).filter(([id])=>id!=='meal_scan_ai'):[[purpose,PURPOSES[purpose]]];
   $('#healthConsentDialog .healthConsentSheet').classList.toggle('compactConsent',!showAll);
   $('#healthConsentDialog .healthConsentSheet').classList.toggle('onboardingConsent',onboarding);
   $('#healthConsentTitle').textContent=showAll?'Your privacy choices':PURPOSES[purpose].question;
   $('#healthConsentEyebrow').textContent=showAll?'Optional features':'Your choice';
-  $('#healthConsentIntroTitle').textContent=showAll?'Choose only what you want.':purpose==='meal_scan_ai'?'Your photo is used only for this scan.':'You are in control.';
+  $('#healthConsentIntroTitle').textContent=showAll?'Choose only what you want.':purpose==='personalized_ai'?'One choice for the AI tools you use.':'You are in control.';
   $('#healthConsentIntroCopy').textContent=showAll?'Your planner still works if you leave everything off. You can change these choices later.':'This is optional. Choose Not now to keep using the planner without it.';
   $('#healthConsentConfirmText').textContent=showAll?STATEMENT:`I agree to use ${PURPOSES[purpose].title}. I can turn it off later.`;
   $('#healthConsentAgree').textContent=showAll?'Save my choices':PURPOSES[purpose].allow;
@@ -94,7 +98,7 @@ window.WGC18=window.WGC18||{};
    $('#healthConsentTitle').textContent='Privacy before you begin';
    $('#healthConsentEyebrow').textContent='WELCOME TO WORK + WORKOUT';
    $('#healthConsentIntroTitle').textContent='Choose the features you want.';
-   $('#healthConsentIntroCopy').textContent='Your planner can include health and wellness details. Choose how they are used before we build or restore your plan. You can change your choices anytime.';
+   $('#healthConsentIntroCopy').textContent='Choose once whether to use private backup and AI tools. We will not interrupt you with another consent screen for every scan or AI request. You can change this anytime.';
   }
   const card=([id,item])=>{
    const already=activeNow.includes(id),requested=id===purpose;
@@ -136,14 +140,15 @@ window.WGC18=window.WGC18||{};
    receipt=readLocal();loadedOwner=owner();
    if(A.session){try{await refresh({render:false})}catch(error){if(!interactive)throw error}}
   }
-  if(active(purpose)&&!force)return true;
+  if(activeFor(purpose)&&!force)return true;
   if(!interactive)return false;
-  if(pending){await pending.promise;return active(purpose)}
-  return openChoice(purpose,{showAll:force})
+  if(pending){await pending.promise;return activeFor(purpose)}
+  const choicePurpose=purpose==='meal_scan_ai'?'personalized_ai':purpose;
+  return openChoice(choicePurpose,{showAll:force})
  }
  async function withdraw(){
   if(!activePurposes().length)return true;
-  if(!confirm('Turn off these optional features? Cloud backup, private backup, AI help and Meal Scan will stop. Your on-device planner will keep working. This does not delete anything already saved online.'))return false;
+  if(!confirm('Turn off these optional features? Cloud backup, private backup and AI tools will stop. Your on-device planner will keep working. This does not delete anything already saved online.'))return false;
   try{
    await record('withdrawn',[]);
    toast('Optional features turned off. Local planning still works.');
@@ -189,7 +194,7 @@ window.WGC18=window.WGC18||{};
  A.ensureHealthConsent=ensure;
  A.reviewPrivacyForOnboarding=reviewForOnboarding;
  A.ensureHealthConsentForCloud=options=>ensure({...options,purpose:options?.purpose||'account_cloud_sync'});
- A.hasHealthConsent=active;
+ A.hasHealthConsent=activeFor;
  A.refreshHealthConsent=refresh;
  A.withdrawHealthConsent=withdraw;
  A.healthConsentPanelHTML=panelHTML;

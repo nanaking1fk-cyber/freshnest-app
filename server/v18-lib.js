@@ -184,6 +184,19 @@ async function requireHealthConsent(user,purpose){
   return receipt;
 }
 
+async function requireAnyHealthConsent(user,purposes){
+  const choices=[...new Set((purposes||[]).filter(purpose=>HEALTH_CONSENT_PURPOSES.includes(purpose)))];
+  const receipt=await getHealthConsent(user?.id,user?.authorization);
+  if(!choices.some(purpose=>healthConsentActive(receipt,purpose))){
+    throw Object.assign(new Error('Choose whether to allow this health-data feature before continuing.'),{
+      status:428,
+      code:'HEALTH_CONSENT_REQUIRED',
+      purpose:choices[0]||null
+    });
+  }
+  return receipt;
+}
+
 async function getState(userIdOrAuthorization,authorization=userIdOrAuthorization){
   const rows=await userFetch(authorization,'user_state?select=state,schema_version,updated_at&limit=1');
   const row=rows?.[0];
@@ -360,4 +373,4 @@ function errorResponse(res,error){
   json(res,error.status||500,body);
 }
 
-module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};
+module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,requireAnyHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

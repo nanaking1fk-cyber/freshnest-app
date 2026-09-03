@@ -539,13 +539,23 @@
       '<div id="guidedProfileSummary" class="modal guidedProfileSummary" role="dialog" aria-modal="true" aria-labelledby="guidedProfileTitle">'+
         '<div class="sheet guidedProfileSheet"><div class="sheetHandle"></div>'+
           '<div class="guidedProfileHero"><div id="guidedProfileInitial" class="guidedProfileInitial">W</div><div><p class="guidedEyebrow">YOUR PLAN</p><h2 id="guidedProfileTitle">Profile</h2><p id="guidedProfileEmail"></p></div></div>'+
-          '<div id="guidedProfileFacts" class="guidedProfileFacts"></div>'+
-          '<div class="guidedProfileActions"><button id="guidedProfileClose">Close</button><button id="guidedProfileAccount">Account & sync</button><button id="guidedProfileEdit" class="primary">Edit my plan</button><button id="guidedProfileDetails">More plan settings</button></div>'+
+          '<details class="guidedProfileAtGlance"><summary>At a glance <i>⌄</i></summary><div id="guidedProfileFacts" class="guidedProfileFacts"></div></details>'+
+          '<div class="guidedProfileMenu">'+
+            '<button id="guidedProfileEdit"><span>Personal plan<small>Goals, preferences and weekly setup</small></span><i>›</i></button>'+
+            '<button id="guidedProfileCalendar"><span>Work calendar<small>Schedules, shifts, rotations and time off</small></span><i>›</i></button>'+
+            '<button id="guidedProfileNutrition"><span>Nutrition goals<small>Calories, macros and body goals</small></span><i>›</i></button>'+
+            '<button id="guidedProfileProgress"><span>Body &amp; progress<small>Check-ins, measurements and trends</small></span><i>›</i></button>'+
+            '<button id="guidedProfileAccount"><span>Account &amp; privacy<small>Backup, consent, sign out and deletion</small></span><i>›</i></button>'+
+            '<button id="guidedProfileDetails"><span>More plan settings<small>Food preferences, recovery and extra jobs</small></span><i>›</i></button>'+
+          '</div><div class="guidedProfileActions"><button id="guidedProfileClose">Close</button></div>'+
         '</div></div>');
     document.getElementById('guidedProfileClose').onclick=function(){window.closeModal?.('guidedProfileSummary')};
     document.getElementById('guidedProfileAccount').onclick=function(){window.closeModal?.('guidedProfileSummary');A.openAccount?.('account')};
     document.getElementById('guidedProfileEdit').onclick=function(){window.closeModal?.('guidedProfileSummary');openGuided()};
     document.getElementById('guidedProfileDetails').onclick=function(){window.closeModal?.('guidedProfileSummary');openGuided({details:true})};
+    document.getElementById('guidedProfileCalendar').onclick=function(){window.closeModal?.('guidedProfileSummary');window.page?.('calendar');window.renderCalendar?.()};
+    document.getElementById('guidedProfileNutrition').onclick=function(){window.closeModal?.('guidedProfileSummary');window.fillNutritionForm?.();window.openModal?.('nutritionDialog')};
+    document.getElementById('guidedProfileProgress').onclick=function(){window.closeModal?.('guidedProfileSummary');window.page?.('progress')};
   }
   function openProfileSummary(){
     const p=typeof profile==='function'?profile():null;
@@ -595,6 +605,7 @@
   }
 
   A.openOnboarding=openGuided;
+  A.openProfileMenu=openProfileSummary;
   A.openPlanSettings=function(){openGuided({details:true})};
   A.onboardingAnswers=collectAnswers;
   modal();

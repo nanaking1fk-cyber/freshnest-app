@@ -60,3 +60,14 @@ test('consent checks for different accounts never share an in-flight result',asy
  assert.equal(h.A.hasHealthConsent('account_cloud_sync'),false);
  assert.equal(h.data.has('wgc-health-consent-v35:user-b'),false);
 });
+test('one saved AI-tools choice enables Meal Scan without another prompt',async()=>{
+ const h=harness(),aiGrant={...grant,purposes:['personalized_ai']};
+ h.A.authedFetch=async()=>({receipt:aiGrant});await h.A.refreshHealthConsent();
+ assert.equal(h.A.hasHealthConsent('meal_scan_ai'),true);
+ assert.equal(await h.A.ensureHealthConsent({interactive:false,purpose:'meal_scan_ai'}),true);
+});
+test('previous Meal-Scan-only receipts remain valid',async()=>{
+ const h=harness(),legacyGrant={...grant,purposes:['meal_scan_ai']};
+ h.A.authedFetch=async()=>({receipt:legacyGrant});await h.A.refreshHealthConsent();
+ assert.equal(h.A.hasHealthConsent('meal_scan_ai'),true);
+});

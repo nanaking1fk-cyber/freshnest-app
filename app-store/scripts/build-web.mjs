@@ -46,8 +46,8 @@ html=rewrite(
 );
 html=rewrite(
   html,
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.31-free57\"></scr'+'ipt>');",
-  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.31\"></scr'+'ipt><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.31-free57\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.31-free57-hours58\"></scr'+'ipt>');",
+  "h=h.replace('<head>','<head><base href=\"../work-gym-planner-v15/\"><scr'+'ipt defer src=\"../native/native-bridge.js?v=30.1.31\"></scr'+'ipt><scr'+'ipt defer src=\"../shared/observability.js?v=30.1.31-free57-hours58\"></scr'+'ipt>');",
   'load native bridge first'
 );
 html=html.replace("'pwa-patch.js',",'');

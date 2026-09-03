@@ -31,6 +31,9 @@ window.WGC18=window.WGC18||{};
  function loadSession(){try{A.session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{A.session=null}}
  function sessionExpired(s=A.session){if(!s?.access_token)return true;let exp=+s.expires_at||0;return exp&&Date.now()/1000>exp-60}
  async function requestText(url,opt={},shouldContinue){
+  // Small, already-authorized autosaves may finish while this page closes.
+  // Larger states retain the normal retry/restore path (keepalive has a 64 KiB cap).
+  if(document.visibilityState==='hidden'&&opt.method==='PUT'&&/\/state(?:\?|$)/.test(url)&&typeof opt.body==='string'&&typeof TextEncoder!=='undefined'&&new TextEncoder().encode(opt.body).byteLength<60000)opt={...opt,keepalive:true};
   if(window.WWObservability?.request){
    const reading=['GET','HEAD'].includes(String(opt.method||'GET').toUpperCase()),scan=/\/(?:meal-scan|coach|onboarding)(?:\?|$)/.test(url);
    return window.WWObservability.request(url,opt,{readText:true,retries:reading?1:0,timeoutMs:scan?75000:reading?15000:25000,shouldContinue});
@@ -254,6 +257,7 @@ window.WGC18=window.WGC18||{};
    if(A.session?.user?.id!==uid)throw Error('Your account changed. Please try again.');
    const result=await A.authedFetch('account',{method:'DELETE',body:JSON.stringify({confirmation,expectedUserId:uid})});
    if(result?.deleted!==true)throw Error('Deletion was not confirmed. Your device data has been kept.');
+   localStorage.removeItem('ww-workpay-v58:'+uid);
    if(A.session?.user?.id!==uid)return true;
    clearLocalPlanner();localStorage.removeItem(OWNER_KEY);localStorage.removeItem(LAST_SYNC_KEY);
    for(const key of [cacheKey(uid),PROTECTED_PREFIX+uid,BASELINE_PREFIX+uid,'wgc-health-consent-v35:'+uid])localStorage.removeItem(key);

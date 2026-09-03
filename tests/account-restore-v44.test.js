@@ -21,7 +21,7 @@ function harness({local={},consent=true,response=remote('Saved user'),secure=fal
   vm.createContext(context);
   const source=read('work-gym-planner-v16/accounts-v18.js');
   // Load the actual module functions without browser startup or CSS injection.
-  vm.runInContext(source.slice(0,source.indexOf(' loadSession();if(!A.session)'))+'A.testConsumeAuthRedirect=consumeAuthRedirect;})(window.WGC18);',context);
+  vm.runInContext(source.slice(0,source.indexOf(' loadSession();if(!A.session)'))+'A.testConsumeAuthRedirect=consumeAuthRedirect;A.testLock=lockPlannerForLoggedOut;})(window.WGC18);',context);
   const A=context.WGC18;A.testAuthedFetch=A.authedFetch;A.session={access_token:'test',user:{id:'user-a'}};A.config={loaded:true,cloudConfigured:true};
   A.ensureHealthConsent=async options=>{calls.push({kind:'consent',options});return typeof consent==='function'?consent():consent};
   A.authedFetch=async(route,options)=>{calls.push({kind:'request',route,options});return typeof response==='function'?response(route,options):response};
@@ -150,6 +150,27 @@ test('failure to save a recovery copy stops restore before clearing the device',
   assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device user');
 });
 
+test('full storage during expired-session locking keeps records hidden without throwing',()=>{
+ const h=harness({local:{[OWNER]:'user-a',...state('Unsynced user').storage}}),write=h.localStorage.setItem;
+ h.localStorage.setItem=(key,value)=>{if(key.startsWith('wgc-v18-user-cache:'))throw Object.assign(Error('full'),{name:'QuotaExceededError'});return write(key,value)};
+ assert.equal(h.A.testLock(),false);assert.equal(h.A.deviceStorageBlocked,true);assert.equal(h.A.canStartOnboarding(),false);
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Unsynced user');assert.equal(h.localStorage.getItem(OWNER),'user-a');
+});
+
+test('failed account separation cannot expose another account via device-only mode',async()=>{
+ const h=harness({local:{[OWNER]:'user-b',...state('Other user').storage}}),write=h.localStorage.setItem;
+ h.localStorage.setItem=(key,value)=>{if(key.startsWith('wgc-v18-user-cache:'))throw Object.assign(Error('full'),{name:'QuotaExceededError'});return write(key,value)};
+ await h.A.resumeAccount();assert.equal(h.A.deviceStorageBlocked,true);assert.equal(h.A.canStartOnboarding(),false);
+ assert.equal(h.localStorage.getItem(OWNER),'user-b');assert.equal(h.calls.length,0);
+});
+
+test('a partial cloud restore is rolled back if a later record does not fit',()=>{
+ const h=harness({local:{[OWNER]:'user-a',...state('Original user').storage,'wgp-v15-calendar-items':'saved-calendar'}}),write=h.localStorage.setItem;
+ h.localStorage.setItem=(key,value)=>{if(key==='wgp-v15-food-diary-test')throw Object.assign(Error('full'),{name:'QuotaExceededError'});return write(key,value)};
+ assert.throws(()=>h.A.restoreCloudState({storage:{...state('Replacement').storage,'wgp-v15-food-diary-test':'large'}}),{name:'QuotaExceededError'});
+ assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Original user');assert.equal(h.localStorage.getItem('wgp-v15-calendar-items'),'saved-calendar');
+});
+
 test('cloud writes carry the loaded revision and concurrent sync requests share one write',async()=>{
   let finish;const h=harness({secure:true,response:(route,options)=>options?new Promise(resolve=>{finish=resolve}):remote('Saved user')});
   await h.A.resumeAccount();
@@ -264,7 +285,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-agreement60'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-readiness62'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{

@@ -17,6 +17,9 @@
   const PRIVATE_PLANNER_KEYS=new Set([
     DEFAULT_PREFIX+'sync-settings',
     DEFAULT_PREFIX+'diagnostics',
+    // Recovery archives can contain historical private settings and must not
+    // recursively travel with the active planner through cloud sync.
+    DEFAULT_PREFIX+'recovery-snapshots',
     DEFAULT_PREFIX+'ai-chat-local-v18'
   ]);
 
@@ -41,6 +44,23 @@
       capturedAt:String(source.capturedAt||new Date().toISOString()),
       storage
     };
+  }
+
+  function applyPlannerStorage(target,data,{prefix=DEFAULT_PREFIX,replace=false}={}){
+    if(!data||typeof data!=='object'||Array.isArray(data))throw Error('No compatible planner data found.');
+    const next=sanitizePlannerState({storage:data},{prefix}).storage,before={},changed=[],removed=[];
+    for(let index=0;index<target.length;index++){const key=target.key(index);if(isPlannerKey(key,prefix))before[key]=target.getItem(key)}
+    try{
+      for(const [key,value] of Object.entries(next)){if(target.getItem(key)===value)continue;target.setItem(key,value);changed.push(key)}
+      if(replace)for(const key of Object.keys(before))if(!Object.prototype.hasOwnProperty.call(next,key)){target.removeItem(key);removed.push(key)}
+    }catch(error){
+      // Free every attempted replacement before restoring originals, so a
+      // larger new value cannot prevent a smaller original from being restored.
+      for(const key of changed)target.removeItem(key);
+      for(const key of [...changed,...removed])if(Object.prototype.hasOwnProperty.call(before,key))target.setItem(key,before[key]);
+      throw error;
+    }
+    return Object.keys(next).length;
   }
 
   // Legacy Supabase implicit-flow responses put bearer tokens in the URL fragment.
@@ -92,5 +112,5 @@
     return{delta:0,text:'Weight trend is in the target range. Keep calories unchanged.'};
   }
 
-  return{DEFAULT_PREFIX,isPlannerKey,sanitizePlannerState,restrictionTokens,foodAllowed,calorieAdjustment,isLegacyAuthFragment};
+  return{DEFAULT_PREFIX,isPlannerKey,sanitizePlannerState,applyPlannerStorage,restrictionTokens,foodAllowed,calorieAdjustment,isLegacyAuthFragment};
 });

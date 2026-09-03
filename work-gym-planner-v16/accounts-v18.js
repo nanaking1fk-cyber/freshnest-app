@@ -19,7 +19,13 @@ window.WGC18=window.WGC18||{};
  let accountLoad=null,sessionRefresh=null;
  const BASELINE_PREFIX='wgc-v44-cloud-revision:',PROTECTED_PREFIX='wgc-v44-protected-copy:';
  const accountModulesReady=new Promise(resolve=>{if(document.readyState==='complete')resolve();else document.addEventListener('DOMContentLoaded',resolve,{once:true})});
- A.canStartOnboarding=()=>!A.session||A.accountState==='ready'||A.accountState==='local';
+ A.canStartOnboarding=()=>!A.deviceStorageBlocked&&(!A.session||A.accountState==='ready'||A.accountState==='local');
+ function blockDeviceData(blocked){A.deviceStorageBlocked=!!blocked;document.body?.classList?.toggle('accountDataLocked',!!blocked);if(blocked){A.cloudStateReady=false;A.cloudStateOwner=null;clearTimeout(A.syncTimer);clearTimeout(A._syncTimer)}renderDeviceGuard()}
+ function renderDeviceGuard(){
+  if(!document.body?.insertAdjacentHTML)return;
+  if(!$('#deviceDataGuard'))document.body.insertAdjacentHTML('beforeend','<section id="deviceDataGuard" aria-labelledby="deviceDataGuardTitle"><div><h1 id="deviceDataGuardTitle">Your records are protected</h1><p>This device could not save a recovery copy. Your records are still here, but hidden until you sign in to their original account.</p><button id="unlockDeviceData" class="primary">Sign in to the original account</button><p>Then export a backup before freeing up space. Do not clear this app’s storage.</p></div></section>');
+  const button=$('#unlockDeviceData');if(button)button.onclick=()=>{clearRecoveryFlag();saveSession(null);openAccount('signin')};
+ }
  function setAccountState(value){A.accountState=value;A.cloudStateReady=value==='ready';if(!A.cloudStateReady)A.cloudStateOwner=null;renderAccountUI();window.renderTodayDashboard?.()}
  function absoluteApiBase(){return '/api/v18'}
  A.api=function(path=''){let b=A.apiBase||absoluteApiBase();return b?b+('/'+String(path).replace(/^\//,'')):''};
@@ -107,22 +113,24 @@ window.WGC18=window.WGC18||{};
  function cacheKey(uid){return USER_CACHE_PREFIX+uid}
  function meaningfulState(state){return Object.entries(state?.storage||{}).some(([key,value])=>/profile$|training-history|training-drafts|food-diary-|body-log$|health-log$|my-foods$|recipes$|schedule-events-v25$|schedule-rotations-v25$|schedule-overrides$|bellevue-|plan-snapshots$|onboarding-v18$/.test(key)&&value&&!['null','{}','[]',''].includes(String(value)))}
  function protectCopy(uid,state){if(!uid||!meaningfulState(state))return;const key=PROTECTED_PREFIX+uid;if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify(state))}
- function stashForUser(uid){if(!uid)return;let current=A.captureLocalState?.()||captureLocalState(),previous=cachedForUser(uid);protectCopy(uid,previous);if(meaningfulState(current)||!previous)localStorage.setItem(cacheKey(uid),JSON.stringify(current))}
+ function stashForUser(uid){if(!uid)return;let current=A.captureLocalState?.()||captureLocalState(),previous=cachedForUser(uid);if(previous&&stateFingerprint(previous)!==stateFingerprint(current))protectCopy(uid,previous);if(meaningfulState(current)||!previous)localStorage.setItem(cacheKey(uid),JSON.stringify(current))}
  function cachedForUser(uid){try{return JSON.parse(localStorage.getItem(cacheKey(uid))||'null')}catch{return null}}
  function lockPlannerForLoggedOut(){
+  try{
   const owner=localStorage.getItem(OWNER_KEY),hasVisibleData=localDataCount()>0;
   if(hasVisibleData){
    if(owner)stashForUser(owner);
-   else try{localStorage.setItem(UNCLAIMED_KEY,JSON.stringify(captureLocalState()))}catch{}
+   else localStorage.setItem(UNCLAIMED_KEY,JSON.stringify(A.captureLocalState?.()||captureLocalState()));
   }
   clearLocalPlanner();
-  localStorage.removeItem(OWNER_KEY)
+  localStorage.removeItem(OWNER_KEY);blockDeviceData(false);return true;
+  }catch(error){blockDeviceData(true);A.accountState='storage-blocked';status('Device storage is full or unavailable. Your records were kept and hidden. Sign in to their original account to export a backup.',true);window.WWObservability?.capture?.('account_storage',error,{name:'StorageRecoveryError',message:'Device recovery copy could not be saved'});return false}
  }
  async function signOut(){
   let uid=A.session?.user?.id;
   clearRecoveryFlag();
   try{if(A.session)await A.pushState({quiet:true})}catch(e){recordDiagnostic?.('signout-sync',e)}
-  stashForUser(uid);
+  try{stashForUser(uid)}catch(error){status('We could not save a device recovery copy. Export a backup before signing out; your records have not changed.',true);return false}
   clearLocalPlanner();
   localStorage.removeItem(OWNER_KEY);
   try{let t=await A.accessToken();if(t&&A.config.supabaseUrl)await fetch(`${A.config.supabaseUrl}/auth/v1/logout?scope=global`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${t}`}})}catch{}
@@ -132,7 +140,7 @@ window.WGC18=window.WGC18||{};
  }
  function captureLocalState(){let storage={};for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(isPlannerKey(k))storage[k]=localStorage.getItem(k)}return{schemaVersion:23,appVersion:APP_VERSION,capturedAt:new Date().toISOString(),storage}}
  function localDataCount(){return Object.keys(captureLocalState().storage).length}
- function restoreCloudState(state,{snapshot=true}={}){if(!state?.storage||typeof state.storage!=='object')throw Error('No compatible cloud data found.');let recovery=null;if(snapshot){createRecoverySnapshot?.('before-cloud-restore');recovery=localStorage.getItem(K.recovery)}clearLocalPlanner();let count=0;for(const [k,v] of Object.entries(state.storage)){if(isPlannerKey(k)){localStorage.setItem(k,String(v));count++}}if(recovery)localStorage.setItem(K.recovery,recovery);localStorage.removeItem(K.migrated);return count}
+ function restoreCloudState(state,{snapshot=true}={}){if(!state?.storage||typeof state.storage!=='object'||Array.isArray(state.storage))throw Error('No compatible cloud data found.');if(snapshot)createRecoverySnapshot?.('before-cloud-restore');let count=window.WGC23Core.applyPlannerStorage(localStorage,state.storage,{prefix:PREFIX,replace:true});localStorage.removeItem(K.migrated);return count}
  A.pushState=async function({quiet=false}={}){if(!A.session)return false;if(!A.cloudStateReady){if(quiet)return false;await A.resumeAccount?.();if(!A.cloudStateReady)return false}A.assertCloudReady();if(!await A.ensureHealthConsent?.({interactive:!quiet,purpose:'account_cloud_sync'}))return false;let state=A.captureLocalState(),j=await A.authedFetch('state',{method:'PUT',body:JSON.stringify({state,baseUpdatedAt:A.cloudRevision})});A.acceptCloudRevision(j.updatedAt);localStorage.setItem(LAST_SYNC_KEY,j.updatedAt||new Date().toISOString());if(!quiet){status('Your account is synced.');toast('Account sync complete')}renderAccountUI();return true};
  A.pullState=async function(){
   // A restore clicked while a consent/login check is finishing must still perform its own read.
@@ -159,14 +167,16 @@ window.WGC18=window.WGC18||{};
    setAccountState('checking');
    try{
    const owner=localStorage.getItem(OWNER_KEY),current=A.captureLocalState?.()||captureLocalState();
-   if(owner&&owner!==uid){stashForUser(owner);clearLocalPlanner()}
+   if(owner&&owner!==uid){blockDeviceData(true);stashForUser(owner);clearLocalPlanner()}
    else if(!owner&&meaningfulState(current)){
+    blockDeviceData(true);
     const unclaimed=localStorage.getItem(UNCLAIMED_KEY);
     if(unclaimed&&unclaimed!==JSON.stringify(current))localStorage.setItem(UNCLAIMED_KEY+':latest',JSON.stringify(current));
     else if(!unclaimed)localStorage.setItem(UNCLAIMED_KEY,JSON.stringify(current));
     clearLocalPlanner();
    }
    localStorage.setItem(OWNER_KEY,uid);
+   blockDeviceData(false);
    const cached=cachedForUser(uid);
    if(!meaningfulState(A.captureLocalState?.()||captureLocalState())&&meaningfulState(cached))restoreCloudState(cached,{snapshot:false});
     const privacy=!forceCloud&&A.reviewPrivacyForOnboarding?await A.reviewPrivacyForOnboarding():{cloudAllowed:await A.ensureHealthConsent?.({interactive:true,purpose:'account_cloud_sync'})};
@@ -215,7 +225,7 @@ window.WGC18=window.WGC18||{};
   $('#loadSavedAccount')?.addEventListener('click',()=>afterAuth({forceCloud:true}));
   $('#useDeviceOnly')?.addEventListener('click',useDeviceOnly);
  }
- function useDeviceOnly(){setAccountState('local');closeModal('accountDialog');window.renderAll?.();if(!profile())A.openOnboarding?.({auto:true})}
+ function useDeviceOnly(){if(A.deviceStorageBlocked||localStorage.getItem(OWNER_KEY)!==A.session?.user?.id){status('This device copy could not be safely separated. Sign in to its original account and export a backup first.',true);return}setAccountState('local');closeModal('accountDialog');window.renderAll?.();if(!profile())A.openOnboarding?.({auto:true})}
  A.resumeAccount=afterAuth;
  window.addEventListener?.('online',()=>{if(A.session&&A.accountState==='unavailable')A.resumeAccount?.()});
  A.assertCloudReady=function(){if(A.deletingAccount||!A.cloudStateReady||A.cloudStateOwner!==A.session?.user?.id||localStorage.getItem(OWNER_KEY)!==A.session?.user?.id)throw Object.assign(Error('Load your saved account before syncing. Your cloud copy has not been changed.'),{code:'CLOUD_STATE_NOT_READY'})};
@@ -337,4 +347,13 @@ window.WGC18=window.WGC18||{};
   });document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{injectUI();hookSync();renderAccountUI()},80));
 })(window.WGC18);
 (function(){let st=document.createElement('style');st.textContent=`.accountChip{position:fixed;right:16px;top:max(12px,env(safe-area-inset-top));z-index:35;border:1px solid rgba(255,255,255,.13);background:#101b2a;color:#dbe6f3;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.accountChip.signed{color:#5ce179;border-color:rgba(54,212,91,.28)}.signOutQuick{position:fixed;right:16px;top:max(48px,calc(env(safe-area-inset-top) + 44px));z-index:35;border:1px solid rgba(255,255,255,.13);background:#101b2a;color:#dbe6f3;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:850}.authTabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}.authTabs button{border-radius:10px}.authTabs button.active{background:#2563eb;color:#fff}.authPane{display:grid;gap:9px}.authPane label{font-size:9px;color:var(--muted)}.authPane input{width:100%;margin-top:4px}.linkBtn{background:transparent!important;border:0!important;color:#60a5fa!important}.accountIdentity{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:12px}.accountIdentity>span{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#243247;font-weight:900}.accountIdentity>div{min-width:0;flex:1}.accountIdentity>button{white-space:nowrap}.accountIdentity b,.accountIdentity small{display:block}.accountIdentity small{color:var(--muted);font-size:8px;margin-top:3px}.accountActions{display:grid;gap:8px;margin-top:12px}.accountActions button{text-align:left;padding:11px}.accountActions button b,.accountActions button small{display:block}.accountActions button small{font-size:8px;color:var(--muted);margin-top:3px}.accountActions .primary small{color:#dbeafe}.signedAccount .dangerZone{display:flex;gap:8px;margin-top:14px}.accountUnavailable{padding:12px;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.06);border-radius:12px;margin-bottom:12px}.accountUnavailable p{font-size:9px;color:var(--muted);line-height:1.5}.statusText.bad{color:#f97066}`;document.head.appendChild(st)})();
-(function(){let st=document.createElement('style');st.textContent='.accountLiveLink{display:flex;align-items:center;justify-content:center;text-decoration:none}';document.head.appendChild(st)})();
+(function(){let st=document.createElement('style');st.textContent=`.accountLiveLink{display:flex;align-items:center;justify-content:center;text-decoration:none}
+/* Account isolation applies to every theme, including dialogs left open before expiry. */
+#deviceDataGuard{display:none}
+body.accountDataLocked> :not(#deviceDataGuard):not(#accountDialog):not(style):not(script){display:none!important}
+body.accountDataLocked #deviceDataGuard{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow:auto;padding:max(24px,env(safe-area-inset-top)) 24px;background:#0c1117;color:#f2f6f8}
+body.accountDataLocked #deviceDataGuard>div{width:min(100%,440px);line-height:1.6}
+body.accountDataLocked #deviceDataGuard h1{font-size:clamp(24px,6vw,32px);line-height:1.2}
+body.accountDataLocked #deviceDataGuard button{min-height:48px;width:100%;white-space:normal}
+body.accountDataLocked #deviceDataGuard p{font-size:16px;color:#bec7cc}
+body.accountDataLocked #accountDialog{z-index:10001}`;document.head.appendChild(st)})();

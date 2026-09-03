@@ -500,11 +500,15 @@ body.premiumV30 #foodDialog .foodNutritionWarning{color:#ffca8c}
 body.premiumV30 #foodDialog .foodMealNote{display:flex;align-items:center;justify-content:center;min-height:46px;border:1px solid var(--v30-line);border-radius:10px;color:var(--v30-muted);font-size:10px}
 body.premiumV30 #foodDialog .foodMealNote b{margin-left:4px;color:var(--v30-signal)}
 body.premiumV30 #foodDialog .foodToolPane{padding:7px 0 12px}
+/* Let scan/library content contribute its full height to the scroll area.
+   Shrinking a pane left Analyze underneath the sticky save bar on phones. */
+body.premiumV30 #foodDialog .foodToolPane,body.premiumV30 #foodDialog .foodPickerPane,body.premiumV30 #foodDialog .foodSearchResults{flex:0 0 auto}
+body.premiumV30 #foodDialog #analyzeMealPhoto{scroll-margin-block:100px 140px;min-height:48px}
 body.premiumV30 #foodDialog .mealScanDrop{display:grid;place-items:center;min-height:82px;padding:12px;border:1px dashed rgba(121,182,255,.4);border-radius:14px;background:rgba(121,182,255,.05);color:#79b6ff;font-size:11px;font-weight:800;text-align:center;cursor:pointer}
 body.premiumV30 #foodDialog .mealScanDrop input{position:absolute;width:1px;height:1px;opacity:0}
 body.premiumV30 #foodDialog .mealScanPreview{margin:10px 0;overflow:hidden;border:1px solid var(--v30-line);border-radius:14px}
 body.premiumV30 #foodDialog .mealScanPreview[hidden]{display:none!important}
-body.premiumV30 #foodDialog .mealScanPreview img{display:block;width:100%;max-height:260px;object-fit:cover}
+body.premiumV30 #foodDialog .mealScanPreview img{display:block;width:100%;max-height:260px;object-fit:contain}
 body.premiumV30 #foodDialog #mealScanStatus.error{color:#ff9e8f}
 body.premiumV30 #foodDialog .foodBatchTray{flex:0 0 auto;margin:3px 0 12px;padding:13px;border:1px solid rgba(214,255,63,.26);border-radius:16px;background:linear-gradient(145deg,rgba(214,255,63,.09),rgba(214,255,63,.025));box-shadow:inset 0 1px rgba(255,255,255,.035)}
 body.premiumV30 #foodDialog .foodBatchTray[hidden]{display:none}

@@ -78,7 +78,7 @@ async function analyzeMealPhoto(){
  const task={controller:new AbortController(),photo:mealScanImageDataUrl,owner:A.session.user.id};mealScanTask=task;
  let button=$('analyzeMealPhoto');button.disabled=true;button.textContent='Analyzing…';setMealScanStatus('Identifying the visible foods and estimating portions…');
  try{
-  if(typeof A.ensureHealthConsent!=='function'||!await A.ensureHealthConsent({interactive:true,purpose:'personalized_ai'}))throw Error('AI tools are off. Turn them on once to use Meal Scan.');
+  if(typeof A.ensureHealthConsent!=='function'||!await A.ensureHealthConsent({interactive:true,purpose:'meal_scan_ai'}))throw Error('Meal Scan is off in your saved privacy choices. You can change this in Profile → Account & privacy.');
   if(mealScanTask!==task||A.session?.user?.id!==task.owner||task.controller.signal.aborted)return;
   let j=await A.authedFetch('meal-scan',{method:'POST',signal:task.controller.signal,body:JSON.stringify({imageDataUrl:task.photo})});
   if(mealScanTask!==task||A.session?.user?.id!==task.owner||task.controller.signal.aborted)return;

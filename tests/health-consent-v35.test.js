@@ -17,20 +17,21 @@ test('health-data choice is separate, granular, affirmative and local-first',()=
   assert.doesNotMatch(source,/id="healthConsentConfirm" type="checkbox"[^>]*checked/);
   for(const purpose of ['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai'])assert.match(source,new RegExp(purpose));
   assert.match(source,/disabled>Continue/);
-  assert.match(source,/selected&&confirmed/);
+  assert.match(source,/pending\?\.saving\|\|!confirmed/);
+  assert.match(source,/I allow this optional use/);
   assert.match(source,/legalPage\('privacy\.html','#health'\)/);
   assert.doesNotMatch(source,/\.\.\/work-gym-planner\/privacy\.html/);
 });
 
 test('feature consent uses one friendly AI-tools purpose and hides technical jargon',()=>{
   const source=read('work-gym-planner-v16/health-consent-v35.js');
-  assert.match(source,/Object\.entries\(PURPOSES\)\.filter\(\(\[id\]\)=>id!=='meal_scan_ai'\)/);
+  assert.match(source,/id!=='meal_scan_ai'\|\|active\('meal_scan_ai'\)/);
   assert.match(source,/title:'AI tools'/);
   assert.match(source,/Use AI Coach, Meal Scan and roster reading/);
   assert.match(source,/Scan photos are not kept/);
   assert.match(source,/activeFor[\s\S]*personalized_ai[\s\S]*meal_scan_ai/);
-  assert.match(source,/We will not interrupt you with another consent screen for every scan or AI request/);
-  assert.match(source,/I can turn it off later/);
+  assert.match(source,/We remember both on and off choices/);
+  assert.match(source,/I can change my mind at any time/);
   assert.match(source,/We could not save your choice\. Please try again\./);
   assert.doesNotMatch(source,/Optional and separate from account terms|explicit-consent standards|AES-GCM encrypted|through Vercel to OpenAI|private Supabase account/);
 });
@@ -79,8 +80,8 @@ test('server recognizes only the current version and selected purpose',()=>{
   const browser=read('work-gym-planner-v16/health-consent-v35.js');
   const server=read('server/v18-lib.js');
   const statement='I agree to the selected uses of my health and wellness data. I can change my mind at any time.';
-  assert.match(browser,/POLICY_VERSION='1\.5'/);
-  assert.match(server,/HEALTH_POLICY_VERSION='1\.5'/);
+  assert.match(browser,/POLICY_VERSION='1\.6'/);
+  assert.match(server,/HEALTH_POLICY_VERSION='1\.6'/);
   assert.match(browser,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.match(server,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   const receipt={action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync']};
@@ -126,9 +127,9 @@ test('published policy describes the implemented global consent controls',()=>{
   assert.match(privacy,/Version:<\/strong> 1\.6/);
   assert.match(privacy,/one short privacy step in plain language/);
   assert.match(privacy,/not requested again for every scan or AI request/);
-  assert.match(privacy,/Selecting “Not now”/);
+  assert.match(privacy,/Leaving optional features off/);
   assert.match(privacy,/consent version, policy version, selected purposes, statement, locale and time/);
-  assert.match(privacy,/Account &amp; sync/);
+  assert.match(privacy,/Account &amp; privacy/);
   assert.match(privacy,/Consent receipts/);
   assert.match(privacy,/Article 9\(2\)\(a\)/);
 });

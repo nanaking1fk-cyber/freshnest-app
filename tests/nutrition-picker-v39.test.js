@@ -40,7 +40,7 @@ test('meal and recipe reuse stage fresh rows for final confirmation',()=>{
 
 test('Meal Scan is consent-gated, structured, rate-limited, and does not store photos',()=>{
   assert.match(init,/#foodMealScanTool'\)\.onclick=\(\)=>foodTab\('meal-scan'\)/);
-  assert.match(diaryB,/ensureHealthConsent[\s\S]*purpose:'personalized_ai'/);
+  assert.match(diaryB,/ensureHealthConsent[\s\S]*purpose:'meal_scan_ai'/);
   assert.match(api,/requireAnyHealthConsent\(user,\['personalized_ai','meal_scan_ai'\]\)/);
   assert.match(api,/countAI\(user\.id\)/);
   assert.match(api,/textFormat:responseFormat/);

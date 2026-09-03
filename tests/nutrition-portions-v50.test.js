@@ -95,5 +95,5 @@ test('portion controls and calculation module load in production, offline and na
  const html=read('work-gym-planner-v15/index.html');for(const id of ['foodGrams','foodServings','foodPortionSummary'])assert.ok(html.includes('id="'+id+'"'));
  assert.ok(html.includes('Nutrition for 1 serving'));assert.ok(read('work-gym-planner-v16/diary-a.js').includes('data-edit-food-batch'));
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner-v16/index.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js'])assert.ok(read(file).includes('food-portions-v50.js'),file);
- for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-account59'),file);
+ for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-agreement60'),file);
 });

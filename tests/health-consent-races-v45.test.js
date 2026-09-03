@@ -1,6 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const source=fs.readFileSync(require('node:path').join(__dirname,'../work-gym-planner-v16/health-consent-v35.js'),'utf8');
-const grant={action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync']};
+const agreement={termsVersion:'1.2',privacyVersion:'1.6',acceptedAt:'2026-09-03T18:00:00Z',statement:'I agree to the Terms of Use and acknowledge the Privacy & Consumer Health Data Policy.'};
+const grant={action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync'],agreement};
 function harness(){
  const data=new Map(),events={};
  const A={session:{user:{id:'user-a'}},renderAccountUI(){},authedFetch:async()=>({receipt:null})};
@@ -70,4 +71,46 @@ test('previous Meal-Scan-only receipts remain valid',async()=>{
  const h=harness(),legacyGrant={...grant,purposes:['meal_scan_ai']};
  h.A.authedFetch=async()=>({receipt:legacyGrant});await h.A.refreshHealthConsent();
  assert.equal(h.A.hasHealthConsent('meal_scan_ai'),true);
+});
+
+test('saved off choices survive sign-in on a fresh device without another form',async()=>{
+ const h=harness(),off={...grant,action:'withdrawn',purposes:[]};
+ h.A.authedFetch=async()=>({receipt:off});
+ const choice=await h.A.reviewPrivacyForOnboarding();
+ assert.equal(choice.deviceOnly,true);assert.equal(choice.completed,true);
+ for(let i=0;i<3;i++)assert.equal(await h.A.ensureHealthConsent({interactive:true,purpose:'personalized_ai'}),false);
+ assert.equal(h.A.hasAppAgreement(),true);
+ assert.deepEqual(JSON.parse(h.data.get('wgc-health-consent-v35:user-a')),off);
+});
+test('ordinary policy display changes do not invalidate accepted terms or saved choices',async()=>{
+ const h=harness();h.A.authedFetch=async()=>({receipt:{...grant,policyVersion:'older-notice'}});
+ assert.equal((await h.A.reviewPrivacyForOnboarding()).completed,true);
+});
+test('offline startup uses known choices locally without pretending cloud consent was checked',async()=>{
+ const h=harness();h.A.authedFetch=async()=>({receipt:grant});await h.A.refreshHealthConsent();
+ h.A.authedFetch=async()=>{throw Error('offline')};
+ const choice=await h.A.reviewPrivacyForOnboarding();
+ assert.equal(choice.deviceOnly,true);assert.equal(choice.cloudAllowed,false);assert.equal(choice.offline,true);
+ assert.equal(h.A.hasAppAgreement(),true);
+});
+test('device-only acceptance is durable and withdrawal keeps the original terms timestamp',async()=>{
+ const h=harness();h.A.session=null;
+ await h.A.testRecord('withdrawn',[],{termsConfirmed:true});
+ const first=JSON.parse(h.data.get('wgc-health-consent-v35:device'));
+ assert.equal(first.agreement.termsVersion,'1.2');assert.equal(first.purposes.length,0);
+ await h.A.testRecord('granted',['personalized_ai']);await h.A.testRecord('withdrawn',[]);
+ const latest=JSON.parse(h.data.get('wgc-health-consent-v35:device'));
+ assert.equal(latest.agreement.acceptedAt,first.agreement.acceptedAt);
+ assert.equal((await h.A.reviewPrivacyForOnboarding()).deviceOnly,true);
+});
+test('a failed server agreement save cannot be presented as permanently saved',async()=>{
+ const h=harness();h.A.authedFetch=async()=>({receipt:{...grant,agreement:null}});
+ await assert.rejects(h.A.testRecord('granted',['account_cloud_sync'],{termsConfirmed:true}),/not confirmed/);
+ assert.equal(h.A.hasAppAgreement(),false);
+});
+test('another tabs saved off choices replace stale permission without erasing terms',async()=>{
+ const h=harness();h.A.authedFetch=async()=>({receipt:grant});await h.A.refreshHealthConsent();
+ h.data.set('wgc-health-consent-v35:user-a',JSON.stringify({...grant,action:'withdrawn',purposes:[]}));
+ h.events.storage({key:'wgc-health-consent-v35:user-a'});
+ assert.equal(h.A.hasHealthConsent('account_cloud_sync'),false);assert.equal(h.A.hasAppAgreement(),true);
 });

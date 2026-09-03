@@ -5,7 +5,9 @@ const SUPABASE_URL=()=>process.env.SUPABASE_URL;
 const ANON=()=>process.env.SUPABASE_PUBLISHABLE_KEY||process.env.SUPABASE_ANON_KEY;
 const SERVICE=()=>process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const HEALTH_CONSENT_VERSION='2026-08-31-v1';
-const HEALTH_POLICY_VERSION='1.5';
+const HEALTH_POLICY_VERSION='1.6';
+const APP_TERMS_VERSION='1.2';
+const APP_AGREEMENT_STATEMENT='I agree to the Terms of Use and acknowledge the Privacy & Consumer Health Data Policy.';
 const HEALTH_CONSENT_PURPOSES=Object.freeze(['account_cloud_sync','encrypted_webdav_sync','personalized_ai','meal_scan_ai']);
 const HEALTH_CONSENT_STATEMENT='I agree to the selected uses of my health and wellness data. I can change my mind at any time.';
 const HEALTH_WITHDRAWAL_STATEMENT='I withdraw my consent for future account cloud sync, encrypted WebDAV sync, personalized AI, and Meal Scan processing of my health and wellness data.';
@@ -135,26 +137,41 @@ function normalizeConsentRow(row){
     statement:row.explicit_statement,
     locale:row.locale||null,
     region:row.region||'global',
-    createdAt:row.created_at
+    createdAt:row.created_at,
+    ...(row.app_agreement?{agreement:row.app_agreement}:{})
   };
 }
 
 async function getHealthConsent(userId,authorization){
   if(!userId)throw Object.assign(new Error('Sign in required.'),{status:401});
-  const path=`health_data_consent_events?select=action,consent_version,policy_version,purposes,explicit_statement,locale,region,created_at&user_id=eq.${encodeURIComponent(userId)}&order=created_at.desc,id.desc&limit=1`;
+  const path=`health_data_consent_events?select=action,consent_version,policy_version,purposes,explicit_statement,locale,region,created_at,app_agreement&user_id=eq.${encodeURIComponent(userId)}&order=created_at.desc,id.desc&limit=1`;
   const rows=await userFetch(authorization,path);
-  return normalizeConsentRow(rows?.[0]);
+  const receipt=normalizeConsentRow(rows?.[0]);
+  // A concurrent older client can append a withdrawal without the newly saved
+  // agreement. That changes optional choices, never erases terms acceptance.
+  if(receipt&&!receipt.agreement){
+    const agreements=await userFetch(authorization,`health_data_consent_events?select=app_agreement&user_id=eq.${encodeURIComponent(userId)}&app_agreement=not.is.null&order=created_at.desc,id.desc&limit=1`);
+    if(agreements?.[0]?.app_agreement)receipt.agreement=agreements[0].app_agreement;
+  }
+  return receipt;
 }
 
 function healthConsentActive(receipt,purpose){
   return !!receipt&&receipt.action==='granted'&&receipt.consentVersion===HEALTH_CONSENT_VERSION&&HEALTH_CONSENT_PURPOSES.includes(purpose)&&receipt.purposes.includes(purpose);
 }
 
-async function recordHealthConsent(userId,authorization,{action,purposes=[],locale=null}={}){
+async function recordHealthConsent(userId,authorization,{action,purposes=[],locale=null,termsConfirmed=false,termsVersion=null}={}){
   if(!userId)throw Object.assign(new Error('Sign in required.'),{status:401});
   const normalizedAction=action==='withdrawn'?'withdrawn':'granted';
   const normalizedPurposes=normalizedAction==='granted'?[...new Set(purposes.filter(value=>HEALTH_CONSENT_PURPOSES.includes(value)))]:[];
   if(normalizedAction==='granted'&&!normalizedPurposes.length)throw Object.assign(new Error('Select at least one health-data use.'),{status:400});
+  if(termsConfirmed&&termsVersion!==APP_TERMS_VERSION)throw Object.assign(new Error('Please review the current Terms of Use.'),{status:400});
+  const previous=await getHealthConsent(userId,authorization);
+  // Terms acceptance is independent of optional processing. Keep its original
+  // timestamp when a user later changes or withdraws health-data choices.
+  const agreement=termsConfirmed&&previous?.agreement?.termsVersion!==APP_TERMS_VERSION
+    ?{termsVersion:APP_TERMS_VERSION,privacyVersion:HEALTH_POLICY_VERSION,acceptedAt:new Date().toISOString(),statement:APP_AGREEMENT_STATEMENT}
+    :previous?.agreement||null;
   const rows=await userFetch(authorization,'health_data_consent_events',{
     method:'POST',
     body:{
@@ -166,7 +183,8 @@ async function recordHealthConsent(userId,authorization,{action,purposes=[],loca
       explicit_statement:normalizedAction==='granted'?HEALTH_CONSENT_STATEMENT:HEALTH_WITHDRAWAL_STATEMENT,
       locale:String(locale||'').slice(0,35)||null,
       region:'global',
-      source:'work-and-workout-app'
+      source:'work-and-workout-app',
+      app_agreement:agreement
     }
   });
   return normalizeConsentRow(rows?.[0]);

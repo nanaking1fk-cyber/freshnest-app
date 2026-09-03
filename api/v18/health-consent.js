@@ -14,10 +14,12 @@ module.exports=async(req,res)=>{
       return json(res,200,{ok:true,receipt,activePurposes,consentVersion:HEALTH_CONSENT_VERSION,policyVersion:HEALTH_POLICY_VERSION,statement:HEALTH_CONSENT_STATEMENT});
     }
     if(req.method==='POST'){
-      const {action,confirmed,purposes,consentVersion,locale}=req.body||{};
+      const {action,confirmed,purposes,consentVersion,locale,termsConfirmed,termsVersion}=req.body||{};
       if(action!=='grant'&&action!=='withdraw')return json(res,400,{ok:false,error:'Consent action must be grant or withdraw.'});
       if(action==='grant'&&(confirmed!==true||consentVersion!==HEALTH_CONSENT_VERSION))return json(res,400,{ok:false,error:'Current explicit confirmation is required.'});
-      const receipt=await recordHealthConsent(user.id,user.authorization,{action:action==='grant'?'granted':'withdrawn',purposes:Array.isArray(purposes)?purposes:[],locale});
+      if(termsConfirmed===true&&consentVersion!==HEALTH_CONSENT_VERSION)return json(res,400,{ok:false,error:'Please review the current privacy choices.'});
+      if(termsConfirmed!==undefined&&typeof termsConfirmed!=='boolean')return json(res,400,{ok:false,error:'Terms confirmation must be a deliberate choice.'});
+      const receipt=await recordHealthConsent(user.id,user.authorization,{action:action==='grant'?'granted':'withdrawn',purposes:Array.isArray(purposes)?purposes:[],locale,termsConfirmed,termsVersion});
       const activePurposes=HEALTH_CONSENT_PURPOSES.filter(purpose=>healthConsentActive(receipt,purpose));
       return json(res,200,{ok:true,receipt,activePurposes,consentVersion:HEALTH_CONSENT_VERSION,policyVersion:HEALTH_POLICY_VERSION});
     }

@@ -16,14 +16,14 @@ test('first account load offers privacy before cloud restore and plan setup',()=
 
 test('privacy onboarding is granular and keeps other backup setup collapsed',()=>{
  const source=read('work-gym-planner-v16/health-consent-v35.js');
- assert.match(source,/Privacy before you begin/);
- assert.match(source,/Continue on this device/);
+ assert.match(source,/Terms & privacy/);
+ assert.match(source,/Agree & continue on device/);
  assert.match(source,/Agree & continue/);
  assert.match(source,/showAll:true,onboarding:true/);
  assert.match(source,/<details class="healthConsentMore"><summary>Other backup options/);
  assert.doesNotMatch(source,/<details class="healthConsentMore"[^>]*\bopen/);
- assert.match(source,/already\?'checked disabled':''/);
- assert.match(source,/healthConsentConfirm'\)\.checked=false/);
+ assert.match(source,/already\?'checked':''/);
+ assert.match(source,/healthConsentConfirm'\)\.checked=agreementCurrent\(\)/);
  assert.match(source,/consentVersion:CONSENT_VERSION/);
  for(const file of ['privacy.html','terms.html'])assert.ok(source.includes(`legalPage('${file}'`));
 });
@@ -32,7 +32,7 @@ test('existing choices and cancellation cannot become new permission',()=>{
  const source=read('work-gym-planner-v16/health-consent-v35.js');
  const review=source.slice(source.indexOf('async function reviewForOnboarding'),source.indexOf('async function ensure('));
  assert.match(review,/await refresh\(\{render:false\}\)/);
- assert.match(review,/if\(active\('account_cloud_sync'\)\)return\{cloudAllowed:true,deviceOnly:false\}/);
+ assert.match(review,/if\(agreementCurrent\(\)&&choicesSaved\(\)\)return/);
  assert.match(source,/deviceOnly:result==='device-only'/);
  assert.match(source,/if\(pending\?\.saving&&!force\)return/);
  assert.match(source,/if\(pending!==choice\)return/);

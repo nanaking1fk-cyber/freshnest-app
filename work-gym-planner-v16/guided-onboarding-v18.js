@@ -515,7 +515,7 @@
     window.closeModal?.('guidedOnboarding');
     if(paused){window.page?.('home');window.renderTodayDashboard?.();window.toast?.('Setup saved. Resume whenever you are ready.')}
   }
-  function openGuided(options){
+  async function openGuided(options){
     if(A.passwordRecovery){A.openAccount?.('signin');return}
     if(A.session&&A.canStartOnboarding?.()===false){if(!options?.auto)A.openAccount?.('signin');return}
     const automatic=!!(options&&options.auto);
@@ -524,6 +524,11 @@
     if(automatic){try{if(sessionStorage.getItem(pausedSessionKey())==='1')return}catch{}}
     else try{sessionStorage.removeItem(pausedSessionKey())}catch{}
     if(A.config?.cloudConfigured&&!A.session){A.openAccount?.('signup');return}
+    if(!A.hasAppAgreement?.()&&A.reviewPrivacyForOnboarding){
+      const uid=A.session?.user?.id;
+      try{const choice=await A.reviewPrivacyForOnboarding();if(!choice?.completed||uid!==A.session?.user?.id)return}
+      catch{window.toast?.('Reconnect to save your terms and privacy choices.');return}
+    }
     document.querySelectorAll('.modal.open').forEach(function(open){window.closeModal?.(open.id)});
     previewReady=false;
     detailedSetup=!!options?.details;

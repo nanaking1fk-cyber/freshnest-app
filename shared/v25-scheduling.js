@@ -13,6 +13,7 @@
   const MONTHS={jan:0,january:0,feb:1,february:1,mar:2,march:2,apr:3,april:3,may:4,jun:5,june:5,jul:6,july:6,aug:7,august:7,sep:8,sept:8,september:8,oct:9,october:9,nov:10,november:10,dec:11,december:11};
   const NUMBER_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,seven:7};
   const COLORS=['#58a6ff','#b8f34a','#a78bfa','#f59e0b','#f472b6','#22d3ee','#fb7185','#34d399'];
+  const COLOR_NAMES=['Blue','Lime green','Purple','Amber','Pink','Cyan','Coral','Mint green'];
 
   function pad(value){return String(value).padStart(2,'0')}
   function keyFromDate(value){return value.getFullYear()+'-'+pad(value.getMonth()+1)+'-'+pad(value.getDate())}
@@ -357,5 +358,5 @@
     return values;
   }
 
-  return{DAY_NAMES,WEEKDAYS,COLORS,pad,keyFromDate,dateFromKey,addDays,diffDays,minutes,parseTimes,splitInput,expandDayLanguage,explicitDate,deadlineDate,classify,parseNaturalLanguage,confidenceFor,eventBounds,overlap,sameEvent,detectConflicts,durationHours,timeAfter,placeFlexibleEntries,patternFromPreset,parsePattern,normalizeRotation,rotationEventOn,projectRotation,eventsForRange,dedupeEvents,startOfWeek,weeklySummary,detectPairConflicts,hashString};
+  return{DAY_NAMES,WEEKDAYS,COLORS,COLOR_NAMES,pad,keyFromDate,dateFromKey,addDays,diffDays,minutes,parseTimes,splitInput,expandDayLanguage,explicitDate,deadlineDate,classify,parseNaturalLanguage,confidenceFor,eventBounds,overlap,sameEvent,detectConflicts,durationHours,timeAfter,placeFlexibleEntries,patternFromPreset,parsePattern,normalizeRotation,rotationEventOn,projectRotation,eventsForRange,dedupeEvents,startOfWeek,weeklySummary,detectPairConflicts,hashString};
 });

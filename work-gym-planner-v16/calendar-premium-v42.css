@@ -250,3 +250,13 @@ body.premiumV30 .calendarPdfPreviewV42>footer{padding:10px 19px;color:#8b9098;ba
 }
 
 @media(prefers-reduced-motion:reduce){body.premiumV30 .calendarOverlayV42 *,body.premiumV30 #page-calendar *{scroll-behavior:auto!important;transition:none!important}}
+
+/* v46: keep the calendar clear while picking dates; reveal one input method at a time. */
+body.premiumV30.calendarShiftPickingV35 #page-calendar #dayCard{display:none!important}
+body.premiumV30.calendarShiftPickingV35.calendarDaySheetOpenV42::before{display:none}
+body.premiumV30 #page-calendar #plannerPane-add[data-capture-mode="choose"] #smartCaptureV19{display:none!important}
+body.premiumV30 #page-calendar #plannerPane-add:not([data-capture-mode="text"]) .smartCaptureIntro,
+body.premiumV30 #page-calendar #plannerPane-add:not([data-capture-mode="text"]) .smartCaptureComposer,
+body.premiumV30 #page-calendar #plannerPane-add:not([data-capture-mode="text"]) .smartCaptureExamples,
+body.premiumV30 #page-calendar #plannerPane-add:not([data-capture-mode="upload"]) #scheduleImportV24,
+body.premiumV30 #page-calendar #plannerPane-add[data-capture-mode="review"] .captureContextV25{display:none!important}

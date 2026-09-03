@@ -112,7 +112,7 @@ test('work sources are selectable during import and can be deleted completely',(
   assert.match(planner,/New work source…/);
   assert.match(planner,/sourceOptions\(existing\.dataset\.sourceId\|\|source\?\.id,true\)/,
     'the Add menu must include every saved work source, including paused sources');
-  assert.match(planner,/if\(name==='add'\)captureSourceControl\(\)/,
+  assert.match(planner,/if\(name==='add'\)\{setCaptureMode\('choose'\);captureSourceControl\(\)\}/,
     'opening Add must refresh its work-source selector');
   assert.match(planner,/data-source-delete/);
   assert.match(planner,/saveEvents\(events\(\)\.filter/,

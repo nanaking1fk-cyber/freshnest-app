@@ -122,6 +122,11 @@
     var legacyAdd=card.querySelector('#dayCardAddV33');if(legacyAdd){legacyAdd.hidden=true;legacyAdd.setAttribute('aria-hidden','true')}
   }
   function closeDaySheet(){document.body.classList.remove('calendarDaySheetOpenV42');document.getElementById('dayCard')?.classList.remove('v42Expanded')}
+  function openDaySheet(){
+    // Selecting several dates must never summon the ordinary single-day sheet.
+    if(document.body.classList.contains('calendarShiftPickingV35')){closeDaySheet();return}
+    document.body.classList.add('calendarDaySheetOpenV42');queueDecorate();
+  }
 
   function headerMarkup(){return'<div class="calendarTitleV42"><small>YOUR SCHEDULE</small><h1>Calendar</h1></div><div class="calendarHeadActionsV42"><div class="calendarViewToggleV42" role="group" aria-label="Calendar view"><button type="button" data-calendar-view="month">Month</button><button type="button" data-calendar-view="week">Week</button></div><button id="calendarTodayV42" type="button">Today</button><button id="calendarFilterV42" class="calendarIconButtonV42" type="button" aria-label="Filter calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7v5l-4 2v-7Z"/></svg></button><button id="calendarShareV42" type="button">Share</button><button id="calendarAddV42" class="calendarAddV42" type="button"><span>+</span> Add</button></div>'}
   function setView(view){view=view==='week'?'week':'month';write(KEY.view,view);var pane=document.getElementById('plannerPane-calendar');if(pane)pane.dataset.calendarView=view;document.querySelectorAll('[data-calendar-view]').forEach(function(button){var active=button.dataset.calendarView===view;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active))})}
@@ -142,8 +147,8 @@
     if(todayButton&&!todayButton.dataset.bound){todayButton.dataset.bound='true';todayButton.onclick=function(){selectedDate=today();calView=new Date();refreshCalendar()}}
     document.querySelectorAll('[data-calendar-view]').forEach(function(button){if(button.dataset.bound)return;button.dataset.bound='true';button.onclick=function(){setView(button.dataset.calendarView)}});
     setView(calendarView());
-    var grid=document.getElementById('calendarGrid');if(grid&&!grid.dataset.calendarV42){grid.dataset.calendarV42='true';grid.addEventListener('click',function(event){if(event.target.closest('.calDay[data-date]')){document.body.classList.add('calendarDaySheetOpenV42');queueDecorate()}})}
-    var rail=document.getElementById('calendarWeekRailV33');if(rail&&!rail.dataset.calendarV42){rail.dataset.calendarV42='true';rail.addEventListener('click',function(event){if(event.target.closest('[data-week-date]')){document.body.classList.add('calendarDaySheetOpenV42');queueDecorate()}})}
+    var grid=document.getElementById('calendarGrid');if(grid&&!grid.dataset.calendarV42){grid.dataset.calendarV42='true';grid.addEventListener('click',function(event){if(event.target.closest('.calDay[data-date]'))openDaySheet()})}
+    var rail=document.getElementById('calendarWeekRailV33');if(rail&&!rail.dataset.calendarV42){rail.dataset.calendarV42='true';rail.addEventListener('click',function(event){if(event.target.closest('[data-week-date]'))openDaySheet()})}
     var legacyTabs=document.querySelector('.plannerTabsV25');if(legacyTabs)legacyTabs.setAttribute('aria-hidden','true');
     ensurePaneBacks();
   }
@@ -262,6 +267,7 @@
   function boot(){
     decorate();watchCalendarRenders();document.addEventListener('keydown',keyHandler);document.addEventListener('click',outsideDayHandler);window.addEventListener('wgc:authchange',function(){setTimeout(decorate,80)});window.addEventListener('wgc:profile-ready',function(){setTimeout(decorate,80)})
   }
+  API.closeDaySheet=closeDaySheet;
   API.openAdd=openAdd;API.openShare=openShare;API.openFilters=openFilters;API.openHolidaySettings=openHolidaySettings;API.holidaysForYear=holidaysForYear;API.buildPdf=buildPdf;API.shareRows=shareRows;API.refresh=refreshCalendar;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })(window);

@@ -17,6 +17,15 @@
 
 /* Explicit health-data choices: separate, readable and viewport-safe. */
 body.premiumV30 #healthConsentDialog .healthConsentSheet{display:flex;flex-direction:column;width:min(680px,calc(100vw - 28px));max-height:min(880px,calc(100dvh - 28px));overflow:hidden;padding:0}
+body.premiumV30 #healthConsentDialog .healthConsentBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:4px}
+body.premiumV30 #healthConsentDialog .healthConsentMore{border:1px solid var(--line);border-radius:14px;padding:0 14px}
+body.premiumV30 #healthConsentDialog .healthConsentMore summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:12px}
+body.premiumV30 #healthConsentDialog .healthConsentMore summary::after{content:'+';margin-left:auto;font-size:18px}
+body.premiumV30 #healthConsentDialog .healthConsentMore[open] summary::after{content:'−'}
+body.premiumV30 #healthConsentDialog .healthConsentMore .healthPurpose{margin-bottom:12px}
+body.premiumV30 #healthConsentDialog .onboardingConsent .healthPurpose input{margin-top:3px}
+body.premiumV30 #healthConsentDialog .onboardingConsent .healthPurpose small{font-size:12px}
+body.premiumV30 #healthConsentDialog .onboardingConsent .healthConsentConfirm{font-size:12px}
 body.premiumV30 #healthConsentDialog .sheetHead{flex:0 0 auto;padding:22px 24px 15px;border-bottom:1px solid var(--line)}
 body.premiumV30 #healthConsentDialog .sheetHead small{display:block;margin-bottom:3px;color:var(--lime);font-size:9px;font-weight:850;letter-spacing:.09em;text-transform:uppercase}
 body.premiumV30 #healthConsentDialog .healthConsentIntro{padding:18px 24px 4px}
@@ -30,7 +39,7 @@ body.premiumV30 #healthConsentDialog .healthPurpose b,body.premiumV30 #healthCon
 body.premiumV30 #healthConsentDialog .healthPurpose small{margin-top:4px;color:var(--muted);font-size:10px;line-height:1.45}
 body.premiumV30 #healthConsentDialog .healthConsentConfirm{display:flex;gap:12px;margin:10px 24px 0;padding:14px;border:1px solid rgba(214,255,63,.28);border-radius:14px;background:rgba(214,255,63,.045);font-size:11px;line-height:1.5;cursor:pointer}
 body.premiumV30 #healthConsentDialog .healthConsentLegal,body.premiumV30 #healthConsentDialog #healthConsentStatus{margin:10px 24px}
-body.premiumV30 #healthConsentDialog .healthConsentActions{position:sticky;bottom:0;z-index:2;display:flex;gap:10px;margin-top:auto;padding:14px 24px max(18px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(12,17,23,.92),#0c1117 24%)}
+body.premiumV30 #healthConsentDialog .healthConsentActions{position:sticky;bottom:0;z-index:2;display:flex;flex-shrink:0;gap:10px;margin-top:auto;padding:14px 24px max(18px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:linear-gradient(180deg,rgba(12,17,23,.92),#0c1117 24%)}
 body.premiumV30 #healthConsentDialog .healthConsentActions button{flex:1;min-height:48px}
 body.premiumV30 #healthConsentDialog .healthConsentSheet.compactConsent{width:min(560px,calc(100vw - 28px))}
 body.premiumV30 #healthConsentDialog .compactConsent .healthConsentIntro{padding-top:20px}
@@ -47,7 +56,7 @@ body.premiumV30 .healthConsentPanel>a{grid-column:1/-1;color:var(--muted);font-s
 
 @media(max-width:600px){
  body.premiumV30 #healthConsentDialog{align-items:flex-end;padding:0}
- body.premiumV30 #healthConsentDialog .healthConsentSheet{width:100%;max-width:none;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-radius:24px 24px 0 0;overflow-y:auto}
+ body.premiumV30 #healthConsentDialog .healthConsentSheet{width:100%;max-width:none;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-radius:24px 24px 0 0;overflow:hidden}
  body.premiumV30 #healthConsentDialog .sheetHead,body.premiumV30 #healthConsentDialog .healthConsentIntro,body.premiumV30 #healthConsentDialog .healthConsentPurposes{padding-left:17px;padding-right:17px}
  body.premiumV30 #healthConsentDialog .healthConsentConfirm{margin-left:17px;margin-right:17px}
  body.premiumV30 #healthConsentDialog .healthConsentLegal,body.premiumV30 #healthConsentDialog #healthConsentStatus{margin-left:17px;margin-right:17px}

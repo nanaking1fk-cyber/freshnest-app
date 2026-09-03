@@ -40,11 +40,13 @@ async function setup(page,{failRead=false,conflict=false,deleteFailure=false}={}
   return {calls,errors};
 }
 async function grant(page){
+  const cloud=page.locator('#healthConsentPurposes input[value="account_cloud_sync"]');
+  if(await cloud.count())await cloud.check();
   await page.locator('#healthConsentConfirm').check();
   await page.locator('#healthConsentAgree').click();
 }
 async function openAccount(page){
-  await page.getByRole('button',{name:'Open profile',exact:true}).click();
+  await page.getByRole('button',{name:'Open account',exact:true}).click();
   await expect(page.locator('#accountDialog')).toHaveClass(/open/);
 }
 
@@ -69,9 +71,9 @@ for(const viewport of [{width:390,height:844},{width:1440,height:1000}]){
       await page.screenshot({path:info.outputPath('restored.png')});
       expect(errors).toEqual([]);
     });
-    test('Not now keeps cloud sync and setup paused and offers a clear retry',async({page},info)=>{
+    test('dismissing privacy keeps cloud sync and setup paused and offers a clear retry',async({page},info)=>{
       const {calls,errors}=await setup(page);
-      await page.locator('#healthConsentLocal').click();
+      await page.keyboard.press('Escape');
       await expect(page.locator('#accountRestoreGuard')).toBeVisible();
       await expect(page.locator('#loadSavedAccount')).toBeVisible();
       await expect(page.locator('#syncAccount')).toBeDisabled();
@@ -114,7 +116,7 @@ for(const viewport of [{width:390,height:844},{width:1440,height:1000}]){
     });
     test('restore can request consent without hiding the privacy controls',async({page})=>{
       const {errors}=await setup(page);
-      await page.locator('#healthConsentLocal').click();
+      await page.keyboard.press('Escape');
       await page.locator('#restoreAccount').click();
       await page.locator('#accountActionConfirm').click();
       await expect(page.locator('#healthConsentDialog')).toHaveClass(/open/);

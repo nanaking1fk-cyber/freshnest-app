@@ -31,3 +31,32 @@ test('refreshing the same account token does not clear accepted privacy choices'
  const h=harness();h.A.authedFetch=async()=>({receipt:grant});await h.A.refreshHealthConsent();
  h.events['wgc:authchange']();assert.equal(h.A.hasHealthConsent('account_cloud_sync'),true);
 });
+test('concurrent onboarding and startup checks both receive existing consent',async()=>{
+ const h=harness();let finish,calls=0;
+ h.A.authedFetch=()=>{calls++;return new Promise(resolve=>{finish=resolve})};
+ const onboarding=h.A.reviewPrivacyForOnboarding(),startup=h.A.refreshHealthConsent();
+ assert.equal(calls,1);finish({receipt:grant});
+ assert.equal((await onboarding).cloudAllowed,true);
+ assert.deepEqual(await startup,grant);
+ assert.equal(h.A.hasHealthConsent('account_cloud_sync'),true);
+});
+test('a failed shared consent check can be retried without granting anything',async()=>{
+ const h=harness();let fail,calls=0;
+ h.A.authedFetch=()=>{calls++;return new Promise((resolve,reject)=>{fail=reject})};
+ const first=h.A.refreshHealthConsent(),second=h.A.refreshHealthConsent();
+ fail(Error('offline'));
+ const results=await Promise.allSettled([first,second]);
+ assert.ok(results.every(result=>result.status==='rejected'));assert.equal(calls,1);
+ assert.equal(h.A.hasHealthConsent('account_cloud_sync'),false);
+ h.A.authedFetch=async()=>({receipt:grant});await h.A.refreshHealthConsent();
+ assert.equal(h.A.hasHealthConsent('account_cloud_sync'),true);
+});
+test('consent checks for different accounts never share an in-flight result',async()=>{
+ const h=harness(),pending=[];
+ h.A.authedFetch=()=>new Promise(resolve=>pending.push(resolve));
+ const first=h.A.refreshHealthConsent();h.A.session={user:{id:'user-b'}};
+ const second=h.A.refreshHealthConsent();assert.equal(pending.length,2);
+ pending[1]({receipt:null});await second;pending[0]({receipt:grant});await first;
+ assert.equal(h.A.hasHealthConsent('account_cloud_sync'),false);
+ assert.equal(h.data.has('wgc-health-consent-v35:user-b'),false);
+});

@@ -53,6 +53,40 @@ test('declining consent is never mistaken for an empty account',async()=>{
   assert.ok(!h.events.includes('onboarding'));
 });
 
+test('front-of-onboarding privacy finishes before reading an existing cloud plan',async()=>{
+  const h=harness({secure:true});let finish;
+  h.A.reviewPrivacyForOnboarding=()=>new Promise(resolve=>{finish=resolve});
+  const loading=h.A.resumeAccount();
+  assert.equal(h.A.canStartOnboarding(),false);assert.equal(h.calls.length,0);
+  finish({cloudAllowed:true,deviceOnly:false});await loading;h.flush();
+  assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
+  assert.equal(h.A.cloudStateReady,true);assert.ok(!h.events.includes('onboarding'));
+});
+
+test('explicit device-only onboarding cannot read or overwrite a saved cloud account',async()=>{
+  const h=harness({secure:true});h.A.reviewPrivacyForOnboarding=async()=>({cloudAllowed:false,deviceOnly:true});
+  await h.A.resumeAccount();h.flush();
+  assert.equal(h.A.accountState,'local');assert.equal(h.A.cloudStateReady,false);
+  assert.equal(await h.A.pushState({quiet:true}),false);assert.equal(h.calls.length,0);
+  assert.ok(h.events.includes('onboarding'));
+});
+
+test('closing or failing the first privacy screen does not start empty-account onboarding',async()=>{
+  for(const review of [async()=>({cloudAllowed:false,deviceOnly:false}),async()=>{throw Error('offline')}]){
+    const h=harness({secure:true});h.A.reviewPrivacyForOnboarding=review;
+    await h.A.resumeAccount();h.flush();
+    assert.equal(h.A.canStartOnboarding(),false);assert.equal(h.A.cloudStateReady,false);
+    assert.equal(h.calls.length,0);assert.ok(!h.events.includes('onboarding'));
+  }
+});
+
+test('explicit cloud restore still requires cloud consent rather than a device-only choice',async()=>{
+  const h=harness({consent:false});h.A.reviewPrivacyForOnboarding=()=>assert.fail('restore must use its cloud-specific confirmation');
+  await h.A.resumeAccount({forceCloud:true});h.flush();
+  assert.equal(h.A.accountState,'needs-consent');assert.equal(h.calls[0].kind,'consent');
+  assert.equal(h.calls.filter(x=>x.kind==='request').length,0);
+});
+
 test('startup calendar defaults do not count as a conflicting saved plan',async()=>{
   const h=harness({local:{[OWNER]:'user-a','wgp-v15-schedule-sources-v25':'[{"id":"work","name":"Work"}]','wgp-v15-schedule-sources-initialized-v25':'true'}});
   await h.A.resumeAccount();assert.equal(h.A.cloudStateReady,true);
@@ -209,7 +243,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-email51b'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-privacy52'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{

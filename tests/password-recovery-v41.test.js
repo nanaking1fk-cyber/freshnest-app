@@ -16,7 +16,7 @@ test('password recovery emails return to the planner reset flow',()=>{
 
 test('auth callback cleanup cannot be shadowed by the workout history function',()=>{
   assert.doesNotMatch(account,/(^|[^.])history\.replaceState\(/m);
-  assert.equal((account.match(/window\.history\.replaceState\(/g)||[]).length,3);
+  assert.equal((account.match(/window\.history\.replaceState\(/g)||[]).length,4);
   assert.doesNotMatch(read('work-gym-planner-v16/workout-plan.js'),/function history\(\)/);
   assert.match(read('work-gym-planner-v16/workout-plan.js'),/function workoutHistory\(\)/);
   for(const directory of ['work-gym-planner-v15','work-gym-planner-v16']){
@@ -40,7 +40,7 @@ test('a valid recovery exchange opens reset UI before normal post-login work',()
 test('invalid or cross-browser reset links open an actionable account screen',()=>{
   const flow=account.slice(account.indexOf('async function consumeAuthRedirect()'),account.indexOf('A.signIn=signIn'));
   assert.match(flow,/if\(!verifier\)\{openAccount\('signin'\)/);
-  assert.match(flow,/same browser where you requested it/);
+  assert.match(flow,/older reset link cannot be completed here/);
   assert.match(flow,/catch\(e\)[\s\S]*openAccount\('signin'\)/);
   assert.match(flow,/invalid or expired/);
 });

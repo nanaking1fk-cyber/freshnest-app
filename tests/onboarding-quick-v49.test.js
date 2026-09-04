@@ -110,8 +110,8 @@ test('a late automatic startup cannot interrupt an already open setup or clear i
 
 test('production and offline loaders ship the three-step flow and its scoped styles',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
-  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-pay65'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-pay65'));
+  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-reset66'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-reset66'));
  }
- for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-pay65'));
+ for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-reset66'));
  const css=read('work-gym-planner-v16/app-v30.css');assert.match(css,/body\.premiumV30 #guidedOnboarding\.guidedQuickV49 \.guidedFieldGrid/);
 });

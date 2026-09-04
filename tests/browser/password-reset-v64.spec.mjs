@@ -70,7 +70,7 @@ test('expired reset links show recovery help, including when already signed in',
 test('cross-browser links never silently use an existing login',async({page})=>{
  await setup(page);await page.addInitScript(session=>{localStorage.removeItem('wgc-v25-pkce-verifier');localStorage.setItem('wgc-v18-session',JSON.stringify(session))},session);
  await page.goto('/work-gym-planner/shell.html?auth=recovery&code=fixture-code');
- await expect(page.locator('#authLinkError')).toBeVisible();await expect(page.locator('#authLinkError')).toContainText('same browser');
+ await expect(page.locator('#authLinkError')).toBeVisible();await expect(page.locator('#authLinkError')).toContainText('older reset link');
  await expect(page.locator('#recoveryPasswordForm')).toHaveCount(0);
 });
 test('older token-fragment links are rejected visibly without accepting their tokens',async({page})=>{

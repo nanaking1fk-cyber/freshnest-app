@@ -1,0 +1,24 @@
+import {createRequire} from 'node:module';
+const require=createRequire(new URL('../../app-store/package.json',import.meta.url));
+const {test,expect}=require('@playwright/test');
+const session={access_token:'fixture-access',refresh_token:'fixture-refresh',expires_at:4102444800,user:{id:'reset-fixture',email:'reset@example.test'}};
+for(const width of [390,1280])test(`email reset in a fresh browser at ${width}px`,async({page,context})=>{
+ await page.setViewportSize({width,height:844});const calls=[],errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await context.route('**/api/**',r=>r.fulfill({json:new URL(r.request().url()).pathname.endsWith('/config')?{cloudConfigured:true,aiConfigured:false,supabaseUrl:'https://example.test',supabaseAnonKey:'fixture'}:{ok:true,state:null,receipt:null}}));
+ await context.route('https://example.test/**',r=>{calls.push({path:new URL(r.request().url()).pathname,body:r.request().postDataJSON()});return r.fulfill({json:r.request().method()==='PUT'?session.user:session})});
+ await page.goto('/work-gym-planner/shell.html?auth=recovery#recovery_token=synthetic-email-proof');
+ await expect(page.locator('#verifyRecoveryEmail')).toBeVisible();expect(calls).toEqual([]);
+ expect(new URL(page.url()).hash).toBe('');
+ expect(await page.evaluate(()=>localStorage.getItem('wgc-v25-pkce-verifier'))).toBeNull();
+ await page.locator('#verifyRecoveryEmail').click();
+ await expect(page.locator('#recoveryPasswordForm')).toBeVisible();
+ expect(calls).toEqual([{path:'/auth/v1/verify',body:{token_hash:'synthetic-email-proof',type:'recovery'}}]);
+ await expect(page.locator('#accountBody .signedAccount')).toHaveCount(0);
+ await page.locator('#recoveryNewPassword').fill('Test-only-New-Password-66!');
+ await page.locator('#saveRecoveredPassword').click();
+ await expect.poll(()=>page.evaluate(()=>WGC18.passwordRecovery)).toBe(false);
+ expect(calls.some(x=>x.path==='/auth/v1/user'&&x.body.password==='Test-only-New-Password-66!')).toBe(true);
+ expect(errors).toEqual([]);
+ await page.goto('about:blank');
+});

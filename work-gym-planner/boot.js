@@ -1,8 +1,9 @@
 (async()=>{try{
+  const authCallback=new URLSearchParams(location.search).has('auth');
   const currentBoot=document.getElementById('wwBoot');
   const boot=currentBoot?currentBoot.outerHTML:'';
   const critical=document.getElementById('wwBootCritical')?.outerHTML||'<style>html,body{background:#070a0d;color:#f4f7f0}</style>';
-  let h=await fetch('../work-gym-planner-v15/index.html?v=30.1.31-reset66',{cache:'force-cache'}).then(r=>{if(!r.ok)throw Error('base');return r.text()});
+  let h=await fetch('../work-gym-planner-v15/index.html?v=30.1.31-reset66'+(authCallback?'&auth=callback':''),{cache:authCallback?'no-store':'force-cache'}).then(r=>{if(!r.ok)throw Error('base');return r.text()});
   const remove=['workout-plan.js','nutrition-core.js','calendar.js','training.js','diary.js','progress.js','schedule.js','data.js','init.js'];
   for(const f of remove)h=h.replace(new RegExp('<script\\s+defer\\s+src="\\./'+f.replace('.','\\.')+'"><\\/script>\\s*','g'),'');
   h=h.replace('<head>','<head><base href="../work-gym-planner-v15/"><scr'+'ipt defer src="../shared/observability.js?v=30.1.31-free57-hours58"></scr'+'ipt>');
@@ -22,6 +23,9 @@
   const consentScript='<scr'+'ipt defer src="'+p+'health-consent-v35.js?v='+assetRevision+'"></scr'+'ipt>';
   const orderedScripts=appScripts.replace('<scr'+'ipt defer src="'+p+'sync-v18.js?v='+assetRevision+'"></scr'+'ipt>',consentScript+'<scr'+'ipt defer src="'+p+'sync-v18.js?v='+assetRevision+'"></scr'+'ipt>');
   h=h.replace('</body>',platformScripts+orderedScripts+'<scr'+'ipt defer src="../shared/usage-counts-v45.js?v='+assetRevision+'"></scr'+'ipt></body>');
+  // Old installed workers ignore version query strings. Their auth bypass is
+  // already supported, so use it for callback scripts as well as navigation.
+  if(authCallback)h=h.replace(/(<script\b[^>]*\bsrc=")([^\"]+)(")/g,(_,before,src,after)=>before+src+(src.includes('?')?'&':'?')+'auth=callback'+after);
   document.open();document.write(h);document.close();
 }catch(e){
   window.WWObservability?.capture?.('boot_load',e?.name);

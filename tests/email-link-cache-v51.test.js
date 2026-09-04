@@ -52,3 +52,16 @@ test('new emails use the direct shell and the fixed worker is refreshed',()=>{
  assert.match(read('work-gym-planner-v16/pwa-patch.js'),/updateViaCache:'none'/);
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/shell.html','work-gym-planner/index.html',...workers])assert.ok(read(file).includes('30.1.31-reset66'));
 });
+test('reset boot and every injected script bypass previously installed offline caches',async()=>{
+ assert.match(read('work-gym-planner/shell.html'),/boot\.js\?v=[^\"]+&amp;auth=bootstrap/);
+ let html='',requested='';
+ await vm.runInNewContext(read('work-gym-planner/boot.js'),{
+  URLSearchParams,location:{search:'?auth=recovery'},console,
+  fetch:async url=>{requested=url;return{ok:true,text:async()=>'<html><head></head><body><script defer src="./base.js"></script></body></html>'}},
+  document:{getElementById:()=>null,open(){},write:value=>html=value,close(){}}
+ });
+ assert.match(requested,/auth=callback/);
+ const urls=[...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"/g)].map(m=>m[1]);
+ assert.ok(urls.length>40);
+ for(const url of urls){assert.match(url,/auth=callback/);const h=worker(workers[0],{cached:redirectedResponse()});assert.equal(h.dispatch(url),undefined);assert.equal(h.calls.matches.length,0)}
+});

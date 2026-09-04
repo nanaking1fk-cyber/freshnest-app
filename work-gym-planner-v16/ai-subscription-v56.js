@@ -1,7 +1,7 @@
 // AI allowances are read from the account, never granted from local storage.
 (function(A){
  'use strict';
- let state=null,owner=null,pending=null,product=null,busy=false,listener=null;
+ let state=null,owner=null,pending=null,product=null,busy=false,listener=null,checkedAt=0,photoCheck=false,authRevision=0;
  const costs={coach:1,equipment:10,meal:10,roster:20,schedule:20,plan:20};
  const $=id=>document.getElementById(id);
  function store(){return window.WGPNative?.platform==='ios'?window.Capacitor?.Plugins?.ApplePurchases:null}
@@ -9,10 +9,10 @@
  function message(value){if($('aiPlanStatus'))$('aiPlanStatus').textContent=value||''}
  async function refresh(){
   const uid=A.session?.user?.id;
-  if(!uid){state=null;owner=null;emit();return null}
+  if(!uid){state=null;owner=null;checkedAt=0;emit();return null}
   if(pending?.uid===uid)return pending.promise;
-  const task={uid};pending=task;
-  task.promise=(async()=>{try{const result=await A.authedFetch('subscription');if(A.session?.user?.id!==uid)return null;state=result;owner=uid;emit();return state}finally{if(pending===task)pending=null}})();
+  const task={uid,revision:authRevision};pending=task;
+  task.promise=(async()=>{try{const result=await A.authedFetch('subscription');if(A.session?.user?.id!==uid||task.revision!==authRevision)return null;state=result;owner=uid;checkedAt=Date.now();emit();return state}catch(error){if(A.session?.user?.id===uid&&task.revision===authRevision){state=null;owner=null;checkedAt=0;emit()}throw error}finally{if(pending===task)pending=null}})();
   return task.promise;
  }
  async function deliver(transaction){
@@ -20,7 +20,7 @@
   const uid=A.session.user.id;
   const result=await A.authedFetch('subscription',{method:'POST',body:JSON.stringify({signedTransaction:transaction.signedTransaction})});
   if(A.session?.user?.id!==uid)throw Error('Your account changed. Restore purchases after signing in.');
-  state=result;owner=uid;emit();
+  state=result;owner=uid;checkedAt=Date.now();emit();
   // Never finish an unverified or unpersisted purchase, including a failed restore.
   if(result.purchase?.transactionId===transaction.id)await store().finish({transactionId:transaction.id});
   return result;
@@ -35,7 +35,7 @@
    if(action==='purchase'){
     const result=await native.purchase({appAccountToken:current.appAccountToken});
     if(result.status==='cancelled'){message('Purchase cancelled. Your free plan is unchanged.');return}
-    if(result.status==='pending'){message('Waiting for Apple approval. Your credits will update when approved.');return}
+    if(result.status==='pending'){message('Waiting for Apple approval. AI Plus will unlock when approved.');return}
     const delivered=await deliver(result.transaction);message(delivered.tier==='plus'?'AI Plus is ready.':'Purchase checked. No active subscription was found.');
    }else{
     const result=await native.restore();
@@ -47,20 +47,20 @@
  async function manage(){try{if(store())await store().manage();else if(window.WGPNative?.openExternal)await window.WGPNative.openExternal('https://apps.apple.com/account/subscriptions');else window.open('https://apps.apple.com/account/subscriptions','_blank','noopener')}catch{message('Open iPhone Settings → your name → Subscriptions.')}finally{refresh().catch(()=>{})}}
  function render(){
   const current=owner===A.session?.user?.id?state:null;
-  if($('aiPlanBalance'))$('aiPlanBalance').textContent=current?`${current.remaining} of ${current.credits} credits left`:'10 free AI credits each month';
-  if($('aiPlanRenewal'))$('aiPlanRenewal').textContent=current?`${current.tier==='plus'?'AI Plus · Period ends':'Free · Resets'} ${new Date(current.resetsAt).toLocaleDateString()}`:'Sign in to see your allowance.';
+  if($('aiPlanBalance'))$('aiPlanBalance').textContent=current?.tier==='plus'?'AI Plus is active':'Make more time for you';
+  if($('aiPlanRenewal'))$('aiPlanRenewal').textContent=current?.tier==='plus'?`Current period ends ${new Date(current.resetsAt).toLocaleDateString()}`:'Scan meals, read rosters and get more from your coach.';
   const buy=$('aiSubscribeV56');
   if(buy){buy.hidden=!store()||current?.tier==='plus';buy.disabled=busy||!product?.available||!current?.purchaseAvailable;buy.textContent=product?.available?`Subscribe · ${product.displayPrice} / month`:'Apple subscription not available yet'}
   if($('aiRestoreV56')){$('aiRestoreV56').hidden=!store();$('aiRestoreV56').disabled=busy}
   if($('aiManageV56'))$('aiManageV56').hidden=current?.tier!=='plus'&&!store();
-  if($('aiPlanAvailability'))$('aiPlanAvailability').textContent=!current?.purchaseAvailable?'AI Plus is not available to buy yet. AI scans stay locked until subscriptions launch. Manual entry and barcode lookup are free.':store()?'Apple handles payment and cancellation.':'Subscribe in the iPhone app. Existing subscribers can use their credits here by signing in to the same account.';
+  if($('aiPlanAvailability'))$('aiPlanAvailability').textContent=!current?.purchaseAvailable?'AI Plus is not available to buy yet. Manual entry and barcode scanning are free.':store()?'Monthly subscription. Cancel anytime in Apple Settings.':'Subscribe in the iPhone app. Already subscribed? Sign in to the same account.';
  }
  function mount(){
   if(!$('aiPlanDialogV56')){
    const dialog=document.createElement('div');dialog.id='aiPlanDialogV56';dialog.className='modal';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','aiPlanTitle');
-   dialog.innerHTML=`<div class="sheet aiPlanSheetV56"><header><div><small>FREE TO START</small><h2 id="aiPlanTitle">AI, when you need it</h2></div><button type="button" id="aiPlanClose" aria-label="Close AI plans">✕</button></header><p>Calendar, workouts, food logging and progress tracking stay free. AI is optional.</p><section class="aiBalanceV56"><strong id="aiPlanBalance"></strong><span id="aiPlanRenewal"></span></section><div class="aiPlansV56"><section><h3>Free</h3><b>10 credits / month</b><p>10 Coach questions. No payment needed. AI scans require Plus.</p></section><section><h3>AI Plus</h3><b>100 credits / monthly billing period</b><p>AI scans, schedule reading and more coaching. No rollover.</p></section></div><details><summary>How credits work</summary><dl><div><dt>Coach question</dt><dd>1 credit</dd></div><div><dt>Meal or equipment photo</dt><dd>10 credits</dd></div><div><dt>Roster photo, AI schedule reading or plan refinement</dt><dd>20 credits</dd></div></dl><p>Credits are used when AI processing starts, including photos it cannot read. Rejected requests before processing use no credits. Daily service capacity also applies. Free credits reset at the start of each calendar month (UTC); Plus credits reset on renewal.</p></details><p id="aiPlanAvailability"></p><p class="aiRenewalV56">AI Plus is an auto-renewing monthly subscription. Apple shows your local price before you confirm. Payment is charged to your Apple Account. Cancel at least 24 hours before renewal in Settings → your name → Subscriptions. Deleting the app or your account does not cancel it. Cancelling keeps paid access until the end of the paid period, unless refunded or revoked.</p><p id="aiPlanStatus" role="status" aria-live="polite"></p><footer><button type="button" id="aiSubscribeV56" class="primary" disabled>Apple subscription not available yet</button><div><button type="button" id="aiRestoreV56">Restore Purchases</button><button type="button" id="aiManageV56">Manage Subscription</button></div><p><a id="aiTermsV56" target="_blank" rel="noopener">Terms of Use</a> · <a id="aiPrivacyV56" target="_blank" rel="noopener">Privacy Policy</a></p></footer></div>`;
+   dialog.innerHTML=`<div class="sheet aiPlanSheetV56"><header><div><small>WORK + WORKOUT</small><h2 id="aiPlanTitle">AI Plus</h2></div><button type="button" id="aiPlanClose" aria-label="Close AI plans">✕</button></header><section class="aiBalanceV56"><strong id="aiPlanBalance"></strong><span id="aiPlanRenewal"></span></section><p>Meal photos · Roster photos · Equipment help · More coaching</p><p>Monthly usage limit applies. <a href="#aiPlanDetailsV70" id="aiPlanDetailsLinkV70">Plan details</a></p><details id="aiPlanDetailsV70"><summary>What's included</summary><p>AI Plus includes a shared monthly allowance: up to 10 meal or equipment scans, 5 roster or schedule reads, or 100 Coach questions when used alone. Mixing tools uses the same allowance; plan refinement counts like a roster read. Unused allowance does not roll over.</p><p>Attempts count once AI processing starts, including unreadable photos. Requests rejected before processing do not count. Daily service capacity also applies.</p><p>The free plan includes 10 Coach questions each calendar month (UTC). Calendar, workouts, manual food logging and barcode lookup stay free.</p><p>Apple charges your account on confirmation. Cancel at least 24 hours before renewal in Settings → your name → Subscriptions. Deleting the app or your account does not cancel the subscription. Cancelling keeps access until the paid period ends, unless refunded or revoked.</p></details><p id="aiPlanAvailability"></p><p class="aiRenewalV56">Renews monthly until cancelled. Apple shows your local price before you confirm.</p><p id="aiPlanStatus" role="status" aria-live="polite"></p><footer><button type="button" id="aiSubscribeV56" class="primary" disabled>Apple subscription not available yet</button><div><button type="button" id="aiRestoreV56">Restore Purchases</button><button type="button" id="aiManageV56">Manage Subscription</button></div><p><a id="aiTermsV56" target="_blank" rel="noopener">Terms of Use</a> · <a id="aiPrivacyV56" target="_blank" rel="noopener">Privacy Policy</a></p></footer></div>`;
    document.body.appendChild(dialog);
-   $('aiPlanClose').onclick=()=>window.closeModal?.('aiPlanDialogV56');
+   $('aiPlanClose').onclick=()=>window.closeModal?.('aiPlanDialogV56');$('aiPlanDetailsLinkV70').onclick=event=>{event.preventDefault();$('aiPlanDetailsV70').open=true;$('aiPlanDetailsV70').querySelector('summary').focus()};
    dialog.addEventListener('click',event=>{if(event.target===dialog)window.closeModal?.('aiPlanDialogV56')});
    dialog.addEventListener('keydown',event=>{
     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();window.closeModal?.('aiPlanDialogV56');return}
@@ -74,22 +74,32 @@
    for(const [id,file] of [['aiTermsV56','terms.html'],['aiPrivacyV56','privacy.html']])$(id).href=typeof window.productPage==='function'?window.productPage(file):new URL('../work-gym-planner/'+file,location.href).href;
   }
   const cards=document.querySelector('#page-more .menuCards');
-  if(cards&&!$('openAIPlanV56')){const button=document.createElement('button');button.id='openAIPlanV56';button.innerHTML='<span>✦</span><div><b>AI credits & subscription</b><small>See your allowance, restore or manage Apple purchases</small></div><i>›</i>';button.onclick=A.openAIPlan;cards.appendChild(button)}
+  if(cards&&!$('openAIPlanV56')){const button=document.createElement('button');button.id='openAIPlanV56';button.innerHTML='<span>✦</span><div><b>AI Plus</b><small>Subscribe or manage your plan</small></div><i>›</i>';button.onclick=A.openAIPlan;cards.appendChild(button)}
   render();
  }
- A.openAIPlan=async()=>{mount();window.openModal?.('aiPlanDialogV56');$('aiPlanClose')?.focus();message('Checking your allowance…');try{await refresh();if(store())product=await store().products();render();message('')}catch(error){message(error.message)}};
+ A.openAIPlan=async(options={})=>{mount();window.openModal?.('aiPlanDialogV56');$('aiPlanClose')?.focus();message('Checking your plan…');try{if(options.refresh!==false)await refresh();if(store())product=await store().products();render();message('')}catch{message('We could not check your subscription. Please try again. No photo has been sent.')}};
  A.aiCredits=()=>owner===A.session?.user?.id?state:null;
  A.refreshAICredits=refresh;
  A.ensureAICredits=async feature=>{
   if(!A.session){window.openModal?.('accountDialog');return false}
-  const current=await refresh();
+  let current;try{current=await refresh()}catch{await A.openAIPlan({refresh:false});message('We could not check your subscription. Please try again. No photo has been sent.');return false}
   if(!current)return false;
   if(!costs[feature])throw Error('This AI tool is unavailable.');
-  if(feature!=='coach'&&current.tier!=='plus'){await A.openAIPlan();message('This AI tool requires AI Plus. Manual entry and barcode lookup stay free.');return false}
-  if(current.remaining<costs[feature]){await A.openAIPlan();message(`This tool uses ${costs[feature]} credits; you have ${current.remaining} left. Manual entry stays free.`);return false}
+  if(feature!=='coach'&&current.tier!=='plus'){await A.openAIPlan({refresh:false});message('This AI tool requires AI Plus. Manual entry and barcode lookup stay free.');return false}
+  if(current.remaining<costs[feature]){await A.openAIPlan({refresh:false});message('Your monthly AI allowance has been used. It renews on '+new Date(current.resetsAt).toLocaleDateString()+'. Manual entry stays free.');return false}
   return true;
  };
- window.addEventListener('wgc:authchange',()=>{state=null;owner=null;pending=null;emit();reconcile().catch(()=>{})});
+ // Keep file-picker activation synchronous for Safari. Refresh on tool entry;
+ // an unknown, expired or different-account entitlement never opens a camera.
+ A.canUseAIPhoto=feature=>!!A.session&&owner===A.session.user.id&&state?.tier==='plus'&&state.remaining>=costs[feature]&&Date.now()-checkedAt<60000&&Date.parse(state.resetsAt)>Date.now();
+ document.addEventListener('click',event=>{
+  const target=event.target?.closest?.('#foodMealScanTool,input[type="file"]');
+  const feature={foodMealScanTool:'meal',mealScanPhoto:'meal',aiPhotoInput:'equipment',scheduleCameraV24:'roster',schedulePhotoV70:'roster'}[target?.id];
+  if(!feature||A.canUseAIPhoto(feature))return;
+  event.preventDefault();event.stopImmediatePropagation();if(photoCheck)return;photoCheck=true;
+  A.ensureAICredits(feature).then(allowed=>{if(!allowed||!target.isConnected||!A.canUseAIPhoto(feature))return;if(target.id==='foodMealScanTool')target.click();else window.toast?.('AI Plus is ready. Tap the photo button again to continue.');}).catch(()=>{A.openAIPlan()}).finally(()=>{photoCheck=false});
+ },true);
+ window.addEventListener('wgc:authchange',()=>{authRevision++;state=null;owner=null;pending=null;checkedAt=0;emit();reconcile().catch(()=>{})});
  async function reconcile(){
   if(!A.session||!store())return;
   try{const result=await store().entitlements();for(const transaction of result.transactions||[])await deliver(transaction)}catch{/* Leave unfinished transactions for the visible Restore flow. */}

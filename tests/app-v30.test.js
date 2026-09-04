@@ -185,7 +185,8 @@ test('work schedules can be added by selecting calendar dates or uploading an ex
     'the proposal calendar must convert zero-based array indexes to one-based calendar days');
   assert.match(calendar,/handleCalendarDateTap/);
   assert.match(calendar,/shiftPickV35/);
-  assert.match(adaptive,/id="scheduleFileV24" type="file" accept="image\/\*,application\/pdf,\.pdf"/);
+  assert.match(adaptive,/id="scheduleFileV24" type="file" accept="application\/pdf,\.pdf"/);
+  assert.match(adaptive,/id="schedulePhotoV70" type="file" accept="image\/\*"/);
   assert.match(adaptive,/async function extractImage\(file\)/);
   assert.match(adaptive,/async function extractPdf\(file\)/);
   assert.match(adaptive,/reviewRosterText/,

@@ -96,7 +96,7 @@
    <button type="button" id="rosterPreviewButtonV48">Preview what will be sent</button><div id="rosterPreviewV48"></div>
    <label class="rosterScanConsentV48"><input id="rosterConfirmV48" type="checkbox"><span>Only my schedule and its headings are highlighted. I agree to send these sections to OpenAI to read my shifts.</span></label>
    <p class="rosterScanPrivacyV48">The original photo stays on this device. Work + Workout does not save the selected image. <a target="_blank" rel="noopener noreferrer" id="rosterPrivacyV48">Privacy details</a></p>
-   <p id="rosterScanStatusV48" role="status" aria-live="polite"></p><footer><button type="button" data-roster-close>Cancel</button><button class="primary" id="rosterReadV48" type="button" disabled>Read my shifts · Plus · 20 credits</button></footer></div>`;
+   <p id="rosterScanStatusV48" role="status" aria-live="polite"></p><footer><button type="button" data-roster-close>Cancel</button><button class="primary" id="rosterReadV48" type="button" disabled>Read my shifts</button></footer></div>`;
   document.body.appendChild(editor);
   const profileValue=typeof profile==='function'?profile():{};
   $('#rosterNameV48').value=document.getElementById('rosterIdentityV31')?.value||profileValue?.rosterIdentity||profileValue?.name||'';
@@ -138,7 +138,7 @@
  // Capture before the legacy element handlers so a photo is never also sent
  // through the blocked WebAssembly OCR worker. PDF text reading stays local.
  document.addEventListener('change',event=>{
-  const input=event.target;if(!['scheduleCameraV24','scheduleFileV24'].includes(input.id))return;
+  const input=event.target;if(!['scheduleCameraV24','schedulePhotoV70','scheduleFileV24'].includes(input.id))return;
   const file=input.files?.[0];if(!file||file.type==='application/pdf'||/\.pdf$/i.test(file.name))return;
   event.stopImmediatePropagation();event.preventDefault();openFile(file,input);
  },true);

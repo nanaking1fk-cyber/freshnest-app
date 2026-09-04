@@ -8,7 +8,7 @@ test('monthly credits replace lifetime trial and metadata-only paid flags',()=>{
  assert.doesNotMatch(read('server/v18-lib.js'),/reserveAICoach|paidAccount|AI_COACH_PAID_REQUIRED/);
  assert.match(read('api/v18/coach.js'),/access\.run\(user,mode/);
  assert.doesNotMatch(read('work-gym-planner-v16/ai-coach-v18.js'),/TRIAL_KEY|jset\(TRIAL|requires a paid plan/);
- assert.match(read('work-gym-planner-v16/ai-coach-v18.js'),/10 free AI credits each month/);
+ assert.match(read('work-gym-planner-v16/ai-coach-v18.js'),/Discover AI Plus/);
  assert.match(read('work-gym-planner-v16/ai-coach-v18.js'),/monthly AI allowance does not reset/);
 });
 test('an Apple receipt, not a frontend paid flag, is required for extra credits',()=>{

@@ -1,5 +1,7 @@
 # Apple release candidate — 4 September 2026
 
+Historical V69 preparation and recovery notes follow. For the subsequent camera restriction, simplified subscription UI and updated device build, see [SCAN_SUBSCRIPTION_V70.md](SCAN_SUBSCRIPTION_V70.md).
+
 Status: local candidate based on production commit `d3941578a140df812063eb3c1196978bc0b5deb7`. This is not a published release or App Store approval.
 
 Recovery update, 4 September: the Mac restart cleared the temporary source/build directories. The published baseline was cloned into `/Users/franciskwarteng/Documents/ChatGPT/WorkAndWorkout-Recovery`, and the uncommitted text changes were reconstructed from the recorded file-edit history. Public Apple certificate files were downloaded again from Apple's certificate authority; locked dependencies were reinstalled without audit uploads. The owner-selected development team was restored. The recovered bundle audit and 19 Chromium release journeys pass. Historical temporary log paths below are no longer available after the restart and must not be treated as retained artifacts. Device installation remains unverified.

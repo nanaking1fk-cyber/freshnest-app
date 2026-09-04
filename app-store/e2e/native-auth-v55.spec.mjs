@@ -78,7 +78,29 @@ for(const width of [390,1280])test('free packaged planner stays usable and fits 
  }
  await page.evaluate(()=>WGC18.openAIPlan());
  await expect(page.locator('#aiPlanAvailability')).toContainText('not available to buy yet');
- await expect(page.locator('#aiPlanBalance')).toHaveText('10 of 10 credits left');
+ await expect(page.locator('#aiPlanBalance')).toHaveText('Make more time for you');
+ expect(errors).toEqual([]);
+});
+
+test('packaged free account is stopped before meal, equipment and roster cameras',async({page},info)=>{
+ const errors=await setup(page,undefined,true),choosers=[];page.on('filechooser',chooser=>choosers.push(chooser));
+ await expect.poll(()=>page.evaluate(()=>WGC18.cloudStateReady)).toBe(true);
+ await page.evaluate(()=>{document.querySelectorAll('.modal.open').forEach(el=>closeModal(el.id));window.page('diary')});
+ await page.locator('[data-add-food="Breakfast"]').click();await page.locator('#foodMealScanTool').click();
+ await expect(page.locator('#aiPlanDialogV56')).toBeVisible();await expect(page.locator('#foodPane-meal-scan')).toBeHidden();
+ await expect(page.locator('#aiPlanStatus')).toContainText('requires AI Plus');expect(choosers).toHaveLength(0);
+ await page.screenshot({path:info.outputPath('meal-subscription-gate.png')});
+ await page.evaluate(()=>{document.querySelectorAll('.modal.open').forEach(el=>closeModal(el.id));WGC18.openCoach()});
+ await page.locator('.aiCamera').click();await expect(page.locator('#aiPlanDialogV56')).toBeVisible();
+ expect(choosers).toHaveLength(0);await expect(page.locator('#aiAccessNotice')).not.toContainText(/credit/i);
+ await page.evaluate(()=>{document.querySelectorAll('.modal.open').forEach(el=>closeModal(el.id));window.page('calendar')});
+ await page.locator('#calendarAddV42').click();await page.locator('[data-add-kind="workmenu"]').click();await page.locator('[data-open-import]').click();
+ await page.locator('#uploadWorkRosterV35').click();
+ for(const id of ['scheduleCameraV24','schedulePhotoV70']){
+  await page.locator('label').filter({has:page.locator('#'+id)}).click();await expect(page.locator('#aiPlanStatus')).toContainText('requires AI Plus');expect(choosers).toHaveLength(0);await page.locator('#aiPlanClose').click();
+ }
+ await expect(page.locator('#scheduleFileV24')).toHaveAttribute('accept','application/pdf,.pdf');
+ const chooser=page.waitForEvent('filechooser');await page.locator('label').filter({has:page.locator('#scheduleFileV24')}).click();await chooser;
  expect(errors).toEqual([]);
 });
 

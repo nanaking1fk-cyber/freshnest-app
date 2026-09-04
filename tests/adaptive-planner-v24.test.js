@@ -18,7 +18,8 @@ test('calendar uses adaptive user-neutral labels',()=>{
 
 test('adaptive planner accepts text, voice, image and PDF with review before save',()=>{
   const planner=read('work-gym-planner-v16/adaptive-planner-v24.js');
-  assert.match(planner,/accept="image\/\*,application\/pdf,\.pdf"/);
+  assert.match(planner,/id="scheduleFileV24" type="file" accept="application\/pdf,\.pdf"/);
+  assert.match(planner,/id="schedulePhotoV70" type="file" accept="image\/\*"/);
   assert.match(planner,/loadTesseract/);
   assert.match(planner,/vendor\/pdfjs\/pdf\.min\.mjs/);
   assert.match(planner,/reviewRosterText/);

@@ -155,7 +155,7 @@ test('every paid AI endpoint goes through the shared allowance and free onboardi
   const source=read(file);assert.match(source,/access\.run\(user,/);assert.doesNotMatch(source,/await (?:lib\.)?openAI\(/);
  }
  assert.match(read('api/v18/onboarding.js'),/refineWithAI===true/);
- assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/Optional AI refinement · 20 credits/);
+ assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/Refine with AI Plus/);
  assert.doesNotMatch(read('work-gym-planner-v16/ai-coach-v18.js'),/TRIAL_KEY|paid plan required|one free question/i);
  for(const file of ['work-gym-planner/index.html','work-gym-planner/boot.js','work-gym-planner/sw.js','work-gym-planner-v16/sw.js'])assert.match(read(file),/ai-subscription-v56\.js/);
  const config=JSON.parse(read('vercel.json'));

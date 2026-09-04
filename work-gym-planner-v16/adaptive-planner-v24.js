@@ -18,7 +18,7 @@
       '<label class="rosterIdentityV31"><span>Your name or employee ID on the roster</span><input id="rosterIdentityV31" autocomplete="name" placeholder="Exactly as it appears on the roster"><small>Used only to find your row. Other employees are never added to your calendar.</small></label>'+
       '<div class="scheduleImportButtons">'+
         '<label><span aria-hidden="true">⌁</span> Take a photo<input id="scheduleCameraV24" type="file" accept="image/*" capture="environment"></label>'+
-        '<label><span aria-hidden="true">＋</span> Upload photo or PDF<input id="scheduleFileV24" type="file" accept="image/*,application/pdf,.pdf"></label>'+
+        '<label><span aria-hidden="true">＋</span> Upload photo<input id="schedulePhotoV70" type="file" accept="image/*"></label><label><span aria-hidden="true">↥</span> Import PDF<input id="scheduleFileV24" type="file" accept="application/pdf,.pdf"></label>'+
       '</div>'+
       '<p id="scheduleImportStatusV24" role="status">Nothing is added until you review and approve it.</p>'+
     '</div>';

@@ -128,6 +128,7 @@ const required=[
   'index.html','privacy.html','support.html','terms.html','delete-account.html',
   'native/native-bridge.js','shared/observability.js','work-gym-planner-v15/index.html',
   'work-gym-planner-v16/app-v30.js','work-gym-planner-v16/app-v30.css','work-gym-planner-v16/calendar-premium-v42.js','work-gym-planner-v16/calendar-premium-v42.css',
+  'work-gym-planner-v16/product-tour-v76.js','work-gym-planner-v16/product-tour-v76.css','work-gym-planner-v16/assets/work-workout-tour-v76.mp4','work-gym-planner-v16/assets/work-workout-tour-v76-poster.jpg',
   'work-gym-planner-v16/accounts-v18.js','work-gym-planner-v16/health-consent-v35.js','work-gym-planner-v16/schedule-platform-v25.js',
   'work-gym-planner-v16/vendor/pdfjs/pdf.min.mjs',
   'work-gym-planner-v16/vendor/tesseract/tesseract.min.js',

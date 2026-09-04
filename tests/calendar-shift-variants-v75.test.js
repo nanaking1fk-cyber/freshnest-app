@@ -61,6 +61,6 @@ test('new shift controls are premium scoped and responsive',()=>{
  assert.match(rules,/calendarShiftChoicesV75/);assert.match(rules,/shiftPickerVariantsV75/);assert.match(rules,/@media\(max-width:760px\)/);
 });
 
-test('production and offline loaders carry the shift-variant release',()=>{
- for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-shifts75/);
+test('production and offline loaders carry the latest release',()=>{
+ for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-tour76/);
 });

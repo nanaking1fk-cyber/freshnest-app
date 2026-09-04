@@ -122,7 +122,7 @@ test('health privacy is prominent and legal pages remain in production and nativ
   assert.match(menu,/new URL\(`\.\/\$\{file\}`,location\.href\)/);
   assert.doesNotMatch(menu,/\/freshnest-app\/work-gym-planner/);
   assert.doesNotMatch(commercial,/location\.href='\/freshnest-app\/work-gym-planner/);
-  assert.match(workspace,/title:'Legal & privacy'/);
+  assert.match(workspace,/title:'Help & privacy'/);
   assert.match(workspace,/privacy & consumer health data policy/);
   assert.match(workspace,/v30LegalShown/);
   assert.match(build,/const legal=\['privacy\.html','support\.html','terms\.html','delete-account\.html'\]/);

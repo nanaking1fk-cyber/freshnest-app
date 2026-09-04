@@ -1,0 +1,58 @@
+body.premiumV30.productTourOpenV76{overflow:hidden}
+body.premiumV30 #productTourV76[hidden]{display:none!important}
+body.premiumV30 #productTourV76{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;padding:18px;opacity:0;transition:opacity .18s ease}
+body.premiumV30 #productTourV76.open{opacity:1}
+body.premiumV30 #productTourV76 .productTourBackdropV76{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:rgba(1,6,7,.82);backdrop-filter:blur(14px);cursor:default}
+body.premiumV30 #productTourV76 .productTourSheetV76{position:relative;width:min(940px,100%);max-height:calc(100dvh - 36px);overflow:hidden;border:1px solid rgba(209,250,90,.19);border-radius:26px;background:linear-gradient(145deg,#111a18,#090e10 70%);box-shadow:0 36px 100px rgba(0,0,0,.6);color:#f5f8f2;transform:translateY(12px) scale(.99);transition:transform .22s ease;outline:0}
+body.premiumV30 #productTourV76.open .productTourSheetV76{transform:none}
+body.premiumV30 #productTourV76 .productTourHeadV76{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:23px 25px;border-bottom:1px solid rgba(255,255,255,.08)}
+body.premiumV30 #productTourV76 .productTourHeadV76 p{margin:0 0 6px;color:#c8f548;font:700 9px/1.2 "IBM Plex Mono",monospace;letter-spacing:.16em}
+body.premiumV30 #productTourV76 .productTourHeadV76 h2{margin:0;font-size:25px;line-height:1.1;letter-spacing:-.045em}
+body.premiumV30 #productTourV76 .productTourHeadV76 span{display:block;margin-top:6px;color:#9ca9a1;font-size:12px}
+body.premiumV30 #productTourV76 .productTourCloseV76{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.035);color:#f5f8f2;font-size:25px;font-weight:300}
+body.premiumV30 #productTourV76 .productTourBodyV76{display:grid;grid-template-columns:minmax(260px,345px) minmax(320px,1fr);gap:28px;padding:24px 25px;overflow:auto;max-height:calc(100dvh - 144px)}
+body.premiumV30 #productTourV76 .productTourPlayerV76{min-width:0}
+body.premiumV30 #productTourV76 .productTourFrameV76{position:relative;overflow:hidden;width:min(100%,315px);margin:auto;aspect-ratio:9/16;border:1px solid rgba(255,255,255,.12);border-radius:21px;background:#030607;box-shadow:0 24px 60px rgba(0,0,0,.38)}
+body.premiumV30 #productTourV76 video{display:block;width:100%;height:100%;background:#030607;object-fit:contain}
+body.premiumV30 #productTourV76 .productTourPlayerV76>p{display:flex;align-items:center;justify-content:center;gap:7px;margin:12px 0 0;color:#95a39a;font-size:10px}
+body.premiumV30 #productTourV76 .productTourPlayerV76>p span{color:#c8f548;font-size:7px}
+body.premiumV30 #productTourV76 .productTourGuideV76{min-width:0;align-self:center}
+body.premiumV30 #productTourV76 .productTourGuideHeadV76{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#9da8a1}
+body.premiumV30 #productTourV76 .productTourGuideHeadV76 small{font:600 9px/1 "IBM Plex Mono",monospace;letter-spacing:.15em}
+body.premiumV30 #productTourV76 .productTourGuideHeadV76 span{padding:5px 8px;border:1px solid rgba(255,255,255,.1);border-radius:999px;font:600 9px/1 "IBM Plex Mono",monospace}
+body.premiumV30 #productTourV76 .productTourChaptersV76{display:grid;border:1px solid rgba(255,255,255,.09);border-radius:17px;overflow:hidden}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button{display:grid;grid-template-columns:30px 1fr 18px;grid-template-rows:auto auto;align-items:center;column-gap:10px;width:100%;min-height:60px;padding:10px 13px;border:0;border-bottom:1px solid rgba(255,255,255,.075);border-radius:0;background:transparent;color:#eff4ee;text-align:left}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button:last-child{border-bottom:0}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button:hover{background:rgba(200,245,72,.045)}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button.active{background:linear-gradient(90deg,rgba(200,245,72,.13),rgba(200,245,72,.025))}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button>span{grid-row:1/3;display:grid;place-items:center;width:29px;height:29px;border:1px solid rgba(255,255,255,.11);border-radius:50%;color:#97a29c;font:600 8px/1 "IBM Plex Mono",monospace}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button.active>span{border-color:#c8f548;background:#c8f548;color:#11170f}
+body.premiumV30 #productTourV76 .productTourChaptersV76 b{font-size:13px;line-height:1.2}
+body.premiumV30 #productTourV76 .productTourChaptersV76 small{grid-column:2;overflow:hidden;color:#8f9b94;font-size:10px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+body.premiumV30 #productTourV76 .productTourChaptersV76 i{grid-column:3;grid-row:1/3;color:#77837c;font-size:18px;font-style:normal}
+body.premiumV30 #productTourV76 .productTourTranscriptV76{margin-top:12px;border:1px solid rgba(255,255,255,.09);border-radius:14px;color:#a8b2ac}
+body.premiumV30 #productTourV76 .productTourTranscriptV76 summary{padding:12px 14px;cursor:pointer;font-size:11px;font-weight:700}
+body.premiumV30 #productTourV76 .productTourTranscriptV76 ol{display:grid;gap:8px;margin:0;padding:0 16px 15px 33px;font-size:10px;line-height:1.45}
+body.premiumV30 #productTourV76 button:focus-visible,body.premiumV30 #landingProductTourV76:focus-visible,body.premiumV30 #openProductTourV76:focus-visible{outline:2px solid #c8f548;outline-offset:2px}
+body.premiumV30 #landingProductTourV76{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+body.premiumV30 #landingProductTourV76 span{display:grid;place-items:center;width:23px;height:23px;border:1px solid currentColor;border-radius:50%;font-size:8px}
+body.premiumV30 #openProductTourV76>span{color:#c8f548;background:rgba(200,245,72,.09)}
+@media(max-width:720px){
+body.premiumV30 #productTourV76{padding:0;place-items:stretch}
+body.premiumV30 #productTourV76 .productTourSheetV76{width:100%;height:100dvh;max-height:none;border:0;border-radius:0}
+body.premiumV30 #productTourV76 .productTourHeadV76{padding:calc(16px + env(safe-area-inset-top)) 16px 15px}
+body.premiumV30 #productTourV76 .productTourHeadV76 h2{font-size:21px}
+body.premiumV30 #productTourV76 .productTourHeadV76 span{font-size:11px}
+body.premiumV30 #productTourV76 .productTourBodyV76{grid-template-columns:minmax(0,1fr);gap:18px;max-height:calc(100dvh - 101px - env(safe-area-inset-top));padding:16px 16px calc(24px + env(safe-area-inset-bottom))}
+body.premiumV30 #productTourV76 .productTourFrameV76{width:min(100%,270px);border-radius:18px}
+body.premiumV30 #productTourV76 .productTourGuideV76{align-self:auto}
+body.premiumV30 #productTourV76 .productTourChaptersV76 button{min-height:58px}
+body.premiumV30 #wwLanding .ww29HeroActions{flex-wrap:wrap}
+body.premiumV30 #landingProductTourV76{flex-basis:100%}
+}
+@media(max-width:360px){
+body.premiumV30 #productTourV76 .productTourFrameV76{width:min(100%,230px)}
+body.premiumV30 #productTourV76 .productTourHeadV76{padding-left:13px;padding-right:13px}
+body.premiumV30 #productTourV76 .productTourBodyV76{padding-left:13px;padding-right:13px}
+}
+@media(prefers-reduced-motion:reduce){body.premiumV30 #productTourV76,body.premiumV30 #productTourV76 .productTourSheetV76{transition:none}}

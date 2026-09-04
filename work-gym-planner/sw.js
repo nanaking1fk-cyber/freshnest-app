@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.31-shifts75';
+const CACHE='wgp-stable-v30.1.31-tour76';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/usage-counts-v45.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',
@@ -10,6 +10,7 @@ const SHELL=[
 SHELL.push('../work-gym-planner-v16/health-consent-v35.js');
 SHELL.push('../work-gym-planner-v16/roster-scan-v48.js','../work-gym-planner-v16/roster-scan-v48.css');
 SHELL.push('../shared/work-pay-v58.js','../work-gym-planner-v16/work-pay-v58.js','../work-gym-planner-v16/work-pay-v58.css');
+SHELL.push('../work-gym-planner-v16/product-tour-v76.js','../work-gym-planner-v16/product-tour-v76.css');
 const OPTIONAL_SHELL=SHELL.filter(url=>url.includes('/vendor/'));
 const REQUIRED_SHELL=SHELL.filter(url=>!OPTIONAL_SHELL.includes(url));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(async c=>{

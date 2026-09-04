@@ -71,7 +71,7 @@ test('nutrition shows essentials before detailed limits and meal templates',()=>
 });
 
 test('settings are grouped by user intent',()=>{
-  for(const heading of ['Plan & coaching','Health & progress','Account & data','Legal & privacy'])
+  for(const heading of ['Plan & coaching','Health & progress','Account & data','Help & privacy'])
     assert.ok(script.includes(heading),`${heading} group is required`);
   assert.match(css,/\.menuCardsV30\{display:grid/);
 });

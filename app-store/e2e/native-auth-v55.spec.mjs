@@ -44,7 +44,7 @@ async function setup(page,launchUrl,existing=false){
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body),headers:{'Access-Control-Allow-Origin':'*'}});
  });
  await page.addInitScript(({launchUrl,existing})=>{
-  if(existing){localStorage.setItem('wgc-v18-session',JSON.stringify({access_token:'native-fixture-token',expires_at:4102444800,user:{id:'native-fixture',email:'native@example.test'}}));localStorage.setItem('wgc-v18-local-owner','native-fixture')}
+  if(existing&&!sessionStorage.getItem('fixture-account-seeded')){sessionStorage.setItem('fixture-account-seeded','1');localStorage.setItem('wgc-v18-session',JSON.stringify({access_token:'native-fixture-token',expires_at:4102444800,user:{id:'native-fixture',email:'native@example.test'}}));localStorage.setItem('wgc-v18-local-owner','native-fixture')}
   window.nativeEvents={};
   window.Capacitor={getPlatform:()=> 'ios',Plugins:{
    App:{addListener:(name,fn)=>{window.nativeEvents[name]=fn},getLaunchUrl:async()=>({url:launchUrl})},
@@ -79,6 +79,26 @@ for(const width of [390,1280])test('free packaged planner stays usable and fits 
  await page.evaluate(()=>WGC18.openAIPlan());
  await expect(page.locator('#aiPlanAvailability')).toContainText('not available to buy yet');
  await expect(page.locator('#aiPlanBalance')).toHaveText('Make more time for you');
+ expect(errors).toEqual([]);
+});
+
+for(const width of [390,1280])test('sign out sits below account menus and still works at '+width+'px',async({page},info)=>{
+ await page.setViewportSize({width,height:844});const errors=await setup(page,undefined,true);
+ await expect.poll(()=>page.evaluate(()=>WGC18.cloudStateReady)).toBe(true);
+ await page.evaluate(()=>{document.querySelectorAll('.modal.open').forEach(el=>closeModal(el.id));WGC18.session.user.email='a-long-sample-email-address-for-layout-checks@example.test';WGC18.openAccount()});
+ const button=page.locator('#signOutAccount');await expect(button).toBeVisible();
+ await expect(page.locator('.accountIdentity #signOutAccount')).toHaveCount(0);
+ await expect(page.locator('.accountSessionActionsV71 #signOutAccount')).toHaveCount(1);
+ await expect(page.locator('#deleteCloudAccount')).toBeHidden();
+ const menu=await page.locator('#accountDialog .accountMenu').boundingBox(),bounds=await button.boundingBox();
+ expect(bounds.y).toBeGreaterThan(menu.y+menu.height);expect(bounds.height).toBeGreaterThanOrEqual(48);expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);
+ expect(await page.locator('#accountDialog .premiumAccountSheet').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+ await page.screenshot({path:info.outputPath('account-signout-'+width+'.png')});
+ const before=requests.filter(r=>r.path.endsWith('/logout')).length;
+ await button.focus();await page.keyboard.press('Enter');
+ await expect.poll(()=>requests.filter(r=>r.path.endsWith('/logout')).length).toBe(before+1);
+ await expect.poll(async()=>{try{return await page.evaluate(()=>!!window.WGC18?.config.loaded&&!WGC18.session)}catch{return false}}).toBe(true);
+ expect(requests.filter(r=>r.path.endsWith('/logout')).at(-1).query.scope).toBe('global');
  expect(errors).toEqual([]);
 });
 

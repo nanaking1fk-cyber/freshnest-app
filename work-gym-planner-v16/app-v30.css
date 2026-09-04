@@ -1029,6 +1029,12 @@ body.premiumV30 .guidedProfileSummary .guidedProfileActions button{width:100%;mi
 
 body.premiumV30 #accountDialog .premiumAccountSheet{width:min(100% - 24px,660px);max-height:calc(100dvh - 28px);overflow-y:auto}
 body.premiumV30 #accountDialog .accountMenu{display:grid;gap:9px;margin-top:14px}
+body.premiumV30 #accountDialog .accountIdentity>span{flex-shrink:0}
+body.premiumV30 #accountDialog .accountIdentity b{overflow-wrap:anywhere}
+body.premiumV30 #accountDialog .accountSessionActionsV71{margin-top:20px;padding-top:16px;border-top:1px solid var(--v30-line)}
+body.premiumV30 #accountDialog .accountSessionActionsV71 #signOutAccount{display:block;width:100%;min-height:48px;padding:12px 16px;text-align:center;font-weight:700;border:1px solid var(--v30-line);border-radius:14px;background:var(--v30-panel-raised);color:var(--v30-ink);cursor:pointer}
+body.premiumV30 #accountDialog .accountSessionActionsV71 #signOutAccount:hover{border-color:var(--v30-line-strong);background:var(--v30-panel-soft)}
+body.premiumV30 #accountDialog .accountSessionActionsV71 #signOutAccount:focus-visible{outline:2px solid var(--v30-signal);outline-offset:3px}
 body.premiumV30 #accountDialog .accountMenuSection{overflow:hidden;border:1px solid var(--v30-line);border-radius:15px;background:rgba(255,255,255,.018)}
 body.premiumV30 #accountDialog .accountMenuSection summary{min-height:62px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;list-style:none}
 body.premiumV30 #accountDialog .accountMenuSection summary::-webkit-details-marker{display:none}

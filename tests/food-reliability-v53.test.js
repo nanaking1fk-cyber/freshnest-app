@@ -6,7 +6,7 @@ function harness(){
  const context={URL,AbortController,setTimeout,clearTimeout,structuredClone,console,Date,$:element,$$:()=>[],foodState:{meal:'Breakfast',batch:[],libraryTab:'history'},myFoods:()=>[],builtinFoodMatches:()=>[{name:'Oats',source:'Built in'}],esc:String,stopBarcode(){},renderFoodBatch(){},foodTab(){},toast:text=>messages.push(text),foodDraftFromProduct:x=>x,stageFoodItems:items=>staged.push(...items)};
  context.window=context;context.WGCFoodPortions={normalizeOFF:x=>x};
  context.WWObservability={request:async(url,init)=>{calls.push({url,init});return{response:{ok:true,status:200},text:'{"products":[]}'}}};
- context.WGC18={session:{user:{id:'sample'}},ensureHealthConsent:async()=>true,authedFetch:async()=>({items:[]})};
+ context.WGC18={session:{user:{id:'sample'}},ensureHealthConsent:async()=>true,ensureAICredits:async()=>true,authedFetch:async()=>({items:[]})};
  vm.createContext(context);vm.runInContext(read('work-gym-planner-v16/diary-b.js'),context);
  vm.runInContext("foodResult=(food)=>food.name;showFoodSearchResults=()=>{};bindFoodResults=()=>{};stopBarcode=async()=>{};",context);
  return{context,element,calls,staged,messages,run:code=>vm.runInContext(code,context)};
@@ -44,7 +44,7 @@ test('repeated camera detections share one barcode request',async()=>{
 test('a failed meal scan retains its photo, enables retry and cannot double-submit',async()=>{
  const h=harness();h.run("mealScanImageDataUrl='data:image/jpeg;base64,sample'");let reject,calls=0;
  h.context.WGC18.authedFetch=()=>{calls++;return new Promise((resolve,fail)=>reject=fail)};
- const pending=h.context.analyzeMealPhoto();await Promise.resolve();await h.context.analyzeMealPhoto();assert.equal(calls,1);
+ const pending=h.context.analyzeMealPhoto();await new Promise(resolve=>setImmediate(resolve));await h.context.analyzeMealPhoto();assert.equal(calls,1);
  reject(Object.assign(Error('offline'),{code:'NETWORK_ERROR'}));await pending;
  assert.equal(h.run('mealScanImageDataUrl'),'data:image/jpeg;base64,sample');assert.equal(h.element('analyzeMealPhoto').disabled,false);
  assert.match(h.element('mealScanStatus').textContent,/photo is still here/);assert.equal(h.staged.length,0);

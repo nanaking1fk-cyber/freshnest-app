@@ -132,7 +132,7 @@
       id:'baseline',
       render:function(){return question('chart','Starting point','What should the plan know about '+personName()+'?','These details create a starting estimate. Body-fat percentage is optional.',
         '<div class="guidedFieldGrid">'+
-          textInput('age','Age','','number','min="16" max="100" inputmode="numeric"')+
+          textInput('age','Age','','number','min="18" max="100" inputmode="numeric"')+
           selectInput('sex','Calorie estimate',[
             {value:'neutral',label:'Neutral estimate'},
             {value:'female',label:'Female equation'},
@@ -147,7 +147,7 @@
           {value:'moderate',label:'Somewhat active',copy:'Regular walking or time on your feet',icon:'◐'},
           {value:'high',label:'Very active',copy:'Physical work or a consistently high step count',icon:'●'}
         ],'moderate')+'</div>')},
-      validate:function(){return(+get('age')>=16&&+get('heightFt')>=3&&+get('weight')>=70)?'':'Add your age, height and current weight to continue.'}
+      validate:function(){return(+get('age')>=18&&+get('heightFt')>=3&&+get('weight')>=70)?'':'Add your age, height and current weight to continue.'}
     },
     {
       id:'workMode',
@@ -249,13 +249,13 @@
       render:function(){return question('sparkle','1 · Your starting point','What are you working toward?','Just the basics for your starting targets. Fine-tune the details later.',
         '<div class="guidedFieldGrid">'+textInput('name','First name','Your name','text','autocomplete="given-name"')+
         selectInput('goal','Main goal',[{value:'recomp',label:'Build muscle & lose fat'},{value:'fat_loss',label:'Lose body fat'},{value:'muscle_gain',label:'Build muscle'},{value:'maintain',label:'Maintain & feel stronger'}])+
-        textInput('age','Age','','number','min="16" max="100" inputmode="numeric"')+
+        textInput('age','Age','','number','min="18" max="100" inputmode="numeric"')+
         textInput('weight','Weight (lb)','','number','min="70" max="600" step="0.1" inputmode="decimal"')+
         textInput('heightFt','Height (ft)','','number','min="3" max="8" inputmode="numeric"')+
         textInput('heightIn','Height (in) · optional','0','number','min="0" max="11.9" step="0.1" inputmode="decimal"')+'</div>')},
       validate:function(){
         if(!get('name').trim())return 'Add your name to continue.';
-        return +get('age')>=16&&+get('age')<=100&&+get('heightFt')>=3&&+get('heightFt')<=8&&+get('heightIn')>=0&&+get('heightIn')<12&&+get('weight')>=70&&+get('weight')<=600?'':'Check your age, height and weight to continue.';
+        return +get('age')>=18&&+get('age')<=100&&+get('heightFt')>=3&&+get('heightFt')<=8&&+get('heightIn')>=0&&+get('heightIn')<12&&+get('weight')>=70&&+get('weight')<=600?'':'Check your age, height and weight to continue.';
       }
     },
     {

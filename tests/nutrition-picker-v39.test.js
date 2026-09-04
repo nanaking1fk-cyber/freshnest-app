@@ -42,7 +42,7 @@ test('Meal Scan is consent-gated, structured, rate-limited, and does not store p
   assert.match(init,/#foodMealScanTool'\)\.onclick=\(\)=>foodTab\('meal-scan'\)/);
   assert.match(diaryB,/ensureHealthConsent[\s\S]*purpose:'meal_scan_ai'/);
   assert.match(api,/requireAnyHealthConsent\(user,\['personalized_ai','meal_scan_ai'\]\)/);
-  assert.match(api,/countAI\(user\.id\)/);
+  assert.match(api,/access\.run\(user,'meal'/);
   assert.match(api,/textFormat:responseFormat/);
   assert.match(api,/photoStored:false/);
   assert.doesNotMatch(api,/serviceFetch|userFetch|storage|upload/i);

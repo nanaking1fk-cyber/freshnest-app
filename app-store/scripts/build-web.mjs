@@ -64,6 +64,15 @@ account=rewrite(
   "function absoluteApiBase(){return((window.WGPNative&&window.WGPNative.apiBase)||'https://www.workandworkout.com')+'/api/v18'}",
   'account API base'
 );
+account=rewrite(
+  account,
+  "function authRedirectUrl(purpose='signup'){let url=new URL('/work-gym-planner/shell.html','https://www.workandworkout.com');",
+  "function authRedirectUrl(purpose='signup'){if(window.WGPNative?.isNative&&purpose!=='recovery')return window.WGPNative.authRedirectUrl(purpose);let url=new URL('/work-gym-planner/shell.html','https://www.workandworkout.com');",
+  'native signup return; recovery stays cross-browser on the secure website'
+);
+// Recovery emails deliberately use the hosted token-hash flow. Do not restore
+// obsolete instructions requiring the original browser or a local PKCE key.
+account=account.replace('Account created. Open the confirmation email in this browser to finish securely.','Account created. Tap the link in your confirmation email to return to this app.');
 await writeFile(accountPath,account);
 
 const platformSchedulePath=join(out,'work-gym-planner-v16','schedule-platform-v25.js');

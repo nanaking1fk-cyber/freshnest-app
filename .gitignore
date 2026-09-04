@@ -7,6 +7,10 @@
 # Dependencies and generated native projects
 node_modules/
 **/node_modules/
+/node_modules
+/app-store/node_modules
+/app-store/test-results/
+/app-store/playwright-report/
 ios/
 **/ios/
 android/

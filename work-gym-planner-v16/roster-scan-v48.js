@@ -59,6 +59,8 @@
   try{
    if(!await account.ensureHealthConsent?.({interactive:true,purpose:'personalized_ai'})){status('AI reading stays off. You can still type your schedule or select dates.');return}
    if(stamp!==generation||owner!==account.session?.user?.id)return;
+   if(!await account.ensureAICredits?.('roster'))return;
+   if(stamp!==generation||owner!==account.session?.user?.id)return;
    const token=await account.accessToken();if(!token)throw Error('Please sign in again, then retry the photo.');
    const selected=selectedImage();let image=selected.toDataURL('image/jpeg',.94);
    if(image.length>3800000)image=selected.toDataURL('image/jpeg',.78);
@@ -94,7 +96,7 @@
    <button type="button" id="rosterPreviewButtonV48">Preview what will be sent</button><div id="rosterPreviewV48"></div>
    <label class="rosterScanConsentV48"><input id="rosterConfirmV48" type="checkbox"><span>Only my schedule and its headings are highlighted. I agree to send these sections to OpenAI to read my shifts.</span></label>
    <p class="rosterScanPrivacyV48">The original photo stays on this device. Work + Workout does not save the selected image. <a target="_blank" rel="noopener noreferrer" id="rosterPrivacyV48">Privacy details</a></p>
-   <p id="rosterScanStatusV48" role="status" aria-live="polite"></p><footer><button type="button" data-roster-close>Cancel</button><button class="primary" id="rosterReadV48" type="button" disabled>Read my shifts</button></footer></div>`;
+   <p id="rosterScanStatusV48" role="status" aria-live="polite"></p><footer><button type="button" data-roster-close>Cancel</button><button class="primary" id="rosterReadV48" type="button" disabled>Read my shifts · Plus · 20 credits</button></footer></div>`;
   document.body.appendChild(editor);
   const profileValue=typeof profile==='function'?profile():{};
   $('#rosterNameV48').value=document.getElementById('rosterIdentityV31')?.value||profileValue?.rosterIdentity||profileValue?.name||'';

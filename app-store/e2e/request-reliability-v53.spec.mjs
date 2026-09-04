@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {savedAgreement} from './fixtures/saved-agreement.mjs';
 import {createServer} from 'node:http';
 import {readFile} from 'node:fs/promises';
 import {resolve,extname} from 'node:path';
@@ -11,7 +12,7 @@ const root=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 const types={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.webmanifest':'application/manifest+json','.woff2':'font/woff2'};
 const sources=new Set(['window_error','unhandled_rejection','boot_load','resource_error','network_error','api_error','native_bridge','native_crash','native_hang']);
 const purposes=['account_cloud_sync','meal_scan_ai'];
-const receipt=()=>({action:'granted',consentVersion:'2026-08-31-v1',policyVersion:'1.5',purposes});
+const receipt=()=>({action:'granted',consentVersion:'2026-08-31-v1',policyVersion:'1.6',purposes,agreement:savedAgreement});
 const savedProfile={id:'fixture',name:'Saved sample account',sleepTarget:7.5,heightIn:68,trainingDaysPerWeek:3,singleJobTraining:true,equipmentMode:'full',fixed:{enabled:true,name:'Work',anchor:'2026-08-31',pattern:[1,1,1,1,1,0,0],start:'09:00',end:'17:00',commuteMin:20},variable:{enabled:false,name:'Extra work',start:'',end:'',commuteMin:20}};
 const mealKey='wgp-v15-food-diary-2026-09-02';
 const savedFoods=[{id:'saved-oats',meal:'Breakfast',name:'Sample oats',cal:150,protein:5}];
@@ -40,6 +41,7 @@ test.beforeAll(async()=>{
     return json({ok:accepted},accepted?200:400);
    }
    if(!tracker)return json({ok:false},401);
+   if(url.pathname.endsWith('/subscription'))return json({ok:true,tier:'plus',remaining:100,credits:100,resetsAt:'2026-10-04T12:00:00Z',purchaseAvailable:false});
    if(url.pathname.endsWith('/health-consent')){
     if(req.method==='POST'){tracker.grants.push(await readBody(req));tracker.receipt=receipt()}
     return json({ok:true,receipt:tracker.receipt});
@@ -111,7 +113,7 @@ test('lost cloud save acknowledgement reads back once without duplicating the wr
 test('consent connection failure stays actionable and saves only on an explicit retry',async({page})=>{
  const t=await setup(page,{consented:false,faults:{'POST /api/v18/health-consent':'disconnect'}});
  await expect(page.locator('#healthConsentDialog')).toHaveClass(/open/);
- for(const purpose of purposes)await page.locator(`#healthConsentPurposes input[value="${purpose}"]`).check();
+ for(const purpose of ['account_cloud_sync','personalized_ai'])await page.locator(`#healthConsentPurposes input[value="${purpose}"]`).check();
  await page.locator('#healthConsentConfirm').check();await page.locator('#healthConsentAgree').click();
  await expect(page.locator('#healthConsentStatus')).toContainText('We could not save your choice');
  expect(t.grants).toHaveLength(0);expect(t.reads).toBe(0);expect(t.writes).toBe(0);

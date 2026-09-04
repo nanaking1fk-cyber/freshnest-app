@@ -7,6 +7,7 @@
   var isNative=platform==='ios'||platform==='android';
   var apiBase='https://www.workandworkout.com';
   var STEP_ACCESS_KEY='wgp-native-step-access-v1';
+  var calendarReturnInProgress=false;
 
   function report(label,error){
     console.warn('[native] '+label,error&&error.message?error.message:error);
@@ -19,6 +20,8 @@
       var Browser=plugin('Browser');
       if(Browser&&Browser.open){await Browser.open({url:String(url),presentationStyle:'popover'});return true}
     }catch(error){report('browser',error)}
+    // Never replace the packaged app with a remotely hosted executable page.
+    if(isNative){if(typeof window.toast==='function')window.toast('Could not open this link. Please try again.');return false}
     location.assign(String(url));
     return true;
   }
@@ -28,6 +31,7 @@
     platform:platform,
     apiBase:apiBase,
     returnUrl:'workandworkout://calendar-connected',
+    authRedirectUrl:function(purpose){return'workandworkout://auth-callback?auth='+(purpose==='recovery'?'recovery':'signup')},
     openExternal:openExternal
   };
   // The web build registers a service worker at the end of initialization.
@@ -142,12 +146,10 @@
   function installBackButton(){
     var App=plugin('App');if(!isNative||!App||!App.addListener)return;
     App.addListener('appUrlOpen',function(event){
-      var url=String(event&&event.url||'');
-      if(!url.startsWith('workandworkout://calendar-connected'))return;
-      var Browser=plugin('Browser');
-      if(Browser&&Browser.close)Promise.resolve(Browser.close()).catch(function(error){report('browser close',error)});
-      location.reload();
+      return handleNativeReturn(event&&event.url,false).catch(function(){report('account return',new Error('Could not return to the app.'))});
     });
+    // Handles email links that launch a terminated app, not just a running one.
+    if(App.getLaunchUrl)Promise.resolve(App.getLaunchUrl()).then(function(event){return handleNativeReturn(event&&event.url,true)}).catch(function(){report('launch return',new Error('Could not open the app link.'))});
     App.addListener('backButton',function(event){
       if(dismissTopLayer())return;
       if(event&&event.canGoBack){history.back();return}
@@ -156,6 +158,42 @@
     App.addListener('appStateChange',function(event){
       if(event&&event.isActive)window.dispatchEvent(new CustomEvent('wgp-native-resume'));
     });
+  }
+  async function handleNativeReturn(value,fromLaunch){
+    if(!value)return false;
+    var url;try{url=new URL(String(value))}catch{return false}
+    if(url.protocol!=='workandworkout:'||url.username||url.password||url.port||!['','/'].includes(url.pathname)||url.hash)return false;
+    if(!['calendar-connected','auth-callback'].includes(url.hostname))return false;
+    var Browser=plugin('Browser');
+    if(url.hostname==='calendar-connected'){
+      // A cold launch already loads the latest calendar. Do not replay its
+      // constant URL after a reload, or block a later legitimate connection.
+      if(fromLaunch||url.search||calendarReturnInProgress)return false;
+      calendarReturnInProgress=true;
+      if(Browser&&Browser.close)try{await Browser.close()}catch{}
+      location.reload();return true;
+    }
+    if(url.hostname==='auth-callback'){
+      var allowed=['auth','code','error','error_code','error_description'];
+      if([...url.searchParams.keys()].some(function(key){return!allowed.includes(key)||url.searchParams.getAll(key).length!==1}))return false;
+      if(!['signup','recovery'].includes(url.searchParams.get('auth')))return false;
+      var code=url.searchParams.get('code');
+      if(code&&!/^[A-Za-z0-9._~-]{8,2048}$/.test(code))return false;
+      if(!code&&!url.searchParams.has('error')&&!url.searchParams.has('error_code'))return false;
+      if(url.search.length>4096)return false;
+    }
+    // Remember only a digest, never the one-time code. Capacitor may deliver the
+    // same launch URL again after the packaged document reloads.
+    var digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(url.href));
+    var fingerprint=bytesToBase64(new Uint8Array(digest)),key='wgc-native-return-seen-v55';
+    if(sessionStorage.getItem(key)===fingerprint)return false;
+    sessionStorage.setItem(key,fingerprint);
+    if(Browser&&Browser.close)try{await Browser.close()}catch{}
+    // Only return to the packaged app. The existing account module exchanges
+    // this code using its private, locally stored PKCE verifier.
+    var destination=new URL(location.href);destination.pathname='/index.html';destination.search=url.search;destination.hash='';
+    location.replace(destination.href);
+    return true;
   }
   function installExternalLinks(){
     document.addEventListener('click',function(event){

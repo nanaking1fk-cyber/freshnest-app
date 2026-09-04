@@ -40,13 +40,17 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Work + Workout uses the camera only when you choose to scan a work schedule, gym equipment, or a food barcode.</string>
+	<string>Take a meal, roster, equipment or barcode photo when you choose a scan. You can type details instead.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Use your microphone only when you tap Speak to enter a schedule. You can type or paste instead.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Turn the schedule you dictate into text when you tap Speak. Review the text before adding it.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Work + Workout reads your daily step total so it can show step progress and improve your recovery plan. Your health data stays on this device unless you separately enable sync.</string>
+	<string>Read your daily step total to show your progress. Steps stay on this device unless you separately allow account sync or personalized AI.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Work + Workout requests read-only step access and does not write to Apple Health.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Work + Workout lets you choose a schedule or equipment image when you request an import or analysis.</string>
+	<string>Choose a meal, roster, equipment or barcode photo for a scan. Only the photo you select is used.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

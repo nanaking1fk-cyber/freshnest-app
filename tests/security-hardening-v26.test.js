@@ -96,7 +96,10 @@ test('AI requests have an atomic deployment-wide hard stop',()=>{
   assert.match(migration,/current_global_requests >= global_daily_limit/i);
   assert.match(migration,/current_user_requests >= user_daily_limit/i);
   assert.match(migration,/revoke all on function public\.reserve_ai_request\(uuid,integer,integer\) from anon,authenticated/i);
-  assert.match(server,/AI_GLOBAL_DAILY_LIMIT\|\|100/);
-  assert.match(server,/rpc\/reserve_ai_request/);
-  assert.match(server,/blocked_reason==='global'/);
+  const access=read('server/ai-access-v56.js');
+  const credits=read('supabase/migrations/20260904133929_apple_ai_credits_v56.sql');
+  assert.match(access,/Math\.min\(100,Number\(process\.env\.AI_GLOBAL_DAILY_LIMIT\)\|\|100\)/);
+  assert.match(access,/rpc\/ai_allowance_v56/);
+  assert.match(credits,/daily\.requests>=global_request_limit/);
+  assert.match(credits,/for update/);
 });

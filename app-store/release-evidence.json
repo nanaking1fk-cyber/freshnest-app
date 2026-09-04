@@ -1,0 +1,14 @@
+{
+  "commit": null,
+  "instructions": "After freezing the release commit, fill this evidence record for that commit and retain it with the release records; updating evidence alone need not create a new candidate commit. Do not include passwords, private keys, real user records or reviewer credentials here. References may point to private release records. A prepared document or simulator test is not proof of a signed-device or production-service test.",
+  "gates": {
+    "appleAccount": {"status":"pending","checkedAt":null,"evidence":""},
+    "commerce": {"status":"pending","checkedAt":null,"evidence":""},
+    "signedArchive": {"status":"pending","checkedAt":null,"evidence":""},
+    "nativeAccountFlows": {"status":"pending","checkedAt":null,"evidence":""},
+    "deviceQuality": {"status":"pending","checkedAt":null,"evidence":""},
+    "storeListing": {"status":"pending","checkedAt":null,"evidence":""},
+    "legalAndRights": {"status":"pending","checkedAt":null,"evidence":""},
+    "operations": {"status":"pending","checkedAt":null,"evidence":""}
+  }
+}

@@ -43,6 +43,7 @@ if(!index.includes('shared/observability.js'))errors.push('Native web error repo
 if(index.includes("'pwa-patch.js'"))errors.push('Service-worker patch is loaded in the native app');
 if(!index.includes("'pwa.js'"))errors.push('Legacy PWA script is not explicitly removed');
 if(!account.includes('https://www.workandworkout.com')||account.includes("function absoluteApiBase(){return '/api/v18'}"))errors.push('Native account API does not use the production HTTPS origin');
+if(!account.includes('WGPNative.authRedirectUrl(purpose)')||!bridge.includes('auth-callback')||!bridge.includes('App.getLaunchUrl'))errors.push('Native email confirmation/password recovery return handling is incomplete');
 if(!calendar.includes('WGPNative.apiBase')||!calendar.includes('WGPNative.openExternal'))errors.push('Native calendar API/OAuth bridge is incomplete');
 if(/<script[^>]+src=["']https?:\/\//i.test(runtime))errors.push('Remote executable script tag found in native runtime');
 if(/["'(]\/work-gym-planner-v1[56]\//.test(runtime))errors.push('Web-only absolute asset path leaked into native runtime');

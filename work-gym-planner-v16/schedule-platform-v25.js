@@ -156,7 +156,7 @@
   function captureMarkup(){
     return'<section id="smartCaptureV19" class="smartCaptureV19" aria-labelledby="smartCaptureTitle">'+
       '<div class="smartCaptureIntro"><span aria-hidden="true">✦</span><div><small>EFFORTLESS INPUT</small><h2 id="smartCaptureTitle">Tell us the week in your own words.</h2><p>Paste a roster, speak it, or upload what your employer sent. Work, appointments, errands and workouts are organized together.</p></div><button id="smartCaptureFilm" type="button">Use an example</button></div>'+
-      '<div class="smartCaptureComposer"><label class="srOnly" for="smartCaptureInput">Describe your work schedule, tasks, appointments and workouts</label><textarea id="smartCaptureInput" rows="5" placeholder="Try: I work Mon–Thu 7am–7pm. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week."></textarea><div><button id="smartCaptureVoice" type="button" aria-label="Speak your schedule">Speak</button><button class="primary" id="smartCaptureBuild" type="button">Review my plan <span>→</span></button></div></div>'+
+      '<div class="smartCaptureComposer"><label class="srOnly" for="smartCaptureInput">Describe your work schedule, tasks, appointments and workouts</label><textarea id="smartCaptureInput" rows="5" placeholder="Try: I work Mon–Thu 7am–7pm. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week."></textarea><div><button id="smartCaptureVoice" type="button" aria-label="Speak your schedule">Speak</button><button class="primary" id="smartCaptureBuild" type="button">Review with AI · 20 credits <span>→</span></button></div></div>'+
       '<div class="smartCaptureExamples" aria-label="Schedule examples"><button type="button" data-capture-example="Work every Monday, Wednesday and Friday 7am–7pm">Repeating shifts</button><button type="button" data-capture-example="Dentist Tuesday at 2pm; buy groceries before Friday">Appointments &amp; tasks</button><button type="button" data-capture-example="Gym three times this week">Flexible workouts</button></div>'+
       '<div id="smartCapturePreview" class="smartCapturePreview" aria-live="polite"></div>'+
     '</section>';
@@ -295,12 +295,16 @@
   }
   async function readTypedScheduleWithAI(text,source,sourceType){
     var account=window.WGC18;
+    var requestOwner=account?.session?.user?.id;
     if(!account?.session)return{unavailable:true,reason:'Sign in to use the AI schedule reader.'};
     if(!account?.config?.aiConfigured)return{unavailable:true,reason:'AI schedule reading is not enabled on this deployment.'};
     if(typeof account.accessToken!=='function')return{unavailable:true,reason:'Your sign-in session needs to be refreshed before AI can read this schedule.'};
+    if(!await account.ensureHealthConsent?.({interactive:true,purpose:'personalized_ai'}))return{unavailable:true,reason:'AI reading stays off. Manual schedule entry is free.'};
+    if(!await account.ensureAICredits?.('schedule'))return{unavailable:true,reason:'AI reading uses 20 credits. Manual schedule entry is free.'};
     var token=await account.accessToken();if(!token)return{unavailable:true,reason:'Your sign-in session needs to be refreshed before AI can read this schedule.'};
+    if(account.session?.user?.id!==requestOwner)throw Error('Your account changed. Please try again.');
     var response=await fetch('/api/v25/schedule',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({text:text,sourceType:sourceType||'text',referenceDate:Core.keyFromDate(new Date()),timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC'})});
-    var body=await response.json().catch(function(){return{}});if(!response.ok||body.ok===false)throw Error(body.error||'AI schedule reading is unavailable.');
+    var body=await response.json().catch(function(){return{}});if(account.session?.user?.id!==requestOwner)throw Error('Your account changed. Please try again.');if(!response.ok||body.ok===false)throw Error(body.error||'AI schedule reading is unavailable.');
     return body;
   }
   async function buildTrustedProposal(){
@@ -322,7 +326,7 @@
     proposals=Core.placeFlexibleEntries(parsed,existing,{now:new Date()});proposalConflicts=Core.detectConflicts(proposals,existing);
     if(sourceType==='roster'&&rosterReview?.analysis?.shifts)proposals=proposals.map(function(item){var matched=rosterReview.analysis.shifts.find(function(shift){return shift.date===item.date&&shift.start===item.start&&shift.end===item.end});return matched?Object.assign({},item,{sourceType:'roster',sourceText:matched.sourceText,confidence:matched.confidence,rosterIdentity:rosterReview.identity}):item});
     renderTrustedReview();
-    if(button){button.disabled=false;button.innerHTML='Review my plan <span>→</span>'}
+    if(button){button.disabled=false;button.innerHTML='Review with AI · 20 credits <span>→</span>'}
     input.dataset.sourceType='text';
   }
   function confidenceMarkup(item){var value=item.confidence||{label:'Low',score:0};return'<span class="confidenceV25 '+value.label.toLowerCase()+'" title="'+safe((value.reasons||[]).join(', '))+'">'+safe(value.label)+' · '+Math.round(value.score*100)+'%</span>'}

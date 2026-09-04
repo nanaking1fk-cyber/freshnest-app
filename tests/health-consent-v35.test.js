@@ -72,7 +72,7 @@ test('server enforces consent before health state writes and personalized AI',()
   assert.match(coach,/requireHealthConsent\(user,'personalized_ai'\)/);
   assert.match(onboarding,/requireHealthConsent\(user,'personalized_ai'\)/);
   assert.match(read('api/v18/meal-scan.js'),/requireAnyHealthConsent\(user,\['personalized_ai','meal_scan_ai'\]\)/);
-  assert.ok(coach.indexOf("requireHealthConsent(user,'personalized_ai')")<coach.indexOf('reserveAICoach(user)'));
+  assert.ok(coach.indexOf("requireHealthConsent(user,'personalized_ai')")<coach.indexOf('access.run(user,mode'));
   assert.match(read('server/v18-lib.js'),/status:428,[\s\S]*code:'HEALTH_CONSENT_REQUIRED'/);
 });
 

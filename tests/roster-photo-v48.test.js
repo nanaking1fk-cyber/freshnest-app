@@ -28,7 +28,7 @@ test('wrong-person, multiple-person and unreadable results cannot produce calend
  assert.equal(responseFormat.strict,true);assert.match(instructions,/Never assume a default shift length/);assert.match(instructions,/Do not expand rotations/);
 });
 function handler(dependencies){
- const context={module:{exports:{}},require:name=>name==='crypto'?require('crypto'):name.includes('roster-vision')?require('../server/roster-vision-v48'):dependencies,process:{env:{}},console};
+ const context={module:{exports:{}},require:name=>name==='crypto'?require('crypto'):name.includes('roster-vision')?require('../server/roster-vision-v48'):name.includes('ai-access')?{run:async(user,feature,options)=>{await dependencies.countAI(user.id);return dependencies.openAI(options)}}:dependencies,process:{env:{}},console};
  vm.runInNewContext(read('api/v25/roster-scan.js'),context);return context.module.exports;
 }
 test('the photo endpoint enforces auth and consent before quota or AI, with no persisted images',async()=>{

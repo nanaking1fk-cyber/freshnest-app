@@ -1,5 +1,7 @@
 # Store release checklist
 
+Current decision: **NOT READY for public App Store submission**. Use [the audit and prioritized launch plan](COMMERCIAL_READINESS_AUDIT.md). Native code checks and signed-device/commercial evidence are separate; do not mark a manual gate complete because unit tests pass.
+
 ## Automated package checks
 
 - [ ] Node 24 is active and `npm ci --prefix app-store` succeeds from the repository root.
@@ -7,6 +9,8 @@
 - [ ] GitHub `Quality / app` and dependency review checks pass.
 - [ ] `npm run build:web` passes in `app-store/`.
 - [ ] Native bundle audit reports v30.1.31 and no secrets/remote executable scripts.
+- [ ] `npm run audit:submission --prefix app-store -- --code-only` passes.
+- [ ] Full `npm run audit:submission --prefix app-store` passes with verified evidence for the exact release commit.
 - [ ] iOS and Android projects are synced from the same `www/` bundle.
 - [ ] Any new Supabase table migration enables RLS and explicitly grants or revokes Data API roles.
 
@@ -15,12 +19,24 @@
 - [ ] Cold launch and safe areas work on a notched iPhone.
 - [ ] Landing, signup, email confirmation, sign-in and sign-out work.
 - [ ] New account starts empty and never sees another user’s profile/schedule.
-- [ ] Six-step onboarding fits the viewport and can be completed or deferred.
+- [ ] Upfront one-time terms/privacy and three-step onboarding fit the viewport; returning accounts restore without repeating terms or replacing saved data.
 - [ ] Schedule photo/PDF/text import shows proposals before save.
 - [ ] Recurrences, overnights, conflicts and exceptions behave correctly.
 - [ ] Training, nutrition, coach and progress flows save and restore.
 - [ ] Notifications, file sharing, camera denial and external OAuth browser work.
 - [ ] Permanent account deletion works and returns to signed-out landing.
+- [ ] App-created confirmation/reset links return from an external mail app when the app is running or terminated.
+- [ ] Health-data storage is excluded from automatic iCloud backup; inspect the installed container without deleting user data.
+- [ ] VoiceOver, larger text, contrast, keyboard, Reduced Motion and iPad layout are usable.
+
+## Commerce and legal gates
+
+- [ ] Active Apple organization membership and correct legal seller; complete agreements, tax/banking and EU trader verification.
+- [ ] Remove the old one-question paid-plan dead end by integrating the approved recurring allowance and Apple subscription.
+- [ ] Test real sandbox purchase, pending approval, renewal, restore, expiry, refund and interrupted fulfillment.
+- [ ] Explain localized price, auto-renewal, exact allowance, reset date and failed-scan charges before purchase.
+- [ ] No checkout is enabled without valid server verification; deletion never depends on cancelling billing first.
+- [ ] Obtain review of global health-data handling, processor agreements, content licenses, retention and encryption/export declarations.
 
 ## Android device test
 

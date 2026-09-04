@@ -7,6 +7,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        AppDataPrivacy.preparePrivateStorage()
         if #available(iOS 14.0, *) {
             AppDiagnosticsReporter.shared.start()
         }

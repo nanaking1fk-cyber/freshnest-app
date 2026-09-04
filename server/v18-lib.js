@@ -265,57 +265,7 @@ async function deleteChat(userId,threadId=null,authorization){
   await userFetch(authorization,path,{method:'DELETE',prefer:'return=minimal'});
 }
 
-async function countAI(userId){
-  const limit=Math.max(1,Math.min(1000,+(process.env.AI_DAILY_LIMIT||40)||40));
-  const globalLimit=Math.max(1,Math.min(1_000_000,+(process.env.AI_GLOBAL_DAILY_LIMIT||100)||100));
-  const result=await serviceFetch('rpc/reserve_ai_request',{method:'POST',body:{target_user_id:userId,user_daily_limit:limit,global_daily_limit:globalLimit},prefer:'return=representation'});
-  const row=Array.isArray(result)?result[0]:result;
-  if(!row?.allowed){
-    const globalBlocked=row?.blocked_reason==='global';
-    throw Object.assign(new Error(globalBlocked?'AI planning capacity has been reached for today. Try again tomorrow.':'Daily AI coach limit reached. Try again tomorrow.'),{status:429,retryAfter:3600});
-  }
-  return{used:+row.user_requests,limit,globalUsed:+row.global_requests,globalLimit};
-}
-
-function paidAccount(user){
-  const metadata=user?.app_metadata||{};
-  const planValue=metadata.plan&&typeof metadata.plan==='object'?(metadata.plan.id||metadata.plan.name):metadata.plan;
-  const tier=String(planValue||metadata.tier||metadata.subscription_tier||'').toLowerCase();
-  const entitlement=metadata.ai_coach===true||metadata.entitlements?.ai_coach===true;
-  const paidTier=['paid','pro','premium'].includes(tier);
-  const status=String(metadata.subscription_status||'').toLowerCase();
-  const inactive=['canceled','cancelled','expired','inactive','unpaid'].includes(status);
-  return !inactive&&(entitlement||paidTier);
-}
-
-async function reserveAICoach(user){
-  if(!user?.id)throw Object.assign(new Error('Sign in required.'),{status:401});
-  const userLimit=Math.max(1,Math.min(1000,+(process.env.AI_DAILY_LIMIT||40)||40));
-  const globalLimit=Math.max(1,Math.min(1_000_000,+(process.env.AI_GLOBAL_DAILY_LIMIT||100)||100));
-  const paid=paidAccount(user);
-  const result=await serviceFetch('rpc/reserve_ai_coach_request',{
-    method:'POST',
-    body:{target_user_id:user.id,paid_access:paid,user_daily_limit:userLimit,global_daily_limit:globalLimit},
-    prefer:'return=representation'
-  });
-  const row=Array.isArray(result)?result[0]:result;
-  if(!row?.allowed){
-    if(row?.blocked_reason==='trial_used'){
-      throw Object.assign(new Error('Your free AI Coach question has been used. Continued coaching requires a paid plan.'),{
-        status:402,code:'AI_COACH_PAID_REQUIRED'
-      });
-    }
-    const globalBlocked=row?.blocked_reason==='global';
-    throw Object.assign(new Error(globalBlocked?'AI planning capacity has been reached for today. Try again tomorrow.':'Daily AI Coach limit reached. Try again tomorrow.'),{status:429,retryAfter:3600});
-  }
-  return{
-    access:row.access_type||(paid?'paid':'trial'),
-    trialQuestions:+row.trial_questions||0,
-    used:+row.user_requests,
-    globalUsed:+row.global_requests
-  };
-}
-
+// AI budgets and verified subscription access are enforced in ai-access-v56.js.
 async function countStateWrite(userId,payloadBytes){
   const dailyLimit=Math.max(10,Math.min(5000,+(process.env.STATE_DAILY_WRITE_LIMIT||300)||300));
   const byteLimit=Math.max(8_000_000,Math.min(2_000_000_000,+(process.env.STATE_DAILY_BYTE_LIMIT||256_000_000)||256_000_000));
@@ -391,4 +341,4 @@ function errorResponse(res,error){
   json(res,error.status||500,body);
 }
 
-module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,requireAnyHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countAI,paidAccount,reserveAICoach,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};
+module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,requireAnyHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

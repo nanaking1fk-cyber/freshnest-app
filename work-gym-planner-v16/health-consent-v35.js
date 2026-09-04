@@ -216,8 +216,10 @@ window.WGC18=window.WGC18||{};
  A.bindHealthConsentPanel=bindPanel;
  const authenticatedFetch=A.authedFetch.bind(A);
  A.authedFetch=async function(path,options={},retry=true){
+  const requestOwner=A.session?.user?.id;
   const healthPurpose=path==='coach'||path==='onboarding'?'personalized_ai':null;
   if(healthPurpose&&!await ensure({interactive:true,purpose:healthPurpose}))throw Error('Personalized AI remains off. Your local plan is still available.');
+  if(A.session?.user?.id!==requestOwner)throw Error('Your account changed. Please try again.');
   try{return await authenticatedFetch(path,options,retry)}catch(error){
    if(error.code==='HEALTH_CONSENT_REQUIRED'){
     try{await refresh({render:false})}catch{writeLocal(receipt?{...receipt,action:'withdrawn',purposes:[]}:null)}

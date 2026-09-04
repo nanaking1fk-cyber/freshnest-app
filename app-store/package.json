@@ -5,6 +5,7 @@
   "description": "Native iOS and Android packaging project for Work + Workout",
   "type": "module",
   "scripts": {
+    "audit:submission": "node scripts/audit-submission.mjs",
     "build:web": "node scripts/build-web.mjs && node scripts/audit-bundle.mjs",
     "audit": "node scripts/audit-bundle.mjs",
     "ios:add": "npm run build:web && npx cap add ios",

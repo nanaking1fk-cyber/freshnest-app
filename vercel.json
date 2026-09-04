@@ -1,8 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/v18/*.js": { "maxDuration": 60 },
-    "api/v25/*.js": { "maxDuration": 60 }
+    "api/v18/*.js": { "maxDuration": 60, "includeFiles": "server/apple-certs/*.cer" },
+    "api/v25/*.js": { "maxDuration": 60, "includeFiles": "server/apple-certs/*.cer" }
   },
   "redirects": [
     {

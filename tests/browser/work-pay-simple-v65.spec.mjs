@@ -55,13 +55,21 @@ test('deductions switch between an amount and percent of gross, and persist',asy
  expect((await saved(page)).rules[sourceId].deductions[0]).toMatchObject({mode:'percent',amount:5});
  await settings(page);await expect(page.locator('[data-deduction="mode"]')).toHaveValue('percent');
 });
-test('calendar has a quiet header and a three-choice add flow on mobile',async({page})=>{
- await page.setViewportSize({width:390,height:844});await start(page);
+for(const width of [320,390,1280])test(`calendar fits the viewport with short labels at ${width}`,async({page})=>{
+ await page.setViewportSize({width,height:844});await start(page);
  await page.evaluate(()=>WWWorkPay.close());await page.locator('nav [data-page="calendar"]').click();
  await expect(page.locator('#calendarAddV42')).toBeVisible();
  await expect(page.locator('#calendarShareV42')).not.toBeVisible();
  await expect(page.locator('#calendarSelectDatesV54')).toBeVisible();
- await page.screenshot({path:'/private/tmp/ww-calendar67-mobile.png',fullPage:true});
+ await page.locator('#calendarOptionsV67>summary').click();
+ const menu=await page.locator('.calendarOptionsBodyV67').boundingBox();expect(menu.x).toBeGreaterThanOrEqual(0);expect(menu.x+menu.width).toBeLessThanOrEqual(width);
+ await page.locator('[data-calendar-display="details"]').click();
+ const cell=page.locator('.calDay[data-date="2026-09-03"]');
+ expect((await cell.boundingBox()).height).toBeLessThanOrEqual(86);
+ await expect(cell.locator('.calendarCellItemV47 small')).toHaveCount(0);
+ await expect(cell.locator('.calendarCellItemV47.work strong')).toContainText('Hospital');
+ await expect(page.locator('nav [data-page="home"]')).toHaveCSS('touch-action','manipulation');
+ await page.screenshot({path:`/private/tmp/ww-layout68-${width}.png`,fullPage:true});
  await page.locator('#calendarAddV42').click();
  await expect(page.locator('[data-add-kind]:visible')).toHaveCount(3);
  await page.locator('[data-add-kind="workmenu"]').click();

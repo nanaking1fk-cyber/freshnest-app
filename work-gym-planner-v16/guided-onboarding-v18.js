@@ -260,9 +260,9 @@
     },
     {
       id:'quick-work',
-      render:function(){const weekly=['standard','rotating'].includes(get('workMode'));return question('calendar','2 · Your work','When do you work?','Add a regular week now, or use the Calendar for shifts, rotations and roster photos later.',
-        selectInput('workMode','Work schedule',[{value:'calendar',label:'Add my shifts in Calendar later'},{value:'standard',label:'The same days each week'},...(get('workMode')==='rotating'?[{value:'rotating',label:'Keep my saved shift pattern'}]:[]),{value:'none',label:'No work schedule'}])+
-        (weekly?'<div class="guidedFieldTop">'+dayPicker('job')+'</div><div class="guidedFieldGrid">'+textInput('jobStart','Shift starts','','time')+textInput('jobEnd','Shift ends','','time')+'</div><p class="guidedQuickNoteV49">Commute time, extra jobs and time off can be adjusted in plan settings or Calendar.</p>':'<p class="guidedQuickNoteV49">'+(get('workMode')==='calendar'?'No work shifts will be guessed or added. Add your schedule in Calendar before relying on workout times.':'You can add a work schedule whenever you need one.')+'</p>'))},
+      render:function(){const weekly=['standard','rotating'].includes(get('workMode'));return question('calendar','2 · Your work','When do you work?','Choose your regular week or add shifts and a roster next.',
+        selectInput('workMode','Work schedule',[{value:'calendar',label:'Shifts, rotations or roster photo'},{value:'standard',label:'The same days each week'},...(get('workMode')==='rotating'?[{value:'rotating',label:'Keep my saved shift pattern'}]:[]),{value:'none',label:'No work schedule'}])+
+        (weekly?'<div class="guidedFieldTop">'+dayPicker('job')+'</div><div class="guidedFieldGrid">'+textInput('jobStart','Shift starts','','time')+textInput('jobEnd','Shift ends','','time')+'</div><p class="guidedQuickNoteV49">Commute time, extra jobs and time off can be adjusted in plan settings or Calendar.</p>':'<p class="guidedQuickNoteV49">'+(get('workMode')==='calendar'?'Next, we’ll help you add shifts or import a roster. Workout times are provisional until your work schedule is added.':'You can add a work schedule whenever you need one.')+'</p>'))},
       validate:function(){return !['standard','rotating'].includes(get('workMode'))||(draft.days.job||[]).length&&get('jobStart')&&get('jobEnd')?'':'Choose your work days and shift times.'}
     },
     {
@@ -498,11 +498,12 @@
       '</div>';
     document.getElementById('guidedBack').classList.add('hidden');
     const next=document.getElementById('guidedNext');
-    next.textContent='See my calendar';
+    next.textContent=answers.work.scheduleDeferred?'Add my work schedule':'See my calendar';
     next.onclick=function(){
       closeGuided();
       if(window.openCalendarDate)window.openCalendarDate();else window.page?.('calendar');
-      window.toast?.('Your work, workouts and commitments are on the calendar');
+      if(answers.work.scheduleDeferred){window.WWCalendarV42?.openAdd('workmenu');window.toast?.('Add your shifts so workouts can fit around work')}
+      else window.toast?.('Your work, workouts and commitments are on the calendar');
     };
     document.getElementById('guidedStatus').textContent=refining&&A.session&&A.config?.aiConfigured?'Your plan is ready. Coaching details are refining quietly in the background.':'Your plan is saved. You can edit every choice later.';
     if(answers.work.scheduleDeferred)document.getElementById('guidedStatus').textContent='Your starting plan is saved. Add your work schedule in Calendar before relying on workout times.';

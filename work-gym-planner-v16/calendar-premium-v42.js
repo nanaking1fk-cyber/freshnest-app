@@ -112,7 +112,7 @@
     return items;
   }
   function cellDetailsMarkup(items){
-    return'<span class="calendarCellDetailsV47">'+items.slice(0,2).map(function(item){return'<span class="calendarCellItemV47 '+safe(item.kind)+'" title="'+safe(item.title+(item.time?' · '+item.time:''))+'"><strong>'+safe(item.title)+'</strong>'+(item.time?'<small>'+safe(item.time)+'</small>':'')+'</span>'}).join('')+(items.length>2?'<small class="calendarCellMoreV47">+'+(items.length-2)+' more</small>':'')+'</span>';
+    return'<span class="calendarCellDetailsV47">'+items.slice(0,2).map(function(item){var label=item.kind==='work'?item.title.replace(/\s+shift$/i,''):item.kind==='workout'?'Train':item.title;return'<span class="calendarCellItemV47 '+safe(item.kind)+'" title="'+safe(item.title+(item.time?' · '+item.time:''))+'"><strong>'+safe(label)+'</strong></span>'}).join('')+(items.length>2?'<small class="calendarCellMoreV47">+'+(items.length-2)+' more</small>':'')+'</span>';
   }
   function decorateCells(){
     var pane=document.getElementById('plannerPane-calendar');if(pane)pane.dataset.calendarDensity=calendarDisplayMode();

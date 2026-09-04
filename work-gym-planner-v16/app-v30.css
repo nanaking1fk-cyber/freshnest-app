@@ -615,7 +615,7 @@ body.premiumV30 .menuGroupItemsV30 i{color:var(--v30-faint);font-size:20px}
 
 /* Premium command dock on mobile, navigation rail on desktop. */
 body.premiumV30 .bottomNavV30{z-index:80}
-body.premiumV30 .bottomNavV30 button{min-height:58px}
+body.premiumV30 .bottomNavV30 button{min-height:58px;touch-action:manipulation}
 body.premiumV30 .bottomNavV30 small{font-size:10px!important}
 body.premiumV30 .aiCoachFab,
 body.premiumV30 .coachFab18,

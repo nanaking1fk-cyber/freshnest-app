@@ -11,10 +11,19 @@ function harness({saved=null,previous=null,profile=null}={}){
  openModal:id=>opened.push(id),closeModal(){},WGC18:{config:{cloudConfigured:false,aiConfigured:false},buildDeterministicPlan:()=>({training:{days:[]},nutrition:{}}),applyPersonalizedPlan:(answers,plan)=>applied.push({answers,plan}),pushState:()=>Promise.resolve()}};
  context.window=context;vm.createContext(context);
  // Expose lexical helpers only inside this test, while executing the real module.
- vm.runInContext(source.replace('  A.openOnboarding=openGuided;',`  A.test={quickScreens,activeScreens,goNext,set,readDraft:()=>draft};\n  A.openOnboarding=openGuided;`),context);
+ vm.runInContext(source.replace('  A.openOnboarding=openGuided;',`  A.test={quickScreens,activeScreens,goNext,set,showPreview,readDraft:()=>draft};\n  A.openOnboarding=openGuided;`),context);
  return{A:context.WGC18,context,el,opened,applied};
 }
 function legacy(step,workMode='standard'){return{version:2,step,values:{name:'Alex',age:'30',heightFt:'5',heightIn:'8',weight:'160',goal:'maintain',workMode,jobStart:'09:00',jobEnd:'17:00',secondJob:'no',trainingMode:'adaptive',sleepHours:'8',restrictions:'No peanuts',foods:'rice, beans',experience:'advanced'},days:{job:[1,2,3,4,5],second:[]}}}
+test('shift-based onboarding leads directly to the work calendar setup',()=>{
+ assert.match(source,/next\.textContent=answers\.work\.scheduleDeferred\?'Add my work schedule'/);
+ assert.match(source,/if\(answers\.work\.scheduleDeferred\)\{window\.WWCalendarV42\?\.openAdd\('workmenu'\)/);
+ assert.match(source,/Workout times are provisional until your work schedule is added/);
+ const h=harness(),calls=[];h.context.WWCalendarV42={openAdd:kind=>calls.push(kind)};h.context.openCalendarDate=()=>calls.push('calendar');
+ h.A.test.showPreview({basics:{name:'Alex'},training:{mode:'adaptive'},work:{scheduleDeferred:true}},{},false);
+ assert.equal(h.el('guidedNext').textContent,'Add my work schedule');h.el('guidedNext').onclick();
+ assert.deepEqual(calls,['calendar','workmenu']);
+});
 
 test('onboarding always has three steps, regardless of work or training mode',()=>{
  const h=harness();h.A.openOnboarding();
@@ -110,8 +119,8 @@ test('a late automatic startup cannot interrupt an already open setup or clear i
 
 test('production and offline loaders ship the three-step flow and its scoped styles',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
-  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-calendar67'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-calendar67'));
+  const text=read(file);assert.match(text,/assetRevision='30\.1\.31-layout68'/);assert.ok(text.includes('guided-onboarding-v18.js'));assert.ok(text.includes('app-v30.css?v=30.1.31-layout68'));
  }
- for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-calendar67'));
+ for(const file of ['work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.ok(read(file).includes('30.1.31-layout68'));
  const css=read('work-gym-planner-v16/app-v30.css');assert.match(css,/body\.premiumV30 #guidedOnboarding\.guidedQuickV49 \.guidedFieldGrid/);
 });

@@ -6,6 +6,12 @@ Recovery update, 4 September: the Mac restart cleared the temporary source/build
 
 ## Completed implementation
 
+Publication check, 4 September: owner authorized publishing all fixes and the npm package-metadata audit. All 480 regression tests pass. Root audit reports zero vulnerabilities; native tooling reports three moderate findings through `@capacitor/cli` → `xcode` → `uuid`, with no high/critical findings. The suggested forced dependency change is breaking and was not applied. Before publication the production subscription route returned HTTP 404, confirming the installed candidate/server mismatch. Production deployment is not established by this pre-release note.
+
+Launch update, 4 September 11:00 local: after the owner completed the developer-trust step, Apple's device tool successfully launched `com.bibiniifarms.workandworkout` on the connected iPhone. Launch permission is now verified; rendered-screen correctness, account flows, camera/Health access and sustained stability still require device testing. This does not mark the broader device-quality release gate complete.
+
+Device build update, 4 September 10:59 local: Debug development build of recovery commit `843472a` succeeded. Strict signature verification passed and Apple's device tool confirmed installation on the owner's iPhone 16 Pro Max. Launch was denied by iOS with its signature/entitlement/developer-trust security message; developer trust is the next user check. No successful app launch or functional device QA is claimed. This development build is not a distribution archive or TestFlight release. The build log is retained locally in `app-store/test-results/recovery/device-build.log` (ignored by Git).
+
 - Latest website recovery, calendar and onboarding fixes retained in the packaged application.
 - Apple StoreKit purchase, restore, subscription management and server verification integrated. Client flags alone cannot unlock paid access. Purchases remain disabled until real Apple configuration is available.
 - Every AI scan requires AI Plus, including meal/equipment photos and roster uploads. AI schedule generation and plan refinement also require Plus. Manual calendar, workouts, food logging and barcode lookup stay free.

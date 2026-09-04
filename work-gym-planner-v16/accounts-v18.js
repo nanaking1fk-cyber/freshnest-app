@@ -34,7 +34,7 @@ window.WGC18=window.WGC18||{};
  // A recovery session that is abandoned must not leave the "choose a new
  // password" panel armed for the next account signed in on this tab.
  function clearRecoveryFlag(){try{sessionStorage.removeItem(RECOVERY_KEY)}catch{}A.passwordRecovery=false}
- function loadSession(){try{A.session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null')}catch{A.session=null}}
+ function loadSession(){try{A.session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');if(A.session?.passwordRecoveryPending)A.passwordRecovery=true}catch{A.session=null}}
  function sessionExpired(s=A.session){if(!s?.access_token)return true;let exp=+s.expires_at||0;return exp&&Date.now()/1000>exp-60}
  async function requestText(url,opt={},shouldContinue){
   // Small, already-authorized autosaves may finish while this page closes.
@@ -91,6 +91,7 @@ window.WGC18=window.WGC18||{};
    try{
     const j=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
     if(A.session?.refresh_token!==s.refresh_token)return A.session;
+    if(A.passwordRecovery)j.passwordRecoveryPending=true;
     saveSession(j);return j;
    }catch(error){
     // A network outage is not a sign-out. Nor may an old request sign out a new login.
@@ -251,29 +252,39 @@ window.WGC18=window.WGC18||{};
  A.acceptCloudRevision=function(updatedAt,uid=A.session?.user?.id){if(uid!==A.session?.user?.id||uid!==A.cloudStateOwner)return;A.cloudRevision=updatedAt||null;try{localStorage.setItem(BASELINE_PREFIX+uid,JSON.stringify(A.cloudRevision))}catch{}};
  A.pauseCloudSync=function(){setAccountState('choice');status('Your saved account changed on another device. Load it before syncing; both copies are protected.',true)};
  async function consumeAuthRedirect(){
-  if(LEGACY_AUTH_FRAGMENT){status('For your security, this older confirmation link can no longer be accepted. Request a new email and try again.',true);return false}
+  if(LEGACY_AUTH_FRAGMENT){showAuthLinkError('This older email link cannot be used. Request a new email below, then open it in this browser.');return true}
   const params=new URLSearchParams(location.search),fragment=new URLSearchParams(location.hash.slice(1)),code=params.get('code');
   if(params.has('error')||params.has('error_code')||fragment.has('error')||fragment.has('error_code')){
    window.history.replaceState(null,'',location.pathname);clearRecoveryFlag();openAccount('signin');
-   status(params.get('auth')==='recovery'?'This password reset link has expired or was already used. Request a new reset email.':'This email link has expired or was already used. Try signing in with your email and password first. You do not need to create another account.',true);return true;
+   showAuthLinkError(params.get('auth')==='recovery'?'This password reset link has expired or was already used. Request a new reset email.':'This email link has expired or was already used. Try signing in with your email and password first. You do not need to create another account.');return true;
   }
-  if(!code)return false;
+  if(!code){if(params.get('auth')==='recovery'&&!A.passwordRecovery){showAuthLinkError('This reset link is incomplete. Request a new reset email below.');return true}return false}
   const requestedPurpose=params.get('auth'),storedPurpose=localStorage.getItem(PKCE_PURPOSE_KEY);
-  const purpose=['signup','recovery'].includes(storedPurpose)?storedPurpose:(['signup','recovery'].includes(requestedPurpose)?requestedPurpose:'signup');
+  const purpose=requestedPurpose==='recovery'||storedPurpose==='recovery'?'recovery':'signup';
   window.history.replaceState(null,'',location.pathname);
   const verifier=localStorage.getItem(PKCE_VERIFIER_KEY);
-  if(!verifier){openAccount('signin');status(purpose==='recovery'?'This reset link must be opened in the same browser where you requested it. Enter your email and request a new link here.':'This link opened in a different browser. Sign in with the email and password you used to create your account to continue.',true);return true}
+  if(!verifier){openAccount('signin');showAuthLinkError(purpose==='recovery'?'This reset link must be opened in the same browser where you requested it. Enter your email and request a new link here.':'This link opened in a different browser. Sign in with the email and password you used to create your account to continue.');return true}
   try{
    const session=await raw(`${A.config.supabaseUrl}/auth/v1/token?grant_type=pkce`,{method:'POST',headers:{apikey:A.config.supabaseAnonKey,'Content-Type':'application/json'},body:JSON.stringify({auth_code:code,code_verifier:verifier})});
    localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);
-   saveSession(session);
    if(purpose==='recovery'){
-    sessionStorage.setItem(RECOVERY_KEY,'1');A.passwordRecovery=true;renderAccountUI();openAccount('signin');status('Choose a new password to finish recovery.');toast('Choose a new password to finish recovery.');return true
+    // Mark recovery before listeners see a signed-in session.
+    sessionStorage.setItem(RECOVERY_KEY,'1');A.passwordRecovery=true;session.passwordRecoveryPending=true;
+    saveSession(session);renderAccountUI();openAccount('signin');status('Choose a new password to finish recovery.');toast('Choose a new password to finish recovery.');return true
    }
+   saveSession(session);
    await afterAuth();
    toast('Email confirmed. Your private plan is ready to build.');
    return true
-  }catch(e){localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);clearRecoveryFlag();openAccount('signin');status(purpose==='recovery'?'This password reset link is invalid or expired. Enter your email and request a new link.':'The confirmation link could not be completed. Request a new email in this browser.',true);return false}
+  }catch(e){localStorage.removeItem(PKCE_VERIFIER_KEY);localStorage.removeItem(PKCE_PURPOSE_KEY);clearRecoveryFlag();openAccount('signin');showAuthLinkError(purpose==='recovery'?'This password reset link is invalid or expired. Enter your email and request a new link.':'The confirmation link could not be completed. Request a new email in this browser.');return true}
+ }
+ // A failed email callback must not look like a successful account login.
+ function showAuthLinkError(message){A.authLinkError=message;openAccount('signin');status(message,true)}
+ function renderAuthLinkError(body){
+  if($('#authLinkError'))return;
+  body.innerHTML=`<div id="authLinkError" class="authPane"><b>Check your email link</b><p>${esc(A.authLinkError)}</p><form id="requestFreshReset" class="authPane"><label>Email<input id="resetLinkEmail" type="email" name="username" autocomplete="username" required></label><button id="freshResetButton" type="submit" class="primary wideBtn">Send a new reset email</button></form><button id="backFromEmailLink" class="linkBtn">${A.session?'Back to my account':'Back to sign in'}</button></div>`;
+  $('#requestFreshReset').onsubmit=async event=>{event.preventDefault();if(A.authBusy)return;A.authBusy=true;const button=$('#freshResetButton');button.disabled=true;try{await recover($('#resetLinkEmail').value.trim());status('Reset email sent. Open the newest email in this browser to choose your password.')}catch(e){status(e.message,true)}finally{A.authBusy=false;button.disabled=false}};
+  $('#backFromEmailLink').onclick=()=>{A.authLinkError=null;renderAccountUI();status('')};
  }
  A.signIn=signIn;A.signUp=signUp;A.signOut=signOut;A.recover=recover;A.captureLocalState=captureLocalState;A.restoreCloudState=restoreCloudState;
  function clearDeletedAccountLocally(uid){
@@ -343,14 +354,37 @@ window.WGC18=window.WGC18||{};
   body.innerHTML='<div class="accountUnavailable"><b>'+ (A.config.error?'Let’s try connecting again.':'Sign-in is temporarily unavailable.') +'</b><p>'+ (A.config.error?'Check your connection, then try again. Your saved account has not changed.':'Please try again shortly. Your saved account has not changed.') +'</p><button id="retryAccountConnection" class="primary wideBtn">Try again</button></div>';
   $('#retryAccountConnection').onclick=initializeAccount;return;
  }
+ // Keep recovery focused, and preserve typed input during background refreshes.
+ const title=$('#accountTitle');if(title)title.textContent=A.passwordRecovery?'Reset your password':'Your Work + Workout account';
+ const close=$('#accountDialog [data-close]');if(close)close.textContent=A.passwordRecovery?'Close':'Done';
+ if(A.authLinkError){renderAuthLinkError(body);return}
+ if(signed&&A.passwordRecovery&&$('#recoveryEmail')?.value===accountEmail())return;
  if(!signed&&$('#signinPane')){selectAuthMode();return}
  if(!signed){body.innerHTML=`<div class="authTabs"><button type="button" data-auth-tab="signin" class="active">Sign in</button><button type="button" data-auth-tab="signup">Create account</button></div><form id="signinPane" class="authPane" autocomplete="on"><label>Email<input id="loginEmail" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label><label>Password<input id="loginPassword" name="password" type="password" autocomplete="current-password" required></label><button id="loginBtn" type="submit" class="primary wideBtn">Sign in</button><button id="recoverBtn" type="button" class="linkBtn">Forgot password?</button></form><form id="signupPane" class="authPane hidden" autocomplete="on"><label>Name<input id="signupName" name="name" autocomplete="name" required maxlength="80"></label><label>Email<input id="signupEmail" name="username" type="email" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required></label><label>Password<input id="signupPassword" name="new-password" type="password" minlength="12" autocomplete="new-password" required></label><small>Use 12+ characters with uppercase, lowercase, a number and a symbol.</small><button id="signupBtn" type="submit" class="primary wideBtn">Create account</button><p class="muted">Next: choose your privacy settings, then build your plan. Cloud backup and AI features are optional.</p></form>`;$$('[data-auth-tab]').forEach(b=>b.onclick=()=>{authMode=b.dataset.authTab;selectAuthMode()});selectAuthMode();$('#signinPane').onsubmit=async event=>{event.preventDefault();if(A.authBusy)return;let email=$('#loginEmail'),password=$('#loginPassword');if(!email.checkValidity()||!password.value)return status('Enter a valid email and password.',true);A.authBusy=true;status('Signing in…');try{await signIn(email.value.trim(),password.value);if(A.canStartOnboarding())closeModal('accountDialog');toast('Signed in')}catch(e){status(e.message,true)}finally{A.authBusy=false}};$('#signupPane').onsubmit=async event=>{event.preventDefault();if(A.authBusy)return;let name=$('#signupName'),email=$('#signupEmail'),password=$('#signupPassword');if(!name.value.trim())return status('Enter your name.',true);if(!email.checkValidity())return status('Enter a valid email address.',true);if(!passwordStrong(password.value))return status('Use 12+ characters with uppercase, lowercase, a number and a symbol.',true);A.authBusy=true;status('Creating account…');try{let j=await signUp(name.value.trim(),email.value.trim(),password.value);if(!j.access_token)status('Account created. Open the confirmation email in this browser to finish securely.');else{closeModal('accountDialog');toast('Account created')}}catch(e){status(e.message,true)}finally{A.authBusy=false}};let recoverButton=$('#recoverBtn');runRecoveryCountdown(recoverButton);recoverButton.onclick=async()=>{let email=$('#loginEmail');if(A.authBusy||recoveryCooldown())return runRecoveryCountdown(recoverButton);if(!email.checkValidity())return status('Enter a valid email first.',true);A.authBusy=true;recoverButton.disabled=true;recoverButton.textContent='Sending reset email…';try{await recover(email.value.trim());status('Password reset email sent. Open the newest email in this browser to continue securely.')}catch(e){status(e.message,true)}finally{A.authBusy=false;runRecoveryCountdown(recoverButton)}};return}
  let last=localStorage.getItem(LAST_SYNC_KEY),when=last?new Date(last).toLocaleString():'Never';
  body.innerHTML=`${A.passwordRecovery?`<form id="recoveryPasswordForm" class="accountUnavailable authPane" autocomplete="on"><b>Choose a new password</b><p>Use 12+ characters with uppercase, lowercase, a number and a symbol.</p><label>Email<input id="recoveryEmail" name="username" type="email" value="${esc(accountEmail())}" autocomplete="username" readonly></label><label>New password<input id="recoveryNewPassword" name="new-password" type="password" minlength="12" autocomplete="new-password" required></label><button id="saveRecoveredPassword" type="submit" class="primary wideBtn">Set new password</button></form>`:''}<div class="signedAccount"><div class="accountIdentity"><span>${esc((accountEmail()||'?')[0].toUpperCase())}</span><div><b>${esc(accountEmail()||'Signed in')}</b><small>Last sync: ${esc(when)}</small></div><button id="signOutAccount">Sign out</button></div><div class="accountMenu"><details class="accountMenuSection" ${A.cloudStateReady?'':'open'}><summary><span>Cloud backup &amp; restore<small>Sync, restore and device protection</small></span><i>⌄</i></summary><div class="accountMenuBody">${accountSafetyHTML()}<div class="accountActions"><button id="migrateDevice" class="primary"><b>Sync this device</b><small>Upload only this account's planner, training and nutrition records</small></button><button id="restoreAccount"><b>Restore from account</b><small>Replace this device with the private cloud copy</small></button><button id="syncAccount"><b>Sync now</b><small>Update your account with this device</small></button></div></div></details><details class="accountMenuSection"><summary><span>Plan settings<small>Work, workouts, recovery and nutrition</small></span><i>⌄</i></summary><div class="accountMenuBody"><div class="accountActions"><button id="startOnboardingAccount"><b>Edit adaptive plan</b><small>Update your planning preferences</small></button></div></div></details><details class="accountMenuSection"><summary><span>Privacy &amp; account<small>Optional features and permanent deletion</small></span><i>⌄</i></summary><div class="accountMenuBody">${A.healthConsentPanelHTML?.()||''}<div class="dangerZone"><b>Delete cloud account</b><p>This removes your login and saved cloud data. It is different from deleting only this device's copy.</p><button id="deleteCloudAccount" class="danger">Delete account permanently</button></div></div></details></div></div>`;
+ if(A.passwordRecovery)body.querySelector('.signedAccount')?.remove();
  A.bindHealthConsentPanel?.();bindAccountSafety();
  for(const id of ['migrateDevice','syncAccount']){const button=$('#'+id);if(button)button.disabled=!A.cloudStateReady}
  if($('#startOnboardingAccount'))$('#startOnboardingAccount').disabled=!A.canStartOnboarding();
- $('#recoveryPasswordForm')?.addEventListener('submit',async event=>{event.preventDefault();let value=$('#recoveryNewPassword').value;if(!passwordStrong(value))return status('Use 12+ characters with uppercase, lowercase, a number and a symbol.',true);try{let token=await A.accessToken();await raw(`${A.config.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password:value})});sessionStorage.removeItem(RECOVERY_KEY);A.passwordRecovery=false;status('Password updated.');renderAccountUI();toast('Password updated securely');await afterAuth()}catch(e){status(e.message,true)}});
+ $('#recoveryPasswordForm')?.addEventListener('submit',async event=>{
+  event.preventDefault();if(A.recoverySaving)return;
+  const value=$('#recoveryNewPassword').value,uid=A.session?.user?.id,button=$('#saveRecoveredPassword');
+  if(!passwordStrong(value))return status('Use 12+ characters with uppercase, lowercase, a number and a symbol.',true);
+  A.recoverySaving=true;button.disabled=true;button.textContent='Saving new password…';status('');
+  try{
+   const token=await A.accessToken();
+   if(!token||A.session?.user?.id!==uid||!A.passwordRecovery)throw Error('Please reopen your reset link.');
+   const user=await raw(`${A.config.supabaseUrl}/auth/v1/user`,{method:'PUT',headers:{apikey:A.config.supabaseAnonKey,Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({password:value})});
+   if(A.session?.user?.id!==uid)return;
+   if(user.id!==uid)throw Error('We could not confirm the password change. Please try again.');
+   delete A.session.passwordRecoveryPending;
+   sessionStorage.removeItem(RECOVERY_KEY);A.passwordRecovery=false;saveSession(A.session);
+   status('Password updated. Use your new password next time you sign in.');toast('Password updated securely');await afterAuth();
+  }catch(e){if(A.session?.user?.id===uid)status(e.code==='same_password'?'Choose a password you have not used before.':e.code==='weak_password'?'Choose a stronger password that has not appeared in a known data breach.':e.status===401?'Your reset session has expired. Request a new reset email.':'We could not confirm the password change. Check your connection and try again.',true)}
+  finally{A.recoverySaving=false;if(button.isConnected){button.disabled=false;button.textContent='Set new password'}}
+ });
+ if(A.passwordRecovery)return;
  $('#migrateDevice').onclick=async()=>{if(!confirm(`Upload this device's ${localDataCount()} planner records to your signed-in account?`))return;status('Migrating this device…');try{await A.pushState()}catch(e){status(e.message,true)}};
  $('#restoreAccount').onclick=()=>accountAction('restore');
  $('#syncAccount').onclick=async()=>{status('Syncing…');try{await A.pushState()}catch(e){status(e.message,true)}};

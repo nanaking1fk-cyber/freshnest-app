@@ -14,6 +14,24 @@
   const NUMBER_WORDS={one:1,two:2,three:3,four:4,five:5,six:6,seven:7};
   const COLORS=['#58a6ff','#b8f34a','#a78bfa','#f59e0b','#f472b6','#22d3ee','#fb7185','#34d399'];
   const COLOR_NAMES=['Blue','Lime green','Purple','Amber','Pink','Cyan','Coral','Mint green'];
+  const SHIFT_VARIANTS=[
+    {id:'day',label:'Day shift',shortLabel:'Day',start:'07:00',end:'15:00',color:COLORS[0]},
+    {id:'evening',label:'Evening shift',shortLabel:'Evening',start:'15:00',end:'23:00',color:COLORS[3]},
+    {id:'night',label:'Night shift',shortLabel:'Night',start:'23:00',end:'07:00',color:COLORS[2]}
+  ];
+
+  function sourceShiftVariants(source){
+    const saved=Array.isArray(source?.shiftVariants)?source.shiftVariants:[];
+    return SHIFT_VARIANTS.map(fallback=>{
+      const current=saved.find(item=>item&&item.id===fallback.id)||{};
+      return Object.assign({},fallback,current,{id:fallback.id,label:String(current.label||fallback.label),shortLabel:String(current.shortLabel||fallback.shortLabel),start:minutes(current.start)!=null?current.start:fallback.start,end:minutes(current.end)!=null?current.end:fallback.end,color:COLORS.includes(current.color)?current.color:fallback.color});
+    });
+  }
+  function shiftVariantFor(source,id='day'){return sourceShiftVariants(source).find(item=>item.id===id)||sourceShiftVariants(source)[0]}
+  function shiftVariantForTimes(source,start,end){
+    const exact=sourceShiftVariants(source).find(item=>item.start===start&&item.end===end);if(exact)return exact;
+    const value=minutes(start);return shiftVariantFor(source,value==null||value>=5*60&&value<14*60?'day':value>=14*60&&value<21*60?'evening':'night');
+  }
 
   function pad(value){return String(value).padStart(2,'0')}
   function keyFromDate(value){return value.getFullYear()+'-'+pad(value.getMonth()+1)+'-'+pad(value.getDate())}
@@ -327,7 +345,8 @@
     if(token==='O'&&!exception?.action)return null;
     const night=exception?.night!=null?!!exception.night:token==='N';
     const start=exception?.start||(night?rule.nightStart:rule.dayStart),end=exception?.end||(night?rule.nightEnd:rule.dayEnd);
-    return{id:'rotation:'+rule.id+':'+dateKey,kind:'work',date:dateKey,title:exception?.title||rule.name||source?.name||'Work shift',start,end,overnight:minutes(end)<=minutes(start),sourceId:rule.sourceId,sourceName:source?.name||'Work',color:source?.color||COLORS[0],rotationId:rule.id,generated:true,exception:!!exception,updatedAt:rule.updatedAt||rule.createdAt||''};
+    const variantId=exception?.shiftVariantId||(rule.useShiftVariants?(night?'night':'day'):rule.shiftVariantId||''),variant=variantId?shiftVariantFor(source,variantId):null,shiftLabel=exception?.shiftLabel||(rule.useShiftVariants?variant?.label:rule.shiftLabel)||variant?.label||'';
+    return{id:'rotation:'+rule.id+':'+dateKey,kind:'work',date:dateKey,title:exception?.title||shiftLabel||rule.name||source?.name||'Work shift',start,end,overnight:minutes(end)<=minutes(start),sourceId:rule.sourceId,sourceName:source?.name||'Work',shiftVariantId:variantId,shiftLabel:shiftLabel,color:exception?.color||(rule.useShiftVariants?variant?.color:rule.shiftColor)||variant?.color||source?.color||COLORS[0],rotationId:rule.id,generated:true,exception:!!exception,updatedAt:rule.updatedAt||rule.createdAt||''};
   }
   function projectRotation(rotation,startKey,endKey,source){
     const values=[];
@@ -358,5 +377,5 @@
     return values;
   }
 
-  return{DAY_NAMES,WEEKDAYS,COLORS,COLOR_NAMES,pad,keyFromDate,dateFromKey,addDays,diffDays,minutes,parseTimes,splitInput,expandDayLanguage,explicitDate,deadlineDate,classify,parseNaturalLanguage,confidenceFor,eventBounds,overlap,sameEvent,detectConflicts,durationHours,timeAfter,placeFlexibleEntries,patternFromPreset,parsePattern,normalizeRotation,rotationEventOn,projectRotation,eventsForRange,dedupeEvents,startOfWeek,weeklySummary,detectPairConflicts,hashString};
+  return{DAY_NAMES,WEEKDAYS,COLORS,COLOR_NAMES,SHIFT_VARIANTS,sourceShiftVariants,shiftVariantFor,shiftVariantForTimes,pad,keyFromDate,dateFromKey,addDays,diffDays,minutes,parseTimes,splitInput,expandDayLanguage,explicitDate,deadlineDate,classify,parseNaturalLanguage,confidenceFor,eventBounds,overlap,sameEvent,detectConflicts,durationHours,timeAfter,placeFlexibleEntries,patternFromPreset,parsePattern,normalizeRotation,rotationEventOn,projectRotation,eventsForRange,dedupeEvents,startOfWeek,weeklySummary,detectPairConflicts,hashString};
 });

@@ -76,7 +76,7 @@ for(const width of [320,390,1280])test(`calendar fits the viewport with short la
  await expect(page.getByRole('button',{name:/One shift/})).toBeVisible();
  await expect(page.getByRole('button',{name:/Repeating schedule/})).toBeVisible();
  await page.locator('[data-add-kind="work"]').click();
- await expect(page.getByText('What is your usual shift?',{exact:true})).toBeVisible();
+ await expect(page.getByText('Which shift do you work?',{exact:true})).toBeVisible();
 });
 const save=async page=>{await page.locator('#wpRulesFormV58 button[type="submit"]').click();await expect(page.locator('#wpGrossV58')).toBeVisible()};
 

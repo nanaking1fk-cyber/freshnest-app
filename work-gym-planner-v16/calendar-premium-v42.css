@@ -314,6 +314,33 @@ body.premiumV30 #page-calendar .calendarCellItemV47 strong{display:block;white-s
 body.premiumV30 #page-calendar .calendarCellItemV47 small{display:none}
 body.premiumV30 #page-calendar #plannerPane-calendar[data-calendar-density="details"] .calendarMarkersV42{display:none}
 @media(max-width:600px){body.premiumV30 #page-calendar #plannerPane-calendar[data-calendar-density="details"] .calDay{height:76px;min-height:76px}}
+
+/* v75: one workplace can keep distinct Day, Evening and Night shifts. */
+body.premiumV30 .calendarShiftChoicesV75{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}
+body.premiumV30 .calendarShiftChoicesV75 button{display:flex;align-items:center;gap:9px;min-width:0;min-height:58px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#11191e;color:var(--text);text-align:left}
+body.premiumV30 .calendarShiftChoicesV75 button>i{width:12px;height:32px;flex:none;border-radius:99px;background:var(--shift-color)}
+body.premiumV30 .calendarShiftChoicesV75 button span,body.premiumV30 .calendarShiftChoicesV75 button b,body.premiumV30 .calendarShiftChoicesV75 button small{display:block;min-width:0}
+body.premiumV30 .calendarShiftChoicesV75 button b{font-size:13px}
+body.premiumV30 .calendarShiftChoicesV75 button small{margin-top:3px;color:var(--muted);font-size:9px;white-space:nowrap}
+body.premiumV30 .calendarShiftChoicesV75 button.selected{border-color:var(--shift-color);background:color-mix(in srgb,var(--shift-color) 12%,#11191e);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--shift-color) 38%,transparent)}
+body.premiumV30 .calendarShiftReviewV75{display:flex!important;align-items:center;gap:8px}
+body.premiumV30 .calendarShiftReviewV75 i{width:10px;height:10px;border-radius:50%;background:var(--shift-color)}
+body.premiumV30 #page-calendar .sourceShiftVariantsV75{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+body.premiumV30 #page-calendar .sourceShiftVariantsV75 em{display:inline-flex;align-items:center;gap:4px;color:#aab5af;font-size:9px;font-style:normal}
+body.premiumV30 #page-calendar .sourceShiftVariantsV75 em i{width:7px;height:7px;border-radius:50%;background:var(--shift-color)}
+body.premiumV30 #page-calendar .shiftPickerFieldsV35{grid-template-columns:120px minmax(140px,1fr) minmax(210px,1.2fr) 100px 100px auto}
+body.premiumV30 #page-calendar .shiftPickerVariantsV75{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+body.premiumV30 #page-calendar .shiftPickerVariantsV75 button{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:39px;padding:0 7px;border:1px solid var(--v30-line);border-radius:10px;background:#0a1014;color:var(--v30-muted)}
+body.premiumV30 #page-calendar .shiftPickerVariantsV75 button i{width:7px;height:7px;border-radius:50%;background:var(--shift-color)}
+body.premiumV30 #page-calendar .shiftPickerVariantsV75 button.selected{border-color:var(--shift-color);color:var(--v30-ink);background:color-mix(in srgb,var(--shift-color) 12%,#0a1014)}
+body.premiumV30 #page-calendar .shiftPickerBarV35.offModeV35 .shiftPickerVariantsV75{display:none}
+@media(max-width:760px){
+  body.premiumV30 .calendarShiftChoicesV75{grid-template-columns:1fr}
+  body.premiumV30 .calendarShiftChoicesV75 button{min-height:52px}
+  body.premiumV30 #page-calendar .shiftPickerFieldsV35{grid-template-columns:1fr 1fr}
+  body.premiumV30 #page-calendar .shiftPickerVariantsV75{grid-column:1/-1}
+  body.premiumV30 #page-calendar .shiftPickerVariantsV75 button{grid-column:auto;width:auto}
+}
 /* v46: keep the calendar clear while picking dates; reveal one input method at a time. */
 body.premiumV30.calendarShiftPickingV35 #page-calendar #dayCard{display:none!important}
 body.premiumV30.calendarShiftPickingV35.calendarDaySheetOpenV42::before{display:none}

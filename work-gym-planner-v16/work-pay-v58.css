@@ -33,10 +33,17 @@ body.premiumV30 #workPayDialogV58 .wpHero small{font-size:10px;letter-spacing:.1
 body.premiumV30 #workPayDialogV58 .wpHero strong{display:block;margin:9px 0;font-size:clamp(25px,5vw,42px);line-height:1.2;letter-spacing:-1.5px;overflow-wrap:anywhere}
 body.premiumV30 #workPayDialogV58 .wpHero p{margin:0;font-size:12px;line-height:1.5;color:#c0ccc1}
 body.premiumV30 #workPayDialogV58 .wpEstimateTag{font-size:10px;color:#dcf9ac;border:1px solid #586a40;border-radius:20px;padding:5px 9px;white-space:nowrap}
-body.premiumV30 #workPayDialogV58 .wpStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+body.premiumV30 #workPayDialogV58 .wpStats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
 body.premiumV30 #workPayDialogV58 .wpStats>div{background:#192225;border:1px solid #2a3436;border-radius:15px;padding:16px 12px}
 body.premiumV30 #workPayDialogV58 .wpStats small{display:block;font-size:11px;color:#afbbb5;margin-bottom:9px}
-body.premiumV30 #workPayDialogV58 .wpStats b{font-size:25px;letter-spacing:-.8px}
+body.premiumV30 #workPayDialogV58 .wpStats b{display:block;font-size:clamp(20px,4.5vw,25px);letter-spacing:-.8px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+body.premiumV30 #workPayDialogV58 .wpTaxCaption{display:block;font-size:11px;line-height:1.5;color:#afbbb5;margin-top:8px}
+body.premiumV30 #workPayDialogV58 #wpTaxSetupV65{background:none;border:0;color:#c1f747;padding:4px 0;text-align:left;font-size:12px}
+body.premiumV30 #workPayDialogV58 .wpTaxSettings{border:1px solid #41513b;background:#19231c;border-radius:16px;padding:0 16px;margin:20px 0}
+body.premiumV30 #workPayDialogV58 .wpTaxSettings .wpCheck{align-items:center;font-size:14px}
+body.premiumV30 #workPayDialogV58 .wpTaxSettings .wpCheck small{display:block;font-size:11px;line-height:1.5;color:#b6c1b8;font-weight:400;margin-top:3px}
+body.premiumV30 #workPayDialogV58 #wpTaxFieldsV65{padding-bottom:5px}
+body.premiumV30 #workPayDialogV58 .wpFooter details>button{width:100%;margin-bottom:5px}
 body.premiumV30 #workPayDialogV58 .wpStats em{font-size:12px;font-style:normal;font-weight:400;color:#a9b6af}
 body.premiumV30 #workPayDialogV58 .wpHint,body.premiumV30 #workPayDialogV58 .wpFooter p,body.premiumV30 #workPayDialogV58 .wpIntro p{color:#aebbb4;font-size:12px;line-height:1.65}
 body.premiumV30 #workPayDialogV58 .wpSetup{width:100%;text-align:left;padding:17px;background:#222e1d;border-color:#4a5e31;margin:8px 0 14px}

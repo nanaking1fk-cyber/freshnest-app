@@ -3,11 +3,11 @@ const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 test('reload resumes password recovery before consent, cloud restore or onboarding',async()=>{
  const source=read('work-gym-planner-v16/accounts-v18.js');
- const start=source.indexOf('loadConfig().then(async()=>');
- const startup=source.slice(start,source.indexOf("document.addEventListener('DOMContentLoaded'",start));
+ const start=source.indexOf(' function initializeAccount()');
+ const startup=source.slice(start,source.indexOf(' loadSession();',start))+'\ninitializeAccount()';
  for(const signedIn of [true,false]){
-  const events=[],A={session:signedIn?{user:{id:'fixture'}}:null,passwordRecovery:true};
-  await vm.runInNewContext(startup,{A,loadConfig:async()=>{},accountModulesReady:Promise.resolve(),consumeAuthRedirect:async()=>false,sessionExpired:()=>false,refreshSession:async()=>{},clearRecoveryFlag:()=>{A.passwordRecovery=false;events.push('clear')},lockPlannerForLoggedOut:()=>events.push('locked'),renderAccountUI:()=>events.push('render'),openAccount:()=>events.push('password-form'),status:()=>{},afterAuth:async()=>events.push('cloud')});
+  const events=[],A={session:signedIn?{user:{id:'fixture'}}:null,passwordRecovery:true,config:{cloudConfigured:true}};
+  await vm.runInNewContext(startup,{A,accountStartup:null,loadConfig:async()=>{},accountModulesReady:Promise.resolve(),consumeAuthRedirect:async()=>false,sessionExpired:()=>false,refreshSession:async()=>{},clearRecoveryFlag:()=>{A.passwordRecovery=false;events.push('clear')},lockPlannerForLoggedOut:()=>events.push('locked'),renderAccountUI:()=>events.push('render'),openAccount:()=>events.push('password-form'),status:()=>{},afterAuth:async()=>events.push('cloud')});
   assert.ok(!events.includes('cloud'));
   if(signedIn)assert.ok(events.includes('password-form'));
   else{assert.equal(A.passwordRecovery,false);assert.ok(events.includes('locked'))}

@@ -17,7 +17,7 @@ test('production routes use an external-script shell under strict script CSP',()
   assert.doesNotMatch(csp,/script-src[^;]*'unsafe-inline'/);
   const shell=read('work-gym-planner/shell.html');
   assert.doesNotMatch(shell,/<script(?![^>]+src=)[^>]*>/i);
-  assert.doesNotMatch(shell,/<style\b/i);
+  assert.match(shell,/<style id="wwBootCritical">/);
   assert.match(shell,/shared\/observability\.js/);
   assert.match(shell,/\/_vercel\/speed-insights\/script\.js/);
 });

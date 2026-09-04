@@ -22,7 +22,7 @@ test('the day is the first thing under the header',()=>{
   const strip=today.indexOf('homeSummaryGrid');
   const plan=today.indexOf('>Today</h2>');
   const fuel=today.indexOf('>Fuel</h2>');
-  assert.ok(strip>0&&plan>strip,'the today strip comes first, then the plan');
+  assert.ok(plan>0&&strip>fuel,'today comes first; the summary strip is behind Health & check-ins');
   assert.ok(fuel>plan,'fuel follows the plan, not the other way round');
 });
 

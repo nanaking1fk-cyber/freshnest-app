@@ -51,7 +51,9 @@ test('the app the root points at actually exists',()=>{
   assert.ok(fs.existsSync(path.join(root,'work-gym-planner','index.html')));
 });
 
-test('the root entrypoint still ships no executable script',()=>{
-  assert.doesNotMatch(index,/<script/i,'the hardened root entrypoint must stay script-free');
+test('the root entrypoint uses only a same-origin external script under strict CSP',()=>{
+  assert.doesNotMatch(index,/<script(?![^>]+src=)[^>]*>/i);
+  assert.match(index,/<script defer src="\.\/work-gym-planner\/entry\.js">/);
   assert.doesNotMatch(index,/document\.write/);
+  assert.match(read('work-gym-planner/entry.js'),/location\.search\+location\.hash/);
 });

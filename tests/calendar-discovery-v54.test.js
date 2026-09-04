@@ -55,5 +55,5 @@ test('the selected custom calendar replaces the preset list without losing its p
 });
 test('production and offline loaders deliver the updated calendar and color dictionary',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){const source=read(file);assert.match(source,/calendar-premium-v42.css\?v=30\.1\.31-free57/);assert.match(source,/v25-scheduling.js\?v=30\.1\.31-free57/)}
- for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner/shell.html','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-readiness62/);
+ for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner/shell.html','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-home63/);
 });

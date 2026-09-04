@@ -78,7 +78,7 @@ function renderTodayDashboard(){
   stepDay=healthDay(k),steps=hasStepValue(stepDay)?Math.max(0,Math.round(+stepDay.steps)):0,stepsLogged=hasStepValue(stepDay),dailyStepGoal=stepGoal(),stepPct=clamp(Math.round(steps/dailyStepGoal*100),0,100),stepBridge=nativeSteps(),stepConnected=nativeStepEnabled(),stepUpdated=relativeStepSync(stepDay.stepsSyncedAt);
 
  // One line, not a paragraph. The panel it sits in already says "readiness".
- let recoveryMsg=r.score>=80?'Train as prescribed.':r.score>=65?'Train as planned, respect the RIR.':r.score>=50?'Keep it controlled. Avoid failure work.':'Move heavy work or use the fatigue-adjusted set.';
+ let recoveryMsg=r.score>=80?'You’re ready for today’s session.':r.score>=65?'Train at a comfortable pace.':r.score>=50?'Keep it light today.':'Take it easy and make time to recover.';
 
  // A macro row carries its own colour so the bar means something.
  const macro=(id,kind,label,now,goal,unit,pct)=>
@@ -87,6 +87,7 @@ function renderTodayDashboard(){
     <span class="hvBar"><i style="width:${pct}%"></i></span>
    </${id?'button':'div'}>`;
 
+ const openDetails=Array.from(root.querySelectorAll('details[data-home-detail][open]'),node=>node.dataset.homeDetail);
  root.innerHTML=`<div class="homeDash homeDashV27">
 
   <header class="hvHead">
@@ -100,17 +101,6 @@ function renderTodayDashboard(){
    </div>
   </header>
 
-  <div class="homeSummaryGrid hvStrip">
-   <button class="hvTile w" id="homeWorkCard">
-    <span class="hvCode">Shift</span><b>${esc(workSummary)}</b><em>${esc(loadLabel)}</em>
-   </button>
-   <button class="hvTile t" id="homeTrainingCard">
-    <span class="hvCode">Training</span><b>${esc(training.title)}</b><em>${esc(training.sub)}</em>
-   </button>
-   <button class="hvTile r" id="homeRecoveryCard">
-    <span class="hvCode">Readiness</span><b>${r.score}<i>%</i></b><em>${esc(r.band)} · ${r.sleep?r.sleep.toFixed(1)+'h sleep':'sleep not logged'}</em>
-   </button>
-  </div>
 
   <section class="hvPanel">
    <div class="hvPanelHead">
@@ -120,10 +110,10 @@ function renderTodayDashboard(){
    <div class="hvRows">
     ${rows.map(x=>`<div class="hvRow ${x.state==='work'?'w':'r'}">
       <time>${esc(x.value)}</time><i class="hvTick"></i>
-      <span class="hvWhat"><b>${esc(x.name)}</b><small>${x.state==='work'?'Protected':'Not working'}</small></span>
+      <span class="hvWhat"><b>${esc(x.name)}</b><small>${x.state==='work'?'Work shift':x.state==='unknown'?'Check your calendar':'Not working'}</small></span>
      </div>`).join('')||
      `<div class="hvRow r"><time>—</time><i class="hvTick"></i>
-       <span class="hvWhat"><b>No work added</b><small>The whole day is yours</small></span></div>`}
+       <span class="hvWhat"><b>No shift scheduled</b><small>View your calendar to add work or personal plans</small></span></div>`}
     <div class="hvRow t">
      <time>${training.completed?'Logged':'Planned'}</time><i class="hvTick"></i>
      <span class="hvWhat"><b>${esc(training.title)}</b><small>${esc(training.sub)}</small></span>
@@ -133,6 +123,27 @@ function renderTodayDashboard(){
     <span class="hvNote">${training.title==='Recovery Day'?'Mobility, steps, nutrition and sleep.':training.completed?'Logged. Recovery now drives the next recommendation.':esc(recoveryMsg)}</span>
     <button class="hvBtn" id="homeNextWorkout">${training.title==='Recovery Day'?'Next workout':'Open workout'}</button>
    </div>
+  </section>
+
+
+  <section class="hvPanel">
+   <div class="hvPanelHead">
+    <h2>Fuel</h2>
+    <button class="hvLink" id="homeAddFood">Add food <span aria-hidden="true">+</span></button>
+   </div>
+   <button class="hvHero" id="homeCaloriesCard">
+    <span class="hvHeroCopy">
+     <span class="hvHeroNum">${Math.round(t.cal).toLocaleString()}<i>/ ${n.cal.toLocaleString()} kcal</i></span>
+     <span class="hvBar big"><i class="m" style="width:${calPct}%"></i></span>
+     <span class="hvCode">${left.toLocaleString()} left today</span>
+    </span>
+    <span class="hvMealVisual" aria-hidden="true"></span>
+   </button>
+   <details class="hvMore hvNutritionDetails" data-home-detail="nutrition"><summary>Nutrition breakdown <span aria-hidden="true">+</span></summary><div class="hvMacros">
+    ${macro('homeProteinCard','t','Protein',Math.round(t.p),n.p,'g',proteinPct)}
+    ${macro('','m','Carbs',Math.round(t.c),Math.round(n.c),'g',carbPct)}
+    ${macro('','r','Fat',Math.round(t.f),Math.round(n.f),'g',fatPct)}
+   </div></details>
   </section>
 
   <section class="hvPanel hvStepsPanel">
@@ -152,25 +163,18 @@ function renderTodayDashboard(){
    </div>
   </section>
 
-  <section class="hvPanel">
-   <div class="hvPanelHead">
-    <h2>Fuel</h2>
-    <button class="hvLink" id="homeAddFood">Add food <span aria-hidden="true">+</span></button>
-   </div>
-   <button class="hvHero" id="homeCaloriesCard">
-    <span class="hvHeroCopy">
-     <span class="hvHeroNum">${Math.round(t.cal).toLocaleString()}<i>/ ${n.cal.toLocaleString()} kcal</i></span>
-     <span class="hvBar big"><i class="m" style="width:${calPct}%"></i></span>
-     <span class="hvCode">${left.toLocaleString()} left today</span>
-    </span>
-    <span class="hvMealVisual" aria-hidden="true"></span>
+  <details class="hvMore" data-home-detail="checkins"><summary>Health &amp; check-ins <span aria-hidden="true">+</span></summary><div class="hvMoreBody">
+  <div class="homeSummaryGrid hvStrip">
+   <button class="hvTile w" id="homeWorkCard">
+    <span class="hvCode">Shift</span><b>${esc(workSummary)}</b><em>${esc(loadLabel)}</em>
    </button>
-   <div class="hvMacros">
-    ${macro('homeProteinCard','t','Protein',Math.round(t.p),n.p,'g',proteinPct)}
-    ${macro('','m','Carbs',Math.round(t.c),Math.round(n.c),'g',carbPct)}
-    ${macro('','r','Fat',Math.round(t.f),Math.round(n.f),'g',fatPct)}
-   </div>
-  </section>
+   <button class="hvTile t" id="homeTrainingCard">
+    <span class="hvCode">Training</span><b>${esc(training.title)}</b><em>${esc(training.sub)}</em>
+   </button>
+   <button class="hvTile r" id="homeRecoveryCard">
+    <span class="hvCode">Readiness</span><b>${r.score}<i>%</i></b><em>${esc(r.band)} · ${r.sleep?r.sleep.toFixed(1)+'h sleep':'sleep not logged'}</em>
+   </button>
+  </div>
 
   <section class="hvPanel quickPanel">
    <div class="hvPanelHead"><h2>Log something</h2></div>
@@ -181,7 +185,9 @@ function renderTodayDashboard(){
    </div>
   </section>
 
+  </div></details>
  </div>`;
+ for(const key of openDetails)root.querySelector(`[data-home-detail="${key}"]`)?.setAttribute('open','');
 
  // Every binding is guarded: the quick grid no longer duplicates actions that
  // already exist in the panels above, so some ids are intentionally absent.

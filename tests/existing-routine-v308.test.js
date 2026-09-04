@@ -41,10 +41,10 @@ test('existing-routine logging never requires the built-in exercise program',()=
   assert.match(history,/s\.customWorkoutName/);
 });
 
-test('phone cinema places the plan card below the video instead of covering it',()=>{
+test('phone welcome keeps the example in normal flow without covering signup',()=>{
   const css=read('work-gym-planner-v16/landing-v29.css');
-  const phone=css.slice(css.indexOf('@media(max-width:520px)'));
-  assert.match(phone,/\.ww29Cinema\{min-height:auto;display:flex;flex-direction:column/);
-  assert.match(phone,/#wwLanding \.ww29LiveCard\{position:relative;width:100%;right:auto;bottom:auto/);
-  assert.doesNotMatch(phone,/#wwLanding \.ww29LiveCard\{position:absolute/);
+  const phone=css.slice(css.indexOf('@media(max-width:780px)'));
+  assert.ok(phone.includes('.ww29Hero{grid-template-columns:1fr'));
+  assert.ok(phone.includes('.ww29Preview{padding:24px'));
+  assert.ok(!phone.includes('position:absolute'));
 });

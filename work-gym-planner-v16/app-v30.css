@@ -1057,3 +1057,30 @@ body.premiumV30 #healthConsentDialog #healthConsentSavedAgreement{padding:10px 0
 @media(max-width:600px){
  body.premiumV30 #healthConsentDialog #healthConsentTerms,body.premiumV30 #healthConsentDialog .healthConsentOptionalTitle{margin-left:17px;margin-right:17px}
 }
+/* Home v63: today's plan first; secondary stats stay one tap away. */
+body.premiumV30 #page-home .homeDashV27{gap:16px;max-width:960px;margin:0 auto}
+body.premiumV30 #page-home .homeDashV27 .hvHead{padding-bottom:8px}
+body.premiumV30 #page-home .homeDashV27 .hvHello{padding-top:18px}
+body.premiumV30 #page-home .homeDashV27 .hvHello h1{font-size:clamp(26px,4vw,36px);max-width:none;line-height:1.15;margin-top:10px}
+body.premiumV30 #page-home .homeDashV27 .hvCode{color:#a3aea4;letter-spacing:.09em}
+body.premiumV30 #page-home .homeDashV27 .hvPanel{background:#111813;border-color:#ffffff16;box-shadow:none}
+body.premiumV30 #page-home .homeDashV27 .hvPanelHead{padding:17px 20px}
+body.premiumV30 #page-home .homeDashV27 .hvWhat small,body.premiumV30 #page-home .homeDashV27 .hvNote{color:#a3aea4}
+body.premiumV30 #page-home .homeDashV27 .hvMore{border:1px solid #ffffff1c;border-radius:18px;background:#101612;overflow:hidden}
+body.premiumV30 #page-home .homeDashV27 .hvMore>summary{display:flex;align-items:center;justify-content:space-between;list-style:none;min-height:58px;padding:17px 20px;cursor:pointer;color:#ccd5c9;font-size:14px;font-weight:600}
+body.premiumV30 #page-home .homeDashV27 .hvMore>summary::-webkit-details-marker{display:none}
+body.premiumV30 #page-home .homeDashV27 .hvMore>summary span{font-size:22px;font-weight:400}
+body.premiumV30 #page-home .homeDashV27 .hvMore[open]>summary span{transform:rotate(45deg)}
+body.premiumV30 #page-home .homeDashV27 .hvMoreBody{display:grid;gap:14px;padding:0 14px 14px}
+body.premiumV30 #page-home .homeDashV27 .hvNutritionDetails{border:0;border-top:1px solid #ffffff10;border-radius:0;background:transparent}
+body.premiumV30 #page-home .homeDashV27 .hvTile{min-height:100px;padding:15px;background:#18201a;border:1px solid #ffffff10}
+body.premiumV30 #page-home .homeDashV27 .hvTile b{font-size:18px;margin-top:9px}
+body.premiumV30 #page-home .homeDashV27 .hvStepHero{padding:18px 20px}
+body.premiumV30 #page-home .homeDashV27 .hvStepCopy strong{font-size:30px}
+body.premiumV30 #page-home .homeDashV27 :is(button,summary):focus-visible{outline:2px solid #d6ff3f;outline-offset:-3px}
+@media(max-width:760px){
+ body.premiumV30 #page-home .homeDashV27 .hvRow{grid-template-columns:96px 3px 1fr;padding:16px;gap:12px}
+ body.premiumV30 #page-home .homeDashV27 .hvPanelHead{padding:16px}
+ body.premiumV30 #page-home .homeDashV27 .hvStepHero{padding:16px}
+ body.premiumV30 #page-home .homeDashV27 .hvMore>summary{padding:16px}
+}

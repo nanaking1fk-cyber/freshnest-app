@@ -1010,22 +1010,32 @@ body.premiumV30 #accountActionDialog .sheetActions { display: grid; grid-templat
 body.premiumV30 #accountActionDialog button { min-height: 48px; white-space: normal; }
 
 /* Profile and account menus ------------------------------------------------ */
-body.premiumV30 .guidedProfileSummary .guidedProfileSheet{width:min(100% - 24px,540px);max-height:calc(100dvh - 28px);overflow-y:auto;padding:22px}
-body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance{margin-top:14px;border:1px solid var(--v30-line);border-radius:14px;background:rgba(255,255,255,.018)}
-body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary{min-height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:var(--v30-muted);font-size:11px;font-weight:800;cursor:pointer;list-style:none}
-body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary::-webkit-details-marker{display:none}
-body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance summary i{font-style:normal;transition:transform .18s ease}
-body.premiumV30 .guidedProfileSummary .guidedProfileAtGlance[open] summary i{transform:rotate(180deg)}
-body.premiumV30 .guidedProfileSummary .guidedProfileFacts{padding:0 10px 10px}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu{display:grid;gap:8px;padding:14px 0}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu button{width:100%;min-height:63px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--v30-line);border-radius:14px;color:var(--v30-ink);background:#11171e;text-align:left}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu button:hover{border-color:rgba(214,255,63,.35);background:rgba(214,255,63,.045)}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu span,body.premiumV30 .guidedProfileSummary .guidedProfileMenu b,body.premiumV30 .guidedProfileSummary .guidedProfileMenu small{display:block}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu span{font-size:13px;font-weight:800}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu small{margin-top:4px;color:var(--v30-muted);font-size:9px;font-weight:550;line-height:1.35}
-body.premiumV30 .guidedProfileSummary .guidedProfileMenu>button>i{color:var(--v30-signal);font-size:18px;font-style:normal}
-body.premiumV30 .guidedProfileSummary .guidedProfileActions{display:block}
-body.premiumV30 .guidedProfileSummary .guidedProfileActions button{width:100%;min-height:46px}
+body.premiumV30 #guidedProfileSummary .guidedProfileSheet{width:min(100% - 24px,500px);max-height:calc(100dvh - 28px);overflow-y:auto;overscroll-behavior:contain;padding:22px}
+body.premiumV30 #guidedProfileSummary .guidedProfileHero{margin-bottom:18px}
+body.premiumV30 #guidedProfileSummary .guidedProfileSectionLabel{margin:0 2px 8px;color:var(--v30-muted);font-size:9px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu{display:grid;gap:8px}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu button{width:100%;min-height:58px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--v30-line);border-radius:14px;color:var(--v30-ink);background:#11171e;text-align:left}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu button:hover{border-color:rgba(214,255,63,.35);background:rgba(214,255,63,.045)}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu button:focus-visible,body.premiumV30 #guidedProfileSummary summary:focus-visible{outline:2px solid var(--v30-signal);outline-offset:2px}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu span,body.premiumV30 #guidedProfileSummary .guidedProfileMenu b,body.premiumV30 #guidedProfileSummary .guidedProfileMenu small,body.premiumV30 #guidedProfileSummary .guidedProfileMore summary span,body.premiumV30 #guidedProfileSummary .guidedProfileMore summary small{display:block}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu span,body.premiumV30 #guidedProfileSummary .guidedProfileMore>summary span{font-size:13px;font-weight:800}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu small,body.premiumV30 #guidedProfileSummary .guidedProfileMore>summary small{margin-top:3px;color:var(--v30-muted);font-size:9px;font-weight:550;line-height:1.35}
+body.premiumV30 #guidedProfileSummary .guidedProfileMenu>button>i{color:var(--v30-signal);font-size:18px;font-style:normal}
+body.premiumV30 #guidedProfileSummary .guidedProfileMore{margin-top:10px;overflow:hidden;border:1px solid var(--v30-line);border-radius:14px;background:rgba(255,255,255,.018)}
+body.premiumV30 #guidedProfileSummary .guidedProfileMore>summary{min-height:58px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;list-style:none}
+body.premiumV30 #guidedProfileSummary .guidedProfileMore>summary::-webkit-details-marker,body.premiumV30 #guidedProfileSummary .guidedProfileAtGlance summary::-webkit-details-marker{display:none}
+body.premiumV30 #guidedProfileSummary .guidedProfileMore>summary>i{color:var(--v30-signal);font-size:19px;font-style:normal;transition:transform .18s ease}
+body.premiumV30 #guidedProfileSummary .guidedProfileMore[open]>summary>i{transform:rotate(45deg)}
+body.premiumV30 #guidedProfileSummary .guidedProfileSecondary{padding:0 10px 10px;border-top:1px solid var(--v30-line)}
+body.premiumV30 #guidedProfileSummary .guidedProfileSecondary button{min-height:52px;border:0;border-bottom:1px solid var(--v30-line);border-radius:0;background:transparent}
+body.premiumV30 #guidedProfileSummary .guidedProfileSecondary button:last-child{border-bottom:0}
+body.premiumV30 #guidedProfileSummary .guidedProfileAtGlance{margin:0 10px 10px;border:1px solid var(--v30-line);border-radius:12px;background:rgba(255,255,255,.018)}
+body.premiumV30 #guidedProfileSummary .guidedProfileAtGlance summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:var(--v30-muted);font-size:10px;font-weight:800;cursor:pointer;list-style:none}
+body.premiumV30 #guidedProfileSummary .guidedProfileAtGlance summary i{font-style:normal;transition:transform .18s ease}
+body.premiumV30 #guidedProfileSummary .guidedProfileAtGlance[open] summary i{transform:rotate(180deg)}
+body.premiumV30 #guidedProfileSummary .guidedProfileFacts{padding:0 8px 8px}
+body.premiumV30 #guidedProfileSummary .guidedProfileActions{position:sticky;bottom:-22px;display:block;margin-top:14px;padding-top:10px;padding-bottom:2px;background:linear-gradient(180deg,rgba(11,16,21,0),#0b1015 28%)}
+body.premiumV30 #guidedProfileSummary .guidedProfileActions button{width:100%;min-height:46px}
 
 body.premiumV30 #accountDialog .premiumAccountSheet{width:min(100% - 24px,660px);max-height:calc(100dvh - 28px);overflow-y:auto}
 body.premiumV30 #accountDialog .accountMenu{display:grid;gap:9px;margin-top:14px}
@@ -1050,7 +1060,9 @@ body.premiumV30 #accountDialog .accountMenuBody>.dangerZone>p{color:var(--v30-mu
 
 @media(max-width:600px){
  body.premiumV30 .guidedProfileSummary{align-items:flex-end;padding:0}
- body.premiumV30 .guidedProfileSummary .guidedProfileSheet{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));margin:0;padding:18px 16px max(16px,env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+ body.premiumV30 #guidedProfileSummary .guidedProfileSheet{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));margin:0;padding:18px 16px max(16px,env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
+ body.premiumV30 #guidedProfileSummary .guidedProfileHero{margin-bottom:15px}
+ body.premiumV30 #guidedProfileSummary .guidedProfileActions{bottom:calc(-1 * max(16px,env(safe-area-inset-bottom)));padding-bottom:max(16px,env(safe-area-inset-bottom))}
  body.premiumV30 #accountDialog{align-items:flex-end;padding:0}
  body.premiumV30 #accountDialog .premiumAccountSheet{width:100%;max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));margin:0;padding-bottom:max(18px,env(safe-area-inset-bottom));border-radius:24px 24px 0 0}
 }

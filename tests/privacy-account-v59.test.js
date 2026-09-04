@@ -8,8 +8,8 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 
 test('profile is a focused menu with optional summary details',()=>{
   const profile=read('work-gym-planner-v16/guided-onboarding-v18.js');
-  for(const label of ['Personal plan','Work calendar','Nutrition goals','Body &amp; progress','Account &amp; privacy','More plan settings'])assert.match(profile,new RegExp(label));
-  assert.match(profile,/<details class="guidedProfileAtGlance">/);
+  for(const label of ['Plan &amp; goals','Work schedule','Account &amp; privacy','More settings','Nutrition goals','Body &amp; progress','Advanced preferences'])assert.match(profile,new RegExp(label));
+  assert.match(profile,/<details class="guidedProfileMore">[\s\S]*<details class="guidedProfileAtGlance">/);
   assert.match(profile,/guidedProfileCalendar'[\s\S]*page\?\.\('calendar'\)/);
   assert.match(profile,/guidedProfileProgress'[\s\S]*page\?\.\('progress'\)/);
   assert.match(profile,/A\.openProfileMenu=openProfileSummary/);
@@ -36,7 +36,7 @@ test('permanent deletion is verified and clears stale sessions across tabs',()=>
 
 test('new profile and account styling stays scoped to the premium surfaces',()=>{
   const css=read('work-gym-planner-v16/app-v30.css');
-  assert.match(css,/body\.premiumV30 \.guidedProfileSummary \.guidedProfileMenu/);
+  assert.match(css,/body\.premiumV30 #guidedProfileSummary \.guidedProfileMenu/);
   assert.match(css,/body\.premiumV30 #accountDialog \.accountMenuSection/);
   assert.doesNotMatch(css,/(^|\n)\.guidedProfileMenu/);
   assert.doesNotMatch(css,/(^|\n)#accountDialog \.accountMenuSection/);

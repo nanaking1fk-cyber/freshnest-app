@@ -39,7 +39,7 @@ test('tour design is premium scoped and mobile viewport safe',()=>{
 
 test('production and offline loaders include the player but never pre-cache the video',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
-  const text=read(file);assert.ok(text.includes('product-tour-v76.js'),file);assert.ok(text.includes('product-tour-v76.css'),file);assert.ok(text.includes('30.1.31-tour76'),file);
+  const text=read(file);assert.ok(text.includes('product-tour-v76.js'),file);assert.ok(text.includes('product-tour-v76.css'),file);assert.ok(text.includes('30.1.31-profile77'),file);
  }
  for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
   const text=read(file);assert.ok(text.includes('product-tour-v76.js'),file);assert.ok(text.includes('product-tour-v76.css'),file);assert.ok(!text.includes('work-workout-tour-v76.mp4'),file);

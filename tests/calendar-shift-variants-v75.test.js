@@ -62,5 +62,5 @@ test('new shift controls are premium scoped and responsive',()=>{
 });
 
 test('production and offline loaders carry the latest release',()=>{
- for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-tour76/);
+ for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-profile77/);
 });

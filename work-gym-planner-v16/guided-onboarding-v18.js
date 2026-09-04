@@ -544,16 +544,23 @@
     document.body.insertAdjacentHTML('beforeend',
       '<div id="guidedProfileSummary" class="modal guidedProfileSummary" role="dialog" aria-modal="true" aria-labelledby="guidedProfileTitle">'+
         '<div class="sheet guidedProfileSheet"><div class="sheetHandle"></div>'+
-          '<div class="guidedProfileHero"><div id="guidedProfileInitial" class="guidedProfileInitial">W</div><div><p class="guidedEyebrow">YOUR PLAN</p><h2 id="guidedProfileTitle">Profile</h2><p id="guidedProfileEmail"></p></div></div>'+
-          '<details class="guidedProfileAtGlance"><summary>At a glance <i>⌄</i></summary><div id="guidedProfileFacts" class="guidedProfileFacts"></div></details>'+
-          '<div class="guidedProfileMenu">'+
-            '<button id="guidedProfileEdit"><span>Personal plan<small>Goals, preferences and weekly setup</small></span><i>›</i></button>'+
-            '<button id="guidedProfileCalendar"><span>Work calendar<small>Schedules, shifts, rotations and time off</small></span><i>›</i></button>'+
-            '<button id="guidedProfileNutrition"><span>Nutrition goals<small>Calories, macros and body goals</small></span><i>›</i></button>'+
-            '<button id="guidedProfileProgress"><span>Body &amp; progress<small>Check-ins, measurements and trends</small></span><i>›</i></button>'+
-            '<button id="guidedProfileAccount"><span>Account &amp; privacy<small>Backup, consent, sign out and deletion</small></span><i>›</i></button>'+
-            '<button id="guidedProfileDetails"><span>More plan settings<small>Food preferences, recovery and extra jobs</small></span><i>›</i></button>'+
-          '</div><div class="guidedProfileActions"><button id="guidedProfileClose">Close</button></div>'+
+          '<div class="guidedProfileHero"><div id="guidedProfileInitial" class="guidedProfileInitial">W</div><div><p class="guidedEyebrow">YOUR ACCOUNT</p><h2 id="guidedProfileTitle">Profile</h2><p id="guidedProfileEmail"></p></div></div>'+
+          '<p class="guidedProfileSectionLabel">Essentials</p>'+
+          '<div class="guidedProfileMenu guidedProfileEssentials">'+
+            '<button type="button" id="guidedProfileEdit"><span>Plan &amp; goals<small>Your goals and weekly setup</small></span><i>›</i></button>'+
+            '<button type="button" id="guidedProfileCalendar"><span>Work schedule<small>Shifts, rotations and time off</small></span><i>›</i></button>'+
+            '<button type="button" id="guidedProfileAccount"><span>Account &amp; privacy<small>Backup, sign out and account controls</small></span><i>›</i></button>'+
+          '</div>'+
+          '<details class="guidedProfileMore">'+
+            '<summary><span>More settings<small>Nutrition, progress and preferences</small></span><i>+</i></summary>'+
+            '<div class="guidedProfileMenu guidedProfileSecondary">'+
+              '<button type="button" id="guidedProfileNutrition"><span>Nutrition goals<small>Calories, macros and body goals</small></span><i>›</i></button>'+
+              '<button type="button" id="guidedProfileProgress"><span>Body &amp; progress<small>Check-ins, measurements and trends</small></span><i>›</i></button>'+
+              '<button type="button" id="guidedProfileDetails"><span>Advanced preferences<small>Food, recovery and extra jobs</small></span><i>›</i></button>'+
+            '</div>'+
+            '<details class="guidedProfileAtGlance"><summary>Plan overview <i>⌄</i></summary><div id="guidedProfileFacts" class="guidedProfileFacts"></div></details>'+
+          '</details>'+
+          '<div class="guidedProfileActions"><button type="button" id="guidedProfileClose">Close</button></div>'+
         '</div></div>');
     document.getElementById('guidedProfileClose').onclick=function(){window.closeModal?.('guidedProfileSummary')};
     document.getElementById('guidedProfileAccount').onclick=function(){window.closeModal?.('guidedProfileSummary');A.openAccount?.('account')};
@@ -577,6 +584,8 @@
       '<section><span>'+icon('calendar')+'</span><div><small>WORK RHYTHM</small><b>'+safe(work)+'</b></div></section>'+
       '<section><span>'+icon('dumbbell')+'</span><div><small>TRAINING</small><b>'+safe(training)+'</b></div></section>'+
       '<section><span>'+icon('heart')+'</span><div><small>RECOVERY</small><b>'+safe(p.sleepTarget||7.5)+' hours of sleep</b></div></section>';
+    document.querySelector('#guidedProfileSummary .guidedProfileMore')?.removeAttribute('open');
+    document.querySelector('#guidedProfileSummary .guidedProfileAtGlance')?.removeAttribute('open');
     window.openModal?.('guidedProfileSummary');
   }
   function rerouteProfileEditors(){

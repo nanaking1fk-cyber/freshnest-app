@@ -12,7 +12,7 @@ const platform=read('work-gym-planner-v16/schedule-platform-v25.js');
 test('calendar defaults to a quiet progressive-disclosure workspace',()=>{
   for(const label of ['Month','Week','Today','Share'])assert.match(js,new RegExp(`>${label}<`));
   assert.match(js,/id="calendarAddV42"[^>]*>[\s\S]*?<\/span> Add<\/button>/);
-  assert.match(js,/What would you like to add\?/);
+  assert.match(js,/What are you planning\?/);
   assert.match(js,/function openAdd\(kind,key\)\{var root=overlay\([\s\S]*?flow=newFlow\(kind,key\);renderFlow\(root\)\}/);
   for(const label of ['Work schedule','Extra shift','Time off','Holiday','Workout'])assert.match(js,new RegExp(label));
   assert.match(css,/\.plannerTabsV25\{display:none!important\}/);

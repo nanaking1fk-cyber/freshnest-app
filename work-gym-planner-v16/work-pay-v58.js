@@ -154,7 +154,16 @@
   })};
  }
  function deductionMarkup(d){return'<div class="wpDeduction"><label><span>Name</span><input data-deduction="name" value="'+safe(d.name)+'" maxlength="80" placeholder="e.g. Pension"></label><label><span>When</span><select data-deduction="timing"><option value="pre" '+(d.timing==='pre'?'selected':'')+'>Before tax</option><option value="post" '+(d.timing==='post'?'selected':'')+'>After tax</option></select></label><label><span>Type</span><select data-deduction="mode"><option value="fixed" '+(d.mode==='fixed'?'selected':'')+'>Per pay period</option><option value="percent" '+(d.mode==='percent'?'selected':'')+'>% of gross pay</option></select></label><label><span>Amount</span><input data-deduction="amount" type="number" value="'+safe(d.amount)+'" min="0" step="0.01" required></label><button type="button" data-remove-deduction aria-label="Remove deduction">×</button></div>'}
- function bindDeductionRemove(){dialog.querySelectorAll('[data-remove-deduction]').forEach(b=>b.onclick=()=>b.closest('.wpDeduction').remove())}
+ function bindDeductionRemove(){dialog.querySelectorAll('.wpDeduction').forEach(row=>{
+  const mode=row.querySelector('[data-deduction="mode"]'),amount=row.querySelector('[data-deduction="amount"]');
+  if(!row.querySelector('.wpDeductionToggleV67')){
+   mode.hidden=true;mode.parentElement.querySelector('span').textContent='Deduct as';
+   mode.insertAdjacentHTML('afterend','<div class="wpDeductionToggleV67" role="group" aria-label="Deduction type"><button type="button" data-deduction-mode="fixed">Amount</button><button type="button" data-deduction-mode="percent">% of gross</button></div>');
+  }
+  function update(){row.querySelectorAll('[data-deduction-mode]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.deductionMode===mode.value)));amount.max=mode.value==='percent'?'100':'1000000';amount.parentElement.querySelector('span').textContent=mode.value==='percent'?'Percent of gross pay':'Amount per pay period'}
+  row.querySelectorAll('[data-deduction-mode]').forEach(button=>button.onclick=()=>{mode.value=button.dataset.deductionMode;update()});update();
+  row.querySelector('[data-remove-deduction]').onclick=()=>row.remove();
+ })}
  function renderEntry(state){
   const r=rules(state),e=editing;if(!e)return back();
   const saved=state.records[e.id];

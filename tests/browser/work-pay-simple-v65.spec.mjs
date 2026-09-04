@@ -38,6 +38,38 @@ async function start(page,{rules=defaults(),records={}}={}){
 }
 const saved=page=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),key);
 const settings=async page=>{await page.locator('#wpRulesV58').click();await expect(page.locator('#wpRulesFormV58')).toBeVisible()};
+test('deductions switch between an amount and percent of gross, and persist',async({page})=>{
+ await start(page);await settings(page);
+ await page.getByText('Estimated taxes & deductions',{exact:true}).count().then(async n=>{if(n)await page.getByText('Estimated taxes & deductions',{exact:true}).click()});
+ await page.locator('#wpDeductionsV58').evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true});
+ await page.locator('#wpAddDeductionV58').click();
+ const row=page.locator('.wpDeduction');await row.locator('[data-deduction="name"]').fill('Pension');
+ await row.getByRole('button',{name:'% of gross',exact:true}).click();
+ await row.locator('[data-deduction="amount"]').fill('5');
+ await expect(row.locator('[data-deduction="mode"]')).toHaveValue('percent');
+ await row.getByRole('button',{name:'Amount',exact:true}).click();
+ await expect(row.locator('[data-deduction="mode"]')).toHaveValue('fixed');
+ await row.getByRole('button',{name:'% of gross',exact:true}).click();
+ await page.locator('#wpRulesFormV58 button[type="submit"]').click();
+ await expect(page.locator('#wpGrossV58')).toBeVisible();
+ expect((await saved(page)).rules[sourceId].deductions[0]).toMatchObject({mode:'percent',amount:5});
+ await settings(page);await expect(page.locator('[data-deduction="mode"]')).toHaveValue('percent');
+});
+test('calendar has a quiet header and a three-choice add flow on mobile',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await start(page);
+ await page.evaluate(()=>WWWorkPay.close());await page.locator('nav [data-page="calendar"]').click();
+ await expect(page.locator('#calendarAddV42')).toBeVisible();
+ await expect(page.locator('#calendarShareV42')).not.toBeVisible();
+ await expect(page.locator('#calendarSelectDatesV54')).toBeVisible();
+ await page.screenshot({path:'/private/tmp/ww-calendar67-mobile.png',fullPage:true});
+ await page.locator('#calendarAddV42').click();
+ await expect(page.locator('[data-add-kind]:visible')).toHaveCount(3);
+ await page.locator('[data-add-kind="workmenu"]').click();
+ await expect(page.getByRole('button',{name:/One shift/})).toBeVisible();
+ await expect(page.getByRole('button',{name:/Repeating schedule/})).toBeVisible();
+ await page.locator('[data-add-kind="work"]').click();
+ await expect(page.getByText('What is your usual shift?',{exact:true})).toBeVisible();
+});
 const save=async page=>{await page.locator('#wpRulesFormV58 button[type="submit"]').click();await expect(page.locator('#wpGrossV58')).toBeVisible()};
 
 for(const width of [390,1440]){

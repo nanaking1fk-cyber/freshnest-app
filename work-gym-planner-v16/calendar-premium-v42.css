@@ -295,6 +295,18 @@ body.premiumV30 .calendarPdfPreviewV42>footer{padding:10px 19px;color:#8b9098;ba
 
 @media(prefers-reduced-motion:reduce){body.premiumV30 .calendarOverlayV42 *,body.premiumV30 #page-calendar *{scroll-behavior:auto!important;transition:none!important}}
 
+/* v67: a quiet calendar with one secondary menu. */
+body.premiumV30 #page-calendar .calendarHeadActionsV42{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px}
+body.premiumV30 #page-calendar #calendarTodayV42{display:block}
+body.premiumV30 #page-calendar #calendarOptionsV67{position:relative}
+body.premiumV30 #page-calendar #calendarOptionsV67>summary{list-style:none;cursor:pointer;padding:12px 16px;border:1px solid var(--line);border-radius:14px;font-weight:600}
+body.premiumV30 #page-calendar .calendarOptionsBodyV67{position:absolute;right:0;top:calc(100% + 8px);z-index:80;width:240px;display:grid;gap:8px;padding:14px;background:#141d23;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 50px #0009}
+body.premiumV30 #page-calendar .calendarOptionsBodyV67 button{min-height:44px}
+body.premiumV30 #page-calendar .calendarQuickActionsV54{justify-content:flex-start}
+body.premiumV30 #page-calendar .calendarQuickActionsV54>button{flex:0 1 auto}
+body.premiumV30 .calendarMoreKindsV67{margin-top:18px}
+body.premiumV30 .calendarMoreKindsV67>summary{padding:12px 0;color:var(--muted);cursor:pointer}
+body.premiumV30 .calendarChoiceStepV42 [hidden]{display:none!important}
 /* v46: keep the calendar clear while picking dates; reveal one input method at a time. */
 body.premiumV30.calendarShiftPickingV35 #page-calendar #dayCard{display:none!important}
 body.premiumV30.calendarShiftPickingV35.calendarDaySheetOpenV42::before{display:none}

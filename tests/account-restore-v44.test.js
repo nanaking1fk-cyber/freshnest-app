@@ -14,10 +14,10 @@ function storage(initial={}){
   return {get length(){return data.size},key:i=>[...data.keys()][i],getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)};
 }
 function harness({local={},consent=true,response=remote('Saved user'),secure=false}={}){
-  const localStorage=storage(local),timers=[],events=[],calls=[],modals=[];
+  const localStorage=storage(local),timers=[],events=[],calls=[],modals=[],listeners={};
   const document={readyState:'complete',addEventListener(){},getElementById(){return null}};
-  const context={localStorage,sessionStorage:storage(),document,location:{hash:'',pathname:'/work-gym-planner/',search:'',protocol:'https:'},URL,URLSearchParams,TextEncoder,crypto:require('node:crypto').webcrypto,btoa:s=>Buffer.from(s,'binary').toString('base64'),fetch:async()=>{throw Error('unexpected real network')},CustomEvent:class{constructor(type){this.type=type}},setTimeout:fn=>{timers.push(fn);return timers.length},clearTimeout(){},setInterval(){},clearInterval(){},console,APP_VERSION:'test',PREFIX:'wgp-v15-',LEGACY_EXPORT_KEYS:[],LEGACY_EXPORT_PREFIXES:[],K:{profile:PROFILE,migrated:'wgp-v15-migrated',recovery:'wgp-v15-recovery-snapshots',diagnostics:'wgp-v15-diagnostics'},$:()=>null,$$:()=>[],openModal:id=>modals.push(id),closeModal(){},toast(){},recordDiagnostic(){},createRecoverySnapshot(){},profile:()=>JSON.parse(localStorage.getItem(PROFILE)||'null')};
-  context.window=context;context.history={replaceState(){}};context.WGC23Core=core;context.dispatchEvent=event=>events.push(event.type);context.renderAll=()=>events.push('render');
+  const context={localStorage,sessionStorage:storage(),document,location:{hash:'',pathname:'/work-gym-planner/',search:'',protocol:'https:'},URL,URLSearchParams,TextEncoder,crypto:require('node:crypto').webcrypto,btoa:s=>Buffer.from(s,'binary').toString('base64'),fetch:async()=>{throw Error('unexpected real network')},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail}},setTimeout:fn=>{timers.push(fn);return timers.length},clearTimeout(){},setInterval(){},clearInterval(){},console,APP_VERSION:'test',PREFIX:'wgp-v15-',LEGACY_EXPORT_KEYS:[],LEGACY_EXPORT_PREFIXES:[],K:{profile:PROFILE,migrated:'wgp-v15-migrated',recovery:'wgp-v15-recovery-snapshots',diagnostics:'wgp-v15-diagnostics'},$:()=>null,$$:()=>[],openModal:id=>modals.push(id),closeModal(){},toast(){},recordDiagnostic(){},createRecoverySnapshot(){},profile:()=>JSON.parse(localStorage.getItem(PROFILE)||'null')};
+  context.window=context;context.history={replaceState(){}};context.WGC23Core=core;context.addEventListener=(name,fn)=>listeners[name]=fn;context.dispatchEvent=event=>events.push(event.type);context.renderAll=()=>events.push('render');
   vm.createContext(context);
   const source=read('work-gym-planner-v16/accounts-v18.js');
   // Load the actual module functions without browser startup or CSS injection.
@@ -27,7 +27,7 @@ function harness({local={},consent=true,response=remote('Saved user'),secure=fal
   A.authedFetch=async(route,options)=>{calls.push({kind:'request',route,options});return typeof response==='function'?response(route,options):response};
   A.openOnboarding=()=>events.push('onboarding');
   if(secure)vm.runInContext(read('work-gym-planner-v16/account-security-v18.js'),context);
-  return {A,context,localStorage,calls,events,modals,flush:()=>{while(timers.length)timers.shift()()}};
+  return {A,context,localStorage,calls,events,modals,listeners,flush:()=>{while(timers.length)timers.shift()()}};
 }
 
 test('returning users grant consent and restore their existing account before sync or onboarding',async()=>{
@@ -285,7 +285,7 @@ test('startup and every onboarding entry point honor saved-account readiness',()
   assert.match(account,/Password updated securely'\);await afterAuth\(\)/);
   for(const file of ['onboarding-v18.js','guided-onboarding-v18.js'])assert.match(read('work-gym-planner-v16/'+file),/A\.canStartOnboarding\?\.\(\)===false/);
   assert.match(read('work-gym-planner-v16/onboarding-v18.js'),/function applyPlan\(a,p\)\{if\(A\.session&&A\.canStartOnboarding/);
-  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-resilience73'/);
+  for(const loader of ['work-gym-planner/boot.js','work-gym-planner/index.html'])assert.match(read(loader),/assetRevision='30\.1\.31-resilience74'/);
 });
 
 test('an explicitly requested empty cloud restore never replaces device data',async()=>{
@@ -318,6 +318,15 @@ test('temporary refresh failures preserve login and saved device data',async()=>
  h.context.fetch=async()=>{throw TypeError('Network unavailable')};
  await assert.rejects(h.A.testAuthedFetch('state'),/Network unavailable/);
  assert.equal(h.A.session.user.id,'user-a');assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device');
+});
+
+test('a session refresh or sign-out is adopted by every open tab',()=>{
+ const h=harness({local:{[OWNER]:'user-a',[PROFILE]:state('Device').storage[PROFILE]}});
+ h.A.session={access_token:'old',refresh_token:'refresh-old',user:{id:'user-a'}};
+ h.listeners.storage({key:'wgc-v18-session',newValue:JSON.stringify({access_token:'fresh',refresh_token:'refresh-new',user:{id:'user-a'}})});
+ assert.equal(h.A.session.access_token,'fresh');assert.ok(h.events.includes('wgc:authchange'));
+ h.listeners.storage({key:'wgc-v18-session',newValue:null});
+ assert.equal(h.A.session,null);assert.equal(h.localStorage.getItem(PROFILE),null);
 });
 
 test('a permission error does not refresh or sign the user out',async()=>{

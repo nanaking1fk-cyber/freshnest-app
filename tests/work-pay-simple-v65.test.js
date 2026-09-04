@@ -36,8 +36,8 @@ test('simple pay: optional settings are disclosed without changing the storage o
 test('simple pay: both loaders refresh the pay stylesheet and scripts for returning users',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
   const text=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
-  assert.ok(text.includes('work-pay-v58.css?v=30.1.31-resilience73'));
-  assert.ok(text.includes("assetRevision='30.1.31-resilience73'"));
+  assert.ok(text.includes('work-pay-v58.css?v=30.1.31-resilience74'));
+  assert.ok(text.includes("assetRevision='30.1.31-resilience74'"));
  }
 });
 test('simple pay: editable start and end dates use inclusive, frequency-aligned periods',()=>{

@@ -25,6 +25,12 @@ test('backgrounding the account module no longer invents a cloud write',()=>{
  const accounts=read('work-gym-planner-v16/accounts-v18.js');
  assert.doesNotMatch(accounts,/visibilitychange[^\n]+A\.queueSync/);
 });
+test('sign-out and token refresh propagate across open tabs',()=>{
+ const accounts=read('work-gym-planner-v16/accounts-v18.js');
+ assert.match(accounts,/event\.key===SESSION_KEY/);
+ assert.match(accounts,/tokenChanged:true,external:true/);
+ assert.match(accounts,/if\(!next\)\{clearRecoveryFlag\(\);lockPlannerForLoggedOut\(\)\}/);
+});
 test('expected client denials are not logged as production crashes',()=>{
  const server=read('server/v18-lib.js');
  assert.match(server,/serverFailure=status>=500/);
@@ -35,7 +41,7 @@ test('subscription refreshes back off and token refreshes do not reset the accou
  assert.match(source,/Date\.now\(\)<nextRefresh/);
  assert.match(source,/Math\.min\(10\*60\*1000,30000\*Math\.pow/);
  assert.match(source,/\[401,403\]\.includes\(error\?\.status\)\?5\*60\*1000/);
- assert.match(source,/if\(uid===sessionOwner\)return/);
+ assert.match(source,/if\(uid===sessionOwner\)\{if\(event\.detail\?\.tokenChanged\)/);
 });
 test('billing tables have explicit deny policies for browser roles',()=>{
  const migration=read('supabase/migrations/20260904183304_explicit_server_only_billing_policies.sql');

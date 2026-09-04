@@ -34,7 +34,7 @@ window.WGC18=window.WGC18||{};
  function absoluteApiBase(){return '/api/v18'}
  A.api=function(path=''){let b=A.apiBase||absoluteApiBase();return b?b+('/'+String(path).replace(/^\//,'')):''};
  function status(t,bad=false){let el=$('#accountStatus');if(el){el.textContent=t||'';el.classList.toggle('bad',!!bad)}}
- function saveSession(s){let previous=A.session?.user?.id;A.session=s||null;if(previous!==A.session?.user?.id){A.accountState='checking';A.cloudStateReady=false;A.cloudStateOwner=null;A.cloudRevision=null}if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY);renderAccountUI();window.dispatchEvent(new CustomEvent('wgc:authchange',{detail:{signedIn:!!A.session}}))}
+ function saveSession(s){let previous=A.session?.user?.id,previousToken=A.session?.access_token||null;A.session=s||null;if(previous!==A.session?.user?.id){A.accountState='checking';A.cloudStateReady=false;A.cloudStateOwner=null;A.cloudRevision=null}if(s)localStorage.setItem(SESSION_KEY,JSON.stringify(s));else localStorage.removeItem(SESSION_KEY);renderAccountUI();window.dispatchEvent(new CustomEvent('wgc:authchange',{detail:{signedIn:!!A.session,userId:A.session?.user?.id||null,tokenChanged:previousToken!==(A.session?.access_token||null)}}))}
  // A recovery session that is abandoned must not leave the "choose a new
  // password" panel armed for the next account signed in on this tab.
  function clearRecoveryFlag(){try{sessionStorage.removeItem(RECOVERY_KEY)}catch{}A.passwordRecovery=false}
@@ -337,6 +337,17 @@ window.WGC18=window.WGC18||{};
   }finally{A.deletingAccount=false}
  };
  window.addEventListener?.('storage',event=>{
+  if(event.key===SESSION_KEY){
+   let next=null;try{next=event.newValue?JSON.parse(event.newValue):null}catch{return}
+   const previous=A.session?.user?.id||null,previousToken=A.session?.access_token||null,nextUser=next?.user?.id||null,nextToken=next?.access_token||null;
+   if(previousToken===nextToken)return;
+   A.session=next;
+   if(previous!==nextUser){A.accountState='checking';A.cloudStateReady=false;A.cloudStateOwner=null;A.cloudRevision=null}
+   if(!next){clearRecoveryFlag();lockPlannerForLoggedOut()}
+   renderAccountUI();window.dispatchEvent(new CustomEvent('wgc:authchange',{detail:{signedIn:!!next,userId:nextUser,tokenChanged:true,external:true}}));
+   if(next&&previous!==nextUser)initializeAccount().catch(()=>{});
+   return
+  }
   if(event.key!==AUTH_EVENT_KEY||!event.newValue)return;
   let message;try{message=JSON.parse(event.newValue)}catch{return}
   const uid=A.session?.user?.id;

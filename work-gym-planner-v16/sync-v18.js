@@ -32,6 +32,6 @@ window.WGC18=window.WGC18||{};
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&dirty&&!blocked&&Date.now()>=nextAttempt)push()});
  window.addEventListener('online',()=>{if(dirty&&!blocked&&Date.now()>=nextAttempt)push()});
  window.addEventListener('wgc:health-consent-change',event=>{if(blocked==='consent'&&event.detail?.activePurposes?.includes('account_cloud_sync')){blocked=null;failures=0;nextAttempt=0;schedule(0)}});
- window.addEventListener('wgc:authchange',()=>{const uid=A.session?.user?.id||null;if(uid===sessionOwner)return;sessionOwner=uid;blocked=null;failures=0;nextAttempt=0;if(uid&&dirty)schedule(0)});
+ window.addEventListener('wgc:authchange',event=>{const uid=A.session?.user?.id||null;if(uid===sessionOwner){if(event.detail?.tokenChanged&&blocked==='account'){blocked=null;failures=0;nextAttempt=0;if(dirty)schedule(0)}return}sessionOwner=uid;blocked=null;failures=0;nextAttempt=0;if(uid&&dirty)schedule(0)});
  setInterval(()=>{if(dirty&&!blocked&&Date.now()-lastPush>30000&&Date.now()>=nextAttempt)push()},30000);
 })(window.WGC18);

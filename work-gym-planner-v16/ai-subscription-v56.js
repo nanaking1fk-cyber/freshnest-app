@@ -100,7 +100,7 @@
   event.preventDefault();event.stopImmediatePropagation();if(photoCheck)return;photoCheck=true;
   A.ensureAICredits(feature).then(allowed=>{if(!allowed||!target.isConnected||!A.canUseAIPhoto(feature))return;if(target.id==='foodMealScanTool')target.click();else window.toast?.('AI Plus is ready. Tap the photo button again to continue.');}).catch(()=>{A.openAIPlan()}).finally(()=>{photoCheck=false});
  },true);
- window.addEventListener('wgc:authchange',()=>{const uid=A.session?.user?.id||null;if(uid===sessionOwner)return;sessionOwner=uid;authRevision++;state=null;owner=null;pending=null;checkedAt=0;refreshFailures=0;nextRefresh=0;emit();if(uid)reconcile().catch(()=>{})});
+ window.addEventListener('wgc:authchange',event=>{const uid=A.session?.user?.id||null;if(uid===sessionOwner){if(event.detail?.tokenChanged){refreshFailures=0;nextRefresh=0}return}sessionOwner=uid;authRevision++;state=null;owner=null;pending=null;checkedAt=0;refreshFailures=0;nextRefresh=0;emit();if(uid)reconcile().catch(()=>{})});
  async function reconcile(){
   if(!A.session||!store())return;
   try{const result=await store().entitlements();for(const transaction of result.transactions||[])await deliver(transaction)}catch{/* Leave unfinished transactions for the visible Restore flow. */}

@@ -45,5 +45,5 @@ test('cleanup rules are premium-calendar scoped and prevent both sheet and backd
 });
 
 test('production and offline loaders refresh the cleaned-up calendar',()=>{
- for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-resilience73/);
+ for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/shell.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js','work-gym-planner-v16/pwa-patch.js'])assert.match(read(file),/30\.1\.31-resilience74/);
 });

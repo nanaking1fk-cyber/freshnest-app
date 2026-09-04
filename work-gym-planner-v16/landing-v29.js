@@ -1,13 +1,20 @@
-// Work + Workout — a quiet welcome, with explicit account entry points.
+// Work + Workout — a lively, lightweight welcome with an optional example.
 (function workWorkoutLandingV29(window){
   'use strict';
   var A=window.WGC18=window.WGC18||{};
   var ID='wwLanding';
   var BRAND_MARK='../work-gym-planner-v16/icons/brand-mark.svg';
+  var examples={
+    day:{title:'A little more balance.',lead:'A workday with room left for you.',rows:[['Morning shift','7:00 AM – 3:00 PM'],['Time to move','4:30 PM · 30 min workout'],['Dinner, logged','Your food diary, made simple']],foot:'Off the clock. Back to you.'},
+    night:{title:'Different hours. Still you.',lead:'Your routine doesn’t need a nine-to-five.',rows:[['Night shift','7:00 PM – 7:00 AM'],['Move before your shift','3:30 PM · 20 min workout'],['Meals, ready to go','Save your favourites for next time']],foot:'A little structure for the late hours.'},
+    off:{title:'A day to make your own.',lead:'More room to move, eat well and reset.',rows:[['Room to recharge','No work scheduled'],['Make time for strength','10:00 AM · 45 min workout'],['Your favourites, on repeat','Quickly log a saved meal']],foot:'Your time, on your terms.'}
+  };
+  function icon(kind){var paths={work:'<rect x="4" y="7" width="16" height="13" rx="3"/><path d="M9 7V4h6v3M4 12h16M10 12v3h4v-3"/>',train:'<path d="M7 5v14M4 8v8M17 5v14M20 8v8M7 12h10"/>',fuel:'<path d="M19 4c-8 0-14 3-14 9a6 6 0 0 0 6 6c6 0 8-7 8-15ZM5 20l9-9"/>'};return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths[kind]+'</svg>'}
   function brandMark(){return '<span class="ww29BrandMark" aria-hidden="true"><img src="'+BRAND_MARK+'" alt=""></span>'}
   function pageUrl(file){try{return typeof window.productPage==='function'?window.productPage(file):new URL('./'+file,location.href).href}catch{return'./'+file}}
   function markup(){
     return '<div id="'+ID+'" class="ww29" hidden>'+
+      '<div class="ww72Atmosphere" aria-hidden="true"><i></i><i></i><span></span></div>'+
       '<header class="ww29Nav"><div class="ww29NavIn">'+
         '<a class="ww29Brand" href="#wwWelcome">'+brandMark()+'<b>Work + Workout</b></a>'+
         '<button class="ww29SignIn" data-ww29="signin">Sign in <span aria-hidden="true">↗</span></button>'+
@@ -21,19 +28,21 @@
             '<div class="ww29HeroActions"><button class="ww29Button" data-ww29="signup">Create account <span aria-hidden="true">→</span></button><button class="ww29Secondary" data-ww29="signin">Sign in</button></div>'+
             '<p class="ww29Trust">Free to start. No card needed.</p>'+
           '</div>'+
-          '<div class="ww29Preview" aria-label="Example day, not your saved schedule">'+
+          '<div class="ww29Preview" data-example="day" role="region" aria-label="Example day, not your saved schedule">'+
             '<div class="ww29PreviewHead"><span>YOUR DAY, AT A GLANCE</span><small>Example</small></div>'+
-            '<h2>A little more balance.</h2><p>One place for what matters today.</p>'+
-            '<div class="ww29PreviewRow work"><i aria-hidden="true">01</i><span><b>Morning shift</b><small>7:00 AM – 3:00 PM</small></span><em>Work</em></div>'+
-            '<div class="ww29PreviewRow train"><i aria-hidden="true">02</i><span><b>Time to move</b><small>4:30 PM · 30 min workout</small></span><em>Train</em></div>'+
-            '<div class="ww29PreviewRow fuel"><i aria-hidden="true">03</i><span><b>Dinner, logged</b><small>Your food diary, made simple</small></span><em>Fuel</em></div>'+
-            '<div class="ww29PreviewFoot"><span aria-hidden="true">✓</span> A plan you can make your own</div>'+
+            '<div class="ww72Scenarios" role="group" aria-label="Explore example schedules"><button type="button" data-ww72-day="day" aria-pressed="true" aria-controls="ww72DayExample">Day shift</button><button type="button" data-ww72-day="night" aria-pressed="false" aria-controls="ww72DayExample">Night shift</button><button type="button" data-ww72-day="off" aria-pressed="false" aria-controls="ww72DayExample">Day off</button></div>'+
+            '<div id="ww72DayExample" aria-live="polite" aria-atomic="true">'+
+              '<h2 data-ww72-title>'+examples.day.title+'</h2><p class="ww72ExampleLead" data-ww72-lead>'+examples.day.lead+'</p>'+
+              '<div class="ww72DayTrack" aria-hidden="true"><span></span><span></span><span></span></div>'+
+              ['work','train','fuel'].map(function(kind,index){return '<div class="ww29PreviewRow '+kind+'"><i>'+icon(kind)+'</i><span><b data-ww72-row-title="'+index+'">'+examples.day.rows[index][0]+'</b><small data-ww72-row-detail="'+index+'">'+examples.day.rows[index][1]+'</small></span><em>'+['Work','Train','Fuel'][index]+'</em></div>'}).join('')+
+              '<div class="ww29PreviewFoot"><span aria-hidden="true">✓</span><span data-ww72-foot>'+examples.day.foot+'</span></div>'+
+            '</div>'+
           '</div>'+
         '</section>'+
         '<section class="ww29Essentials" aria-label="What you can do">'+
-          '<article><span>01 / PLAN</span><h2>Your shifts, organized.</h2><p>Add work, rotations and time off. Track hours and share your calendar.</p></article>'+
-          '<article><span>02 / MOVE</span><h2>Training that fits.</h2><p>Keep your routine or build a plan around the time you have.</p></article>'+
-          '<article><span>03 / FUEL</span><h2>Food logging, simplified.</h2><p>Log meals, reuse favorites and follow your daily nutrition.</p></article>'+
+          '<article><div class="ww72FeatureIcon">'+icon('work')+'</div><span>01 / PLAN</span><h2>Your shifts, organized.</h2><p>Add work, rotations and time off. Track hours and share your calendar.</p></article>'+
+          '<article><div class="ww72FeatureIcon">'+icon('train')+'</div><span>02 / MOVE</span><h2>Training that fits.</h2><p>Keep your routine or build a plan around the time you have.</p></article>'+
+          '<article><div class="ww72FeatureIcon">'+icon('fuel')+'</div><span>03 / FUEL</span><h2>Food logging, simplified.</h2><p>Log meals, reuse favorites and follow your daily nutrition.</p></article>'+
         '</section>'+
         '<details class="ww29How"><summary>How do I get started?<span aria-hidden="true">+</span></summary><div><p>Create your account, choose your privacy settings, then add your schedule. You review changes before they are saved.</p><p>Cloud backup and AI tools are optional. AI use has a monthly limit, shown in the app.</p></div></details>'+
       '</main>'+
@@ -43,6 +52,17 @@
   function bind(root){
     root.querySelectorAll('[data-ww29]').forEach(function(button){
       button.onclick=function(){A.openAccount?.(button.dataset.ww29==='signup'?'signup':'signin')};
+    });
+    root.querySelectorAll('[data-ww72-day]').forEach(function(button){
+      button.onclick=function(){
+        var choice=button.dataset.ww72Day,example=examples[choice],preview=root.querySelector('.ww29Preview'),panel=root.querySelector('#ww72DayExample');
+        if(!example||preview.dataset.example===choice)return;
+        preview.dataset.example=choice;
+        root.querySelectorAll('[data-ww72-day]').forEach(function(item){item.setAttribute('aria-pressed',String(item===button))});
+        root.querySelector('[data-ww72-title]').textContent=example.title;root.querySelector('[data-ww72-lead]').textContent=example.lead;root.querySelector('[data-ww72-foot]').textContent=example.foot;
+        example.rows.forEach(function(row,index){root.querySelector('[data-ww72-row-title="'+index+'"]').textContent=row[0];root.querySelector('[data-ww72-row-detail="'+index+'"]').textContent=row[1]});
+        if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&panel.animate){panel.getAnimations?.().forEach(function(animation){animation.cancel()});panel.animate([{opacity:.5,transform:'translateY(6px)'},{opacity:1,transform:'translateY(0)'}],{duration:260,easing:'ease-out'})}
+      };
     });
   }
   function shouldShow(){return !A.session}

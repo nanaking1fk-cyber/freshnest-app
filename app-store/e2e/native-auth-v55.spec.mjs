@@ -67,6 +67,42 @@ async function setup(page,launchUrl,existing=false){
  return errors;
 }
 
+for(const width of [320,390,1440])test('lively welcome fits '+width+'px and examples never change saved data',async({page},info)=>{
+ await page.setViewportSize({width,height:844});const errors=await setup(page);
+ const hero=page.locator('#wwLanding');await expect(hero).toBeVisible();
+ await expect(hero.locator('.ww29Preview')).toHaveAttribute('data-example','day');
+ await expect(hero.locator('.ww29PreviewRow')).toHaveCount(3);
+ const stored=await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(localStorage))));
+ await hero.getByRole('button',{name:'Night shift',exact:true}).click();
+ await expect(hero.locator('[data-ww72-title]')).toHaveText('Different hours. Still you.');
+ await expect(hero.getByRole('button',{name:'Night shift',exact:true})).toHaveAttribute('aria-pressed','true');
+ await hero.getByRole('button',{name:'Day off',exact:true}).focus();await page.keyboard.press('Space');
+ await expect(hero.locator('[data-ww72-title]')).toHaveText('A day to make your own.');
+ await expect(hero.getByRole('button',{name:'Night shift',exact:true})).toHaveAttribute('aria-pressed','false');
+ await hero.getByRole('button',{name:'Day shift',exact:true}).click();
+ await expect(hero.locator('[data-ww72-title]')).toHaveText('A little more balance.');
+ expect(await page.evaluate(()=>JSON.stringify(Object.fromEntries(Object.entries(localStorage))))).toBe(stored);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);
+ for(const button of await hero.locator('.ww72Scenarios button').all()){
+  const box=await button.boundingBox();expect(box.height).toBeGreaterThanOrEqual(44);expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(width);
+ }
+ await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:info.outputPath('welcome-'+width+'.png'),fullPage:true});
+ await hero.getByRole('button',{name:'Create account'}).click();await expect(page.locator('#signupPane')).toBeVisible();
+ await page.evaluate(()=>closeModal('accountDialog'));
+ await hero.locator('.ww29SignIn').click();await expect(page.locator('#signinPane')).toBeVisible();
+ expect(errors).toEqual([]);
+});
+
+test('lively welcome respects reduced motion, including interactive examples',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});const errors=await setup(page);
+ const hero=page.locator('#wwLanding');await expect(hero).toBeVisible();
+ expect(await hero.evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);
+ await hero.getByRole('button',{name:'Night shift',exact:true}).click();
+ await expect(hero.locator('[data-ww72-title]')).toHaveText('Different hours. Still you.');
+ expect(await hero.evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);
+ expect(errors).toEqual([]);
+});
+
 for(const width of [390,1280])test('free packaged planner stays usable and fits '+width+'px',async({page},info)=>{
  await page.setViewportSize({width,height:844});const errors=await setup(page,undefined,true);
  await expect.poll(()=>page.evaluate(()=>WGC18.cloudStateReady)).toBe(true);

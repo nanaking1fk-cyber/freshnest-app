@@ -334,11 +334,12 @@ function parseAIJson(text,fallback=null){try{return JSON.parse(cleanJsonText(tex
 
 function errorResponse(res,error){
   const req=res._wgcRequest;
-  console.error(JSON.stringify({event:'api_error',requestId:req?.requestId||null,path:req?.url?.split('?')[0]||null,status:error.status||500,durationMs:req?.requestStartedAt?Date.now()-req.requestStartedAt:null,message:error.message||'Unexpected server error'}));
+  const status=error.status||500,serverFailure=status>=500;
+  console[serverFailure?'error':'log'](JSON.stringify({event:serverFailure?'api_error':'api_rejected',requestId:req?.requestId||null,path:req?.url?.split('?')[0]||null,status,durationMs:req?.requestStartedAt?Date.now()-req.requestStartedAt:null,message:error.message||'Unexpected server error'}));
   if(error.retryAfter)res.setHeader('Retry-After',String(error.retryAfter));
   const body={ok:false,error:error.message||'Unexpected server error'};
   if(error.code)body.code=error.code;
-  json(res,error.status||500,body);
+  json(res,status,body);
 }
 
 module.exports={json,cors,envReady,verifyUser,serviceHeaders,serviceFetch,userHeaders,userFetch,getHealthConsent,healthConsentActive,recordHealthConsent,requireHealthConsent,requireAnyHealthConsent,HEALTH_CONSENT_VERSION,HEALTH_POLICY_VERSION,HEALTH_CONSENT_PURPOSES,HEALTH_CONSENT_STATEMENT,getState,saveState,saveOnboarding,savePlan,deleteChat,countStateWrite,compactStoredContext,openAI,parseAIJson,errorResponse,SUPABASE_URL,ANON,SERVICE};

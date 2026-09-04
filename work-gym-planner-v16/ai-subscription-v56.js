@@ -1,7 +1,7 @@
 // AI allowances are read from the account, never granted from local storage.
 (function(A){
  'use strict';
- let state=null,owner=null,pending=null,product=null,busy=false,listener=null,checkedAt=0,photoCheck=false,authRevision=0;
+ let state=null,owner=null,pending=null,product=null,busy=false,listener=null,checkedAt=0,photoCheck=false,authRevision=0,sessionOwner=A.session?.user?.id||null,refreshFailures=0,nextRefresh=0;
  const costs={coach:1,equipment:10,meal:10,roster:20,schedule:20,plan:20};
  const $=id=>document.getElementById(id);
  function store(){return window.WGPNative?.platform==='ios'?window.Capacitor?.Plugins?.ApplePurchases:null}
@@ -11,8 +11,9 @@
   const uid=A.session?.user?.id;
   if(!uid){state=null;owner=null;checkedAt=0;emit();return null}
   if(pending?.uid===uid)return pending.promise;
+  if(Date.now()<nextRefresh)throw Object.assign(Error('Subscription check is resting after a connection problem. Please try again shortly.'),{code:'SUBSCRIPTION_BACKOFF'});
   const task={uid,revision:authRevision};pending=task;
-  task.promise=(async()=>{try{const result=await A.authedFetch('subscription');if(A.session?.user?.id!==uid||task.revision!==authRevision)return null;state=result;owner=uid;checkedAt=Date.now();emit();return state}catch(error){if(A.session?.user?.id===uid&&task.revision===authRevision){state=null;owner=null;checkedAt=0;emit()}throw error}finally{if(pending===task)pending=null}})();
+  task.promise=(async()=>{try{const result=await A.authedFetch('subscription');if(A.session?.user?.id!==uid||task.revision!==authRevision)return null;state=result;owner=uid;checkedAt=Date.now();refreshFailures=0;nextRefresh=0;emit();return state}catch(error){if(A.session?.user?.id===uid&&task.revision===authRevision){state=null;owner=null;checkedAt=0;refreshFailures++;nextRefresh=Date.now()+([401,403].includes(error?.status)?5*60*1000:Math.min(10*60*1000,30000*Math.pow(2,Math.min(refreshFailures-1,4))));emit()}throw error}finally{if(pending===task)pending=null}})();
   return task.promise;
  }
  async function deliver(transaction){
@@ -99,7 +100,7 @@
   event.preventDefault();event.stopImmediatePropagation();if(photoCheck)return;photoCheck=true;
   A.ensureAICredits(feature).then(allowed=>{if(!allowed||!target.isConnected||!A.canUseAIPhoto(feature))return;if(target.id==='foodMealScanTool')target.click();else window.toast?.('AI Plus is ready. Tap the photo button again to continue.');}).catch(()=>{A.openAIPlan()}).finally(()=>{photoCheck=false});
  },true);
- window.addEventListener('wgc:authchange',()=>{authRevision++;state=null;owner=null;pending=null;checkedAt=0;emit();reconcile().catch(()=>{})});
+ window.addEventListener('wgc:authchange',()=>{const uid=A.session?.user?.id||null;if(uid===sessionOwner)return;sessionOwner=uid;authRevision++;state=null;owner=null;pending=null;checkedAt=0;refreshFailures=0;nextRefresh=0;emit();if(uid)reconcile().catch(()=>{})});
  async function reconcile(){
   if(!A.session||!store())return;
   try{const result=await store().entitlements();for(const transaction of result.transactions||[])await deliver(transaction)}catch{/* Leave unfinished transactions for the visible Restore flow. */}

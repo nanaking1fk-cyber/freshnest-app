@@ -120,7 +120,7 @@ test('challenge design is premium scoped, viewport safe and included in every pr
   const selectors=line.split('{')[0].split(',').map(value=>value.trim());
   for(const selector of selectors)assert.match(selector,/^body\.premiumV30(?: #challengeDialogV78| #page-more|\.challengeOpenV78)/,selector);
  }
- assert.match(css,/100dvh/);assert.match(css,/@media\(max-width:430px\)/);assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/height:100dvh;max-height:100dvh/);assert.match(css,/\.challengeBackdropV78\{display:none\}/);assert.match(css,/padding:max\(15px,env\(safe-area-inset-top\)\)/);assert.match(css,/@media\(max-width:430px\)/);assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html','work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
   const source=read(file);assert.ok(source.includes('challenges-v78.js'),file);assert.ok(source.includes('challenges-v78.css'),file);
  }

@@ -110,9 +110,10 @@ body.premiumV30 #challengeDialogV78 .challengeStatusV78:not(:empty){padding:12px
 body.premiumV30 #challengeDialogV78 .challengeStatusV78.bad{color:#ff9da2}
 
 @media(max-width:720px){
- body.premiumV30 #challengeDialogV78{place-items:end center;padding:0}
- body.premiumV30 #challengeDialogV78 .challengeSheetV78{width:100%;max-height:calc(100dvh - env(safe-area-inset-top));border-right:0;border-bottom:0;border-left:0;border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom);transform:translateY(30px)}
- body.premiumV30 #challengeDialogV78 .challengeHeadV78{padding:15px 16px 14px}
+ body.premiumV30 #challengeDialogV78{display:block;padding:0;background:#0a1013}
+ body.premiumV30 #challengeDialogV78 .challengeBackdropV78{display:none}
+ body.premiumV30 #challengeDialogV78 .challengeSheetV78{width:100%;height:100dvh;max-height:100dvh;box-sizing:border-box;border:0;border-radius:0;padding-bottom:env(safe-area-inset-bottom);box-shadow:none;transform:translateY(18px)}
+ body.premiumV30 #challengeDialogV78 .challengeHeadV78{padding:max(15px,env(safe-area-inset-top)) 16px 14px}
  body.premiumV30 #challengeDialogV78 main,body.premiumV30 #challengeDialogV78 .challengeFormV78{padding:16px}
  body.premiumV30 #challengeDialogV78 .challengeHeroV78{padding:20px}
  body.premiumV30 #challengeDialogV78 .challengeHeroV78>span{width:58px;height:58px;border-radius:18px;font-size:28px}

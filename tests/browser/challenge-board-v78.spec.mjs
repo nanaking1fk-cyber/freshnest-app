@@ -49,8 +49,9 @@ test('coworker can create a private custom challenge from More on mobile',async(
  await expect(page.getByText('ABCD-2345')).toBeVisible();
  await expect(page.locator('.challengePersonV78 h4')).toContainText('Maya');
  expect(createdBody).toMatchObject({action:'create',metric:'custom',unitLabel:'glasses',displayName:'Maya',sharingConfirmed:true,localDate:'2026-09-04'});
- const sheet=await page.locator('.challengeSheetV78').boundingBox();expect(sheet.width).toBeLessThanOrEqual(390);expect(sheet.height).toBeLessThanOrEqual(844);
+ const sheet=await page.locator('.challengeSheetV78').boundingBox();expect(sheet.x).toBe(0);expect(sheet.y).toBe(0);expect(sheet.width).toBe(390);expect(sheet.height).toBe(844);
  expect(await page.locator('.challengeSheetV78').evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);
+ await expect(page.locator('.challengeBackdropV78')).toBeHidden();
  await page.screenshot({path:'/private/tmp/ww-challenge-v78-mobile.png'});
  expect(errors).toEqual([]);
 });

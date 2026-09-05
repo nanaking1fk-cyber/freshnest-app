@@ -35,7 +35,7 @@ MAKE NUTRITION PRACTICAL
 • Calorie, macro and meal guidance
 • Food, water and familiar-meal logging
 • Food search and supported barcode scanning
-• Automatic daily step progress from Health Connect after you connect it
+• Automatic daily step and calorie-burn progress from Health Connect after you connect it
 • Weight, measurement and recovery context
 
 AUTOMATION YOU CAN TRUST
@@ -55,7 +55,7 @@ Work + Workout provides planning and general fitness education. It is not a medi
 - **Ads:** No, unless advertising is added before release.
 - **App access:** All core signed-in features require the private reviewer account supplied in Play Console.
 - **Health apps declaration:** Activity and Fitness; Nutrition and Weight Management; Sleep Management. The product is not a medical device and does not offer diagnosis or treatment.
-- **Health Connect permission:** `android.permission.health.READ_STEPS` only. It is used to show the user’s aggregated daily step total and progress toward their chosen goal on Home and in Health & steps. Permission is requested only after the user selects **Connect Health Connect**. The app does not request write access, exercise routes, location, or Health Connect background/history permissions. Users can disconnect in-app or revoke access in Health Connect.
+- **Health Connect permissions:** `android.permission.health.READ_STEPS` and `android.permission.health.READ_TOTAL_CALORIES_BURNED`. They are used only for the daily progress or private challenge score the user chooses to sync. Each permission is requested when the corresponding feature is connected. The app does not request write access, exercise routes, location, or Health Connect background/history permissions. Users can disconnect in-app or revoke access in Health Connect.
 - **Health Connect privacy policy:** https://www.workandworkout.com/work-gym-planner/privacy.html#phone-steps
 - **Target audience:** Adults/general working population; not designed for children under 13.
 - **Account deletion:** Available in-app from Account → Delete account permanently and through the public deletion instructions above.
@@ -64,4 +64,4 @@ Work + Workout provides planning and general fitness education. It is not a medi
 
 Confirm against the release build in Play Console. Expected disclosures include account information (email and optional name), user-entered schedules/tasks, fitness/activity, nutrition, body measurements and recovery information; AI prompts/context when AI Coach is used; photos only when the user invokes schedule/equipment/barcode features; and privacy-filtered crash, app stability and other diagnostic data. Diagnostic reports are not linked to an account and exclude planner and health contents. Data is encrypted in transit. Account-linked cloud data can be deleted in-app. The app has no advertising SDK and does not sell user data under the current product design.
 
-Health Connect supplies a read-only aggregated daily step total. That total is stored locally in the same health diary as manual step entries. It is transmitted only if the user separately enables an account sync or personalized AI path that includes health context. Health Connect data is never used for advertising or sold.
+Health Connect supplies read-only aggregated daily step and calorie-burn totals. Those totals are stored locally in the existing health diary. A user who deliberately joins a challenge can send only the relevant aggregate score to that private board; underlying Health Connect records are not shared. Health Connect data is never used for advertising or sold.

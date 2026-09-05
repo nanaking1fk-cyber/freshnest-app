@@ -10,7 +10,7 @@ const WORKOUTS=[
   {name:'Flat Bench / Machine Press',sets:3,lo:6,hi:8,inc:5},{name:'Neutral-Grip Lat Pulldown',sets:3,lo:8,hi:10,inc:5},{name:'Seated DB Shoulder Press',sets:3,lo:8,hi:10,inc:5},{name:'Seated Cable Row',sets:3,lo:8,hi:12,inc:5},{name:'Incline Cable Fly',sets:2,lo:12,hi:15,inc:2.5},{name:'Lateral Raise',sets:4,lo:12,hi:20,inc:2.5},{name:'Incline DB Curl',sets:3,lo:10,hi:12,inc:2.5},{name:'Overhead Cable Triceps Extension',sets:3,lo:10,hi:12,inc:2.5}]}
 ];
 function workoutHistory(){return jget(K.history,[]).sort((a,b)=>a.date.localeCompare(b.date))}
-function saveHistory(h){jset(K.history,h.slice(-800))}
+function saveHistory(h){jset(K.history,h.slice(-800));window.dispatchEvent(new CustomEvent('wgp:workout-history-changed'))}
 function drafts(){return jget(K.drafts,{})}function saveDrafts(d){jset(K.drafts,d)}
 function overrides(){return jget(K.overrides,{})}function saveOverrides(o){jset(K.overrides,o)}
 function snapshots(){return jget(K.snapshots,{})}function saveSnapshots(s){jset(K.snapshots,s)}

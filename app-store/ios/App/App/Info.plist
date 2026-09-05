@@ -46,9 +46,9 @@
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Turn the schedule you dictate into text when you tap Speak. Review the text before adding it.</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>Read your daily step total to show your progress. Steps stay on this device unless you separately allow account sync or personalized AI.</string>
+	<string>Read your daily steps and active calories for progress and challenges. This data stays on your device unless you separately choose account sync or personalized AI.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>Work + Workout requests read-only step access and does not write to Apple Health.</string>
+	<string>Work + Workout requests read-only step and active-calorie access and does not write to Apple Health.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose a meal, roster, equipment or barcode photo for a scan. Only the photo you select is used.</string>
 	<key>UIApplicationSceneManifest</key>

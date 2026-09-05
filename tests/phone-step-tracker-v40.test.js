@@ -23,20 +23,22 @@ test('Home and Health expose automatic steps with a browser-safe fallback',()=>{
   assert.match(health,/toast\(`Connected · \$\{steps\.toLocaleString\(\)\} steps today`\);return steps/);
 });
 
-test('native bridge requests only read access to daily aggregated steps',()=>{
+test('native bridge requests only read access to daily step and activity-calorie aggregates',()=>{
   const bridge=read('app-store/native/native-bridge.js');
-  assert.match(bridge,/customPermissions:JSON\.stringify\(\[\{Variable:'STEPS',AccessType:'READ'\}\]\)/);
+  assert.match(bridge,/healthPermissionOptions\('STEPS'\)/);
+  assert.match(bridge,/healthPermissionOptions\('CALORIES_BURNED'\)/);
   assert.match(bridge,/allVariables:inactive/);
   assert.match(bridge,/fitnessVariables:inactive/);
   assert.match(bridge,/healthVariables:inactive/);
-  assert.match(bridge,/Variable:'STEPS'/);
+  assert.match(bridge,/readDailyHealthTotal\('STEPS'\)/);
+  assert.match(bridge,/readDailyHealthTotal\('CALORIES_BURNED'\)/);
   assert.match(bridge,/OperationType:'SUM'/);
   assert.match(bridge,/TimeUnit:'DAY'/);
   assert.match(bridge,/AdvancedQueryResultType:'RAW_DATA'/);
   assert.doesNotMatch(bridge,/AccessType:'WRITE'|setData\(|setBackgroundJob\(|requestLocation/);
 });
 
-test('step totals remain compatible with the existing daily health diary',()=>{
+test('phone activity totals remain compatible with the existing daily health diary',()=>{
   const health=read('work-gym-planner-v16/health.js');
   const init=read('work-gym-planner-v16/init.js');
   assert.match(health,/mergeHealthDay\(dkey\(\),\{steps,stepsSource:source,stepsSyncedAt:/);
@@ -45,9 +47,10 @@ test('step totals remain compatible with the existing daily health diary',()=>{
   assert.match(init,/patch\.stepsSource='manual'/);
   assert.match(health,/source==='apple-health'/);
   assert.match(health,/source==='health-connect'/);
+  assert.match(health,/mergeHealthDay\(dkey\(\),\{activeCalories,activeCaloriesSource:source,activeCaloriesSyncedAt:/);
 });
 
-test('iOS and Android package read-only step permissions truthfully',()=>{
+test('iOS and Android package read-only phone-activity permissions truthfully',()=>{
   const pkg=json('app-store/package.json');
   const android=json('app-store/android/healthfitness.config.json');
   const variables=read('app-store/android/variables.gradle');
@@ -58,13 +61,14 @@ test('iOS and Android package read-only step permissions truthfully',()=>{
   const swiftPackage=read('app-store/ios/App/CapApp-SPM/Package.swift');
   const capacitorSettings=read('app-store/android/capacitor.settings.gradle');
   assert.equal(pkg.dependencies['@capacitor/health-fitness'],'1.0.1');
-  assert.deepEqual(android.permissions,{STEPS:'Read'});
+  assert.deepEqual(android.permissions,{STEPS:'Read',CALORIES_BURNED:'Read'});
   assert.equal(android.disableBackgroundJobs,true);
   assert.equal(android.disableReadHealthDataHistory,true);
   assert.match(android.privacyPolicyUrl,/privacy\.html#phone-steps$/);
   assert.match(variables,/minSdkVersion = 26/);
   assert.match(manifest,/android\.permission\.health\.READ_STEPS/);
-  assert.doesNotMatch(manifest,/WRITE_STEPS|READ_HEALTH_DATA_IN_BACKGROUND|READ_HEALTH_DATA_HISTORY|ACTIVITY_RECOGNITION|FOREGROUND_SERVICE_HEALTH|HIGH_SAMPLING_RATE_SENSORS/);
+  assert.match(manifest,/android\.permission\.health\.READ_TOTAL_CALORIES_BURNED/);
+  assert.doesNotMatch(manifest,/WRITE_STEPS|WRITE_TOTAL_CALORIES_BURNED|READ_HEALTH_DATA_IN_BACKGROUND|READ_HEALTH_DATA_HISTORY|ACTIVITY_RECOGNITION|FOREGROUND_SERVICE_HEALTH|HIGH_SAMPLING_RATE_SENSORS/);
   assert.match(plist,/NSHealthShareUsageDescription/);
   assert.match(entitlements,/com\.apple\.developer\.healthkit/);
   assert.match(project,/com\.apple\.HealthKit/);
@@ -88,9 +92,9 @@ test('privacy and store disclosures explain phone step handling',()=>{
   const apple=read('app-store/APP_STORE_METADATA.md');
   const play=read('app-store/PLAY_STORE_METADATA.md');
   assert.match(privacy,/id="phone-steps"/);
-  assert.match(privacy,/read-only access to your daily step total/i);
-  assert.match(privacy,/does not request precise location for step tracking/i);
-  assert.match(apple,/read-only access to Step Count only/i);
+  assert.match(privacy,/read-only access to your daily step total and calorie-burn total/i);
+  assert.match(privacy,/does not[^.]+request precise location for activity tracking/i);
+  assert.match(apple,/read-only access to Step Count[\s\S]*Active Energy Burned/i);
   assert.match(play,/android\.permission\.health\.READ_STEPS/);
   assert.match(play,/does not request write access, exercise routes, location/i);
 });

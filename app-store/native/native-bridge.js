@@ -7,6 +7,7 @@
   var isNative=platform==='ios'||platform==='android';
   var apiBase='https://www.workandworkout.com';
   var STEP_ACCESS_KEY='wgp-native-step-access-v1';
+  var ACTIVE_CALORIE_ACCESS_KEY='wgp-native-active-calorie-access-v1';
   var calendarReturnInProgress=false;
 
   function report(label,error){
@@ -76,12 +77,14 @@
   }
 
   function stepProvider(){return platform==='ios'?'Apple Health':platform==='android'?'Health Connect':'Phone health data'}
-  function stepAccessEnabled(){try{return localStorage.getItem(STEP_ACCESS_KEY)==='1'}catch{return false}}
-  function setStepAccess(enabled){try{if(enabled)localStorage.setItem(STEP_ACCESS_KEY,'1');else localStorage.removeItem(STEP_ACCESS_KEY)}catch{}}
-  function healthPermissionOptions(){
+  function metricAccessEnabled(key){try{return localStorage.getItem(key)==='1'}catch{return false}}
+  function setMetricAccess(key,enabled){try{if(enabled)localStorage.setItem(key,'1');else localStorage.removeItem(key)}catch{}}
+  function stepAccessEnabled(){return metricAccessEnabled(STEP_ACCESS_KEY)}
+  function activeCalorieAccessEnabled(){return metricAccessEnabled(ACTIVE_CALORIE_ACCESS_KEY)}
+  function healthPermissionOptions(variable){
     var inactive=JSON.stringify({IsActive:false,AccessType:'READ'});
     return{
-      customPermissions:JSON.stringify([{Variable:'STEPS',AccessType:'READ'}]),
+      customPermissions:JSON.stringify([{Variable:variable,AccessType:'READ'}]),
       allVariables:inactive,
       fitnessVariables:inactive,
       healthVariables:inactive,
@@ -90,38 +93,52 @@
     };
   }
   function healthQueryDate(date){return date.toISOString().split('.')[0]+'Z'}
-  function stepBlocks(result){
+  function healthBlocks(result){
     var parsed={};
-    try{parsed=JSON.parse(result&&result.results||'{}')}catch(error){throw Error('The phone returned an unreadable step total.')}
+    try{parsed=JSON.parse(result&&result.results||'{}')}catch(error){throw Error('The phone returned unreadable activity data.')}
     return Array.isArray(parsed)?parsed:Array.isArray(parsed.results)?parsed.results:[];
   }
-  async function readPhoneSteps(){
+  async function readDailyHealthTotal(variable){
     var HealthFitness=plugin('HealthFitness');
-    if(!isNative||!HealthFitness||!HealthFitness.getData)throw Error('Automatic step tracking is unavailable on this device.');
+    if(!isNative||!HealthFitness||!HealthFitness.getData)throw Error('Phone health activity is unavailable on this device.');
     var start=new Date(),end;
     start.setHours(0,0,0,0);end=new Date(start);end.setDate(end.getDate()+1);
     var result=await HealthFitness.getData({parameters:JSON.stringify({
-      Variable:'STEPS',StartDate:healthQueryDate(start),EndDate:healthQueryDate(end),
+      Variable:variable,StartDate:healthQueryDate(start),EndDate:healthQueryDate(end),
       TimeUnit:'DAY',OperationType:'SUM',TimeUnitLength:1,
       AdvancedQueryReturnType:'ALL_DATA',AdvancedQueryResultType:'RAW_DATA'
     })});
-    var steps=stepBlocks(result).reduce(function(total,block){
+    return healthBlocks(result).reduce(function(total,block){
       return total+(Array.isArray(block&&block.values)?block.values.reduce(function(sum,value){value=Number(value);return sum+(Number.isFinite(value)?value:0)},0):0);
     },0);
+  }
+  async function readPhoneSteps(){
+    var steps=await readDailyHealthTotal('STEPS');
     return{steps:Math.max(0,Math.round(steps)),provider:stepProvider(),platform:platform,syncedAt:new Date().toISOString()};
+  }
+  async function readPhoneActiveCalories(){
+    var activeCalories=await readDailyHealthTotal('CALORIES_BURNED');
+    return{activeCalories:Math.max(0,Math.round(activeCalories)),provider:stepProvider(),platform:platform,syncedAt:new Date().toISOString()};
   }
   async function connectPhoneSteps(){
     var HealthFitness=plugin('HealthFitness');
     if(!isNative||!HealthFitness||!HealthFitness.requestHealthPermissions)throw Error('Automatic step tracking is unavailable on this device.');
-    await HealthFitness.requestHealthPermissions(healthPermissionOptions());
-    setStepAccess(true);
-    try{return await readPhoneSteps()}catch(error){setStepAccess(false);throw error}
+    await HealthFitness.requestHealthPermissions(healthPermissionOptions('STEPS'));
+    setMetricAccess(STEP_ACCESS_KEY,true);
+    try{return await readPhoneSteps()}catch(error){setMetricAccess(STEP_ACCESS_KEY,false);throw error}
+  }
+  async function connectPhoneActiveCalories(){
+    var HealthFitness=plugin('HealthFitness');
+    if(!isNative||!HealthFitness||!HealthFitness.requestHealthPermissions)throw Error('Phone activity calories are unavailable on this device.');
+    await HealthFitness.requestHealthPermissions(healthPermissionOptions('CALORIES_BURNED'));
+    setMetricAccess(ACTIVE_CALORIE_ACCESS_KEY,true);
+    try{return await readPhoneActiveCalories()}catch(error){setMetricAccess(ACTIVE_CALORIE_ACCESS_KEY,false);throw error}
   }
   async function disconnectPhoneSteps(){
-    setStepAccess(false);
+    setMetricAccess(STEP_ACCESS_KEY,false);
     var HealthFitness=plugin('HealthFitness');
     if(platform==='android'&&HealthFitness&&HealthFitness.disconnectFromHealthConnect){
-      try{await HealthFitness.disconnectFromHealthConnect()}catch(error){report('health disconnect',error)}
+      try{await HealthFitness.disconnectFromHealthConnect();setMetricAccess(ACTIVE_CALORIE_ACCESS_KEY,false)}catch(error){report('health disconnect',error)}
     }
     return true;
   }
@@ -224,6 +241,14 @@
     connect:connectPhoneSteps,
     read:readPhoneSteps,
     disconnect:disconnectPhoneSteps,
+    openSettings:openPhoneHealthSettings
+  };
+  window.WGPNative.activityCalories={
+    available:isNative&&!!plugin('HealthFitness'),
+    provider:stepProvider(),
+    enabled:activeCalorieAccessEnabled,
+    connect:connectPhoneActiveCalories,
+    read:readPhoneActiveCalories,
     openSettings:openPhoneHealthSettings
   };
 

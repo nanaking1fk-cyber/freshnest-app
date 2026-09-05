@@ -47,19 +47,24 @@
  function createHTML(){var start=today(),end=plusDays(start,13),name=displayName();return header('Create a challenge','One goal. One private board.','list')+'<form id="challengeCreateV78" class="challengeFormV78"><fieldset><legend>What will you track?</legend><div class="challengeMetricChoicesV78">'+metricChoices()+'</div></fieldset><label>Challenge name<input name="title" maxlength="60" value="12,000 steps" required></label><div class="challengeGoalRowV78"><label>Goal<input name="targetValue" type="number" min="1" max="100000000" step="1" value="12000" required></label><label>How it counts<select name="cadence"><option value="daily">Each day</option><option value="total">Total by the end</option></select></label></div><label class="challengeCustomUnitV78" hidden>Unit<input name="unitLabel" maxlength="24" value="points" placeholder="points, miles, servings"></label><div class="challengeGoalRowV78"><label>Starts<input name="startsOn" type="date" value="'+start+'" required></label><label>Ends<input name="endsOn" type="date" value="'+end+'" required></label></div><label>Your board name<input name="displayName" maxlength="30" value="'+safe(name)+'" placeholder="How coworkers will see you" required></label><div class="challengeShareNoticeV78"><b>Shared on this board</b><p>Your chosen name and score only—not your email or health details.</p></div><button type="submit" class="primary">Create &amp; get invite link</button>'+privacyNote()+'</form>'}
  function joinHTML(){var name=displayName(),query=new URLSearchParams(location.search).get('challenge')||'';return header('Join a challenge','Use the private code a teammate shared.','list')+'<form id="challengeJoinV78" class="challengeFormV78"><div class="challengeJoinMarkV78" aria-hidden="true">↗</div><label>Invite code<input name="inviteCode" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="9" value="'+safe(prettyCode(query))+'" placeholder="ABCD-EFGH" required></label><label>Your board name<input name="displayName" maxlength="30" value="'+safe(name)+'" placeholder="How coworkers will see you" required></label><div class="challengeShareNoticeV78"><b>Before you join</b><p>People on this board will see this name and your score. Nothing else from your account is shared.</p></div><button type="submit" class="primary">Join &amp; share my score</button>'+privacyNote()+'</form>'}
  function participantRow(board,member){var pct=Math.max(0,Math.min(100,Number(member.progressPercent)||0));return '<li class="challengePersonV78 '+(member.isYou?'isYou':'')+'"><b>'+number(member.rank)+'</b><span class="challengeAvatarV78">'+safe((member.displayName||'?').slice(0,1).toUpperCase())+'</span><div><h4>'+safe(member.displayName)+(member.isYou?' <small>YOU</small>':'')+'</h4><p>'+safe(progressCopy(board,member))+'</p><i><em style="width:'+pct+'%"></em></i></div><strong>'+number(board.cadence==='daily'?member.daysCompleted:member.totalValue)+'</strong></li>'}
- function manualStepForm(board,mine){
+ function manualScoreForm(board,mine,label,button){
   var saved=automaticValue(board),value=saved==null?(mine?.todayValue??''):saved;
-  return '<form id="challengeScoreV78" class="challengeScoreV78"><label>Enter today’s steps<input name="value" type="number" inputmode="numeric" min="0" max="100000000" step="1" value="'+safe(value)+'" placeholder="0" required></label><button type="submit" class="primary">Update steps</button></form>';
+  return '<form id="challengeScoreV78" class="challengeScoreV78"><label>'+safe(label)+'<input name="value" type="number" inputmode="numeric" min="0" max="100000000" step="1" value="'+safe(value)+'" placeholder="0" required></label><button type="submit" class="primary">'+safe(button)+'</button></form>';
  }
  function stepEntry(board,mine){
   var bridge=typeof nativeSteps==='function'?nativeSteps():null;
-  if(bridge?.available)return '<section class="challengeStepToolsV82"><button type="button" class="challengeSyncV78 primary" data-challenge-sync>'+(bridge.enabled?.()?'Sync today’s '+safe(bridge.provider||'phone')+' steps':'Connect '+safe(bridge.provider||'phone health')+' &amp; sync')+'</button><details><summary>Enter steps manually</summary>'+manualStepForm(board,mine)+'</details></section>';
-  return manualStepForm(board,mine);
+  if(bridge?.available)return '<section class="challengeStepToolsV82"><button type="button" class="challengeSyncV78 primary" data-challenge-sync>'+(bridge.enabled?.()?'Sync today’s '+safe(bridge.provider||'phone')+' steps':'Connect '+safe(bridge.provider||'phone health')+' &amp; sync')+'</button><details><summary>Enter steps manually</summary>'+manualScoreForm(board,mine,'Enter today’s steps','Update steps')+'</details></section>';
+  return manualScoreForm(board,mine,'Enter today’s steps','Update steps');
+ }
+ function calorieEntry(board,mine){
+  var bridge=typeof nativeActivityCalories==='function'?nativeActivityCalories():null;
+  if(bridge?.available)return '<section class="challengeStepToolsV82"><button type="button" class="challengeSyncV78 primary" data-challenge-sync>'+(bridge.enabled?.()?'Sync today’s active calories':'Connect '+safe(bridge.provider||'phone health')+' &amp; sync calories')+'</button><details><summary>Enter calories manually</summary>'+manualScoreForm(board,mine,'Today’s active calories','Update calories')+'</details></section>';
+  return manualScoreForm(board,mine,'Today’s active calories','Update calories');
  }
  function boardHTML(board){
   if(!board)return listHTML();var info=metric(board),mine=me(board),active=board.status==='active';
   var goal=board.cadence==='daily'?number(board.targetValue)+' '+board.unitLabel+' each day':number(board.targetValue)+' '+board.unitLabel+' total';
-  var entry=!active?'':board.metric==='steps'?stepEntry(board,mine):(board.metric==='calories_burned'||board.metric==='custom')?'<form id="challengeScoreV78" class="challengeScoreV78"><label>Today\'s '+safe(board.unitLabel)+'<input name="value" type="number" min="0" max="100000000" step="0.01" value="'+safe(mine?.todayValue??'')+'" placeholder="0" required></label><button type="submit" class="primary">Update score</button></form>':'<button type="button" class="challengeSyncV78" data-challenge-sync>Sync today\'s '+safe(info.label.toLowerCase())+'</button>';
+  var entry=!active?'':board.metric==='steps'?stepEntry(board,mine):board.metric==='calories_burned'?calorieEntry(board,mine):board.metric==='custom'?manualScoreForm(board,mine,'Today’s '+board.unitLabel,'Update score'):'<button type="button" class="challengeSyncV78" data-challenge-sync>Sync today\'s '+safe(info.label.toLowerCase())+'</button>';
   return header(board.title,goal,'list')+'<main class="challengeBoardV78"><section class="challengeBoardHeroV78"><div class="challengeBoardIconV78">'+info.icon+'</div><div><span>'+safe(statusText(board))+'</span><h3>'+safe(goal)+'</h3><p>'+dateLabel(board.startsOn)+' – '+dateLabel(board.endsOn)+'</p></div><button type="button" data-challenge-share aria-label="Share invite">Share</button></section><section class="challengeYourProgressV78"><span>Your progress</span><b>'+(mine?'#'+number(mine.rank):'—')+'</b><strong>'+safe(progressCopy(board,mine))+'</strong><i><em style="width:'+Math.max(0,Math.min(100,Number(mine?.progressPercent)||0))+'%"></em></i></section>'+entry+'<section class="challengeLeaderboardV78"><header><h3>Leaderboard</h3><span>'+(board.members||[]).length+' participant'+((board.members||[]).length===1?'':'s')+'</span></header><ol>'+(board.members||[]).map(function(member){return participantRow(board,member)}).join('')+'</ol></section><section class="challengeInviteV78"><div><span>INVITE CODE</span><b>'+safe(prettyCode(board.inviteCode))+'</b></div><button type="button" data-challenge-share>Invite people</button></section><details class="challengeOptionsV78"><summary>Challenge options</summary><p>Leaving removes your name and scores from this board immediately.</p><button type="button" class="danger" data-challenge-'+(board.isOwner?'archive':'leave')+'>'+(board.isOwner?'End challenge':'Leave challenge')+'</button></details>'+privacyNote()+'</main>';
  }
  function shellHTML(content){return '<button type="button" class="challengeBackdropV78" data-challenge-close aria-label="Close challenges"></button><section class="challengeSheetV78" tabindex="-1">'+content+'<p id="challengeStatusV78" class="challengeStatusV78" role="status" aria-live="polite"></p></section>'}
@@ -76,19 +81,21 @@
  }
  function automaticValue(board){
   if(board.metric==='steps'){var day=typeof healthDay==='function'?healthDay(today()):{};return Object.prototype.hasOwnProperty.call(day||{},'steps')?Math.max(0,Math.round(Number(day.steps)||0)):null}
-  if(board.metric==='workouts'){var history=typeof workoutHistory==='function'?workoutHistory():[];return history.filter(function(session){return session?.completed&&session.date===today()}).length}
+  if(board.metric==='calories_burned'){var calorieDay=typeof healthDay==='function'?healthDay(today()):{};return Object.prototype.hasOwnProperty.call(calorieDay||{},'activeCalories')?Math.max(0,Math.round(Number(calorieDay.activeCalories)||0)):null}
+  if(board.metric==='workouts'){var history=typeof workoutHistory==='function'?workoutHistory():[];return history.filter(function(session){if(!session?.completed)return false;var completedDay='';if(session.completedAt){var completedDate=new Date(session.completedAt);if(!Number.isNaN(+completedDate))completedDay=typeof dkey==='function'?dkey(completedDate):completedDate.toISOString().slice(0,10)}return session.date===today()||completedDay===today()}).length}
   return null;
  }
  async function syncAutomatic(one,announce){
   if(syncing||!A.session?.access_token)return 0;syncing=true;
   try{
-   var candidates=one?[one]:boards,updated=0,missing=false,lastValue=null;
+   var candidates=one?[one]:boards,updated=0,missingMetric='',lastValue=null;
    for(var board of candidates){
-    if(board.status!=='active'||(board.metric!=='steps'&&board.metric!=='workouts'))continue;
-    var value=automaticValue(board),mineNow=me(board);if(value==null){missing=true;continue}lastValue=value;if(Number(mineNow?.todayValue)===value)continue;
-    var result=await api({method:'POST',body:JSON.stringify({action:'score',challengeId:board.id,metric:board.metric,date:today(),value:value,source:board.metric})});boards=result.boards||boards;updated++;
+    if(board.status!=='active'||!['steps','workouts','calories_burned'].includes(board.metric))continue;
+    var value=automaticValue(board),mineNow=me(board);if(value==null){missingMetric=board.metric;continue}lastValue=value;if(Number(mineNow?.todayValue)===value)continue;
+    var source=board.metric==='calories_burned'?'calories':board.metric;
+    var result=await api({method:'POST',body:JSON.stringify({action:'score',challengeId:board.id,metric:board.metric,date:today(),value:value,source:source})});boards=result.boards||boards;updated++;
    }
-   render();if(announce){if(updated)window.toast?.((lastValue??0).toLocaleString()+' '+(one?.metric==='steps'?'steps':'today’s score')+' synced');else if(missing)setStatus('No step total is available yet. Connect your phone or enter today’s steps.',true);else window.toast?.('Today’s challenge score is already current')}return updated;
+   render();if(announce){if(updated){var unit=one?.metric==='steps'?'steps':one?.metric==='workouts'?(lastValue===1?'workout':'workouts'):'active calories';window.toast?.((lastValue??0).toLocaleString()+' '+unit+' synced')}else if(missingMetric==='steps')setStatus('No step total is available yet. Connect your phone or enter today’s steps.',true);else if(missingMetric==='calories_burned')setStatus('No active-calorie total is available yet. Connect your phone or enter today’s calories.',true);else window.toast?.('Today’s challenge score is already current')}return updated;
   }catch(error){setStatus(error.message||'Could not sync today\'s score.',true)}finally{syncing=false}
  }
  async function syncChallenge(board){
@@ -100,6 +107,14 @@
    else if(typeof syncNativeSteps==='function')steps=await syncNativeSteps({announce:false,force:true});
    if(steps==null){setStatus('Could not read today’s steps. Allow '+String(bridge.provider||'phone health')+' access and try again.',true);return}
   }
+  if(board.metric==='calories_burned'){
+   var calorieBridge=typeof nativeActivityCalories==='function'?nativeActivityCalories():null,calories=null;
+   if(!calorieBridge?.available){setStatus('Enter today’s active calories above, then tap Update calories.',true);return}
+   if(!calorieBridge.enabled?.()&&typeof connectNativeActivityCalories==='function')calories=await connectNativeActivityCalories();
+   else if(typeof syncNativeActivityCalories==='function')calories=await syncNativeActivityCalories({force:true});
+   if(calories==null){setStatus('Could not read today’s active calories. Allow '+String(calorieBridge.provider||'phone health')+' access and try again.',true);return}
+  }
+  if(board.metric==='workouts'&&automaticValue(board)===0&&Number(me(board)?.todayValue||0)===0){setStatus('No completed workout is saved for today yet. Mark it complete in Training, then try again.',true);return}
   await syncAutomatic(board,true);
  }
  async function submitCreate(form){
@@ -150,6 +165,7 @@
  document.addEventListener('keydown',function(event){if(event.key==='Escape'&&!root()?.hidden)closeChallenges()});
  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&!root()?.hidden)load({quiet:true})});
  window.addEventListener('wgp-native-resume',function(){if(!root()?.hidden)setTimeout(function(){syncAutomatic()},1500)});
+ window.addEventListener('wgp:workout-history-changed',function(){if(A.session?.access_token)setTimeout(function(){load({quiet:true})},150)});
  window.addEventListener('wgc:authchange',function(){if(reopenAfterAuth&&A.session?.access_token){reopenAfterAuth=false;setTimeout(function(){openChallenges()},200)}else if(!root()?.hidden)load()});
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
  new MutationObserver(addEntryPoint).observe(document.documentElement,{subtree:true,childList:true});

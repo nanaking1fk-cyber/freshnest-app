@@ -48,7 +48,7 @@ NUTRITION THAT FITS THE WEEK
 • Get calorie, macro and meal guidance aligned with your goal and schedule
 • Log food, water and familiar meals
 • Search foods or scan supported barcodes
-• See automatic daily step progress from Apple Health after you connect it
+• Sync daily steps and active calories from Apple Health after you connect it
 • Track weight, measurements and recovery context
 
 PRIVATE AND IN YOUR CONTROL
@@ -101,7 +101,7 @@ Do **not** select Payment Info: any future App Store payment details are handled
 
 The health-data rows should be marked as linked to identity because optional private account sync and personalized AI can associate those records with an authenticated account after separate consent. Product-page disclosure should reflect the most data-intensive optional path, not only the default local-only state.
 
-The HealthKit integration requests read-only access to Step Count only, and only after the user chooses **Connect Apple Health** in Health & steps. The app does not write HealthKit data, request location for step tracking, or use HealthKit data for advertising. It stores the daily aggregate in the existing local health diary; that value leaves the device only if the user separately enables an account sync or personalized AI feature that includes health context.
+The HealthKit integration requests read-only access to Step Count when the user connects phone steps and Active Energy Burned when the user chooses to sync a calorie challenge. The app does not write HealthKit data, request location for activity tracking, or use HealthKit data for advertising. Daily aggregates are stored in the existing local health diary. Only the aggregate score for a challenge the user deliberately joined is sent to that private challenge board; underlying HealthKit records are not sent to challenge participants.
 
 ## Required declarations
 
@@ -124,7 +124,7 @@ To test:
 3. With a verified AI Plus review account, open Calendar → Add → Work → Import roster → Type or paste: “Work Monday–Thursday 7 AM–7 PM. Dentist Tuesday at 2. Buy groceries before Friday. Gym three times this week.”
 4. Review the proposals, confidence and conflict warnings before saving.
 5. Open Training and Nutrition to inspect/log the generated plan.
-6. Open More → Health & steps, choose Connect Apple Health, and allow Step Count. The permission sheet appears only after this action. Return to Home to see the daily step total; use Refresh to read it again. Denying access leaves manual step entry and file import available.
+6. Open More → Health & steps, choose Connect Apple Health, and allow Step Count. The permission sheet appears only after this action. Return to Home to see the daily step total; use Refresh to read it again. In a Calories Burned challenge, choose Connect Apple Health & sync calories to request Active Energy Burned. Denying either permission leaves manual challenge entry available.
 7. Open Profile → Account & privacy to test saved privacy choices, restore, sign out and permanent account deletion. Use a disposable review account for the deletion test.
 
 8. Test Work hours & pay: configure a sample hourly rate and overtime rules, review planned versus confirmed shifts, and export. Pay is an estimate, not a payroll or tax calculation; do not advertise legally guaranteed wages or automatic jurisdiction-specific taxation.

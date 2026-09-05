@@ -1,6 +1,7 @@
 {
   "permissions": {
-    "STEPS": "Read"
+    "STEPS": "Read",
+    "CALORIES_BURNED": "Read"
   },
   "groupPermissions": {},
   "disableBackgroundJobs": true,

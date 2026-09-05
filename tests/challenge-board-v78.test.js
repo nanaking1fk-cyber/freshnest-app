@@ -102,12 +102,15 @@ test('client supports four challenge types, automatic daily totals, manual score
  for(const value of ['steps','workouts','calories_burned','custom'])assert.match(client,new RegExp(value));
  assert.match(client,/workouts:\{[^\n]+suggested:1[^\n]+cadence:'daily'/);assert.match(client,/calories_burned:\{[^\n]+cadence:'total'/);
  assert.match(client,/healthDay\(today\(\)\)/);assert.match(client,/workoutHistory\(\)/);
- assert.match(client,/session\?\.completed&&session\.date===today\(\)/);
+ assert.match(client,/session\.date===today\(\)\|\|completedDay===today\(\)/);
  assert.match(client,/Join &amp; share my score/);assert.match(client,/navigator\.share/);assert.match(client,/navigator\.clipboard/);
  assert.match(client,/setInterval\([\s\S]*30000/);assert.match(client,/document\.visibilityState/);
  assert.match(client,/data-challenge-leave/);assert.match(client,/data-challenge-archive/);
  assert.match(client,/Connect .*? &amp; sync/);assert.match(client,/Enter today’s steps/);assert.match(client,/Enter steps manually/);assert.match(client,/source:board\.metric==='steps'\?'steps'/);
  assert.match(client,/Today’s challenge score is already current/);assert.match(client,/force:true/);
+ assert.match(client,/wgp:workout-history-changed/);assert.match(client,/No completed workout is saved for today yet/);
+ assert.match(client,/nativeActivityCalories\(\)/);assert.match(client,/connectNativeActivityCalories\(\)/);assert.match(client,/activeCalories/);
+ assert.match(client,/source=board\.metric==='calories_burned'\?'calories':board\.metric/);
  assert.match(client,/today · .* days completed/);
  assert.match(client,/URLSearchParams\(location\.search\)\.get\('challenge'\)/);assert.match(client,/searchParams\.delete\('challenge'\)/);
  assert.doesNotMatch(client,/localStorage\.(?:setItem|removeItem)/);

@@ -119,3 +119,45 @@ test('iPhone step challenges connect Apple Health before sending today’s total
  expect(scoreBody).toMatchObject({action:'score',metric:'steps',value:4321,source:'steps',date:'2026-09-04'});
  expect(errors).toEqual([]);
 });
+
+test('finishing a workout today automatically updates the workout challenge',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ let scoreBody=null,currentBoards=[board([member('Maya',1,true,0)],{title:'Daily workout',metric:'workouts',unitLabel:'workouts',targetValue:1,cadence:'daily'})];
+ await page.route('**/api/v18/challenges**',route=>{
+  if(route.request().method()==='GET')return route.fulfill({json:{ok:true,boards:currentBoards}});
+  scoreBody=route.request().postDataJSON();currentBoards=[board([member('Maya',1,true,1)],{title:'Daily workout',metric:'workouts',unitLabel:'workouts',targetValue:1,cadence:'daily'})];
+  return route.fulfill({json:{ok:true,boards:currentBoards}});
+ });
+ const errors=await start(page);
+ await page.evaluate(()=>window.WWChallenges.open());
+ await page.getByRole('button',{name:/Daily workout/}).click();
+ await page.evaluate(()=>{
+  localStorage.setItem('wgp-v15-training-history',JSON.stringify([{id:'session-today',date:'2026-09-03',completed:true,completedAt:'2026-09-04T15:05:00Z',exercises:[]}]))
+  window.dispatchEvent(new CustomEvent('wgp:workout-history-changed'));
+ });
+ await expect(page.locator('.challengeYourProgressV78 strong')).toContainText('1 / 1 workouts today');
+ expect(scoreBody).toMatchObject({action:'score',metric:'workouts',value:1,source:'workouts',date:'2026-09-04'});
+ expect(errors).toEqual([]);
+});
+
+test('iPhone calorie challenges read Apple Health active energy before syncing',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ let scoreBody=null,currentBoards=[board([member('Maya',1,true,0)],{title:'Movement challenge',metric:'calories_burned',unitLabel:'kcal burned',targetValue:2500,cadence:'total'})];
+ await page.addInitScript(()=>{
+  window.__challengeCaloriesConnected=false;
+  window.WGPNative={activityCalories:{available:true,provider:'Apple Health',enabled:()=>window.__challengeCaloriesConnected,connect:async()=>{window.__challengeCaloriesConnected=true;return{activeCalories:612,platform:'ios',syncedAt:'2026-09-04T15:00:00Z'}},read:async()=>({activeCalories:612,platform:'ios',syncedAt:'2026-09-04T15:00:00Z'})}};
+ });
+ await page.route('**/api/v18/challenges**',route=>{
+  if(route.request().method()==='GET')return route.fulfill({json:{ok:true,boards:currentBoards}});
+  scoreBody=route.request().postDataJSON();currentBoards=[board([member('Maya',1,true,612)],{title:'Movement challenge',metric:'calories_burned',unitLabel:'kcal burned',targetValue:2500,cadence:'total'})];
+  return route.fulfill({json:{ok:true,boards:currentBoards}});
+ });
+ const errors=await start(page);
+ await page.evaluate(()=>window.WWChallenges.open());
+ await page.getByRole('button',{name:/Movement challenge/}).click();
+ await expect(page.getByText('Enter calories manually')).toBeVisible();
+ await page.getByRole('button',{name:'Connect Apple Health & sync calories'}).click();
+ await expect(page.locator('.challengeYourProgressV78 strong')).toContainText('612 of 2,500 kcal burned');
+ expect(scoreBody).toMatchObject({action:'score',metric:'calories_burned',value:612,source:'calories',date:'2026-09-04'});
+ expect(errors).toEqual([]);
+});

@@ -18,7 +18,7 @@ The identifier becomes difficult to change after the first store record or uploa
 - The same v30.1.31 landing page, account lifecycle and adaptive onboarding as production.
 - Schedule photo/PDF/text ingestion with review-before-save, recurring rotations, multi-source calendars, conflicts and overtime indicators.
 - Training planning/logging, exercise guidance and history.
-- Nutrition planning/logging, food search, barcode capture, automatic daily steps and recovery/body metrics.
+- Nutrition planning/logging, food search, barcode capture, automatic daily steps, active-calorie challenge syncing and recovery/body metrics.
 - Account sync, AI Coach and Google/Outlook calendar connections through the production HTTPS API.
 - Public privacy, terms, support and account-deletion pages.
 - Application JavaScript, images, videos, fonts and OCR/PDF libraries stored in the native bundle. There is no remote web-runtime URL and no service worker inside the app runtime.

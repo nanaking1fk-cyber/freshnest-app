@@ -2,7 +2,7 @@
 window.WGC18=window.WGC18||{};
 (function(A){
  const CONSENT_VERSION='2026-08-31-v1';
- const POLICY_VERSION='1.6';
+ const POLICY_VERSION='1.7';
  const TERMS_VERSION='1.2';
  const AGREEMENT_STATEMENT='I agree to the Terms of Use and acknowledge the Privacy & Consumer Health Data Policy.';
  const LOCAL_PREFIX='wgc-health-consent-v35:';

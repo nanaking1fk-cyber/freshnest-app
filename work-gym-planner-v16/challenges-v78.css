@@ -1,0 +1,142 @@
+body.premiumV30.challengeOpenV78{overflow:hidden}
+body.premiumV30 #page-more #openChallengesV78>span{display:grid;place-items:center;background:linear-gradient(145deg,rgba(214,255,63,.18),rgba(103,220,223,.08));color:var(--lime,#d6ff3f)}
+body.premiumV30 #challengeDialogV78[hidden]{display:none!important}
+body.premiumV30 #challengeDialogV78{position:fixed;z-index:1200;inset:0;display:grid;place-items:center;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));font-family:var(--ww-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);color:#f5f7f2;opacity:0;transition:opacity .18s ease}
+body.premiumV30 #challengeDialogV78.open{opacity:1}
+body.premiumV30 #challengeDialogV78 .challengeBackdropV78{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:rgba(2,5,7,.82);backdrop-filter:blur(14px)}
+body.premiumV30 #challengeDialogV78 .challengeSheetV78{position:relative;width:min(100%,720px);max-height:min(900px,calc(100dvh - max(36px,env(safe-area-inset-top) + env(safe-area-inset-bottom))));overflow:auto;overscroll-behavior:contain;border:1px solid rgba(255,255,255,.12);border-radius:30px;background:linear-gradient(160deg,#12191d 0%,#0a1013 62%,#080d0f 100%);box-shadow:0 36px 120px rgba(0,0,0,.62);outline:none;transform:translateY(18px) scale(.985);transition:transform .2s ease}
+body.premiumV30 #challengeDialogV78.open .challengeSheetV78{transform:none}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78{position:sticky;z-index:5;top:0;display:grid;grid-template-columns:44px 1fr 44px;align-items:start;gap:12px;padding:20px 22px 18px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(12,18,21,.94);backdrop-filter:blur(18px)}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78>span{width:44px}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78>button{width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(255,255,255,.035);color:#f5f7f2;font-size:22px;line-height:1}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78>button:hover{border-color:rgba(214,255,63,.45);background:rgba(214,255,63,.08)}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78 div{text-align:center}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78 p{margin:0 0 4px;color:#d6ff3f;font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78 h2{margin:0;color:#f7faf5;font-size:clamp(20px,4vw,27px);line-height:1.05;letter-spacing:-.035em}
+body.premiumV30 #challengeDialogV78 .challengeHeadV78 small{display:block;margin-top:6px;color:#91a09a;font-size:12px;line-height:1.35}
+body.premiumV30 #challengeDialogV78 main{padding:22px}
+body.premiumV30 #challengeDialogV78 button,body.premiumV30 #challengeDialogV78 input,body.premiumV30 #challengeDialogV78 select{font:inherit}
+body.premiumV30 #challengeDialogV78 button{cursor:pointer}
+body.premiumV30 #challengeDialogV78 .primary{border-color:#d6ff3f;background:#d6ff3f;color:#11170c;box-shadow:0 12px 32px rgba(214,255,63,.12);font-weight:750}
+body.premiumV30 #challengeDialogV78.busy button{pointer-events:none;opacity:.66}
+body.premiumV30 #challengeDialogV78 .challengeHeroV78{display:grid;grid-template-columns:1fr auto;align-items:center;gap:20px;padding:25px;border:1px solid rgba(214,255,63,.22);border-radius:25px;background:radial-gradient(circle at 92% 15%,rgba(214,255,63,.15),transparent 10rem),linear-gradient(145deg,rgba(214,255,63,.06),rgba(255,255,255,.025))}
+body.premiumV30 #challengeDialogV78 .challengeHeroV78 p{margin:0 0 8px;color:#d6ff3f;font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em}
+body.premiumV30 #challengeDialogV78 .challengeHeroV78 h3{max-width:420px;margin:0;font-size:clamp(23px,5vw,34px);line-height:1.02;letter-spacing:-.045em}
+body.premiumV30 #challengeDialogV78 .challengeHeroV78 div>span{display:block;margin-top:11px;color:#9da8a3;font-size:13px}
+body.premiumV30 #challengeDialogV78 .challengeHeroV78>span{display:grid;place-items:center;width:78px;height:78px;border:1px solid rgba(214,255,63,.32);border-radius:24px;background:rgba(4,8,10,.52);font-size:37px;transform:rotate(3deg)}
+body.premiumV30 #challengeDialogV78 .challengePrimaryActionsV78{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 25px}
+body.premiumV30 #challengeDialogV78 .challengePrimaryActionsV78 button{min-height:52px;border-radius:16px}
+body.premiumV30 #challengeDialogV78 .challengeSectionV78>header,body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78>header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 2px 10px}
+body.premiumV30 #challengeDialogV78 .challengeSectionV78>header h3,body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78>header h3{margin:0;font-size:17px;letter-spacing:-.02em}
+body.premiumV30 #challengeDialogV78 .challengeSectionV78>header span,body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78>header span{color:#82908a;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+body.premiumV30 #challengeDialogV78 .challengeCardV78{width:100%;display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:14px;margin:8px 0;padding:16px;border:1px solid rgba(255,255,255,.1);border-radius:19px;background:rgba(255,255,255,.03);color:inherit;text-align:left}
+body.premiumV30 #challengeDialogV78 .challengeCardV78:hover{border-color:rgba(214,255,63,.4);background:rgba(214,255,63,.055)}
+body.premiumV30 #challengeDialogV78 .challengeMetricV78{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:rgba(214,255,63,.1);color:#d6ff3f;font-size:22px;font-weight:800}
+body.premiumV30 #challengeDialogV78 .challengeCardV78 small{color:#8e9b95;font-size:10px;text-transform:uppercase;letter-spacing:.07em}
+body.premiumV30 #challengeDialogV78 .challengeCardV78 h3{margin:4px 0 3px;font-size:17px;line-height:1.15}
+body.premiumV30 #challengeDialogV78 .challengeCardV78 p{margin:0;color:#aab4af;font-size:12px}
+body.premiumV30 #challengeDialogV78 .challengeCardV78 i,body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>i,body.premiumV30 #challengeDialogV78 .challengePersonV78 div>i{display:block;height:4px;margin-top:10px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.09)}
+body.premiumV30 #challengeDialogV78 .challengeCardV78 i em,body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>i em,body.premiumV30 #challengeDialogV78 .challengePersonV78 div>i em{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#d6ff3f,#64d9dc)}
+body.premiumV30 #challengeDialogV78 .challengeCardV78>b{min-width:38px;color:#d6ff3f;font-size:18px;text-align:right}
+body.premiumV30 #challengeDialogV78 .challengeEmptyV78{padding:28px 18px;text-align:center;border:1px dashed rgba(255,255,255,.14);border-radius:22px}
+body.premiumV30 #challengeDialogV78 .challengeEmptyMarkV78{display:flex;justify-content:center;align-items:end;height:54px;margin-bottom:15px}
+body.premiumV30 #challengeDialogV78 .challengeEmptyMarkV78 i{display:grid;place-items:center;width:38px;height:38px;margin:0 -2px;border:2px solid #0c1215;border-radius:50%;background:#1d282c;color:#d6ff3f;font-size:12px;font-style:normal}
+body.premiumV30 #challengeDialogV78 .challengeEmptyMarkV78 i:nth-child(2){width:48px;height:48px;background:#d6ff3f;color:#11170c}
+body.premiumV30 #challengeDialogV78 .challengeEmptyV78 h3{margin:0;font-size:20px}
+body.premiumV30 #challengeDialogV78 .challengeEmptyV78 p{max-width:430px;margin:8px auto 15px;color:#96a19c;line-height:1.5}
+body.premiumV30 #challengeDialogV78 .challengeEmptyV78>div:last-child{display:flex;justify-content:center;flex-wrap:wrap;gap:7px}
+body.premiumV30 #challengeDialogV78 .challengeEmptyV78>div:last-child span{padding:7px 10px;border-radius:99px;background:rgba(255,255,255,.055);color:#bdc5c0;font-size:11px}
+body.premiumV30 #challengeDialogV78 .challengePastV78{margin-top:20px;padding-top:6px;border-top:1px solid rgba(255,255,255,.08)}
+body.premiumV30 #challengeDialogV78 .challengePastV78>summary,body.premiumV30 #challengeDialogV78 .challengeOptionsV78>summary,body.premiumV30 #challengeDialogV78 .challengePrivacyV78>summary{padding:12px 2px;color:#aeb8b3;cursor:pointer;font-size:13px;font-weight:700}
+body.premiumV30 #challengeDialogV78 .challengePrivacyV78{margin-top:18px;border-top:1px solid rgba(255,255,255,.075)}
+body.premiumV30 #challengeDialogV78 .challengePrivacyV78 p,body.premiumV30 #challengeDialogV78 .challengeOptionsV78 p{margin:0 2px 10px;color:#84918b;font-size:12px;line-height:1.55}
+body.premiumV30 #challengeDialogV78 .challengeFormV78{display:grid;gap:16px;padding:22px}
+body.premiumV30 #challengeDialogV78 .challengeFormV78 fieldset{min-width:0;margin:0;padding:0;border:0}
+body.premiumV30 #challengeDialogV78 .challengeFormV78 legend{margin-bottom:10px;color:#c8cfcb;font-size:12px;font-weight:700}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoicesV78{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78{position:relative;display:grid;place-items:center;min-height:90px;padding:12px 7px;border:1px solid rgba(255,255,255,.1);border-radius:17px;background:rgba(255,255,255,.025);text-align:center;cursor:pointer}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78:has(input:checked){border-color:#d6ff3f;background:rgba(214,255,63,.08);box-shadow:inset 0 0 0 1px rgba(214,255,63,.16)}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78 input{position:absolute;opacity:0;pointer-events:none}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78 span{color:#d6ff3f;font-size:23px}
+body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78 b{margin-top:7px;font-size:11px;line-height:1.15}
+body.premiumV30 #challengeDialogV78 .challengeFormV78>label,body.premiumV30 #challengeDialogV78 .challengeGoalRowV78 label,body.premiumV30 #challengeDialogV78 .challengeScoreV78 label{display:grid;gap:7px;color:#bdc6c1;font-size:11px;font-weight:700}
+body.premiumV30 #challengeDialogV78 .challengeFormV78 input,body.premiumV30 #challengeDialogV78 .challengeFormV78 select,body.premiumV30 #challengeDialogV78 .challengeScoreV78 input{width:100%;min-height:50px;box-sizing:border-box;padding:0 14px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#080d10;color:#f7faf5;outline:none}
+body.premiumV30 #challengeDialogV78 .challengeFormV78 input:focus,body.premiumV30 #challengeDialogV78 .challengeFormV78 select:focus,body.premiumV30 #challengeDialogV78 .challengeScoreV78 input:focus{border-color:#d6ff3f;box-shadow:0 0 0 3px rgba(214,255,63,.1)}
+body.premiumV30 #challengeDialogV78 .challengeGoalRowV78{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+body.premiumV30 #challengeDialogV78 .challengeCustomUnitV78[hidden]{display:none}
+body.premiumV30 #challengeDialogV78 .challengeShareNoticeV78{padding:14px 16px;border:1px solid rgba(100,217,220,.18);border-radius:15px;background:rgba(100,217,220,.045)}
+body.premiumV30 #challengeDialogV78 .challengeShareNoticeV78 b{font-size:12px}
+body.premiumV30 #challengeDialogV78 .challengeShareNoticeV78 p{margin:4px 0 0;color:#92a09a;font-size:12px;line-height:1.45}
+body.premiumV30 #challengeDialogV78 .challengeFormV78>button[type=submit]{position:sticky;bottom:10px;z-index:3;min-height:54px;border-radius:16px}
+body.premiumV30 #challengeDialogV78 .challengeJoinMarkV78{display:grid;place-items:center;width:76px;height:76px;margin:5px auto 2px;border:1px solid rgba(214,255,63,.3);border-radius:24px;background:rgba(214,255,63,.07);color:#d6ff3f;font-size:34px}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78{display:grid;place-items:center;min-height:450px;text-align:center}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78>span{display:grid;place-items:center;width:90px;height:90px;border:1px solid rgba(214,255,63,.28);border-radius:28px;background:rgba(214,255,63,.07);font-size:42px}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78 h3{margin:20px 0 8px;font-size:26px;letter-spacing:-.035em}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78>p{max-width:420px;margin:0;color:#98a49e;line-height:1.5}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78>button{min-width:230px;min-height:52px;margin-top:22px;border-radius:16px}
+body.premiumV30 #challengeDialogV78 .challengeSignedOutV78 .challengePrivacyV78{width:100%;align-self:end;text-align:left}
+body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:14px;padding:18px;border:1px solid rgba(214,255,63,.2);border-radius:21px;background:linear-gradient(145deg,rgba(214,255,63,.07),rgba(255,255,255,.025))}
+body.premiumV30 #challengeDialogV78 .challengeBoardIconV78{display:grid;place-items:center;width:56px;height:56px;border-radius:17px;background:#d6ff3f;color:#11170c;font-size:25px;font-weight:850}
+body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78 span{color:#d6ff3f;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
+body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78 h3{margin:4px 0 2px;font-size:17px}
+body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78 p{margin:0;color:#8f9b95;font-size:11px}
+body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78>button{min-height:40px;padding:0 15px;border-radius:13px}
+body.premiumV30 #challengeDialogV78 .challengeYourProgressV78{display:grid;grid-template-columns:1fr auto;gap:5px;margin:12px 0;padding:18px;border:1px solid rgba(255,255,255,.1);border-radius:19px;background:rgba(255,255,255,.03)}
+body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>span{color:#919d97;font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>b{grid-row:span 2;color:#d6ff3f;font-size:27px;line-height:1}
+body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>strong{font-size:15px}
+body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>i{grid-column:1/-1}
+body.premiumV30 #challengeDialogV78 .challengeScoreV78{display:grid;grid-template-columns:1fr auto;align-items:end;gap:10px;margin:12px 0;padding:14px;border:1px solid rgba(100,217,220,.15);border-radius:18px;background:rgba(100,217,220,.035)}
+body.premiumV30 #challengeDialogV78 .challengeScoreV78 button{min-height:50px;border-radius:14px}
+body.premiumV30 #challengeDialogV78 .challengeSyncV78{width:100%;min-height:49px;margin:0 0 12px;border-radius:15px}
+body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78{margin-top:20px}
+body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78 ol{margin:0;padding:0;list-style:none}
+body.premiumV30 #challengeDialogV78 .challengePersonV78{display:grid;grid-template-columns:24px 42px 1fr auto;align-items:center;gap:11px;padding:13px 6px;border-bottom:1px solid rgba(255,255,255,.07)}
+body.premiumV30 #challengeDialogV78 .challengePersonV78.isYou{margin:3px -8px;padding:13px 14px;border:1px solid rgba(214,255,63,.17);border-radius:16px;background:rgba(214,255,63,.045)}
+body.premiumV30 #challengeDialogV78 .challengePersonV78>b{color:#7f8c86;font:700 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-align:center}
+body.premiumV30 #challengeDialogV78 .challengeAvatarV78{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#222d31;color:#d6ff3f;font-weight:800}
+body.premiumV30 #challengeDialogV78 .challengePersonV78 h4{margin:0;font-size:14px}
+body.premiumV30 #challengeDialogV78 .challengePersonV78 h4 small{margin-left:5px;color:#d6ff3f;font-size:8px;letter-spacing:.08em}
+body.premiumV30 #challengeDialogV78 .challengePersonV78 p{margin:3px 0 0;color:#8d9993;font-size:11px}
+body.premiumV30 #challengeDialogV78 .challengePersonV78 strong{min-width:42px;text-align:right;font-size:16px}
+body.premiumV30 #challengeDialogV78 .challengeInviteV78{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:22px;padding:16px;border:1px dashed rgba(214,255,63,.28);border-radius:18px;background:rgba(214,255,63,.035)}
+body.premiumV30 #challengeDialogV78 .challengeInviteV78 span{display:block;color:#85928c;font-size:8px;letter-spacing:.14em}
+body.premiumV30 #challengeDialogV78 .challengeInviteV78 b{display:block;margin-top:4px;font:750 19px/1.1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.1em}
+body.premiumV30 #challengeDialogV78 .challengeInviteV78 button{min-height:42px;border-radius:13px}
+body.premiumV30 #challengeDialogV78 .challengeOptionsV78{margin-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+body.premiumV30 #challengeDialogV78 .challengeOptionsV78 button{min-height:42px;padding:0 14px;border-color:rgba(255,100,110,.25);border-radius:13px;color:#ff9399}
+body.premiumV30 #challengeDialogV78 .challengeStatusV78{position:sticky;z-index:6;bottom:0;min-height:0;margin:0;padding:0 22px;background:#0a1013;color:#aeb8b3;font-size:12px;text-align:center}
+body.premiumV30 #challengeDialogV78 .challengeStatusV78:not(:empty){padding:12px 22px;border-top:1px solid rgba(255,255,255,.08)}
+body.premiumV30 #challengeDialogV78 .challengeStatusV78.bad{color:#ff9da2}
+
+@media(max-width:720px){
+ body.premiumV30 #challengeDialogV78{place-items:end center;padding:0}
+ body.premiumV30 #challengeDialogV78 .challengeSheetV78{width:100%;max-height:calc(100dvh - env(safe-area-inset-top));border-right:0;border-bottom:0;border-left:0;border-radius:26px 26px 0 0;padding-bottom:env(safe-area-inset-bottom);transform:translateY(30px)}
+ body.premiumV30 #challengeDialogV78 .challengeHeadV78{padding:15px 16px 14px}
+ body.premiumV30 #challengeDialogV78 main,body.premiumV30 #challengeDialogV78 .challengeFormV78{padding:16px}
+ body.premiumV30 #challengeDialogV78 .challengeHeroV78{padding:20px}
+ body.premiumV30 #challengeDialogV78 .challengeHeroV78>span{width:58px;height:58px;border-radius:18px;font-size:28px}
+ body.premiumV30 #challengeDialogV78 .challengeMetricChoicesV78{grid-template-columns:1fr 1fr}
+ body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78{min-height:72px;grid-template-columns:auto 1fr;justify-items:start;gap:9px;text-align:left}
+ body.premiumV30 #challengeDialogV78 .challengeMetricChoiceV78 b{margin:0}
+ body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78{grid-template-columns:48px 1fr}
+ body.premiumV30 #challengeDialogV78 .challengeBoardIconV78{width:48px;height:48px}
+ body.premiumV30 #challengeDialogV78 .challengeBoardHeroV78>button{grid-column:1/-1;width:100%}
+}
+@media(max-width:430px){
+ body.premiumV30 #challengeDialogV78 .challengeHeadV78{grid-template-columns:39px 1fr 39px;gap:7px}
+ body.premiumV30 #challengeDialogV78 .challengeHeadV78>button{width:38px;height:38px}
+ body.premiumV30 #challengeDialogV78 .challengeHeadV78 small{display:none}
+ body.premiumV30 #challengeDialogV78 .challengePrimaryActionsV78,body.premiumV30 #challengeDialogV78 .challengeGoalRowV78{grid-template-columns:1fr}
+ body.premiumV30 #challengeDialogV78 .challengeHeroV78 h3{font-size:23px}
+ body.premiumV30 #challengeDialogV78 .challengeHeroV78 div>span{font-size:11px;line-height:1.4}
+ body.premiumV30 #challengeDialogV78 .challengeCardV78{grid-template-columns:42px 1fr auto;padding:13px;gap:10px}
+ body.premiumV30 #challengeDialogV78 .challengeMetricV78{width:42px;height:42px}
+ body.premiumV30 #challengeDialogV78 .challengePersonV78{grid-template-columns:20px 36px 1fr auto;gap:8px}
+ body.premiumV30 #challengeDialogV78 .challengeAvatarV78{width:36px;height:36px}
+ body.premiumV30 #challengeDialogV78 .challengeScoreV78{grid-template-columns:1fr}
+ body.premiumV30 #challengeDialogV78 .challengeInviteV78{align-items:stretch;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+ body.premiumV30 #challengeDialogV78,body.premiumV30 #challengeDialogV78 .challengeSheetV78{transition:none}
+}

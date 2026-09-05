@@ -17,7 +17,7 @@ test('one server receipt atomically saves terms and an explicit all-off decision
  const rows=fixture(t);
  const saved=await lib.recordHealthConsent('test-owner','Bearer fixture',{action:'withdrawn',purposes:[],termsConfirmed:true,termsVersion:'1.2'});
  assert.equal(saved.action,'withdrawn');assert.equal(saved.purposes.length,0);
- assert.equal(saved.agreement.termsVersion,'1.2');assert.equal(saved.agreement.privacyVersion,'1.6');
+ assert.equal(saved.agreement.termsVersion,'1.2');assert.equal(saved.agreement.privacyVersion,'1.7');
  assert.equal(saved.agreement.statement,agreement.statement);assert.ok(Date.parse(saved.agreement.acceptedAt));
  assert.equal(rows.length,1);assert.equal(rows[0].user_id,'test-owner');
 });

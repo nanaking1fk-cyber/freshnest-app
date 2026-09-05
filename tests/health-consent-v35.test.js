@@ -80,8 +80,8 @@ test('server recognizes only the current version and selected purpose',()=>{
   const browser=read('work-gym-planner-v16/health-consent-v35.js');
   const server=read('server/v18-lib.js');
   const statement='I agree to the selected uses of my health and wellness data. I can change my mind at any time.';
-  assert.match(browser,/POLICY_VERSION='1\.6'/);
-  assert.match(server,/HEALTH_POLICY_VERSION='1\.6'/);
+  assert.match(browser,/POLICY_VERSION='1\.7'/);
+  assert.match(server,/HEALTH_POLICY_VERSION='1\.7'/);
   assert.match(browser,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.match(server,new RegExp(statement.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   const receipt={action:'granted',consentVersion:'2026-08-31-v1',purposes:['account_cloud_sync']};
@@ -124,7 +124,7 @@ test('consent module is ordered before autosync and remains in offline/native re
 
 test('published policy describes the implemented global consent controls',()=>{
   const privacy=read('work-gym-planner/privacy.html');
-  assert.match(privacy,/Version:<\/strong> 1\.6/);
+  assert.match(privacy,/Version:<\/strong> 1\.7/);
   assert.match(privacy,/one short privacy step in plain language/);
   assert.match(privacy,/not requested again for every scan or AI request/);
   assert.match(privacy,/Leaving optional features off/);

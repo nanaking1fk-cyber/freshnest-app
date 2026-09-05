@@ -25,7 +25,7 @@
     <p class="eyebrow">Privacy &amp; health data</p>
     <h1>Privacy &amp; Consumer Health Data Policy</h1>
     <p class="lead">This policy explains what Work + Workout collects, why we use it, where it goes, how long it remains, and the choices you have—especially for nutrition, fitness, recovery and other health-related information.</p>
-    <div class="meta"><span><strong>Effective:</strong> September 2, 2026</span><span><strong>Version:</strong> 1.6</span><span><strong>Operator:</strong> Bibinii Farms Company Ltd</span></div>
+    <div class="meta"><span><strong>Effective:</strong> September 4, 2026</span><span><strong>Version:</strong> 1.7</span><span><strong>Operator:</strong> Bibinii Farms Company Ltd</span></div>
   </header>
   <div class="layout">
     <nav class="toc" aria-label="Policy contents">
@@ -59,6 +59,7 @@
           <tr><td>Fitness and activity</td><td>Training goals, experience, equipment, exercises, sets, repetitions, load, RIR, completed workouts, estimated strength and exercise preferences</td><td>When you build or log training</td></tr>
           <tr><td>Nutrition and food</td><td>Meals, individual foods, recipes, saved foods, serving sizes, calories and macros, food preferences, restrictions, cuisines, budget and barcode/search terms</td><td>When you set preferences or use the nutrition diary</td></tr>
           <tr><td>Body and recovery</td><td>Age or age range, height, weight, waist, body-fat estimate, sleep target and duration, steps, resting heart rate, recovery/readiness, calorie targets and body-composition goals</td><td>When you enter or import health/recovery information, or connect phone steps</td></tr>
+          <tr><td>Challenge boards</td><td>Invite-only challenge name, goal and dates; the display name you choose for that board; membership, daily aggregate score, rank and progress</td><td>When you create or intentionally join a challenge</td></tr>
           <tr><td>AI and submitted content</td><td>Questions, chat messages, selected planner context, AI onboarding answers, AI responses, and equipment or meal photos you intentionally submit</td><td>When you request an AI feature</td></tr>
           <tr><td>Connected services</td><td>Google or Microsoft account email/ID, calendar permission scopes, encrypted OAuth tokens, provider event IDs and sync status; WebDAV server URL and username stored on your device</td><td>When you connect an optional service</td></tr>
           <tr><td>Device, crash and operations</td><td>IP address and request metadata received by hosting providers; browser/app version, operating system, performance timing, error type and privacy-filtered message pattern, app-relative route and stack frames, crash/hang details, release version, timestamps, occurrence count and security logs</td><td>Automatically when the Service or an online feature is used, including after a native app reopens</td></tr>
@@ -83,7 +84,7 @@
         <h2>4. How and why we use data</h2>
         <p>We process data to:</p>
         <ul>
-          <li>provide the planner, diary, training history, recovery trends, reminders, backups and account sync you request;</li>
+          <li>provide the planner, diary, training history, recovery trends, invite-only challenge boards, reminders, backups and account sync you request;</li>
           <li>personalize schedules, fitness and nutrition suggestions around your stated goals, work pattern, availability and recovery;</li>
           <li>authenticate accounts, restore data across devices and protect each user’s records;</li>
           <li>run optional AI, food lookup, calendar sync, file import and private WebDAV features;</li>
@@ -101,11 +102,11 @@
         <h2>5. Consumer health data notice</h2>
         <p>Nutrition, exercise, body, sleep, heart-rate, recovery, schedule and wellness information—and inferences drawn from it—may be “consumer health data,” “special personal data” or “sensitive personal information” under applicable law.</p>
         <h3>Categories and purposes</h3>
-        <p>We collect the fitness, nutrition, body/recovery, schedule and AI categories listed in Section 2 to provide requested logging, planning, trend, sync and coaching features; keep your records available; and protect the Service. We do not collect additional health categories or use health data for a materially different purpose without giving the required notice and obtaining consent where required.</p>
+        <p>We collect the fitness, nutrition, body/recovery, challenge, schedule and AI categories listed in Section 2 to provide requested logging, planning, trend, sync, challenge-board and coaching features; keep your records available; and protect the Service. We do not collect additional health categories or use health data for a materially different purpose without giving the required notice and obtaining consent where required.</p>
         <h3>Health-data sources</h3>
         <p>Sources are you, files and photos you select, Apple Health or Health Connect when you intentionally connect phone steps, other services you intentionally connect, and estimates the app derives from those inputs. We do not buy health data from data brokers.</p>
         <h3>Health-data disclosures</h3>
-        <p>Depending on the feature you select, health data may be disclosed to Supabase (account storage/authentication), Vercel (API hosting), OpenAI (AI Coach, onboarding, equipment-image understanding, Meal Scan and optional roster reading), Google or Microsoft (calendar sync), Open Food Facts (food/barcode lookup), your chosen WebDAV provider, and app stores for subscription status where applicable. We have no affiliate that receives consumer health data for its own independent use.</p>
+        <p>Depending on the feature you select, health data may be disclosed to Supabase (account storage/authentication and invite-only challenge boards), Vercel (API hosting), OpenAI (AI Coach, onboarding, equipment-image understanding, Meal Scan and optional roster reading), Google or Microsoft (calendar sync), Open Food Facts (food/barcode lookup), your chosen WebDAV provider, app stores for subscription status where applicable, and the people on a challenge board you intentionally join as described in Section 6. We have no affiliate that receives consumer health data for its own independent use.</p>
         <h3>Your health-data rights</h3>
         <p>Where applicable, you may confirm whether we collect, share or sell consumer health data; access it; obtain a list of third parties and affiliates that received it; withdraw consent; and request deletion from us and the processors we control. You may exercise these rights through the controls described in Section 10 or by email. If we deny a request, reply with “Appeal” and the reason you disagree. We will provide a written appeal decision and, where required, information about contacting the relevant regulator.</p>
         <p>We will not discriminate against you for exercising a privacy right. We will obtain separate valid authorization before any sale of consumer health data. We do not use geofencing around healthcare facilities to identify, track, collect from or send health-related messages to people.</p>
@@ -113,6 +114,10 @@
 
       <section id="features">
         <h2>6. Feature-specific details</h2>
+        <h3 id="challenges">Invite-only challenge boards</h3>
+        <p>Challenge boards are optional and require a signed-in account. When you create a board or tap <strong>Join &amp; share my score</strong>, you direct us to show the other participants only the display name you choose for that board and your aggregate score, rank and progress. That clear action records the current challenge-sharing notice and time with your membership. Other participants do not receive your email address, account ID, meals, food entries, workout details, schedule, body measurements, health records or the source data behind a score.</p>
+        <p>For step and completed-workout challenges, the app reads the relevant total already on your device and sends only that day’s aggregate challenge number after you have joined. Calories-burned and custom goals use the number you enter. These values may be estimates, self-reported or incomplete. Boards are not public or searchable; people join with the private code or link a participant chooses to share. Anyone who receives a valid invitation may be able to join, so share it only with intended people.</p>
+        <p>You can leave a board at any time. Leaving immediately removes your membership, display name and scores from that board. A board owner can end a board; its final aggregate leaderboard then remains visible to its existing participants until they leave, delete their account or the board is deleted. Challenge data is hosted by Supabase and served through Vercel. It is not sent to OpenAI and is not used for advertising or employment decisions.</p>
         <h3>Local-first planner and account sync</h3>
         <p>Planner records are stored in browser/app storage. Creating or signing into an account does not by itself upload planner health data. When you separately consent to private account cloud sync and choose sync or migration, eligible schedule, training, nutrition, body, recovery, profile and settings records are uploaded to your private account. Authentication sessions are also stored on the device so you can remain signed in. WebDAV credentials, backup passphrases and private sync passwords are excluded from account migration.</p>
         <h3>Local Hours &amp; pay tracker</h3>
@@ -149,7 +154,7 @@
         <h2>7. When we disclose data</h2>
         <p>We do not disclose personal data except:</p>
         <ul>
-          <li><strong>At your direction</strong>, to run a feature, export/share a file, connect a calendar or send a backup to your chosen provider.</li>
+          <li><strong>At your direction</strong>, to run a feature, show your chosen display name and aggregate score to participants on an invite-only challenge board you join, export/share a file, connect a calendar or send a backup to your chosen provider.</li>
           <li><strong>To processors and infrastructure providers</strong> that help operate the Service, subject to their contracts and applicable law. Current providers include <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase</a>, <a href="https://vercel.com/legal/privacy-policy" rel="noopener noreferrer">Vercel</a>, <a href="https://openai.com/policies/privacy-policy/" rel="noopener noreferrer">OpenAI</a>, <a href="https://world.openfoodfacts.org/privacy" rel="noopener noreferrer">Open Food Facts</a>, Google and Microsoft.</li>
           <li><strong>For legal and safety reasons</strong>, if reasonably necessary to comply with law, respond to lawful process, protect rights or safety, investigate fraud, or secure the Service. We will limit disclosure where legally permitted.</li>
           <li><strong>In a business transaction</strong>, such as financing, merger, acquisition or asset transfer, subject to confidentiality and notice/consent obligations that apply to sensitive health data.</li>
@@ -166,7 +171,7 @@
         <h2>9. Retention and deletion</h2>
         <ul>
           <li><strong>Device data:</strong> remains until you delete it in the app, clear site/app storage, or uninstall/reset the app. Recovery snapshots are limited in the app, but device or system backups may retain copies.</li>
-          <li><strong>Account data:</strong> planner state, profile/onboarding data, generated plans, AI conversations, calendar connections and per-account usage records remain while your account is active unless you delete the relevant record or disconnect a service. Permanent account deletion removes the authentication user and associated cloud rows through database cascade.</li>
+          <li><strong>Account data:</strong> planner state, profile/onboarding data, generated plans, AI conversations, calendar connections, challenge memberships/scores and per-account usage records remain while your account is active unless you delete the relevant record, leave the challenge or disconnect a service. Permanent account deletion removes the authentication user and associated cloud rows through database cascade.</li>
           <li><strong>Consent receipts:</strong> versioned grants and withdrawals remain with the account as an accountability record. They are append-only so a later withdrawal does not rewrite the earlier grant. Permanent account deletion removes them through database cascade; limited legal-claim records may be retained where law permits.</li>
           <li><strong>Calendar authorization state:</strong> expires after approximately ten minutes and is cleared during later connection attempts. Encrypted tokens remain until disconnection, account deletion or provider revocation.</li>
           <li><strong>Error reports and operational logs:</strong> privacy-filtered incident rows are configured for deletion after approximately 90 days as new reports are processed, and rotating diagnostic rate-limit hashes after approximately seven days. Other hosting logs are retained only as long as reasonably necessary for security, fraud prevention, troubleshooting and legal compliance, according to our hosting configuration and provider retention schedules.</li>
@@ -182,6 +187,7 @@
           <li>Edit or delete individual meals, foods, workouts, measurements, schedule items and AI conversations in the app.</li>
           <li>Export a planner backup or diagnostics file from <strong>More → Data &amp; Backup</strong>.</li>
           <li>Disconnect Google or Outlook Calendar from calendar settings.</li>
+          <li>Leave an invite-only challenge to immediately remove your display name and scores from that board; owners can end a board.</li>
           <li>Connect, refresh or disconnect read-only Apple Health or Health Connect step access from <strong>More → Health &amp; steps</strong>, and revoke the permission in your phone settings.</li>
           <li>Delete device data from <strong>More → Data &amp; Backup</strong>.</li>
           <li>Permanently delete your account and associated cloud data from the account menu.</li>

@@ -174,7 +174,7 @@
   }
 
   var groups=[
-    {key:'plan',title:'Plan & coaching',hint:'Build the system around your real life',matches:['ai coach','workout library','personalized plan','personalize my plan','profile, work','profile & work','import a schedule']},
+    {key:'plan',title:'Plan & coaching',hint:'Build the system around your real life',matches:['challenges','ai coach','workout library','personalized plan','personalize my plan','profile, work','profile & work','import a schedule']},
     {key:'health',title:'Health & progress',hint:'Tune your training, nutrition and recovery',matches:['body stats','nutrition goals','health & recovery','reminders & calendar']},
     {key:'account',title:'Account & data',hint:'Your profile, sync, privacy and backups',matches:['account & sync','account & cloud','account & security','data & backup','about & privacy']},
     {key:'help',title:'Help & privacy',hint:'App tour, support, policies and system status',matches:['app tour','privacy policy','privacy & consumer health data policy','privacy & health data','privacy & terms','terms of use','terms','support','system check']}

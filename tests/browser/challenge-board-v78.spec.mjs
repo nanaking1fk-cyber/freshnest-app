@@ -23,6 +23,7 @@ async function start(page,url='/work-gym-planner/'){
  }}}));
  await page.route('**/_vercel/**',route=>route.fulfill({body:''}));
  await page.goto(url,{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>typeof window.WWChallenges?.open==='function');
  return errors;
 }
 

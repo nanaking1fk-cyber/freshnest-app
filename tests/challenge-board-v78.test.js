@@ -100,6 +100,7 @@ test('API validates a small signed-in action surface and never accepts identity 
 test('client supports four challenge types, automatic daily totals, manual scores and private sharing',()=>{
  const client=read('work-gym-planner-v16/challenges-v78.js');
  for(const value of ['steps','workouts','calories_burned','custom'])assert.match(client,new RegExp(value));
+ assert.match(client,/workouts:\{[^\n]+suggested:1[^\n]+cadence:'daily'/);assert.match(client,/calories_burned:\{[^\n]+cadence:'total'/);
  assert.match(client,/healthDay\(today\(\)\)/);assert.match(client,/workoutHistory\(\)/);
  assert.match(client,/session\?\.completed&&session\.date===today\(\)/);
  assert.match(client,/Join &amp; share my score/);assert.match(client,/navigator\.share/);assert.match(client,/navigator\.clipboard/);

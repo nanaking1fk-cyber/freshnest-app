@@ -4,10 +4,10 @@
  var A=window.WGC18=window.WGC18||{};
  var ID='challengeDialogV78',boards=[],view='list',selectedId=null,busy=false,pollTimer=null,returnFocus=null,reopenAfterAuth=false,syncing=false;
  var METRICS={
-  steps:{label:'Steps',icon:'↟',unit:'steps',suggested:12000,title:'12,000 steps'},
-  workouts:{label:'Completed workouts',icon:'✓',unit:'workouts',suggested:5,title:'Workout streak'},
-  calories_burned:{label:'Calories burned',icon:'◌',unit:'kcal burned',suggested:2500,title:'Movement challenge'},
-  custom:{label:'Custom number',icon:'＋',unit:'points',suggested:10,title:'Team challenge'}
+  steps:{label:'Steps',icon:'↟',unit:'steps',suggested:12000,title:'12,000 steps',cadence:'daily'},
+  workouts:{label:'Completed workouts',icon:'✓',unit:'workouts',suggested:1,title:'Daily workout',cadence:'daily'},
+  calories_burned:{label:'Calories burned',icon:'◌',unit:'kcal burned',suggested:2500,title:'Movement challenge',cadence:'total'},
+  custom:{label:'Custom number',icon:'＋',unit:'points',suggested:10,title:'Team challenge',cadence:'total'}
  };
 
  function root(){return document.getElementById(ID)}
@@ -100,7 +100,7 @@
   var text='Join “'+board.title+'” on Work + Workout. Invite code: '+prettyCode(board.inviteCode);
   try{if(navigator.share)await navigator.share({title:board.title,text:text,url:url.href});else{await navigator.clipboard.writeText(text+' '+url.href);window.toast?.('Invite link copied')}}catch(error){if(error?.name!=='AbortError')setStatus('Could not share. Copy the invite code instead.',true)}
  }
- function updateMetricForm(form){var selected=form.elements.challengeMetricV78?.value||'steps',item=METRICS[selected];form.elements.title.value=item.title;form.elements.targetValue.value=item.suggested;var unit=form.querySelector('.challengeCustomUnitV78');if(unit)unit.hidden=selected!=='custom'}
+ function updateMetricForm(form){var selected=form.elements.challengeMetricV78?.value||'steps',item=METRICS[selected];form.elements.title.value=item.title;form.elements.targetValue.value=item.suggested;form.elements.cadence.value=item.cadence;var unit=form.querySelector('.challengeCustomUnitV78');if(unit)unit.hidden=selected!=='custom'}
  function bindCurrent(){
   var modal=root();if(!modal)return;
   modal.querySelectorAll('[data-challenge-close]').forEach(function(button){button.onclick=closeChallenges});

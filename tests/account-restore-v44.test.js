@@ -116,12 +116,31 @@ test('a different device copy requires a choice, then survives loading the cloud
   const h=harness({local:{[OWNER]:'user-a',...state('Device user').storage},secure:true});
   await h.A.resumeAccount();h.flush();
   assert.equal(h.A.accountState,'choice');assert.equal(h.A.canStartOnboarding(),false);
+  assert.equal(h.A.canOpenHome(),true);assert.ok(!h.modals.includes('accountDialog'));
   assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Device user');
   assert.equal(await h.A.pushState({quiet:true}),false);
   await h.A.resumeAccount({forceCloud:true});
   assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
   const backup=JSON.parse(h.localStorage.getItem('wgc-v18-user-cache:user-a'));
   assert.equal(JSON.parse(backup.storage[PROFILE]).name,'Device user');
+});
+
+test('a known unchanged phone copy automatically receives the newer cloud plan',async()=>{
+  const phone=state('Previously synced'),fingerprint=JSON.stringify(Object.entries(phone.storage));
+  const h=harness({local:{[OWNER]:'user-a',...phone.storage,'wgc-v44-cloud-revision:user-a':JSON.stringify('older-revision'),'wgc-v80-cloud-fingerprint:user-a':fingerprint}});
+  await h.A.resumeAccount();
+  assert.equal(h.A.accountState,'ready');assert.equal(h.A.cloudStateReady,true);
+  assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Saved user');
+  assert.equal(h.localStorage.getItem('wgc-v80-cloud-fingerprint:user-a'),JSON.stringify(Object.entries(remote('Saved user').state.storage)));
+  assert.equal(JSON.parse(JSON.parse(h.localStorage.getItem('wgc-v44-protected-copy:user-a')).storage[PROFILE]).name,'Previously synced');
+});
+
+test('a known unchanged cloud copy keeps a newer phone plan ready for backup',async()=>{
+  const known=remote('Saved user'),fingerprint=JSON.stringify(Object.entries(known.state.storage));
+  const h=harness({local:{[OWNER]:'user-a',...state('Phone edit').storage,'wgc-v44-cloud-revision:user-a':JSON.stringify('older-revision'),'wgc-v80-cloud-fingerprint:user-a':fingerprint}});
+  await h.A.resumeAccount();
+  assert.equal(h.A.accountState,'ready');assert.equal(h.A.cloudStateReady,true);
+  assert.equal(JSON.parse(h.localStorage.getItem(PROFILE)).name,'Phone edit');
 });
 
 test('an unchanged cloud revision preserves unsynced local edits',async()=>{
@@ -180,6 +199,7 @@ test('cloud writes carry the loaded revision and concurrent sync requests share 
   assert.equal(JSON.parse(h.calls.find(x=>x.options?.method==='PUT').options.body).baseUpdatedAt,remote().updatedAt);
   finish({updatedAt:'2026-09-02T12:01:00Z'});await Promise.all([first,second]);
   assert.equal(h.A.cloudRevision,'2026-09-02T12:01:00Z');
+  assert.equal(h.localStorage.getItem('wgc-v80-cloud-fingerprint:user-a'),JSON.stringify(Object.entries(state('Saved user').storage)));
 });
 
 test('a stale cloud write pauses autosync and preserves local content',async()=>{

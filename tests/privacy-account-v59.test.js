@@ -18,9 +18,10 @@ test('profile is a focused menu with optional summary details',()=>{
 
 test('signed-in account controls use progressive disclosure',()=>{
   const account=read('work-gym-planner-v16/accounts-v18.js');
-  for(const label of ['Cloud backup &amp; restore','Plan settings','Privacy &amp; account'])assert.match(account,new RegExp(label));
+  for(const label of ['Plan &amp; preferences','Data &amp; sync','Privacy &amp; account'])assert.match(account,new RegExp(label));
   assert.match(account,/class="accountMenuSection"/);
-  assert.match(account,/Delete cloud account[\s\S]*different from deleting only this device's copy/);
+  assert.match(account,/class="accountAdvanced"><summary>More backup options/);
+  assert.match(account,/Delete account[\s\S]*Permanently remove your login and saved account data/);
 });
 
 test('permanent deletion is verified and clears stale sessions across tabs',()=>{

@@ -10,7 +10,7 @@ test('sign out is a separate account footer, outside identity and deletion menus
  assert.doesNotMatch(identity,/signOutAccount/);
  assert.match(source,/<\/details><\/div><footer class="accountSessionActionsV71" aria-label="Session actions"><button id="signOutAccount" type="button">Sign out<\/button><\/footer>/);
  assert.equal((source.match(/id="signOutAccount"/g)||[]).length,1);
- assert.ok(source.includes("$('#signOutAccount').onclick=signOut;"));
+ assert.ok(source.includes("$('#signOutAccount')?.addEventListener('click',signOut);"));
 });
 
 test('account footer has a full-width touch target and safely wraps long emails',()=>{

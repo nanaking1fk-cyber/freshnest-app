@@ -1,0 +1,46 @@
+/* v80: quiet account hub. Details stay hidden until the user asks for them. */
+body.premiumV30 #accountDialog .premiumAccountSheet{width:min(100% - 24px,520px);padding:18px;max-height:min(760px,calc(100dvh - 28px));background:#0d1318}
+body.premiumV30 #accountDialog .sheetHead{position:sticky;top:-18px;z-index:2;margin:-4px 0 14px;padding:12px 0 14px;background:linear-gradient(180deg,#0d1318 82%,rgba(13,19,24,0));border-bottom:0}
+body.premiumV30 #accountDialog .sheetHead h2{font-size:24px;letter-spacing:-.035em}
+body.premiumV30 #accountDialog #accountBody{display:block}
+body.premiumV30 #accountDialog .accountIdentity{min-height:72px;padding:12px 14px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.025)}
+body.premiumV30 #accountDialog .accountIdentity>span{width:44px;height:44px;background:rgba(179,255,57,.11);color:var(--v30-signal)}
+body.premiumV30 #accountDialog .accountIdentity b{font-size:14px;line-height:1.3}
+body.premiumV30 #accountDialog .accountIdentity small{margin-top:5px;font-size:10px;color:var(--v30-muted)}
+body.premiumV30 #accountDialog .accountSyncNotice{width:100%;min-height:66px;margin-top:10px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;text-align:left;border:1px solid rgba(179,255,57,.28);border-radius:16px;background:rgba(179,255,57,.07);color:var(--v30-ink)}
+body.premiumV30 #accountDialog .accountSyncNotice span,body.premiumV30 #accountDialog .accountSyncNotice b,body.premiumV30 #accountDialog .accountSyncNotice small{display:block}
+body.premiumV30 #accountDialog .accountSyncNotice b{font-size:13px}
+body.premiumV30 #accountDialog .accountSyncNotice small{margin-top:4px;color:var(--v30-muted);font-size:10px;line-height:1.4}
+body.premiumV30 #accountDialog .accountSyncNotice>i{font-style:normal;font-size:11px;font-weight:850;color:var(--v30-signal)}
+body.premiumV30 #accountDialog .accountMenu{gap:8px;margin-top:12px}
+body.premiumV30 #accountDialog .accountMenuLink,body.premiumV30 #accountDialog .accountMenuSection{width:100%;overflow:hidden;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.018);color:var(--v30-ink)}
+body.premiumV30 #accountDialog .accountMenuLink{min-height:58px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;text-align:left}
+body.premiumV30 #accountDialog .accountMenuLink span,body.premiumV30 #accountDialog .accountMenuLink small{display:block}
+body.premiumV30 #accountDialog .accountMenuLink span,body.premiumV30 #accountDialog .accountMenuSection>summary span{font-size:13px;font-weight:820}
+body.premiumV30 #accountDialog .accountMenuLink small,body.premiumV30 #accountDialog .accountMenuSection>summary small{margin-top:3px;color:var(--v30-muted);font-size:9px;font-weight:550}
+body.premiumV30 #accountDialog .accountMenuLink>i{font-style:normal;color:var(--v30-signal);font-size:18px}
+body.premiumV30 #accountDialog .accountMenuSection>summary{min-height:58px;padding:10px 14px}
+body.premiumV30 #accountDialog .accountMenuBody{padding:12px;border-top:1px solid rgba(255,255,255,.07)}
+body.premiumV30 #accountDialog .accountUnavailable{margin:0;padding:14px;border-color:rgba(179,255,57,.22);background:rgba(179,255,57,.045)}
+body.premiumV30 #accountDialog .accountUnavailable b{display:block;font-size:15px}
+body.premiumV30 #accountDialog .accountUnavailable p{margin:6px 0 12px;font-size:11px;line-height:1.5}
+body.premiumV30 #accountDialog .accountUnavailable button{min-height:46px;margin-top:7px;text-align:center}
+body.premiumV30 #accountDialog .accountPrimarySync{margin:0}
+body.premiumV30 #accountDialog .accountPrimarySync button{min-height:48px;text-align:center}
+body.premiumV30 #accountDialog .accountAdvanced{margin-top:9px;border:0}
+body.premiumV30 #accountDialog .accountAdvanced>summary{min-height:42px;padding:8px 4px;display:flex;align-items:center;justify-content:space-between;list-style:none;color:var(--v30-muted);font-size:10px;font-weight:750;cursor:pointer}
+body.premiumV30 #accountDialog .accountAdvanced>summary::-webkit-details-marker{display:none}
+body.premiumV30 #accountDialog .accountAdvanced>summary i{font-style:normal;transition:transform .18s ease}
+body.premiumV30 #accountDialog .accountAdvanced[open]>summary i{transform:rotate(180deg)}
+body.premiumV30 #accountDialog .accountAdvanced .accountActions{margin-top:2px}
+body.premiumV30 #accountDialog .accountAdvanced .accountActions button{background:transparent}
+body.premiumV30 #accountDialog .accountMenuBody>.dangerZone{display:block;padding-top:4px}
+body.premiumV30 #accountDialog .accountMenuBody>.dangerZone>p{margin:5px 0 12px}
+body.premiumV30 #accountDialog .accountSessionActionsV71{margin-top:14px;padding-top:12px}
+body.premiumV30 #accountDialog .accountSessionActionsV71 #signOutAccount{min-height:46px;background:transparent}
+
+@media(max-width:600px){
+ body.premiumV30 #accountDialog .premiumAccountSheet{width:100%;padding:16px 16px max(16px,env(safe-area-inset-bottom));max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-radius:24px 24px 0 0}
+ body.premiumV30 #accountDialog .sheetHead{top:-16px;margin-top:-4px;background:linear-gradient(180deg,#0d1318 84%,rgba(13,19,24,0))}
+ body.premiumV30 #accountDialog .sheetHead h2{font-size:22px}
+}

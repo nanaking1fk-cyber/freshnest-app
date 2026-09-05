@@ -45,6 +45,7 @@ window.WGC18=window.WGC18||{};
    }
    if(A.session?.user?.id!==uid)return false;
    A.acceptCloudRevision(result.updatedAt,uid);
+   A.rememberCloudFingerprint?.(uid,state);
    localStorage.setItem('wgc-v18-last-sync',result.updatedAt||new Date().toISOString());
    if(!quiet)toast(`Synced ${Object.keys(state.storage).length} planner records. Account credentials never leave this device state.`);
    return true;

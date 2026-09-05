@@ -7,7 +7,7 @@
   var V=window.WWV25=window.WWV25||{};
   var Capture=window.WGC19=window.WGC19||{};
   var KEY={sources:PREFIX+'schedule-sources-v25',events:PREFIX+'schedule-events-v25',rotations:PREFIX+'schedule-rotations-v25',sourcesInitialized:PREFIX+'schedule-sources-initialized-v25',deletedSourceNames:PREFIX+'schedule-deleted-source-names-v25',hiddenWorkItems:PREFIX+'hidden-work-items-v34',completedWorkItems:PREFIX+'completed-work-items-v34'};
-  var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode;
+  var legacyWorkRows=window.workScheduleRows,legacyVariableCode=window.variableCode,legacyWorkState=window.workState;
   var proposals=[],proposalConflicts={},rosterReview=null,proposalParseNotice='',mounting=false,sourceEditId='',shiftPickerActive=false,shiftPickerDates=new Set(),shiftPickerMode='work',shiftPickerVariantId='day';
 
   function safe(value){return String(value==null?'':value).replace(/[&<>"']/g,function(char){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[char]})}
@@ -15,8 +15,9 @@
   function events(){var value=jget(KEY.events,[]);return Array.isArray(value)?value:[]}
   function rotations(){var value=jget(KEY.rotations,[]);return Array.isArray(value)?value:[]}
   function saveSources(value){jset(KEY.sources,value);window.WGC18?.queueSync?.()}
-  function saveEvents(value){jset(KEY.events,value);window.WGC18?.queueSync?.()}
-  function saveRotations(value){jset(KEY.rotations,value);window.WGC18?.queueSync?.()}
+  function notifyScheduleChange(){if(typeof window.dispatchEvent==='function')window.dispatchEvent(new CustomEvent('wgp:schedulechange'))}
+  function saveEvents(value){jset(KEY.events,value);window.WGC18?.queueSync?.();notifyScheduleChange()}
+  function saveRotations(value){jset(KEY.rotations,value);window.WGC18?.queueSync?.();notifyScheduleChange()}
   function makeId(prefix){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8)}
   function sourceById(id){return sources().find(function(source){return source.id===id})||sources()[0]||null}
   function enabledSources(){return sources().filter(function(source){return source.enabled!==false})}
@@ -72,9 +73,16 @@
   function decorateWorkRow(row,key){var itemKey=workItemKey(row,key);return Object.assign({},row,{calendarItemKey:itemKey,done:storedWorkKeys(KEY.completedWorkItems).includes(itemKey)})}
   function workRowsOn(key){
     var hidden=storedWorkKeys(KEY.hiddenWorkItems),off=offEventsOn(key),generated=workEventsOn(key).map(function(event){var source=sourceById(event.sourceId)||{};return decorateWorkRow({name:event.title||source.name||'Work shift',time:timeLabel(event.start,event.end)+(event.overnight?' · overnight':''),start:event.start,end:event.end,color:event.color||source.color||Core.COLORS[0],sourceId:event.sourceId,sourceName:event.sourceName||source.name||'Work',shiftVariantId:event.shiftVariantId||'',shiftLabel:event.shiftLabel||'',eventId:event.id,rotationId:event.rotationId,exception:event.exception},key)}).filter(function(row){return !hidden.includes(row.calendarItemKey)});
-    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name)||off.some(function(day){return !matched||day.sourceId===matched.id}))return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time})){var decorated=decorateWorkRow(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',legacy:true}),key);if(!hidden.includes(decorated.calendarItemKey))generated.push(decorated)}});
-    off.forEach(function(event){var source=sourceById(event.sourceId)||{};generated.push(decorateWorkRow({name:event.title||(source.name||'Work')+' · Off',time:event.timeOffType?String(event.timeOffType).toUpperCase():'Off work',color:source.color||Core.COLORS[0],sourceId:event.sourceId,eventId:event.id,off:true,exception:event.exceptionType||event.timeOffType||'time_off'},key))});
+    originalRowsOn(key).forEach(function(row,index){var matched=sources().find(function(source){return source.name===row.name});if(matched?.enabled===false||isDeletedSourceName(row.name)||off.some(function(day){return !matched||day.sourceId===matched.id}))return;if(!generated.some(function(item){return item.name===row.name&&item.time===row.time})){var decorated=decorateWorkRow(Object.assign({},row,{color:matched?.color||Core.COLORS[(generated.length+index)%Core.COLORS.length],sourceId:matched?.id||'',sourceName:row.sourceName||matched?.name||row.name||'Work',legacy:true}),key);if(!hidden.includes(decorated.calendarItemKey))generated.push(decorated)}});
+    off.forEach(function(event){var source=sourceById(event.sourceId)||{};generated.push(decorateWorkRow({name:event.title||(source.name||'Work')+' · Off',time:event.timeOffType?String(event.timeOffType).toUpperCase():'Off work',color:source.color||Core.COLORS[0],sourceId:event.sourceId,sourceName:event.sourceName||source.name||'Work',eventId:event.id,off:true,exception:event.exceptionType||event.timeOffType||'time_off'},key))});
     return generated;
+  }
+  function workRowDisplay(row){
+    row=row||{};var source=row.sourceId?sourceById(row.sourceId):null,workplace=String(row.sourceName||source?.name||'').trim(),name=String(row.name||'').trim(),shift=String(row.shiftLabel||'').trim();
+    if(!workplace)workplace=name||'Work';
+    if(!shift&&!row.off&&name&&name.toLowerCase()!==workplace.toLowerCase()&&!name.toLowerCase().startsWith(workplace.toLowerCase()+' ·'))shift=name;
+    if(!shift&&!row.off)shift='Work shift';
+    return{workplace:workplace,shift:shift,time:String(row.time||''),off:!!row.off};
   }
   function toggleWorkItemDone(row,key){
     if(!row||!key)return false;
@@ -508,6 +516,7 @@
   function patchCalendarModel(){
     window.workScheduleRows=workRowsOn;
     window.variableCode=function(key){if(offEventsOn(key).length)return'D';return workEventsOn(key).length?'X':(typeof legacyVariableCode==='function'?legacyVariableCode(key):'D')};
+    if(typeof legacyWorkState==='function')window.workState=function(key){var state=legacyWorkState(key),blocks=workEventsOn(key).length;if(blocks>1)return Object.assign({},state,{kind:'both',workBlocks:blocks,multipleWorkBlocks:true});if(blocks===1&&state.kind==='off')return Object.assign({},state,{kind:'one',variable:true,code:'X',workBlocks:1});return Object.assign({},state,{workBlocks:blocks||(state.kind==='both'?2:state.kind==='one'?1:0)})};
   }
   function handleOAuthReturn(){var query=new URLSearchParams(location.search);if(query.get('calendar')==='connected'){sessionStorage.setItem('ww-planner-tab','sync');history.replaceState({},'',location.pathname+location.hash);setTimeout(function(){selectTab('sync',true);toast('Calendar connected')},500)}}
   function mount(){
@@ -518,11 +527,12 @@
       if(firstMount)calendar.insertAdjacentHTML('afterbegin',workspaceMarkup());
       arrangeWorkspace();bindTabs();bindTrustedCapture();bindCalendarClearActions();
       if(firstMount){renderSources();renderRotations();renderWeekSummary(selectedDate||dkey());var saved=sessionStorage.getItem('ww-planner-tab')||'calendar';selectTab(saved,false)}
+      if(typeof renderTodayDashboard==='function')renderTodayDashboard();
       document.body.classList.add('schedulePlatformV25');
     }finally{mounting=false}
   }
-  function boot(){mount();handleOAuthReturn();window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)})}
+  function boot(){mount();handleOAuthReturn();window.addEventListener('wgc:authchange',function(){setTimeout(mount,80)});window.addEventListener('wgp:schedulechange',function(){if(typeof renderTodayDashboard==='function')renderTodayDashboard();if(typeof renderTraining==='function'&&document.getElementById('page-training')?.classList.contains('active'))renderTraining()})}
 
-  V.sources=sources;V.events=events;V.rotations=rotations;V.saveSources=saveSources;V.saveEvents=saveEvents;V.saveRotations=saveRotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.addOffDay=addOffDay;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.beginShiftPicker=beginShiftPicker;V.stopShiftPicker=stopShiftPicker;V.isShiftPickerActive=function(){return shiftPickerActive};V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.reviewRosterVision=reviewRosterVision;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
+  V.sources=sources;V.events=events;V.rotations=rotations;V.saveSources=saveSources;V.saveEvents=saveEvents;V.saveRotations=saveRotations;V.workEventsOn=workEventsOn;V.workRowsOn=workRowsOn;V.workRowDisplay=workRowDisplay;V.addOffDay=addOffDay;V.toggleWorkItemDone=toggleWorkItemDone;V.removeWorkItem=removeWorkItem;V.beginShiftPicker=beginShiftPicker;V.stopShiftPicker=stopShiftPicker;V.isShiftPickerActive=function(){return shiftPickerActive};V.handleCalendarDateTap=handleCalendarDateTap;V.isShiftPickerDate=isShiftPickerDate;V.renderShiftPicker=renderShiftPicker;V.legendMarkup=legendMarkup;V.workDots=workDots;V.renderWeekSummary=renderWeekSummary;V.clearCalendarContent=clearCalendarContent;V.selectTab=selectTab;V.renderTrustedReview=renderTrustedReview;V.reviewRosterText=reviewRosterText;V.reviewRosterVision=reviewRosterVision;V.exportSyncEvents=exportSyncEvents;V.mount=mount;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

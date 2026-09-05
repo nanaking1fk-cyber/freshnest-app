@@ -28,7 +28,7 @@ test('production loaders and service workers refresh the sign-in fix',()=>{
   assert.match(source,/accountRevision='30\.1\.31-account80'/);
   assert.match(source,/healthRevision='30\.1\.31-activity83'/);
   assert.match(source,/account-v80\.css\?v=30\.1\.31-account80/);
-  assert.match(source,/\['accounts-v18\.js','account-security-v18\.js'\]\.includes\(x\)\?accountRevision:\['workout-plan\.js','health\.js','challenges-v78\.js'\]\.includes\(x\)\?healthRevision:assetRevision/);
+  assert.match(source,/\['accounts-v18\.js','account-security-v18\.js'\]\.includes\(x\)\?accountRevision:\['workout-plan\.js','health\.js','challenges-v78\.js'\]\.includes\(x\)\?healthRevision:[\s\S]*\?scheduleRevision:assetRevision/);
  }
  for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
   const source=read(file);assert.match(source,/account80/);assert.match(source,/profile77/);

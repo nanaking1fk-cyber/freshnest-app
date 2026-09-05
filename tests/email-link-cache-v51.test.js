@@ -23,7 +23,7 @@ function worker(file,{cached=null,network=async()=>new Response('network'),offli
 for(const file of workers){
  test(`${file}: cached redirected pages are safe to replay and retain security headers`,async()=>{
   const h=worker(file,{cached:redirectedResponse()});const response=await h.dispatch('/work-gym-planner/');
-  assert.equal(response.redirected,false);assert.equal(response.status,200);assert.equal(await response.text(),'offline planner');assert.equal(response.headers.get('content-security-policy'),"default-src 'self'");assert.equal(h.calls.network.length,0);assert.ok(h.calls.opens.every(name=>name.endsWith('-profile77')));
+  assert.equal(response.redirected,false);assert.equal(response.status,200);assert.equal(await response.text(),'offline planner');assert.equal(response.headers.get('content-security-policy'),"default-src 'self'");assert.equal(h.calls.network.length,0);assert.ok(h.calls.opens.every(name=>name.endsWith('-profile77-schedule84')));
  });
  test(`${file}: one-time links bypass cache, including an already-installed redirect entry`,()=>{
   for(const query of ['auth=signup&code=secret','auth=recovery&code=secret','code=secret','token_hash=secret','error=access_denied&error_code=otp_expired','access_token=secret','refresh_token=secret']){

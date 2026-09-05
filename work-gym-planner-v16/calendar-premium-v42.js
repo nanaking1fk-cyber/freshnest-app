@@ -43,7 +43,7 @@
     source={id:id('source'),name:String(name||'Work').trim()||'Work',color:Core.COLORS[list.length%Core.COLORS.length],shiftVariants:Core.sourceShiftVariants({}),enabled:true,overtimeThreshold:40,createdAt:new Date().toISOString()};
     saveSources(list.concat(source));write(PREFIX+'schedule-sources-initialized-v25',true);return source;
   }
-  function refreshCalendar(){if(typeof renderCalendar==='function')renderCalendar();V.renderWeekSummary?.(activeDate());queueDecorate()}
+  function refreshCalendar(){if(typeof renderCalendar==='function')renderCalendar();if(typeof renderTodayDashboard==='function')renderTodayDashboard();V.renderWeekSummary?.(activeDate());queueDecorate()}
 
   function localeRegion(){
     try{return new Intl.Locale(navigator.language||'en-US').region||'US'}catch{return'US'}
@@ -92,6 +92,7 @@
 
   function workRows(key){try{return typeof workScheduleRows==='function'?(workScheduleRows(key)||[]):V.workRowsOn?.(key)||[]}catch{return[]}}
   function rawEventForRow(row){return events().find(function(event){return event.id===row.eventId})||null}
+  function rowDisplay(row){return V.workRowDisplay?.(row)||{workplace:row.sourceName||row.name||'Work',shift:row.shiftLabel||'Work shift',time:row.time||''}}
   function eventKind(row){var raw=rawEventForRow(row);return raw?.exceptionType||raw?.timeOffType||(row.off?'time_off':row.exception?'extra_shift':'work')}
   function workoutOn(key){try{return!!(completedOn?.(key)||isScheduled?.(key))}catch{return false}}
   function agendaOn(key){try{return typeof agendaItemsOn==='function'?agendaItemsOn(key):[]}catch{return[]}}
@@ -109,14 +110,14 @@
   }
   function visibleCellItems(facts){
     var state=filters(),items=[];
-    facts.work.forEach(function(row){var kind=eventKind(row),exception=['overtime','extra_shift','call_in','swap_shift'].includes(kind);if(row.off?!state.timeOff:exception?!state.overtime:!state.work)return;items.push({kind:row.off?'timeoff':exception?'overtime':'work',title:rawEventForRow(row)?.title||row.name||'Work',time:row.time||''})});
+    facts.work.forEach(function(row){var kind=eventKind(row),exception=['overtime','extra_shift','call_in','swap_shift'].includes(kind),display=rowDisplay(row),exceptionLabel=exception?kind.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()}):'';if(row.off?!state.timeOff:exception?!state.overtime:!state.work)return;items.push({kind:row.off?'timeoff':exception?'overtime':'work',title:row.off?(rawEventForRow(row)?.title||row.name||'Time off'):display.workplace,detail:[exceptionLabel,display.shift].filter(Boolean).join(' · '),time:display.time})});
     if(state.personal)facts.agenda.forEach(function(item){items.push({kind:'personal',title:item.title,time:item.time?(item.time+(item.end?'–'+item.end:'')):'All day'})});
     if(state.workout&&facts.workout)items.push({kind:'workout',title:'Workout',time:''});
     if(state.holidays)facts.holiday.forEach(function(item){items.push({kind:'holiday',title:item.name,time:''})});
     return items;
   }
   function cellDetailsMarkup(items){
-    return'<span class="calendarCellDetailsV47">'+items.slice(0,2).map(function(item){var label=item.kind==='work'?item.title.replace(/\s+shift$/i,''):item.kind==='workout'?'Train':item.title;return'<span class="calendarCellItemV47 '+safe(item.kind)+'" title="'+safe(item.title+(item.time?' · '+item.time:''))+'"><strong>'+safe(label)+'</strong></span>'}).join('')+(items.length>2?'<small class="calendarCellMoreV47">+'+(items.length-2)+' more</small>':'')+'</span>';
+    return'<span class="calendarCellDetailsV47">'+items.slice(0,2).map(function(item){var label=item.kind==='work'||item.kind==='overtime'?[item.title,item.detail].filter(Boolean).join(' · '):item.kind==='workout'?'Train':item.title;return'<span class="calendarCellItemV47 '+safe(item.kind)+'" title="'+safe(item.title+(item.detail?' · '+item.detail:'')+(item.time?' · '+item.time:''))+'"><strong>'+safe(label)+'</strong></span>'}).join('')+(items.length>2?'<small class="calendarCellMoreV47">+'+(items.length-2)+' more</small>':'')+'</span>';
   }
   function decorateCells(){
     var pane=document.getElementById('plannerPane-calendar');if(pane)pane.dataset.calendarDensity=calendarDisplayMode();
@@ -126,7 +127,7 @@
   function dayBriefRow(kind,title,detail){return'<div class="calendarBriefRowV42 '+safe(kind)+'"><span>'+safe(iconFor(kind))+'</span><div><b>'+safe(title)+'</b><small>'+safe(detail||'')+'</small></div></div>'}
   function decorateDayCard(){
     var card=document.getElementById('dayCard');if(!card)return;var key=activeDate(),facts=dayFacts(key),signature=JSON.stringify({key:key,work:facts.work.map(function(row){return[row.eventId,row.rotationId,row.name,row.time,row.done,eventKind(row)]}),holiday:facts.holiday,workout:facts.workout,agenda:facts.agenda.map(function(item){return[item.id,item.title,item.time,item.end,item.done]})});if(card.dataset.calendarV42Signature===signature&&card.querySelector('.calendarDayBriefV42'))return;card.dataset.calendarV42Signature=signature;card.querySelector('.calendarDayBriefV42')?.remove();var rows='';
-    facts.work.forEach(function(row){var kind=eventKind(row),raw=rawEventForRow(row),label=row.off?(raw?.timeOffType||'Time off'):kind==='work'?'Work':kind.replace(/_/g,' ');rows+=dayBriefRow(kind,raw?.title||row.name,(row.time||'')+(kind!=='work'?' · '+label.replace(/\b\w/g,function(c){return c.toUpperCase()}):''))});
+    facts.work.forEach(function(row){var kind=eventKind(row),raw=rawEventForRow(row),display=rowDisplay(row),label=row.off?(raw?.timeOffType||'Time off'):kind==='work'?'':kind.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase()});rows+=dayBriefRow(kind,row.off?(raw?.title||row.name):display.workplace,[label,display.shift,display.time].filter(Boolean).join(' · '))});
     facts.holiday.forEach(function(item){rows+=dayBriefRow('holiday',item.name,item.automatic?'Regional holiday':'Workplace holiday')});
     if(facts.workout){var name='Workout';try{name=typeof plannedWorkoutName==='function'?plannedWorkoutName(key):name}catch{}rows+=dayBriefRow('workout',name,'Scheduled training')}
     facts.agenda.slice(0,3).forEach(function(item){rows+=dayBriefRow('plan',item.title,item.time?(item.time+(item.end?'–'+item.end:'')):'All day')});

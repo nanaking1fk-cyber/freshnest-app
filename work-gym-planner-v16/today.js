@@ -25,11 +25,12 @@ function workLoadLabel(s){return s.kind==='both'?'High Load':s.kind==='one'?'Wor
 function todayTrainingInfo(k){let comp=completedOn(k),scheduled=isScheduled(k),wi=comp?.workoutIndex??(scheduled?projectedWorkoutIndex(k):null),next=nextPlannedWorkout(addDays(k,wi!=null?1:0)),own=profile()?.trainingMode==='existing';if(wi!=null)return{title:typeof plannedWorkoutName==='function'?plannedWorkoutName(k,wi):WORKOUTS[wi].name,sub:comp?'Completed':own?`${plannedWorkoutTime(k)||'Time flexible'} · your routine`:`Week ${phaseInfo(k).week} · ${phaseInfo(k).name}`,date:k,wi,completed:!!comp};if(next)return{title:'Recovery Day',sub:`Next: ${typeof plannedWorkoutName==='function'?plannedWorkoutName(next.k,next.wi):WORKOUTS[next.wi].name}`,date:next.k,wi:next.wi,next:true};return{title:'Recovery Day',sub:'No workout scheduled',date:null,wi:null}}
 function dashboardWorkRows(k,s){
  let canonical=window.WWV25?.workRowsOn?.(k);
- if(Array.isArray(canonical))return canonical.map(row=>({
-  name:row.name||'Work shift',
+ if(Array.isArray(canonical))return canonical.map(row=>{let display=window.WWV25?.workRowDisplay?.(row)||{workplace:row.sourceName||row.name||'Work',shift:row.shiftLabel||'Work shift'};return{
+  name:display.workplace,
+  detail:display.shift,
   value:row.time||(row.start&&row.end?`${homeTime(row.start)} – ${homeTime(row.end)}`:row.off?'Off work':'Working'),
   state:row.unknown?'unknown':row.off?'off':'work'
- }));
+ }});
  let p=profile(),rows=[],smart=typeof smartWork==='function'?smartWork(k):null;
  if(smart){rows.push({name:smart.label||p?.variable?.name||'Work shift',value:smart.start&&smart.end?`${homeTime(smart.start)} – ${homeTime(smart.end)}`:'Working',state:'work'})}
  else if(p?.variable?.enabled){let code=variableCode(k),on=code==='X';rows.push({name:p.variable.name||'Variable job',value:code==='?'?'Schedule unknown':shiftText(on,p.variable.start,p.variable.end),state:code==='?'?'unknown':on?'work':'off'})}
@@ -72,9 +73,9 @@ function renderTodayDashboard(){
   left=Math.max(0,Math.round(n.cal-t.cal)),
   rows=dashboardWorkRows(k,s),
   workingRows=rows.filter(x=>x.state==='work'),
-  workSummary=workingRows.length?workingRows.map(x=>x.name).join(' + '):(s.kind==='unknown'?'Needs review':'No work added'),
+  workSummary=workingRows.length?[...new Set(workingRows.map(x=>x.name))].join(' + '):(s.kind==='unknown'?'Needs review':'No work added'),
   initial=(p.name||'U').trim().charAt(0).toUpperCase(),
-  loadLabel=workingRows.length>1?'High load':s.kind==='unknown'?'Needs review':workingRows.length?'Work day':'Open day',
+  loadLabel=workingRows.length>1?'Multiple shifts':s.kind==='unknown'?'Needs review':workingRows.length?'Work day':'Open day',
   stepDay=healthDay(k),steps=hasStepValue(stepDay)?Math.max(0,Math.round(+stepDay.steps)):0,stepsLogged=hasStepValue(stepDay),dailyStepGoal=stepGoal(),stepPct=clamp(Math.round(steps/dailyStepGoal*100),0,100),stepBridge=nativeSteps(),stepConnected=nativeStepEnabled(),stepUpdated=relativeStepSync(stepDay.stepsSyncedAt);
 
  // One line, not a paragraph. The panel it sits in already says "readiness".
@@ -110,7 +111,7 @@ function renderTodayDashboard(){
    <div class="hvRows">
     ${rows.map(x=>`<div class="hvRow ${x.state==='work'?'w':'r'}">
       <time>${esc(x.value)}</time><i class="hvTick"></i>
-      <span class="hvWhat"><b>${esc(x.name)}</b><small>${x.state==='work'?'Work shift':x.state==='unknown'?'Check your calendar':'Not working'}</small></span>
+      <span class="hvWhat"><b>${esc(x.name)}</b><small>${x.state==='work'?esc(x.detail||'Work shift'):x.state==='unknown'?'Check your calendar':'Not working'}</small></span>
      </div>`).join('')||
      `<div class="hvRow r"><time>—</time><i class="hvTick"></i>
        <span class="hvWhat"><b>No shift scheduled</b><small>View your calendar to add work or personal plans</small></span></div>`}

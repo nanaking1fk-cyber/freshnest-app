@@ -23,13 +23,13 @@ function dashboardFor(windowValue,profileValue={}){
 
 test('Home reads the same unified work rows as Calendar',()=>{
   const calendarRows=[
-    {name:'Hospital',time:'7:00 AM–7:00 PM',sourceId:'primary',eventId:'shift-1'},
-    {name:'Weekend job',start:'20:00',end:'04:00',sourceId:'second',rotationId:'rotation-1'}
+    {name:'Day shift',sourceName:'Hospital',shiftLabel:'Day shift',time:'7:00 AM–7:00 PM',sourceId:'primary',eventId:'shift-1'},
+    {name:'Night shift',sourceName:'Weekend job',shiftLabel:'Night shift',start:'20:00',end:'04:00',sourceId:'second',rotationId:'rotation-1'}
   ];
-  const dashboard=dashboardFor({WWV25:{workRowsOn:key=>{assert.equal(key,'2026-09-01');return calendarRows}}});
+  const dashboard=dashboardFor({WWV25:{workRowsOn:key=>{assert.equal(key,'2026-09-01');return calendarRows},workRowDisplay:row=>({workplace:row.sourceName,shift:row.shiftLabel})}});
   assert.deepEqual(dashboard('2026-09-01',{kind:'one'}),[
-    {name:'Hospital',value:'7:00 AM–7:00 PM',state:'work'},
-    {name:'Weekend job',value:'20:00 – 04:00',state:'work'}
+    {name:'Hospital',detail:'Day shift',value:'7:00 AM–7:00 PM',state:'work'},
+    {name:'Weekend job',detail:'Night shift',value:'20:00 – 04:00',state:'work'}
   ]);
 });
 
@@ -39,8 +39,8 @@ test('Home preserves calendar off days and unknown rows',()=>{
     {name:'Agency roster',time:'Date needs review',unknown:true}
   ]}});
   assert.deepEqual(dashboard('2026-09-01',{kind:'unknown'}),[
-    {name:'Hospital · Off',value:'Off work',state:'off'},
-    {name:'Agency roster',value:'Date needs review',state:'unknown'}
+    {name:'Hospital · Off',detail:'Work shift',value:'Off work',state:'off'},
+    {name:'Agency roster',detail:'Work shift',value:'Date needs review',state:'unknown'}
   ]);
 });
 

@@ -34,8 +34,8 @@ test('Compact defaults quietly and Detailed respects the saved preference',()=>{
 assert.match(css,/data-calendar-density="details"\] \.calendarCellDetailsV47\{display:grid!important/);
 });
 test('personal events have markers, detailed labels and filters in month and week views',()=>{
- const state={work:true,personal:true,workout:true,holidays:true,overtime:true,timeOff:true},c={filters:()=>state,rawEventForRow:()=>null,eventKind:()=> 'work'};vm.createContext(c);
- for(const name of ['safe','visibleCellItems','cellDetailsMarkup','markerMarkup'])vm.runInContext(functionSource(name),c);
+ const state={work:true,personal:true,workout:true,holidays:true,overtime:true,timeOff:true},c={filters:()=>state,rawEventForRow:()=>null,eventKind:()=> 'work',V:{workRowDisplay:row=>({workplace:row.name,shift:'Work shift',time:row.time})}};vm.createContext(c);
+ for(const name of ['safe','rowDisplay','visibleCellItems','cellDetailsMarkup','markerMarkup'])vm.runInContext(functionSource(name),c);
  const facts={work:[{name:'Work',time:'09:00–17:00'}],agenda:[{title:'<Dinner>',time:'18:30',end:'20:00'}],workout:false,holiday:[]};
  let items=c.visibleCellItems(facts);assert.equal(items.length,2);assert.match(c.cellDetailsMarkup(items),/&lt;Dinner&gt;/);assert.match(c.cellDetailsMarkup(items),/18:30–20:00/);assert.match(c.markerMarkup('2026-09-03',facts),/calendarMarkerV42 personal/);
  state.personal=false;items=c.visibleCellItems(facts);assert.equal(items.length,1);assert.doesNotMatch(c.markerMarkup('2026-09-03',facts),/calendarMarkerV42 personal/);

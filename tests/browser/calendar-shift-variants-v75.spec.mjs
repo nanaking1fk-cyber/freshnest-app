@@ -65,3 +65,32 @@ test('shift choices and multi-date controls fit a phone viewport',async({page})=
  await page.locator('[data-picker-variant="night"]').click();await expect(page.locator('#shiftPickerStartV35')).toHaveValue('23:00');await expect(page.locator('#shiftPickerEndV35')).toHaveValue('07:00');
  expect(errors).toEqual([]);
 });
+
+test('two shifts on one date update Home labels and move the automatic workout',async({page})=>{
+ const errors=await start(page,390),key='2026-09-07';
+ async function addShift(variant){
+  await page.locator('#calendarAddV42').click();
+  await page.locator('[data-add-kind="workmenu"]').click();
+  await page.locator('[data-add-kind="extra"]').click();
+  await page.locator(`[data-shift-variant="${variant}"]`).click();
+  await page.locator('#calendarAddFlowV42 [name="date"]').fill(key);
+  await page.locator('#calendarAddFlowV42 [data-flow-next]').click();
+ }
+ await addShift('day');
+ await addShift('evening');
+ await expect.poll(()=>page.evaluate(key=>({state:workState(key).kind,rows:WWV25.workRowsOn(key).length,optional:singleJobWorkoutAvailable(key),scheduled:isScheduled(key)}),key)).toEqual({state:'both',rows:2,optional:false,scheduled:false});
+ const cell=page.locator(`.calDay[data-date="${key}"]`);
+ await expect(cell).toContainText('City Hospital · Day shift');
+ await page.locator('nav [data-page="home"]').click();
+ const workRows=page.locator('#todayDashboard .hvRow.w');
+ await expect(workRows).toHaveCount(2);
+ await expect(workRows.nth(0).locator('.hvWhat b')).toHaveText('City Hospital');
+ await expect(workRows.nth(0).locator('.hvWhat small')).toHaveText('Day shift');
+ await expect(workRows.nth(1).locator('.hvWhat b')).toHaveText('City Hospital');
+ await expect(workRows.nth(1).locator('.hvWhat small')).toHaveText('Evening shift');
+ await expect(page.locator('#todayDashboard .hvTile.w b')).toHaveText('City Hospital');
+ await expect(page.locator('#todayDashboard .hvTile.w em')).toHaveText('Multiple shifts');
+ await expect(page.locator('#todayDashboard')).not.toContainText('Workout available');
+ await expect(page.locator('#todayDashboard')).not.toContainText('Single-job');
+ expect(errors).toEqual([]);
+});

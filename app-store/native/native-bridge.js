@@ -40,6 +40,18 @@
   window.setupPWA=function(){};
   document.documentElement.classList.add('native-app','native-'+platform);
 
+  function stabilizeNativeViewport(){
+    if(!isNative)return;
+    if(!document||typeof document.querySelector!=='function'||typeof document.createElement!=='function'||!document.head)return;
+    var viewport=document.querySelector('meta[name="viewport"]');
+    if(!viewport){viewport=document.createElement('meta');viewport.name='viewport';document.head.appendChild(viewport)}
+    viewport.setAttribute('content','width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover');
+    var style=document.getElementById('wgpNativeViewportStyle');
+    if(!style){style=document.createElement('style');style.id='wgpNativeViewportStyle';document.head.appendChild(style)}
+    style.textContent='html.native-app,html.native-app body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}html.native-app body{touch-action:pan-x pan-y}html.native-app button,html.native-app a,html.native-app [role="button"],html.native-app input,html.native-app select,html.native-app textarea{touch-action:manipulation}html.native-app input,html.native-app select,html.native-app textarea{font-size:16px!important}';
+  }
+  stabilizeNativeViewport();
+
   function bytesToBase64(bytes){
     var binary='',step=32768;
     for(var offset=0;offset<bytes.length;offset+=step)binary+=String.fromCharCode.apply(null,bytes.subarray(offset,Math.min(offset+step,bytes.length)));
@@ -173,7 +185,7 @@
       if(platform==='android'&&App.minimizeApp)App.minimizeApp();
     });
     App.addListener('appStateChange',function(event){
-      if(event&&event.isActive)window.dispatchEvent(new CustomEvent('wgp-native-resume'));
+      if(event&&event.isActive){stabilizeNativeViewport();window.dispatchEvent(new CustomEvent('wgp-native-resume'))}
     });
   }
   async function handleNativeReturn(value,fromLaunch){
@@ -257,6 +269,7 @@
   installExternalLinks();
   installHaptics();
   document.addEventListener('DOMContentLoaded',function(){
+    stabilizeNativeViewport();
     installAppOverrides();
     document.body.classList.add('native-ready');
   });

@@ -1,4 +1,4 @@
-// v16.9 stabilization: system audit, body stats, single-job workout availability.
+// v16.9 stabilization: system audit, body stats, workday workout options.
 APP_VERSION='16.9.0';
 
 if(typeof EXERCISE_ALTERNATIVES==='object'&&typeof MUSCLE_MAP==='object'){
@@ -35,7 +35,7 @@ const _todayTrainingInfo169=todayTrainingInfo;
 todayTrainingInfo=function(k){
   let base=_todayTrainingInfo169(k);
   if(!completedOn(k)&&!isScheduled(k)&&singleJobWorkoutAvailable(k)){
-    let wi=singleJobWorkoutIndex(k);return{title:WORKOUTS[wi].name,sub:'Single-job day · workout available',date:k,wi,optional:true};
+    let wi=singleJobWorkoutIndex(k);return{title:WORKOUTS[wi].name,sub:'Fits around today’s shift · optional',date:k,wi,optional:true};
   }
   return base;
 };
@@ -47,9 +47,9 @@ renderCalendar=function(){
     if(singleJobWorkoutAvailable(k)&&!isScheduled(k)){
       el.classList.add('singleJobWorkout');
       let dots=el.querySelector('.dayDots');
-      if(dots&&!dots.querySelector('.singleJobDot')) dots.insertAdjacentHTML('beforeend','<i class="dot blue singleJobDot" title="Workout available"></i>');
+      if(dots&&!dots.querySelector('.singleJobDot')) dots.insertAdjacentHTML('beforeend','<i class="dot blue singleJobDot" title="Optional workout"></i>');
       let old=el.getAttribute('aria-label')||'';
-      if(!old.includes('Workout available')) el.setAttribute('aria-label',old+` Workout available: ${singleJobWorkoutName(k)}.`);
+      if(!old.includes('Optional workout')) el.setAttribute('aria-label',old+` Optional workout: ${singleJobWorkoutName(k)}.`);
     }
   });
 };
@@ -60,13 +60,13 @@ renderDayCard=function(){
     let card=$('#dayCard'),name=singleJobWorkoutName(k);
     if(card&&!card.querySelector('.singleJobOffer')){
       let box=document.createElement('div');box.className='singleJobOffer';
-      box.innerHTML=`<b>Workout available: ${esc(name)}</b><span>You are working one job, so this day is available for lifting. It stays optional until you start or schedule it.</span>`;
+      box.innerHTML=`<b>Optional workout: ${esc(name)}</b><span>This session can fit around today’s work schedule. Start it if it works for you, or leave the day open.</span>`;
       let action=card.querySelector('[data-traintoday]');if(action)card.insertBefore(box,action);else card.appendChild(box);
     }
   }
 };
 const _renderTraining169=renderTraining;
-renderTraining=function(){_renderTraining169();if(singleJobWorkoutAvailable(trainingDate)&&!isScheduled(trainingDate)){let s=$('#trainingRoot .trainNav small');if(s)s.textContent='AVAILABLE · SINGLE-JOB DAY'}};
+renderTraining=function(){_renderTraining169();if(singleJobWorkoutAvailable(trainingDate)&&!isScheduled(trainingDate)){let s=$('#trainingRoot .trainNav small');if(s)s.textContent='OPTIONAL · WORKDAY SESSION'}};
 
 function ensureBodyStatsUI(){
   let nameLabel=$('#profileName')?.closest('label');
@@ -143,7 +143,7 @@ function runSystemAudit(){
 }
 function installStabilization169(){
   ensureBodyStatsUI();$('#saveCheckin').onclick=saveBodyCheckin169;$('#checkDate').onchange=()=>populateBodyCheckin();populateBodyCheckin();bindHomeActions169();
-  let about=$('#aboutDialog .card');if(about)about.innerHTML=`<p><b>Version:</b> ${APP_VERSION}</p><p>Interactive Home, equipment-aware exercise alternatives, single-job workout availability, BMI/body-composition tracking, adaptive training/nutrition coaching and encrypted backups.</p><p><b>System audit:</b> <span id="aboutAudit">checking…</span></p><p>Camera scanning, OCR, notifications and private-cloud sync remain browser/service dependent.</p>`;
+  let about=$('#aboutDialog .card');if(about)about.innerHTML=`<p><b>Version:</b> ${APP_VERSION}</p><p>Interactive Home, equipment-aware exercise alternatives, workday-aware workout options, BMI/body-composition tracking, adaptive training/nutrition coaching and encrypted backups.</p><p><b>System audit:</b> <span id="aboutAudit">checking…</span></p><p>Camera scanning, OCR, notifications and private-cloud sync remain browser/service dependent.</p>`;
   let r=runSystemAudit(),a=$('#aboutAudit');if(a)a.textContent=r.ok?`Passed ${r.checks} core checks`:`${r.issues.length} issue(s) detected`;renderAll();
 }
 document.addEventListener('DOMContentLoaded',()=>setTimeout(installStabilization169,0));

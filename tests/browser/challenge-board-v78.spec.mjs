@@ -4,7 +4,7 @@ const {test,expect}=require('@playwright/test');
 
 const id='00000000-0000-4000-8000-000000000078';
 function member(displayName,rank,isYou,totalValue=7){return{displayName,rank,isYou,totalValue,todayValue:totalValue,daysCompleted:0,daysExpected:1,progressPercent:70}}
-function board(members=[member('Maya',1,true)]){return{id,title:'Hydration team',metric:'custom',unitLabel:'glasses',targetValue:10,cadence:'total',startsOn:'2026-09-04',endsOn:'2026-09-17',inviteCode:'ABCD2345',isOwner:true,status:'active',members}}
+function board(members=[member('Maya',1,true)],overrides={}){return{id,title:'Hydration team',metric:'custom',unitLabel:'glasses',targetValue:10,cadence:'total',startsOn:'2026-09-04',endsOn:'2026-09-17',inviteCode:'ABCD2345',isOwner:true,status:'active',members,...overrides}}
 
 async function start(page,url='/work-gym-planner/'){
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -74,5 +74,47 @@ test('private invite link opens the join flow and removes the code after joining
  expect(joinedBody).toMatchObject({action:'join',inviteCode:'ABCD-2345',displayName:'Maya',sharingConfirmed:true});
  expect(new URL(page.url()).searchParams.has('challenge')).toBe(false);
  await page.screenshot({path:'/private/tmp/ww-challenge-v78-desktop.png'});
+ expect(errors).toEqual([]);
+});
+
+test('website step challenges accept today’s phone total without claiming an automatic sync',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ let scoreBody=null,currentBoards=[board([member('Maya',1,true,0)],{title:'12,000 steps',metric:'steps',unitLabel:'steps',targetValue:12000,cadence:'daily'})];
+ await page.route('**/api/v18/challenges**',route=>{
+  if(route.request().method()==='GET')return route.fulfill({json:{ok:true,boards:currentBoards}});
+  scoreBody=route.request().postDataJSON();currentBoards=[board([member('Maya',1,true,6500)],{title:'12,000 steps',metric:'steps',unitLabel:'steps',targetValue:12000,cadence:'daily'})];
+  return route.fulfill({json:{ok:true,boards:currentBoards}});
+ });
+ const errors=await start(page);
+ await page.evaluate(()=>window.WWChallenges.open());
+ await page.getByRole('button',{name:/12,000 steps/}).click();
+ await expect(page.getByLabel('Enter today’s steps')).toBeVisible();
+ await expect(page.locator('[data-challenge-sync]')).toHaveCount(0);
+ await page.getByLabel('Enter today’s steps').fill('6500');
+ await page.getByRole('button',{name:'Update steps'}).click();
+ await expect(page.locator('.challengeYourProgressV78 strong')).toContainText('6,500 / 12,000 steps today');
+ expect(scoreBody).toMatchObject({action:'score',metric:'steps',value:6500,source:'steps',date:'2026-09-04'});
+ expect(errors).toEqual([]);
+});
+
+test('iPhone step challenges connect Apple Health before sending today’s total',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ let scoreBody=null,currentBoards=[board([member('Maya',1,true,0)],{title:'12,000 steps',metric:'steps',unitLabel:'steps',targetValue:12000,cadence:'daily'})];
+ await page.addInitScript(()=>{
+  window.__challengeHealthConnected=false;
+  window.WGPNative={steps:{available:true,provider:'Apple Health',enabled:()=>window.__challengeHealthConnected,connect:async()=>{window.__challengeHealthConnected=true;return{steps:4321,platform:'ios',syncedAt:'2026-09-04T15:00:00Z'}},read:async()=>({steps:4321,platform:'ios',syncedAt:'2026-09-04T15:00:00Z'})}};
+ });
+ await page.route('**/api/v18/challenges**',route=>{
+  if(route.request().method()==='GET')return route.fulfill({json:{ok:true,boards:currentBoards}});
+  scoreBody=route.request().postDataJSON();currentBoards=[board([member('Maya',1,true,4321)],{title:'12,000 steps',metric:'steps',unitLabel:'steps',targetValue:12000,cadence:'daily'})];
+  return route.fulfill({json:{ok:true,boards:currentBoards}});
+ });
+ const errors=await start(page);
+ await page.evaluate(()=>window.WWChallenges.open());
+ await page.getByRole('button',{name:/12,000 steps/}).click();
+ await expect(page.getByText('Enter steps manually')).toBeVisible();
+ await page.getByRole('button',{name:'Connect Apple Health & sync'}).click();
+ await expect(page.locator('.challengeYourProgressV78 strong')).toContainText('4,321 / 12,000 steps today');
+ expect(scoreBody).toMatchObject({action:'score',metric:'steps',value:4321,source:'steps',date:'2026-09-04'});
  expect(errors).toEqual([]);
 });

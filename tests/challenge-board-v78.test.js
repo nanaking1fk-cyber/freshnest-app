@@ -106,6 +106,9 @@ test('client supports four challenge types, automatic daily totals, manual score
  assert.match(client,/Join &amp; share my score/);assert.match(client,/navigator\.share/);assert.match(client,/navigator\.clipboard/);
  assert.match(client,/setInterval\([\s\S]*30000/);assert.match(client,/document\.visibilityState/);
  assert.match(client,/data-challenge-leave/);assert.match(client,/data-challenge-archive/);
+ assert.match(client,/Connect .*? &amp; sync/);assert.match(client,/Enter today’s steps/);assert.match(client,/Enter steps manually/);assert.match(client,/source:board\.metric==='steps'\?'steps'/);
+ assert.match(client,/Today’s challenge score is already current/);assert.match(client,/force:true/);
+ assert.match(client,/today · .* days completed/);
  assert.match(client,/URLSearchParams\(location\.search\)\.get\('challenge'\)/);assert.match(client,/searchParams\.delete\('challenge'\)/);
  assert.doesNotMatch(client,/localStorage\.(?:setItem|removeItem)/);
  for(const phrase of ['email address, account ID, meals','health records','aggregate challenge number'])assert.ok(read('work-gym-planner/privacy.html').includes(phrase));

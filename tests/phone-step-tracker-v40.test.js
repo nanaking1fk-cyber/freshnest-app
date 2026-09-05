@@ -20,6 +20,7 @@ test('Home and Health expose automatic steps with a browser-safe fallback',()=>{
   assert.match(health,/manual entry and file import/i);
   assert.match(health,/wgp-native-resume/);
   assert.match(health,/setupNativeStepTracking/);
+  assert.match(health,/toast\(`Connected · \$\{steps\.toLocaleString\(\)\} steps today`\);return steps/);
 });
 
 test('native bridge requests only read access to daily aggregated steps',()=>{

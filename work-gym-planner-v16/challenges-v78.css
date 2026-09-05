@@ -89,6 +89,10 @@ body.premiumV30 #challengeDialogV78 .challengeYourProgressV78>i{grid-column:1/-1
 body.premiumV30 #challengeDialogV78 .challengeScoreV78{display:grid;grid-template-columns:1fr auto;align-items:end;gap:10px;margin:12px 0;padding:14px;border:1px solid rgba(100,217,220,.15);border-radius:18px;background:rgba(100,217,220,.035)}
 body.premiumV30 #challengeDialogV78 .challengeScoreV78 button{min-height:50px;border-radius:14px}
 body.premiumV30 #challengeDialogV78 .challengeSyncV78{width:100%;min-height:49px;margin:0 0 12px;border-radius:15px}
+body.premiumV30 #challengeDialogV78 .challengeStepToolsV82{margin:12px 0}
+body.premiumV30 #challengeDialogV78 .challengeStepToolsV82 .challengeSyncV78{margin:0}
+body.premiumV30 #challengeDialogV78 .challengeStepToolsV82>details>summary{padding:12px 2px;color:#aeb8b3;cursor:pointer;font-size:12px;font-weight:700;text-align:center}
+body.premiumV30 #challengeDialogV78 .challengeStepToolsV82 .challengeScoreV78{margin-top:0}
 body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78{margin-top:20px}
 body.premiumV30 #challengeDialogV78 .challengeLeaderboardV78 ol{margin:0;padding:0;list-style:none}
 body.premiumV30 #challengeDialogV78 .challengePersonV78{display:grid;grid-template-columns:24px 42px 1fr auto;align-items:center;gap:11px;padding:13px 6px;border-bottom:1px solid rgba(255,255,255,.07)}

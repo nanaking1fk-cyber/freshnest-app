@@ -26,8 +26,9 @@ test('production loaders and service workers refresh the sign-in fix',()=>{
  for(const file of ['work-gym-planner/boot.js','work-gym-planner/index.html']){
   const source=read(file);
   assert.match(source,/accountRevision='30\.1\.31-account80'/);
+  assert.match(source,/stepRevision='30\.1\.31-steps82'/);
   assert.match(source,/account-v80\.css\?v=30\.1\.31-account80/);
-  assert.match(source,/\['accounts-v18\.js','account-security-v18\.js'\]\.includes\(x\)\?accountRevision:assetRevision/);
+  assert.match(source,/\['accounts-v18\.js','account-security-v18\.js'\]\.includes\(x\)\?accountRevision:\['health\.js','challenges-v78\.js'\]\.includes\(x\)\?stepRevision:assetRevision/);
  }
  for(const file of ['work-gym-planner/sw.js','work-gym-planner-v16/sw.js']){
   const source=read(file);assert.match(source,/account80/);assert.match(source,/profile77/);

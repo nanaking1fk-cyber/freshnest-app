@@ -1,4 +1,4 @@
-const CACHE='wgp-stable-v30.1.31-account80-challenges81-30.1.31-profile77';
+const CACHE='wgp-stable-v30.1.31-account80-steps82-challenges82-30.1.31-profile77';
 const SHELL=[
  './','./shell.html','./index.html','./boot.css','./boot.js','./manifest.webmanifest',
  '../shared/observability.js','../shared/usage-counts-v45.js','../shared/v23-core.js','../shared/v25-scheduling.js','../shared/v31-roster.js',

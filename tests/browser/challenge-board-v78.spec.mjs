@@ -10,12 +10,17 @@ async function start(page,url='/work-gym-planner/'){
  const errors=[];page.on('pageerror',error=>errors.push(error.message));
  await page.clock.setFixedTime(new Date('2026-09-04T15:00:00Z'));
  await page.addInitScript(()=>{
-  localStorage.setItem('wgc-v18-session',JSON.stringify({access_token:'challenge-test',expires_at:4102444800,user:{id:'challenge-test',email:'maya@example.test',user_metadata:{display_name:'Maya'}}}));
-  localStorage.setItem('wgc-v18-local-owner','challenge-test');
-  localStorage.setItem('wgp-v15-profile',JSON.stringify({id:'challenge-test',name:'Maya',fixed:{enabled:false},variable:{enabled:false}}));
+ localStorage.setItem('wgc-v18-session',JSON.stringify({access_token:'challenge-test',expires_at:4102444800,user:{id:'challenge-test',email:'maya@example.test',user_metadata:{display_name:'Maya'}}}));
+ localStorage.setItem('wgc-v18-local-owner','challenge-test');
+ localStorage.setItem('wgp-v15-profile',JSON.stringify({id:'challenge-test',name:'Maya',fixed:{enabled:false},variable:{enabled:false}}));
+  localStorage.setItem('wgc-health-consent-v35:challenge-test',JSON.stringify({action:'withdrawn',consentVersion:'2026-08-31-v1',policyVersion:'1.7',purposes:[],agreement:{termsVersion:'1.2',privacyVersion:'1.7',acceptedAt:'2026-09-04T15:00:00Z',statement:'I agree to the Terms of Use and acknowledge the Privacy & Consumer Health Data Policy.'}}));
   navigator.share=async()=>{};
  });
- await page.route('**/api/config',route=>route.fulfill({json:{cloudConfigured:false,aiConfigured:false,apiVersion:18}}));
+ await page.route('**/api/v18/config',route=>route.fulfill({json:{cloudConfigured:true,aiConfigured:false,apiVersion:18}}));
+ await page.route('**/api/v18/health-consent**',route=>route.fulfill({json:{ok:true,receipt:{
+  action:'withdrawn',consentVersion:'2026-08-31-v1',policyVersion:'1.7',purposes:[],
+  agreement:{termsVersion:'1.2',privacyVersion:'1.7',acceptedAt:'2026-09-04T15:00:00Z',statement:'I agree to the Terms of Use and acknowledge the Privacy & Consumer Health Data Policy.'}
+ }}}));
  await page.route('**/_vercel/**',route=>route.fulfill({body:''}));
  await page.goto(url,{waitUntil:'domcontentloaded'});
  return errors;
